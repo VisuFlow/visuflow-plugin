@@ -1,10 +1,10 @@
 |Needed features:                                                               | GEF4 ZEst      | GraphStream|
 | ------------------------------------------------------------------------------ |:-------------:| -----:|
-|Node labels                                                                          |  y               | y
-|Edge labels                                                                          |                 |
-|custom coloring                                                                      |                 |
-|Collapsing of nodes (like in Zest)                                                   |                 |
-|Directed graph                                                                       |                 |
+|Node labels                                                                          | y               | y
+|Edge labels                                                                          | y                | y
+|custom coloring                                                                      | y                | y
+|Collapsing of nodes (like in Zest)                                                   | y                |
+|Directed graph                                                                       | y                | y
 |Navigation: panning, zooming, overview, fisheye                                      |                 |
 |highlighting of nodes / edges with link to code (line should be highlighted)         |                 |
 |Jump to node / integration with search / filtering with highlighting                 |                 |
