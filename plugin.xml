@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            name="Sample Multi-page Editor"
+            extensions="mpe"
+            icon="icons/sample.gif"
+            contributorClass="graphstreamfeasibility.editors.MultiPageEditorContributor"
+            class="graphstreamfeasibility.editors.MultiPageEditor"
+            id="graphstreamfeasibility.editors.MultiPageEditor">
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            name="Sample Wizards"
+            id="GraphStreamFeasibility">
+      </category>
+      <wizard
+            name="Multi-page Editor file"
+            icon="icons/sample.gif"
+            category="GraphStreamFeasibility"
+            class="graphstreamfeasibility.wizards.SampleNewWizard"
+            id="graphstreamfeasibility.wizards.SampleNewWizard">
+      </wizard>
+   </extension>
+
+</plugin>
