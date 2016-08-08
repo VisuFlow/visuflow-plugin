@@ -1,4 +1,4 @@
- |Needed features:                                                               | GEF4 ZEst      | GraphStream|
+|Needed features:                                                               | GEF4 ZEst      | GraphStream|
 | ------------------------------------------------------------------------------ |:-------------:| -----:|
 |Node labels                                                                          |  y               | y
 |Edge labels                                                                          |                 |
