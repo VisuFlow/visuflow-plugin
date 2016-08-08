@@ -1,5 +1,6 @@
 # Graphstream Feasibility
 The following features would be considered for the proof of concept to be developed.
+
 |Needed features:                                                               | GEF4 Zest      | GraphStream|
 | ------------------------------------------------------------------------------|:-------------: | -----:|
 |Node labels                                                                          | y               | y
