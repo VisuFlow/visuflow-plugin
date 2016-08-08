@@ -142,10 +142,10 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 		Composite composite = new Composite(getContainer(), SWT.EMBEDDED | SWT.NO_BACKGROUND);
 		java.awt.Frame frame = SWT_AWT.new_Frame(composite);
 
-		Viewer viewer = new Viewer(graph, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
-		//viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.HIDE_ONLY);
+		Viewer viewer = new Viewer(graph, Viewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
 		View view = viewer.addDefaultView(false);
 
+		viewer.enableAutoLayout();
 		frame.add((Component) view);
 
 		int index = addPage(composite);
