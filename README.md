@@ -1,5 +1,5 @@
 |Needed features:                                                               | GEF4 ZEst      | GraphStream|
-| ------------------------------------------------------------------------------ |:-------------:| -----:|
+| ------------------------------------------------------------------------------|:-------------: | -----:|
 |Node labels                                                                          | y               | y
 |Edge labels                                                                          | y                | y
 |custom coloring                                                                      | y                | y
@@ -15,3 +15,4 @@
 |draw huge graphs                                                                     |                 |
 |draw graph partially                                                                 |                 |
 |possibility to disable unneeded features                                             |                 |
+|existing layouts                                                                     | y                |
