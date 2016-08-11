@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.StringTokenizer;
 
-import javax.swing.JButton;
-
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
@@ -35,7 +33,6 @@ import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.MultiPageEditorPart;
 import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.MultiGraph;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.graphstream.ui.view.View;
 import org.graphstream.ui.view.Viewer;
@@ -60,6 +57,7 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 
 	/** The text widget used in page 2. */
 	private StyledText text;
+
 	/**
 	 * Creates a multi-page editor example.
 	 */
@@ -103,96 +101,26 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 
 		fontButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent event) {
-				setFont();
+//				setFont();
+//				View view = createZoomTestGraph();
+//				demonstrateZoom(view);
+//				ZoomDemo zoomTest = new ZoomDemo(view);
+//				Thread zoomer = new Thread(zoomTest);
+//				zoomer.start();
 			}
 		});
 
 		int index = addPage(composite);
 		setPageText(index, "Properties");
 	}
-	/**
-	 * Creates page 2 of the multi-page editor,
-	 * which shows the sorted text.
-	 */
-	void createPage2() {
-		Composite composite = new Composite(getContainer(), SWT.NONE);
-		FillLayout layout = new FillLayout();
-		composite.setLayout(layout);
-		text = new StyledText(composite, SWT.H_SCROLL | SWT.V_SCROLL);
-		text.setEditable(false);
-
-		int index = addPage(composite);
-		setPageText(index, "Preview");
-	}
-
-	void createPage3() {
-		Graph graph = new MultiGraph("embedded");
-
-		graph.setStrict(false);
-		graph.setAutoCreate( true );
-
-		for (int i = 0; i < 50; i++) {
-			String source = i + "";
-			int temp = i + 1;
-			String destination = temp + "";
-			graph.addEdge(source+destination, source, destination);
-		}
-		graph.addAttribute("ui.stylesheet", "graph {fill-color: white;}node {size: 10px, 15px;shape: box;fill-color: green;stroke-mode: plain;stroke-color: yellow;}node#1 {fill-color: blue;}node:clicked {fill-color: red;}");
-
-		Composite composite = new Composite(getContainer(), SWT.EMBEDDED | SWT.NO_BACKGROUND);
-		java.awt.Frame frame = SWT_AWT.new_Frame(composite);
-
-		Viewer viewer = new Viewer(graph, Viewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
-		View view = viewer.addDefaultView(false);
-
-		viewer.enableAutoLayout();
-		frame.add((Component) view);
-
-		int index = addPage(composite);
-		setPageText(index, "graphtest");
-	}
-
-	void createPage4() {
-
-		Graph graph = new SingleGraph("Tutorial 1");
-
-		graph.setStrict(false);
-		graph.setAutoCreate( true );
-
-		for (int i = 0; i < 50; i++) {
-			String source = i + "";
-			int temp = i + 1;
-			String destination = temp + "";
-			graph.addEdge(source+destination, source, destination);
-		}
-		graph.addAttribute("ui.quality");
-		graph.addAttribute("ui.antialias");
-		graph.addAttribute("ui.stylesheet", "graph {fill-color: white;}node {size: 10px, 15px;shape: box;fill-color: green;stroke-mode: plain;stroke-color: yellow;}node#1 {fill-color: blue;}node:clicked {fill-color: red;}");
-
-		Composite composite = new Composite(getContainer(), SWT.EMBEDDED | SWT.NO_BACKGROUND);
-		GridLayout layout = new GridLayout();
-		composite.setLayout(layout);
-		layout.numColumns = 2;
-		
-		java.awt.Frame frame = SWT_AWT.new_Frame(composite);
-		
-		Viewer viewer = graph.display();
-		viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.HIDE_ONLY);
-		//View view = viewer.getDefaultView();
-		View view = viewer.addDefaultView(false);
-		
-		frame.add((Component) view);
-		
+	
+	protected void demonstrateZoom(View view) {
+		// TODO Auto-generated method stub
 		double max = 5.0;
 		double min = 0.0;
 		double step = .20;
 		long sleep = 100;
 		
-		/*Composite composite = new Composite(getContainer(), SWT.EMBEDDED | SWT.NO_BACKGROUND);
-		GridLayout layout = new GridLayout();
-		composite.setLayout(layout);
-		layout.numColumns = 2;*/
-
 		for(double i=min;i<max;i+=step)
 		{
 			view.getCamera().setViewPercent(i);
@@ -214,19 +142,83 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 				e.printStackTrace();
 			}
 		}
+	}
+	/**
+	 * Creates page 2 of the multi-page editor,
+	 * which shows the sorted text.
+	 */
+	void createPage2() {
+		Composite composite = new Composite(getContainer(), SWT.NONE);
+		FillLayout layout = new FillLayout();
+		composite.setLayout(layout);
+		text = new StyledText(composite, SWT.H_SCROLL | SWT.V_SCROLL);
+		text.setEditable(false);
 
 		int index = addPage(composite);
-		setPageText(index, "graphtest");
+		setPageText(index, "Preview");
+	}
+
+	void createSampleGraph() {
+
+		Composite composite = new Composite(getContainer(), SWT.EMBEDDED | SWT.NO_BACKGROUND);
+		java.awt.Frame frame = SWT_AWT.new_Frame(composite);
+
+		Viewer viewer = new Viewer(generateTestGraph(), Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
+		View view = viewer.addDefaultView(false);
+
+		viewer.enableAutoLayout();
+		frame.add((Component) view);
+
+		int index = addPage(composite);
+		setPageText(index, "Sample Graph");
+	}
+
+	View createZoomTestGraph() {
+
+		Composite composite = new Composite(getContainer(), SWT.EMBEDDED | SWT.NO_BACKGROUND);
+		java.awt.Frame frame = SWT_AWT.new_Frame(composite);
+
+		Viewer viewer = new Viewer(generateTestGraph(), Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
+		View view = viewer.addDefaultView(false);
+
+		viewer.enableAutoLayout();
+		frame.add((Component) view);
+
+		int index = addPage(composite);
+		setPageText(index, "Zoomable Graph");
+		setActivePage(index);
+		
+		ZoomDemo zoomTest = new ZoomDemo(view);
+		Thread zoomer = new Thread(zoomTest);
+		zoomer.start();
+		
+		return view;
+		
+	}
+	
+	public Graph generateTestGraph()
+	{
+		Graph graph = new SingleGraph("Tutorial 1");
+
+		graph.setStrict(false);
+		graph.setAutoCreate( true );
+
+		for (int i = 0; i < 50; i++) {
+			String source = i + "";
+			int temp = i + 1;
+			String destination = temp + "";
+			graph.addEdge(source+destination, source, destination);
+		}
+		graph.addAttribute("ui.quality");
+		graph.addAttribute("ui.antialias");
+		graph.addAttribute("ui.stylesheet", "graph {fill-color: white;}node {size: 10px, 15px;shape: box;fill-color: green;stroke-mode: plain;stroke-color: yellow;}node#1 {fill-color: blue;}node:clicked {fill-color: red;}");
+		return graph;
 	}
 	/**
 	 * Creates the pages of the multi-page editor.
 	 */
 	protected void createPages() {
-		/*createPage0();
-		createPage1();
-		createPage2();*/
-		createPage3();
-		//createPage4();
+createZoomTestGraph();
 	}
 	/**
 	 * The <code>MultiPageEditorPart</code> implementation of this 
@@ -328,7 +320,7 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 
 		StringTokenizer tokenizer =
 				new StringTokenizer(editorText, " \t\n\r\f!@#\u0024%^&*()-_=+`~[]{};:'\",.<>/?|\\");
-		ArrayList editorWords = new ArrayList();
+		ArrayList<String> editorWords = new ArrayList<String>();
 		while (tokenizer.hasMoreTokens()) {
 			editorWords.add(tokenizer.nextToken());
 		}
