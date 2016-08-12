@@ -33,7 +33,7 @@ import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.MultiPageEditorPart;
 import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.SingleGraph;
+import org.graphstream.graph.implementations.MultiGraph;
 import org.graphstream.ui.view.View;
 import org.graphstream.ui.view.Viewer;
 import org.eclipse.ui.ide.IDE;
@@ -101,26 +101,26 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 
 		fontButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent event) {
-//				setFont();
-//				View view = createZoomTestGraph();
-//				demonstrateZoom(view);
-//				ZoomDemo zoomTest = new ZoomDemo(view);
-//				Thread zoomer = new Thread(zoomTest);
-//				zoomer.start();
+				//				setFont();
+				//				View view = createZoomTestGraph();
+				//				demonstrateZoom(view);
+				//				ZoomDemo zoomTest = new ZoomDemo(view);
+				//				Thread zoomer = new Thread(zoomTest);
+				//				zoomer.start();
 			}
 		});
 
 		int index = addPage(composite);
 		setPageText(index, "Properties");
 	}
-	
+
 	protected void demonstrateZoom(View view) {
 		// TODO Auto-generated method stub
 		double max = 5.0;
 		double min = 0.0;
 		double step = .20;
 		long sleep = 100;
-		
+
 		for(double i=min;i<max;i+=step)
 		{
 			view.getCamera().setViewPercent(i);
@@ -187,19 +187,19 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 		int index = addPage(composite);
 		setPageText(index, "Zoomable Graph");
 		setActivePage(index);
-		
+
 		ZoomDemo zoomTest = new ZoomDemo(view);
 		Thread zoomer = new Thread(zoomTest);
 		zoomer.start();
-		
+
 		return view;
-		
+
 	}
-	
+
 	public Graph generateTestGraph()
 	{
 		System.setProperty("gs.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
-		Graph graph = new SingleGraph("Tutorial 1");
+		Graph graph = new MultiGraph("Tutorial 1");
 
 		graph.addAttribute("ui.stylesheet", "url('file:C:/Users/Shashank B S/visuflow/GraphStreamFeasibility/styles/stylesheet.css')");
 		graph.setStrict(false);
@@ -210,17 +210,20 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 			int temp = i + 1;
 			String destination = temp + "";
 			graph.addEdge(source+destination, source, destination);
+			graph.addEdge(i+"", source, destination, true);
 		}
 		graph.addAttribute("ui.quality");
 		graph.addAttribute("ui.antialias");
-		graph.addAttribute("ui.stylesheet", "graph {fill-color: white;}node {size: 10px, 15px;shape: box;fill-color: green;stroke-mode: plain;stroke-color: yellow;}node#1 {fill-color: blue;}node:clicked {fill-color: red;}");
+		//graph.addAttribute("ui.stylesheet", "graph {fill-color: white;}node {size: 10px, 15px;shape: box;fill-color: green;stroke-mode: plain;stroke-color: yellow;}node#1 {fill-color: blue;}node:clicked {fill-color: red;}");
 		return graph;
 	}
 	/**
 	 * Creates the pages of the multi-page editor.
 	 */
 	protected void createPages() {
-createZoomTestGraph();
+//		createZoomTestGraph();
+//		createLabelTestGraph();
+		createSampleGraph();
 	}
 	/**
 	 * The <code>MultiPageEditorPart</code> implementation of this 

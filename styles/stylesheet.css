@@ -1,9 +1,14 @@
 node {
-	size: 50px;
 	shape: box;
+	size: 25px, 15px;
 	fill-color: green;
 	stroke-mode: plain;
 	stroke-color: yellow;
+}
+
+edge {
+	shape: arrow-shape;
+	arrow-size: 15px;
 }
 
 node:clicked {
