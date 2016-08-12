@@ -1,0 +1,11 @@
+node {
+	size: 50px;
+	shape: box;
+	fill-color: green;
+	stroke-mode: plain;
+	stroke-color: yellow;
+}
+
+node:clicked {
+	fill-color: red;
+}

@@ -198,8 +198,10 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 	
 	public Graph generateTestGraph()
 	{
+		System.setProperty("gs.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
 		Graph graph = new SingleGraph("Tutorial 1");
 
+		graph.addAttribute("ui.stylesheet", "url('file:C:/Users/Shashank B S/visuflow/GraphStreamFeasibility/styles/stylesheet.css')");
 		graph.setStrict(false);
 		graph.setAutoCreate( true );
 
