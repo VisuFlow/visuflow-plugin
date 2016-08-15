@@ -1,12 +1,23 @@
 package graphstreamfeasibility.editors;
 
 
+import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.LayoutManager;
 import java.io.StringWriter;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.StringTokenizer;
+
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResourceChangeEvent;
@@ -17,14 +28,9 @@ import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FontDialog;
@@ -87,9 +93,31 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 	 * which allows you to change the font used in page 2.
 	 */
 	void createPage1() {
+		Composite composite = new Composite(getContainer(), SWT.EMBEDDED | SWT.NO_BACKGROUND);
+		Frame frame = SWT_AWT.new_Frame(composite);
+		
+//		Composite composite = new Composite(getContainer(), SWT.NONE);
+		
+		Viewer viewer = new Viewer(generateTestGraph(), Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
+		View view = viewer.addDefaultView(false);
 
-		Composite composite = new Composite(getContainer(), SWT.NONE);
-		GridLayout layout = new GridLayout();
+		viewer.enableAutoLayout();
+		
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
+		
+		JButton zoomInButton = new JButton();
+		JButton zoomOutButton = new JButton();
+		zoomInButton.setText("ZoomIn");
+		zoomOutButton.setText("ZoomOut");
+		
+		panel.add(zoomInButton, BorderLayout.PAGE_START);
+		panel.add(zoomOutButton, BorderLayout.PAGE_END);
+		panel.add((Component) view);
+		
+		frame.add(panel);
+		
+		/*GridLayout layout = new GridLayout();
 		composite.setLayout(layout);
 		layout.numColumns = 2;
 
@@ -99,16 +127,23 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 		fontButton.setLayoutData(gd);
 		fontButton.setText("Change Font...");
 
+		Viewer viewer = new Viewer(generateTestGraph(), Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
+		View view = viewer.addDefaultView(false);
+
+		viewer.enableAutoLayout();
+		frame.add((Component) view);
+
+		Button test = new Button(composite, SWT.NONE);
+		GridData gdtest = new GridData(GridData.END);
+		gd.horizontalSpan = 1;
+		test.setLayoutData(gdtest);
+		test.setText("Test");
+
 		fontButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent event) {
-				//				setFont();
-				//				View view = createZoomTestGraph();
-				//				demonstrateZoom(view);
-				//				ZoomDemo zoomTest = new ZoomDemo(view);
-				//				Thread zoomer = new Thread(zoomTest);
-				//				zoomer.start();
+				setFont();
 			}
-		});
+		});*/
 
 		int index = addPage(composite);
 		setPageText(index, "Properties");
@@ -160,10 +195,17 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 
 	void createSampleGraph() {
 
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+				| UnsupportedLookAndFeelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		Composite composite = new Composite(getContainer(), SWT.EMBEDDED | SWT.NO_BACKGROUND);
 		java.awt.Frame frame = SWT_AWT.new_Frame(composite);
 
-		Viewer viewer = new Viewer(generateTestGraph(), Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
+		Viewer viewer = new Viewer(generateTestGraph(), Viewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
 		View view = viewer.addDefaultView(false);
 
 		viewer.enableAutoLayout();
@@ -198,6 +240,7 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 
 	public Graph generateTestGraph()
 	{
+		System.setProperty("sun.awt.noerasebackground", "true");
 		System.setProperty("gs.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
 		Graph graph = new MultiGraph("Tutorial 1");
 
@@ -221,9 +264,35 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 	 * Creates the pages of the multi-page editor.
 	 */
 	protected void createPages() {
-//		createZoomTestGraph();
-//		createLabelTestGraph();
-		createSampleGraph();
+		//		createZoomTestGraph();
+//		createSampleGraph();
+//				createCollapseTestGraph();
+		//		createZoomTestGraph();
+				createPage1();
+	}
+	private void createCollapseTestGraph() {
+		CollapseSubTree collapsableGraph = new CollapseSubTree();
+		// TODO Auto-generated method stub
+		Composite composite = new Composite(getContainer(), SWT.EMBEDDED | SWT.NO_BACKGROUND);
+		java.awt.Frame frame = SWT_AWT.new_Frame(composite);
+
+		Viewer viewer = new Viewer(collapsableGraph.getG(), Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
+		View view = viewer.addDefaultView(false);
+		
+		viewer.disableAutoLayout();
+
+		collapsableGraph.setViewer(viewer);
+		collapsableGraph.setView(view);
+
+		viewer.enableAutoLayout();
+		frame.add((Component) collapsableGraph.getView());
+
+		int index = addPage(composite);
+		setPageText(index, "Collapsable Graph Test");
+		setActivePage(index);
+
+		Thread t = new Thread(collapsableGraph);
+		t.start();
 	}
 	/**
 	 * The <code>MultiPageEditorPart</code> implementation of this 
