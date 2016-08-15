@@ -244,7 +244,7 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 		System.setProperty("gs.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
 		Graph graph = new MultiGraph("Tutorial 1");
 
-		graph.addAttribute("ui.stylesheet", "url('file:C:/Users/Shashank B S/visuflow/GraphStreamFeasibility/styles/stylesheet.css')");
+		graph.addAttribute("ui.stylesheet", "url('file:../../styles/stylesheet.css')");
 		graph.setStrict(false);
 		graph.setAutoCreate( true );
 
