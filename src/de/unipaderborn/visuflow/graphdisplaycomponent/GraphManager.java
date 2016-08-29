@@ -3,7 +3,6 @@ package de.unipaderborn.visuflow.graphdisplaycomponent;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -24,6 +23,7 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
 import org.graphstream.stream.SinkAdapter;
+import org.graphstream.ui.layout.Layout;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
 import org.graphstream.ui.view.ViewerPipe;
@@ -39,13 +39,17 @@ public class GraphManager implements Runnable {
 
 	Container panel;
 	JApplet applet;
-	JButton zoomInButton, zoomOutButton, viewCenterButton, filterGraphButton;
+	JButton zoomInButton, zoomOutButton, viewCenterButton, filterGraphButton, toggleLayout;
 	JToolBar settingsBar;
 	JTextField attribute;
 	JScrollPane scrollbar;
-	
+
 	double zoomInDelta, zoomOutDelta, maxZoomPercent, minZoomPercent;
-	
+
+	boolean autoLayoutEnabled = false;
+
+	Layout graphLayout;
+
 	public GraphManager(String graphName, String styleSheet)
 	{
 		System.setProperty("sun.awt.noerasebackground", "true");
@@ -71,7 +75,7 @@ public class GraphManager implements Runnable {
 		viewer = new Viewer(graph, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
 		view = viewer.addDefaultView(false);
 
-//		viewer.enableAutoLayout(new HierarchicalLayout());
+		//		viewer.enableAutoLayout(new HierarchicalLayout());
 		viewer.enableAutoLayout();
 		viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
 	}
@@ -81,6 +85,7 @@ public class GraphManager implements Runnable {
 		createZoomControls();
 		createViewListeners();
 		createAttributeControls();
+		createToggleLayoutButton();
 		createSettingsBar();
 		createPanel();
 		createAppletContainer();
@@ -89,7 +94,7 @@ public class GraphManager implements Runnable {
 	private void createAppletContainer() {
 		// TODO Auto-generated method stub
 		applet = new JApplet();
-		
+
 		scrollbar = new JScrollPane(panel);
 		applet.add(scrollbar);
 	}
@@ -98,7 +103,7 @@ public class GraphManager implements Runnable {
 		// TODO Auto-generated method stub
 		attribute = new JTextField("ui.screenshot,C:/Users/Shashank B S/Desktop/image.png");
 		filterGraphButton = new JButton("SetAttribute");
-		
+
 		filterGraphButton.addActionListener(new ActionListener() {
 
 			@Override
@@ -113,12 +118,13 @@ public class GraphManager implements Runnable {
 	private void createSettingsBar() {
 		// TODO Auto-generated method stub
 		settingsBar = new JToolBar("ControlsBar", JToolBar.HORIZONTAL);
-		
+
 		settingsBar.add(zoomInButton);
 		settingsBar.add(zoomOutButton);
 		settingsBar.add(viewCenterButton);
 		settingsBar.add(filterGraphButton);
 		settingsBar.add(attribute);
+		settingsBar.add(toggleLayout);
 	}
 
 	private void createPanel() {
@@ -147,7 +153,7 @@ public class GraphManager implements Runnable {
 				}
 			}
 		});
-		
+
 		view.addMouseMotionListener(new MouseMotionListener() {
 
 			@Override
@@ -160,9 +166,9 @@ public class GraphManager implements Runnable {
 				// TODO Auto-generated method stub
 				if(e.getButton() == 0)
 				{
-					Point dest = e.getPoint();
+					/*Point dest = e.getPoint();
 					System.out.println("dragged with button");
-					System.out.println(dest);
+					System.out.println(dest);*/
 				}
 			}
 		});
@@ -208,6 +214,43 @@ public class GraphManager implements Runnable {
 		});
 	}
 
+	private void createToggleLayoutButton()
+	{
+		toggleLayout = new JButton();
+		toggleAutoLayout();
+		toggleLayout.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				toggleAutoLayout();
+			}
+		});
+	}
+
+	private void toggleAutoLayout()
+	{
+		if(!autoLayoutEnabled)
+		{
+			if(viewer != null && graphLayout != null)
+			{
+				viewer.enableAutoLayout(graphLayout);
+			}
+			else if(viewer != null)
+			{
+				viewer.enableAutoLayout();
+			}
+			autoLayoutEnabled = true;
+			toggleLayout.setText("Disable Layouting");
+		}
+		else
+		{
+			viewer.disableAutoLayout();
+			autoLayoutEnabled = false;
+			toggleLayout.setText("Enable Layouting");
+		}
+	}
+
 	void generateTestGraph()
 	{
 		graph.setStrict(false);
@@ -227,7 +270,7 @@ public class GraphManager implements Runnable {
 	{
 		Iterator<Entry<Unit, Integer>> graphNodesIterator = graphStructure.nodesMap.entrySet().iterator();
 		Iterator<Entry<Unit, Integer>> graphEdgesIterator = graphStructure.nodesMap.entrySet().iterator();
-		
+
 		while(graphNodesIterator.hasNext())
 		{
 			@SuppressWarnings("rawtypes")
@@ -239,10 +282,10 @@ public class GraphManager implements Runnable {
 		while(graphEdgesIterator.hasNext())
 		{
 			Map.Entry pair = (Map.Entry) graphEdgesIterator.next();
-			
+
 		}
 	}*/
-	
+
 	void generateGraphFromGenerator()
 	{
 		BaseGenerator gen  = new LobsterGenerator();
@@ -274,6 +317,8 @@ public class GraphManager implements Runnable {
 				}
 			}
 		});
+
+		//		toggleAutoLayout();
 	}
 
 	void toggleNode(String id){
@@ -324,7 +369,13 @@ public class GraphManager implements Runnable {
 		// TODO Auto-generated method stub
 		//		generateTestGraph();
 		generateGraphFromGenerator();
-		while(true)
-			fromViewer.pump();
+		/*while(true)
+			try {
+				fromViewer.blockingPump();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}*/
+		//			fromViewer.pump();
 	}
 }
