@@ -1,23 +1,23 @@
-package de.visuflow.ex2;
+package de.visuflow.callgraph;
 
 import soot.Unit;
 
 public class Node {
 	
-	String label;
+	Unit label;
 	int id;
 	
-	Node(String label, int id)
+	Node(Unit label, int id)
 	{
 		this.label=label;
 		this.id=id;
 	}
-	public void setLabel(String label)
+	public void setLabel(Unit label)
 	{
 		this.label = label;
 	}
 	
-	public String getLabel()
+	public Unit getLabel()
 	{
 		return this.label;
 	}

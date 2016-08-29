@@ -1,4 +1,4 @@
-package de.visuflow.ex2;
+package de.visuflow.callgraph;
 
 import java.util.Map;
 
@@ -17,23 +17,23 @@ public class MainClass {
 
 	public static void main(String[] args) {
 		GraphStructure g = new GraphStructure();
-		runAnalysis(new EmptyReporter(), 3, g);
-		System.out.println("Displaying in main method");
-		System.out.println(g.edgesMap);
-		System.out.println(g.nodesMap);
+		runAnalysis(g);
+		System.out.println(g.listNodes);
+		System.out.println(g.listEdges);
 	}
 
-	public static void runAnalysis(final IReporter reporter, final int exercisenumber, final GraphStructure g) {
+	public static void runAnalysis(final GraphStructure g) {
 		G.reset();
 
 		// Register the transform
 		Transform transform = new Transform("jtp.analysis", new BodyTransformer() {
+
 			@Override
 			protected void internalTransform(Body b, String phaseName, Map<String, String> options) {
 				
 				Options.v().set_keep_line_number(true);
 				Options.v().debug();
-				IntraproceduralAnalysis ipa = new IntraproceduralAnalysis(b, reporter, g);
+				IntraproceduralAnalysis ipa = new IntraproceduralAnalysis(b,g);
 				ipa.doAnalyis();
 				
 			}

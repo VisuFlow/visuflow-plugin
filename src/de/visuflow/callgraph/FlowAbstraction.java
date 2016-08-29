@@ -1,4 +1,4 @@
-package de.visuflow.ex2;
+package de.visuflow.callgraph;
 
 import soot.Local;
 import soot.SootField;
