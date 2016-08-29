@@ -1,15 +1,21 @@
 node {
 	shape: box;
 	size: 25px, 15px;
-	fill-color: green;
+	fill-color: white;
 	stroke-mode: plain;
 	stroke-color: yellow;
 }
 
-edge {
-	shape: arrow-shape;
-	arrow-size: 15px;
+node.plus {
+	fill-color: red;
+	text-background-color: #F33;
+	text-color: #DDD;
 }
+
+/* edge {
+	shape: arrow;
+	arrow-size: 15px;
+} */
 
 node:clicked {
 	fill-color: red;

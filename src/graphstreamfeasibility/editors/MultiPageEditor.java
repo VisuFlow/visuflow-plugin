@@ -1,36 +1,27 @@
 package graphstreamfeasibility.editors;
 
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.Frame;
-import java.awt.LayoutManager;
 import java.io.StringWriter;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.StringTokenizer;
 
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FontDialog;
@@ -38,10 +29,9 @@ import org.eclipse.ui.*;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.MultiPageEditorPart;
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.MultiGraph;
-import org.graphstream.ui.view.View;
-import org.graphstream.ui.view.Viewer;
+
+import de.unipaderborn.visuflow.graphdisplaycomponent.GraphManager;
+
 import org.eclipse.ui.ide.IDE;
 
 /**
@@ -71,129 +61,23 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 		super();
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
 	}
-	/**
-	 * Creates page 0 of the multi-page editor,
-	 * which contains a text editor.
-	 */
-	void createPage0() {
+
+	void createCodePage(IWorkbenchPage page, IFile file) {
+		/*ResourcesPlugin.getWorkspace().getRoot();
+		ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(null);*/
 		try {
-			editor = new TextEditor();
-			int index = addPage(editor, getEditorInput());
-			setPageText(index, editor.getTitle());
+			IDE.openEditor(page, (IFile) file);
 		} catch (PartInitException e) {
-			ErrorDialog.openError(
-					getSite().getShell(),
-					"Error creating nested text editor",
-					null,
-					e.getStatus());
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
-	/**
-	 * Creates page 1 of the multi-page editor,
-	 * which allows you to change the font used in page 2.
-	 */
-	void createPage1() {
-		Composite composite = new Composite(getContainer(), SWT.EMBEDDED | SWT.NO_BACKGROUND);
-		Frame frame = SWT_AWT.new_Frame(composite);
-		
-//		Composite composite = new Composite(getContainer(), SWT.NONE);
-		
-		Viewer viewer = new Viewer(generateTestGraph(), Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
-		View view = viewer.addDefaultView(false);
 
-		viewer.enableAutoLayout();
-		
-		JPanel panel = new JPanel(new BorderLayout());
-		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
-		
-		JButton zoomInButton = new JButton();
-		JButton zoomOutButton = new JButton();
-		zoomInButton.setText("ZoomIn");
-		zoomOutButton.setText("ZoomOut");
-		
-		panel.add(zoomInButton, BorderLayout.PAGE_START);
-		panel.add(zoomOutButton, BorderLayout.PAGE_END);
-		panel.add((Component) view);
-		
-		frame.add(panel);
-		
-		/*GridLayout layout = new GridLayout();
-		composite.setLayout(layout);
-		layout.numColumns = 2;
-
-		Button fontButton = new Button(composite, SWT.NONE);
-		GridData gd = new GridData(GridData.BEGINNING);
-		gd.horizontalSpan = 2;
-		fontButton.setLayoutData(gd);
-		fontButton.setText("Change Font...");
-
-		Viewer viewer = new Viewer(generateTestGraph(), Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
-		View view = viewer.addDefaultView(false);
-
-		viewer.enableAutoLayout();
-		frame.add((Component) view);
-
-		Button test = new Button(composite, SWT.NONE);
-		GridData gdtest = new GridData(GridData.END);
-		gd.horizontalSpan = 1;
-		test.setLayoutData(gdtest);
-		test.setText("Test");
-
-		fontButton.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent event) {
-				setFont();
-			}
-		});*/
-
-		int index = addPage(composite);
-		setPageText(index, "Properties");
-	}
-
-	protected void demonstrateZoom(View view) {
-		// TODO Auto-generated method stub
-		double max = 5.0;
-		double min = 0.0;
-		double step = .20;
-		long sleep = 100;
-
-		for(double i=min;i<max;i+=step)
-		{
-			view.getCamera().setViewPercent(i);
-			try {
-				Thread.sleep(sleep);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-		for(double i=max;i>min;i-=step)
-		{
-			view.getCamera().setViewPercent(i);
-			try {
-				Thread.sleep(sleep);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
 	/**
 	 * Creates page 2 of the multi-page editor,
 	 * which shows the sorted text.
 	 */
-	void createPage2() {
-		Composite composite = new Composite(getContainer(), SWT.NONE);
-		FillLayout layout = new FillLayout();
-		composite.setLayout(layout);
-		text = new StyledText(composite, SWT.H_SCROLL | SWT.V_SCROLL);
-		text.setEditable(false);
-
-		int index = addPage(composite);
-		setPageText(index, "Preview");
-	}
-
-	void createSampleGraph() {
+	void createGraphPage() {
 
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -202,98 +86,33 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		Composite composite = new Composite(getContainer(), SWT.EMBEDDED | SWT.NO_BACKGROUND);
-		java.awt.Frame frame = SWT_AWT.new_Frame(composite);
-
-		Viewer viewer = new Viewer(generateTestGraph(), Viewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
-		View view = viewer.addDefaultView(false);
-
-		viewer.enableAutoLayout();
-		frame.add((Component) view);
-
-		int index = addPage(composite);
-		setPageText(index, "Sample Graph");
-	}
-
-	View createZoomTestGraph() {
 
 		Composite composite = new Composite(getContainer(), SWT.EMBEDDED | SWT.NO_BACKGROUND);
-		java.awt.Frame frame = SWT_AWT.new_Frame(composite);
+		GraphManager manager = new GraphManager("test", "url('file:../../styles/stylesheet.css')");
+		Thread t = new Thread(manager);
+		t.start();
 
-		Viewer viewer = new Viewer(generateTestGraph(), Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
-		View view = viewer.addDefaultView(false);
-
-		viewer.enableAutoLayout();
-		frame.add((Component) view);
+		Frame frame = SWT_AWT.new_Frame(composite);
+		frame.add(manager.getApplet());
+		frame.pack();
 
 		int index = addPage(composite);
-		setPageText(index, "Zoomable Graph");
-		setActivePage(index);
-
-		ZoomDemo zoomTest = new ZoomDemo(view);
-		Thread zoomer = new Thread(zoomTest);
-		zoomer.start();
-
-		return view;
-
+		setPageText(index, "Test Graph");
 	}
 
-	public Graph generateTestGraph()
-	{
-		System.setProperty("sun.awt.noerasebackground", "true");
-		System.setProperty("gs.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
-		Graph graph = new MultiGraph("Tutorial 1");
-
-		graph.addAttribute("ui.stylesheet", "url('file:../../styles/stylesheet.css')");
-		graph.setStrict(false);
-		graph.setAutoCreate( true );
-
-		for (int i = 0; i < 50; i++) {
-			String source = i + "";
-			int temp = i + 1;
-			String destination = temp + "";
-			graph.addEdge(source+destination, source, destination);
-			graph.addEdge(i+"", source, destination, true);
-		}
-		graph.addAttribute("ui.quality");
-		graph.addAttribute("ui.antialias");
-		//graph.addAttribute("ui.stylesheet", "graph {fill-color: white;}node {size: 10px, 15px;shape: box;fill-color: green;stroke-mode: plain;stroke-color: yellow;}node#1 {fill-color: blue;}node:clicked {fill-color: red;}");
-		return graph;
-	}
 	/**
 	 * Creates the pages of the multi-page editor.
 	 */
 	protected void createPages() {
-		//		createZoomTestGraph();
-//		createSampleGraph();
-//				createCollapseTestGraph();
-		//		createZoomTestGraph();
-				createPage1();
+		createGraphPage();
+//		createCodePage();
+		//		javax.swing.SwingUtilities.invokeLater(new Runnable() {
+		//            public void run() {
+		//            	createGraphPage();
+		//            }
+		//        });
 	}
-	private void createCollapseTestGraph() {
-		CollapseSubTree collapsableGraph = new CollapseSubTree();
-		// TODO Auto-generated method stub
-		Composite composite = new Composite(getContainer(), SWT.EMBEDDED | SWT.NO_BACKGROUND);
-		java.awt.Frame frame = SWT_AWT.new_Frame(composite);
 
-		Viewer viewer = new Viewer(collapsableGraph.getG(), Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
-		View view = viewer.addDefaultView(false);
-		
-		viewer.disableAutoLayout();
-
-		collapsableGraph.setViewer(viewer);
-		collapsableGraph.setView(view);
-
-		viewer.enableAutoLayout();
-		frame.add((Component) collapsableGraph.getView());
-
-		int index = addPage(composite);
-		setPageText(index, "Collapsable Graph Test");
-		setActivePage(index);
-
-		Thread t = new Thread(collapsableGraph);
-		t.start();
-	}
 	/**
 	 * The <code>MultiPageEditorPart</code> implementation of this 
 	 * <code>IWorkbenchPart</code> method disposes all nested editors.
