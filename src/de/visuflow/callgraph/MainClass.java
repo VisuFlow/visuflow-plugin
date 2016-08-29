@@ -2,14 +2,11 @@ package de.visuflow.callgraph;
 
 import java.util.Map;
 
-import de.visuflow.reporting.EmptyReporter;
-import de.visuflow.reporting.IReporter;
 import soot.Body;
 import soot.BodyTransformer;
 import soot.G;
 import soot.Main;
 import soot.PackManager;
-import soot.PhaseOptions;
 import soot.Transform;
 import soot.options.Options;
 

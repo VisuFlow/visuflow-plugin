@@ -5,26 +5,16 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import de.visuflow.callgraph.*;
-import de.visuflow.reporting.IReporter;
-import heros.edgefunc.EdgeIdentity;
 import soot.Body;
-import soot.PhaseOptions;
-import soot.SootMethod;
 import soot.Unit;
-import soot.dava.StaticDefinitionFinder;
 import soot.options.Options;
-import soot.tagkit.SourceLnPosTag;
 import soot.toolkits.graph.ExceptionalUnitGraph;
 import soot.toolkits.scalar.ForwardFlowAnalysis;
-import soot.toolkits.graph.*;
 
 public class IntraproceduralAnalysis extends ForwardFlowAnalysis<Unit, Set<FlowAbstraction>> {
 	public int flowThroughCount = 0;
-	private final SootMethod method;
 	//private final IReporter reporter;
 	static ExceptionalUnitGraph eg;
 	public static int nodeNumber=0;
@@ -33,7 +23,6 @@ public class IntraproceduralAnalysis extends ForwardFlowAnalysis<Unit, Set<FlowA
 	public static int edgeCount=0;
 	public static HashMap<Unit,Integer> nodesMap = new HashMap<>();
 	public static HashMap<Integer, List<Integer>> edgesMap = new HashMap<>();
-	public List<HashMap> listEdges1 = new ArrayList<HashMap>();
 	public static Node[] nodes = new Node[20];
 	public static Edge[] edges = new Edge[20];
 	public static List<Node> listNodes = new ArrayList<>();
@@ -43,7 +32,7 @@ public class IntraproceduralAnalysis extends ForwardFlowAnalysis<Unit, Set<FlowA
 	public IntraproceduralAnalysis(Body b,GraphStructure g) {
 		super(new ExceptionalUnitGraph(b));
 		
-		this.method = b.getMethod();
+		b.getMethod();
 		
 		System.out.println(b);
 		Options.v().set_keep_line_number(true);
@@ -61,7 +50,6 @@ public class IntraproceduralAnalysis extends ForwardFlowAnalysis<Unit, Set<FlowA
 			//nodes[nodeNumber-1]= new Node(head.toString(), nodeNumber);
 			Node node = new Node(head, nodeNumber);
 			listNodes.add(node);
-			//System.out.println("++++++++++++++++++++++++++++++++++++++++++"+nodes[0].getLabel());
 			traverseUnits(head);
 		}
 //		Set s = edgesMap.entrySet();
@@ -95,32 +83,14 @@ public class IntraproceduralAnalysis extends ForwardFlowAnalysis<Unit, Set<FlowA
 	public static void traverseUnits(Unit currentNode)
 	{
 		//int i=0,j=0;
-		boolean present=false,edge = false;
-		Unit previousNode = null;
+		boolean present=false;
 		//System.out.println(currentNode);
 		List<Unit> l = eg.getSuccsOf(currentNode);
 		Iterator<Unit> it = l.iterator();
 		while(it.hasNext())
 		{
 			Unit temp = it.next();
-			//System.out.println(temp);
-			previousNode = temp;
-//			Set s = nodesMap.entrySet();
-//			Iterator i = s.iterator();
-//			while(i.hasNext())
-//			{
-//				//System.out.println("Herreeeeeee");
-//				Map.Entry m = (Map.Entry)i.next();
-////				System.out.println("Unit number is "+m.getValue());
-////				System.out.println("Unit key is "+m.getKey());
-//				if(m.getKey().equals(temp))
-//				{
-//					present=true;
-//				}
-//				
-//			}
-			
-			Iterator nodesIterator = listNodes.iterator();
+			Iterator<Node> nodesIterator = listNodes.iterator();
 			while(nodesIterator.hasNext())
 			{
 				Node node = (Node)nodesIterator.next();
@@ -207,7 +177,7 @@ public class IntraproceduralAnalysis extends ForwardFlowAnalysis<Unit, Set<FlowA
 //				edgesMap.put(nodesMap.get(currentNode), list);
 //			}
 			Node source=null, destination=null;
-			Iterator it1 = listNodes.iterator();
+			Iterator<Node> it1 = listNodes.iterator();
 			while(it1.hasNext())
 			{
 				Node node = (Node)it1.next();
