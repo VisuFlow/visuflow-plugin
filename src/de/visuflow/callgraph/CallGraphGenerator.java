@@ -10,16 +10,16 @@ import soot.PackManager;
 import soot.Transform;
 import soot.options.Options;
 
-public class MainClass {
+public class CallGraphGenerator {
 
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		GraphStructure g = new GraphStructure();
 		runAnalysis(g);
 		System.out.println(g.listNodes);
 		System.out.println(g.listEdges);
-	}
+	}*/
 
-	public static void runAnalysis(final GraphStructure g) {
+	public void runAnalysis(final GraphStructure g) {
 		G.reset();
 
 		// Register the transform
@@ -40,7 +40,7 @@ public class MainClass {
 
 		// Run Soot
 		Main.main(
-				new String[] { "-pp", "-process-dir", "./targetBin2", "-src-prec", "class", "-output-format", "none", "-keep-line-number","de.visuflow.analyzeMe.ex2.TargetClass2" });
+				new String[] { "-pp", "-process-dir", "C:/Users/Shashank B S/Documents/Projects/GraphStreamFeasibility/targetBin2", "-src-prec", "class", "-output-format", "none", "-keep-line-number","de.visuflow.analyzeMe.ex2.TargetClass2" });
 	}
 
 }

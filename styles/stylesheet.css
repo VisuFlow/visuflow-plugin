@@ -1,22 +1,26 @@
 node {
 	shape: box;
-	size: 25px, 15px;
+	/* size: 25px, 15px; */
+	size-mode: fit;
 	fill-color: white;
+	text-size: 18px;
+	text-style: bold;
+	text-padding: 5px;
 	stroke-mode: plain;
-	stroke-color: yellow;
+	stroke-color: brown;
 }
 
-node.plus {
+/* node.plus {
 	fill-color: red;
 	text-background-color: #F33;
 	text-color: #DDD;
-}
-
-/* edge {
-	shape: arrow;
-	arrow-size: 15px;
 } */
 
-node:clicked {
-	fill-color: red;
+ edge {
+	arrow-shape: arrow;
+	arrow-size: 15px;
 }
+
+/* node:clicked {
+	fill-color: red;
+} */

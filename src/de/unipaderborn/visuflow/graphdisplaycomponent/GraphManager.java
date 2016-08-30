@@ -2,6 +2,7 @@ package de.unipaderborn.visuflow.graphdisplaycomponent;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.ComponentOrientation;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -10,23 +11,33 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.Iterator;
+import java.util.ListIterator;
+
 import javax.swing.JApplet;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
+
 import org.graphstream.algorithm.generator.BaseGenerator;
 import org.graphstream.algorithm.generator.LobsterGenerator;
 import org.graphstream.graph.Edge;
+import org.graphstream.graph.ElementNotFoundException;
 import org.graphstream.graph.Graph;
+import org.graphstream.graph.IdAlreadyInUseException;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
 import org.graphstream.stream.SinkAdapter;
+import org.graphstream.ui.geom.Point3;
 import org.graphstream.ui.layout.Layout;
+import org.graphstream.ui.layout.springbox.implementations.SpringBox;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
 import org.graphstream.ui.view.ViewerPipe;
+
+import de.visuflow.callgraph.CallGraphGenerator;
+import de.visuflow.callgraph.GraphStructure;
 
 public class GraphManager implements Runnable {
 
@@ -48,7 +59,7 @@ public class GraphManager implements Runnable {
 
 	boolean autoLayoutEnabled = false;
 
-	Layout graphLayout;
+	Layout graphLayout = new SpringBox();
 
 	public GraphManager(String graphName, String styleSheet)
 	{
@@ -71,12 +82,18 @@ public class GraphManager implements Runnable {
 	{
 		graph = new MultiGraph(graphName);
 		graph.addAttribute("ui.stylesheet", styleSheet);
+		
+		graph.setStrict(false);
+		graph.setAutoCreate(true);
 
 		viewer = new Viewer(graph, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
 		view = viewer.addDefaultView(false);
-
+		
+		view.applyComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+		view.setAutoscrolls(true);
+		
 		//		viewer.enableAutoLayout(new HierarchicalLayout());
-		viewer.enableAutoLayout();
+		
 		viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
 	}
 
@@ -169,6 +186,21 @@ public class GraphManager implements Runnable {
 					/*Point dest = e.getPoint();
 					System.out.println("dragged with button");
 					System.out.println(dest);*/
+					
+					Point3 currViewCenter = view.getCamera().getViewCenter();
+					System.out.println("currentViewCenter " + currViewCenter);
+					System.out.println("clickCount " + e.getLocationOnScreen());
+					
+					for(int i=0; i<e.getClickCount(); i++)
+					{
+						view.getCamera().setViewCenter(currViewCenter.x+.2, currViewCenter.y+.2, 0);
+//						try {
+//							Thread.sleep(1000);
+//						} catch (InterruptedException e1) {
+//							// TODO Auto-generated catch block
+//							e1.printStackTrace();
+//						}
+					}
 				}
 			}
 		});
@@ -266,25 +298,45 @@ public class GraphManager implements Runnable {
 		graph.addAttribute("ui.antialias");
 	}
 
-	/*void generateGraphFromGraphStructure(GraphStructure graphStructure)
+	void generateGraphFromGraphStructure()
 	{
-		Iterator<Entry<Unit, Integer>> graphNodesIterator = graphStructure.nodesMap.entrySet().iterator();
-		Iterator<Entry<Unit, Integer>> graphEdgesIterator = graphStructure.nodesMap.entrySet().iterator();
+		GraphStructure interGraph = new GraphStructure();
+		CallGraphGenerator generator = new CallGraphGenerator();
+		generator.runAnalysis(interGraph);
+		
+		System.out.println("StyleSheet " + this.styleSheet);
 
-		while(graphNodesIterator.hasNext())
-		{
-			@SuppressWarnings("rawtypes")
-			Map.Entry pair = (Map.Entry) graphNodesIterator.next();
-	        System.out.println(pair.getKey() + " = " + pair.getValue());
-	        graph.addNode(pair.getValue().toString());
-//	        graphNodesIterator.remove(); // avoids a ConcurrentModificationException
-		}
-		while(graphEdgesIterator.hasNext())
-		{
-			Map.Entry pair = (Map.Entry) graphEdgesIterator.next();
+		ListIterator<de.visuflow.callgraph.Edge> edgeIterator = interGraph.listEdges.listIterator();
 
+		while(edgeIterator.hasNext())
+		{
+			de.visuflow.callgraph.Edge curr = edgeIterator.next();
+
+			de.visuflow.callgraph.Node src = curr.getSource();
+			de.visuflow.callgraph.Node dest = curr.getDestination();
+
+			try {
+				graph.addNode(src.getId() + "").setAttribute("ui.label", src.getLabel());
+			} catch (IdAlreadyInUseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			try {
+				graph.addNode(dest.getId() + "").setAttribute("ui.label", dest.getLabel());
+			} catch (IdAlreadyInUseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			try {
+				graph.addEdge(src.getId() + dest.getId() + "", src.getId() + "", dest.getId() + "", true);
+			} catch (IdAlreadyInUseException | ElementNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
-	}*/
+	}
 
 	void generateGraphFromGenerator()
 	{
@@ -317,8 +369,6 @@ public class GraphManager implements Runnable {
 				}
 			}
 		});
-
-		//		toggleAutoLayout();
 	}
 
 	void toggleNode(String id){
@@ -368,7 +418,7 @@ public class GraphManager implements Runnable {
 	public void run() {
 		// TODO Auto-generated method stub
 		//		generateTestGraph();
-		generateGraphFromGenerator();
+		//		generateGraphFromGenerator();
 		/*while(true)
 			try {
 				fromViewer.blockingPump();
@@ -377,5 +427,6 @@ public class GraphManager implements Runnable {
 				e.printStackTrace();
 			}*/
 		//			fromViewer.pump();
+		generateGraphFromGraphStructure();
 	}
 }
