@@ -34,12 +34,13 @@ import org.graphstream.ui.layout.Layout;
 import org.graphstream.ui.layout.springbox.implementations.SpringBox;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
+import org.graphstream.ui.view.ViewerListener;
 import org.graphstream.ui.view.ViewerPipe;
 
 import de.visuflow.callgraph.CallGraphGenerator;
 import de.visuflow.callgraph.GraphStructure;
 
-public class GraphManager implements Runnable {
+public class GraphManager implements Runnable, ViewerListener {
 
 	Graph graph;
 	String styleSheet;
@@ -307,6 +308,7 @@ public class GraphManager implements Runnable {
 		System.out.println("StyleSheet " + this.styleSheet);
 
 		ListIterator<de.visuflow.callgraph.Edge> edgeIterator = interGraph.listEdges.listIterator();
+		int nodeCount = 0;
 
 		while(edgeIterator.hasNext())
 		{
@@ -317,6 +319,7 @@ public class GraphManager implements Runnable {
 
 			try {
 				graph.addNode(src.getId() + "").setAttribute("ui.label", src.getLabel());
+				nodeCount++;
 			} catch (IdAlreadyInUseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -324,6 +327,7 @@ public class GraphManager implements Runnable {
 
 			try {
 				graph.addNode(dest.getId() + "").setAttribute("ui.label", dest.getLabel());
+				nodeCount++;
 			} catch (IdAlreadyInUseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -335,6 +339,14 @@ public class GraphManager implements Runnable {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
+		
+		Iterator<Node> nodeIterator = graph.getNodeIterator();
+		while(nodeIterator.hasNext())
+		{
+			Node curr = nodeIterator.next();
+			curr.setAttribute("xyz", 0, nodeCount, 0);
+			nodeCount--;
 		}
 	}
 
@@ -428,5 +440,36 @@ public class GraphManager implements Runnable {
 			}*/
 		//			fromViewer.pump();
 		generateGraphFromGraphStructure();
+		
+		fromViewer = viewer.newViewerPipe();
+		fromViewer.addViewerListener(this);
+		fromViewer.addSink(graph);
+		
+		while(true)
+			fromViewer.pump();
+	}
+
+	@Override
+	public void buttonPushed(String id) {
+		// TODO Auto-generated method stub
+		Node selectedNode = graph.getNode(id);
+		if(selectedNode.hasAttribute("ui.class"))
+		{
+			System.out.println("Node has attribute clicked");
+			selectedNode.removeAttribute("ui.class");
+		}
+		selectedNode.addAttribute("ui.class", "clicked");
+	}
+
+	@Override
+	public void buttonReleased(String id) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void viewClosed(String id) {
+		// TODO Auto-generated method stub
+		
 	}
 }

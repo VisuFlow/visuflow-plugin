@@ -21,6 +21,6 @@ node {
 	arrow-size: 15px;
 }
 
-/* node:clicked {
+node.clicked {
 	fill-color: red;
-} */
+}
