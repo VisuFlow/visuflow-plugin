@@ -10,11 +10,11 @@ node {
 	stroke-color: brown;
 }
 
-/* node.plus {
+node.plus {
 	fill-color: red;
 	text-background-color: #F33;
 	text-color: #DDD;
-} */
+}
 
  edge {
 	arrow-shape: arrow;

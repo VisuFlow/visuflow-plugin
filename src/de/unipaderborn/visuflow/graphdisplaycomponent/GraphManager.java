@@ -2,7 +2,6 @@ package de.unipaderborn.visuflow.graphdisplaycomponent;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.ComponentOrientation;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -86,12 +85,14 @@ public class GraphManager implements Runnable, ViewerListener {
 		
 		graph.setStrict(false);
 		graph.setAutoCreate(true);
+		graph.addAttribute("ui.quality");
+		graph.addAttribute("ui.antialias");
 
 		viewer = new Viewer(graph, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
 		view = viewer.addDefaultView(false);
 		
-		view.applyComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-		view.setAutoscrolls(true);
+//		view.applyComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+//		view.setAutoscrolls(true);
 		
 		//		viewer.enableAutoLayout(new HierarchicalLayout());
 		
@@ -308,7 +309,6 @@ public class GraphManager implements Runnable, ViewerListener {
 		System.out.println("StyleSheet " + this.styleSheet);
 
 		ListIterator<de.visuflow.callgraph.Edge> edgeIterator = interGraph.listEdges.listIterator();
-		int nodeCount = 0;
 
 		while(edgeIterator.hasNext())
 		{
@@ -319,7 +319,6 @@ public class GraphManager implements Runnable, ViewerListener {
 
 			try {
 				graph.addNode(src.getId() + "").setAttribute("ui.label", src.getLabel());
-				nodeCount++;
 			} catch (IdAlreadyInUseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -327,7 +326,6 @@ public class GraphManager implements Runnable, ViewerListener {
 
 			try {
 				graph.addNode(dest.getId() + "").setAttribute("ui.label", dest.getLabel());
-				nodeCount++;
 			} catch (IdAlreadyInUseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -340,7 +338,12 @@ public class GraphManager implements Runnable, ViewerListener {
 				e.printStackTrace();
 			}
 		}
-		
+		experimentalLayout();
+	}
+	
+	private void experimentalLayout()
+	{
+		int nodeCount = graph.getNodeCount();
 		Iterator<Node> nodeIterator = graph.getNodeIterator();
 		while(nodeIterator.hasNext())
 		{
@@ -452,13 +455,15 @@ public class GraphManager implements Runnable, ViewerListener {
 	@Override
 	public void buttonPushed(String id) {
 		// TODO Auto-generated method stub
-		Node selectedNode = graph.getNode(id);
-		if(selectedNode.hasAttribute("ui.class"))
-		{
-			System.out.println("Node has attribute clicked");
-			selectedNode.removeAttribute("ui.class");
-		}
-		selectedNode.addAttribute("ui.class", "clicked");
+		toggleNode(id);
+		experimentalLayout();
+//		Node selectedNode = graph.getNode(id);
+//		if(selectedNode.hasAttribute("ui.class"))
+//		{
+//			System.out.println("Node has attribute clicked");
+//			selectedNode.removeAttribute("ui.class");
+//		}
+//		selectedNode.addAttribute("ui.class", "clicked");
 	}
 
 	@Override
