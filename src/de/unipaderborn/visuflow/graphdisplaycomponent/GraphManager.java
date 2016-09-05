@@ -9,6 +9,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ListIterator;
 
@@ -38,6 +39,7 @@ import org.graphstream.ui.view.ViewerPipe;
 
 import de.visuflow.callgraph.CallGraphGenerator;
 import de.visuflow.callgraph.GraphStructure;
+import soot.SootMethod;
 
 public class GraphManager implements Runnable, ViewerListener {
 
@@ -303,8 +305,9 @@ public class GraphManager implements Runnable, ViewerListener {
 	void generateGraphFromGraphStructure()
 	{
 		GraphStructure interGraph = new GraphStructure();
+		HashMap<SootMethod, GraphStructure> hashMap = new HashMap<>();
 		CallGraphGenerator generator = new CallGraphGenerator();
-		generator.runAnalysis(interGraph);
+		generator.runAnalysis(hashMap);
 		
 		System.out.println("StyleSheet " + this.styleSheet);
 
