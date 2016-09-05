@@ -55,19 +55,6 @@ public class IntraproceduralAnalysis extends ForwardFlowAnalysis<Unit, Set<FlowA
 				break;
 			}
 			traverseUnits(head);
-
-			Iterator<Node> nodeIterator = listNodes.iterator();
-			while (nodeIterator.hasNext()) {
-				Node n = nodeIterator.next();
-				System.out.println("Node id is " + n.getId() + " Node label is " + n.getLabel());
-			}
-
-			Iterator<Edge> edgeIterator = listEdges.iterator();
-			while (edgeIterator.hasNext()) {
-				Edge edge = edgeIterator.next();
-				System.out.println("Edge id is " + edge.getId() + " Edge source is " + edge.getSource().id
-						+ " Edge destination is " + edge.getDestination().id);
-			}
 			g.listEdges = listEdges;
 			g.listNodes = listNodes;
 			hashMap.put(b.getMethod(), g);

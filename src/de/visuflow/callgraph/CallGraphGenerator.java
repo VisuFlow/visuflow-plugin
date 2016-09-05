@@ -19,15 +19,15 @@ public class CallGraphGenerator {
 
 public static void main(String[] args) {
 		
-		HashMap<SootMethod, GraphStructure> hashMap = new HashMap<>();
-		runAnalysis(hashMap);
-		System.out.println(hashMap);
-		Set<SootMethod> keys = hashMap.keySet();
-
-		   for (Iterator<SootMethod> i = keys.iterator(); i.hasNext(); ) {
-		       SootMethod m = (SootMethod) i.next();
-		       System.out.println(m);		       
-		   }
+//		HashMap<SootMethod, GraphStructure> hashMap = new HashMap<>();
+//		runAnalysis(hashMap);
+//		System.out.println(hashMap);
+//		Set<SootMethod> keys = hashMap.keySet();
+//
+//		   for (Iterator<SootMethod> i = keys.iterator(); i.hasNext(); ) {
+//		       SootMethod m = (SootMethod) i.next();
+//		       System.out.println(m);		       
+//		   }
 	}
 
 	public static void runAnalysis(final HashMap<SootMethod, GraphStructure> hashMap) {
@@ -47,7 +47,7 @@ public static void main(String[] args) {
 		PackManager.v().getPack("jtp").add(transform);
 		String rtJar = System.getProperty("java.home") + File.separator + "lib" + File.separator + "rt.jar";
 		Main.main(new String[] { "-cp", "./bin" + File.pathSeparator + rtJar, "-exclude", "javax",
-				"-allow-phantom-refs", "-no-bodies-for-excluded", "-process-dir", "./targetBin1", "-src-prec",
-				"only-class", "-w", "-output-format", "J", "-keep-line-number","tag.ln","on","de.visuflow.analyzeMe.ex1.TargetClass1" });
+				"-allow-phantom-refs", "-no-bodies-for-excluded", "-process-dir", "./targetBin2", "-src-prec",
+				"only-class", "-w", "-output-format", "J", "-keep-line-number","tag.ln","on","de.visuflow.analyzeMe.ex2.TargetClass2" });
 	}
 }
