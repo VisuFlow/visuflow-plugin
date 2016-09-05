@@ -1,13 +1,20 @@
-node {
-	shape: rounded-box;
-	/* size: 25px, 15px; */
-	size-mode: fit;
+graph {
 	fill-color: white;
-	text-size: 10px;
+}
+
+node {
+	size-mode: fit;
+	shape: rounded-box;
+	fill-color: white;
+	stroke-mode: none;
+	/* stroke-color:  */
+	padding: 3px, 2px, 5px, 5px;
+	text-color: white;
 	text-style: bold;
-	text-padding: 5px;
-	stroke-mode: plain;
-	stroke-color: brown;
+	text-background-mode: rounded-box;
+	text-background-color: #009688;
+	text-padding: 4px, 4px;
+	text-offset: 0px, 2px;
 }
 
 node.plus {
@@ -24,8 +31,4 @@ edge {
 
 node:clicked {
 	fill-color: red;
-}
-
-node:hover {
-	fill-color: green;
 }

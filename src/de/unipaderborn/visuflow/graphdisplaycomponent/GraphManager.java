@@ -365,7 +365,9 @@ public class GraphManager implements Runnable, ViewerListener {
 
 	private void experimentalLayout()
 	{
+//		viewer.disableAutoLayout();
 		int spacing = 2;
+		int rowSpacing = 12;
 		int nodeCount = graph.getNodeCount() * spacing;
 		Iterator<Node> nodeIterator = graph.getNodeIterator();
 		while(nodeIterator.hasNext())
@@ -379,7 +381,7 @@ public class GraphManager implements Runnable, ViewerListener {
 				Edge outEdge = leavingEdgeIterator.next();
 				Node target = outEdge.getTargetNode();
 				target.setAttribute("xyz", outEdges, nodeCount, 0);
-				outEdges += spacing;
+				outEdges += rowSpacing;
 			}
 
 			curr.setAttribute("xyz", 0, nodeCount, 0);
