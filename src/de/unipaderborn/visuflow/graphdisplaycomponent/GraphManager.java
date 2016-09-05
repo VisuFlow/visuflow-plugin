@@ -82,20 +82,20 @@ public class GraphManager implements Runnable, ViewerListener {
 	{
 		graph = new MultiGraph(graphName);
 		graph.addAttribute("ui.stylesheet", styleSheet);
-		
-		graph.setStrict(false);
+
+		graph.setStrict(true);
 		graph.setAutoCreate(true);
 		graph.addAttribute("ui.quality");
 		graph.addAttribute("ui.antialias");
 
 		viewer = new Viewer(graph, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
 		view = viewer.addDefaultView(false);
-		
-//		view.applyComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-//		view.setAutoscrolls(true);
-		
+
+		//		view.applyComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+		//		view.setAutoscrolls(true);
+
 		//		viewer.enableAutoLayout(new HierarchicalLayout());
-		
+
 		viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
 	}
 
@@ -188,20 +188,20 @@ public class GraphManager implements Runnable, ViewerListener {
 					/*Point dest = e.getPoint();
 					System.out.println("dragged with button");
 					System.out.println(dest);*/
-					
+
 					Point3 currViewCenter = view.getCamera().getViewCenter();
 					System.out.println("currentViewCenter " + currViewCenter);
 					System.out.println("clickCount " + e.getLocationOnScreen());
-					
+
 					for(int i=0; i<e.getClickCount(); i++)
 					{
 						view.getCamera().setViewCenter(currViewCenter.x+.2, currViewCenter.y+.2, 0);
-//						try {
-//							Thread.sleep(1000);
-//						} catch (InterruptedException e1) {
-//							// TODO Auto-generated catch block
-//							e1.printStackTrace();
-//						}
+						//						try {
+						//							Thread.sleep(1000);
+						//						} catch (InterruptedException e1) {
+						//							// TODO Auto-generated catch block
+						//							e1.printStackTrace();
+						//						}
 					}
 				}
 			}
@@ -305,7 +305,7 @@ public class GraphManager implements Runnable, ViewerListener {
 		GraphStructure interGraph = new GraphStructure();
 		CallGraphGenerator generator = new CallGraphGenerator();
 		generator.runAnalysis(interGraph);
-		
+
 		System.out.println("StyleSheet " + this.styleSheet);
 
 		ListIterator<de.visuflow.callgraph.Edge> edgeIterator = interGraph.listEdges.listIterator();
@@ -316,16 +316,32 @@ public class GraphManager implements Runnable, ViewerListener {
 
 			de.visuflow.callgraph.Node src = curr.getSource();
 			de.visuflow.callgraph.Node dest = curr.getDestination();
-
+			
 			try {
-				graph.addNode(src.getId() + "").setAttribute("ui.label", src.getLabel());
+				if(graph.getNode(src.getId() + "") == null)
+					graph.addNode(src.getId() + "").setAttribute("ui.label", src.getLabel());
+				
+				if(graph.getNode(dest.getId() + "") == null)
+					graph.addNode(dest.getId() + "").setAttribute("ui.label", dest.getLabel());
+				
+				if(graph.getEdge("" + src.getId() + dest.getId()) == null)
+				{
+					graph.addEdge(src.getId() + "" + dest.getId(), src.getId() + "", dest.getId() + "", true);
+				}
+			} catch (IndexOutOfBoundsException | IdAlreadyInUseException | ElementNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+				
+			/*try {
+				graph.addNode(src.getId() + "").setAttribute("ui.label", src.getId());
 			} catch (IdAlreadyInUseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
 			try {
-				graph.addNode(dest.getId() + "").setAttribute("ui.label", dest.getLabel());
+				graph.addNode(dest.getId() + "").setAttribute("ui.label", dest.getId());
 			} catch (IdAlreadyInUseException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -333,25 +349,44 @@ public class GraphManager implements Runnable, ViewerListener {
 
 			try {
 				graph.addEdge(src.getId() + dest.getId() + "", src.getId() + "", dest.getId() + "", true);
+				//				System.out.println("Adding edge from " + src.getId() + " " + src.getLabel() + " to " + dest.getId() + " " + dest.getLabel());
+				if(src.getId() == 6)
+					System.out.println("adding edge " + src.getId() + dest.getId());
 			} catch (IdAlreadyInUseException | ElementNotFoundException e) {
 				// TODO Auto-generated catch block
+				System.out.println("..............................................................");
 				e.printStackTrace();
-			}
+			}*/
+
+//			graph.addEdge("611", "6", "11", true);
 		}
 		experimentalLayout();
 	}
-	
+
 	private void experimentalLayout()
 	{
-		int nodeCount = graph.getNodeCount();
+		int spacing = 2;
+		int nodeCount = graph.getNodeCount() * spacing;
 		Iterator<Node> nodeIterator = graph.getNodeIterator();
 		while(nodeIterator.hasNext())
 		{
 			Node curr = nodeIterator.next();
+
+			Iterator<Edge> leavingEdgeIterator = curr.getEdgeIterator();
+			int outEdges = 0;
+			while(leavingEdgeIterator.hasNext())
+			{
+				Edge outEdge = leavingEdgeIterator.next();
+				Node target = outEdge.getTargetNode();
+				target.setAttribute("xyz", outEdges, nodeCount, 0);
+				outEdges += spacing;
+			}
+
 			curr.setAttribute("xyz", 0, nodeCount, 0);
-			nodeCount--;
+			nodeCount -= spacing;
 		}
 	}
+	
 
 	void generateGraphFromGenerator()
 	{
@@ -443,38 +478,41 @@ public class GraphManager implements Runnable, ViewerListener {
 			}*/
 		//			fromViewer.pump();
 		generateGraphFromGraphStructure();
-		
+
 		fromViewer = viewer.newViewerPipe();
 		fromViewer.addViewerListener(this);
 		fromViewer.addSink(graph);
-		
+
 		while(true)
 			fromViewer.pump();
 	}
+	
 
 	@Override
 	public void buttonPushed(String id) {
 		// TODO Auto-generated method stub
 		toggleNode(id);
 		experimentalLayout();
-//		Node selectedNode = graph.getNode(id);
-//		if(selectedNode.hasAttribute("ui.class"))
-//		{
-//			System.out.println("Node has attribute clicked");
-//			selectedNode.removeAttribute("ui.class");
-//		}
-//		selectedNode.addAttribute("ui.class", "clicked");
+		//		Node selectedNode = graph.getNode(id);
+		//		if(selectedNode.hasAttribute("ui.class"))
+		//		{
+		//			System.out.println("Node has attribute clicked");
+		//			selectedNode.removeAttribute("ui.class");
+		//		}
+		//		selectedNode.addAttribute("ui.class", "clicked");
 	}
+	
 
 	@Override
 	public void buttonReleased(String id) {
 		// TODO Auto-generated method stub
-		
+
 	}
+	
 
 	@Override
 	public void viewClosed(String id) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

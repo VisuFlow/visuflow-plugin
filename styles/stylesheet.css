@@ -1,9 +1,9 @@
 node {
-	shape: box;
+	shape: rounded-box;
 	/* size: 25px, 15px; */
 	size-mode: fit;
 	fill-color: white;
-	text-size: 18px;
+	text-size: 10px;
 	text-style: bold;
 	text-padding: 5px;
 	stroke-mode: plain;
@@ -16,11 +16,16 @@ node.plus {
 	text-color: #DDD;
 }
 
- edge {
+edge {
 	arrow-shape: arrow;
-	arrow-size: 15px;
+	arrow-size: 3px;
+	fill-color: blue;
 }
 
-node.clicked {
+node:clicked {
 	fill-color: red;
+}
+
+node:hover {
+	fill-color: green;
 }
