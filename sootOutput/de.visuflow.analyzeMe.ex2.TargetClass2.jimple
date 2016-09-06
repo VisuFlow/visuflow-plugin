@@ -1,0 +1,84 @@
+public class de.visuflow.analyzeMe.ex2.TargetClass2 extends java.lang.Object
+{
+    private java.lang.String whatsoever;
+
+    public void <init>()
+    {
+        de.visuflow.analyzeMe.ex2.TargetClass2 r0;
+
+        r0 := @this: de.visuflow.analyzeMe.ex2.TargetClass2;
+
+        specialinvoke r0.<java.lang.Object: void <init>()>();
+
+        return;
+    }
+
+    private void leak(java.lang.String)
+    {
+        de.visuflow.analyzeMe.ex2.TargetClass2 r0;
+        java.lang.String r1, $r5;
+        java.lang.StringBuilder $r2, $r4;
+        java.io.PrintStream $r3;
+
+        r0 := @this: de.visuflow.analyzeMe.ex2.TargetClass2;
+
+        r1 := @parameter0: java.lang.String;
+
+        $r3 = <java.lang.System: java.io.PrintStream out>;
+
+        $r2 = new java.lang.StringBuilder;
+
+        specialinvoke $r2.<java.lang.StringBuilder: void <init>(java.lang.String)>("Leak: ");
+
+        $r4 = virtualinvoke $r2.<java.lang.StringBuilder: java.lang.StringBuilder append(java.lang.String)>(r1);
+
+        $r5 = virtualinvoke $r4.<java.lang.StringBuilder: java.lang.String toString()>();
+
+        virtualinvoke $r3.<java.io.PrintStream: void println(java.lang.String)>($r5);
+
+        return;
+    }
+
+    public void sourceToSink()
+    {
+        de.visuflow.analyzeMe.ex2.TargetClass2 r0;
+        java.lang.String r1, r2;
+        boolean z0;
+        java.io.PrintStream $r3, $r4;
+
+        r0 := @this: de.visuflow.analyzeMe.ex2.TargetClass2;
+
+        r1 = specialinvoke r0.<de.visuflow.analyzeMe.ex2.TargetClass2: java.lang.String getSecret()>();
+
+        r2 = r1;
+
+        specialinvoke r0.<de.visuflow.analyzeMe.ex2.TargetClass2: void leak(java.lang.String)>(r2);
+
+        z0 = 0;
+
+        if z0 != 0 goto label1;
+
+        $r4 = <java.lang.System: java.io.PrintStream out>;
+
+        virtualinvoke $r4.<java.io.PrintStream: void println(java.lang.String)>("In Loop");
+
+        goto label2;
+
+     label1:
+        $r3 = <java.lang.System: java.io.PrintStream out>;
+
+        virtualinvoke $r3.<java.io.PrintStream: void println(java.lang.String)>("Outside loop");
+
+     label2:
+        return;
+    }
+
+    private java.lang.String getSecret()
+    {
+        de.visuflow.analyzeMe.ex2.TargetClass2 r0;
+
+        r0 := @this: de.visuflow.analyzeMe.ex2.TargetClass2;
+
+        return "top secret";
+    }
+}

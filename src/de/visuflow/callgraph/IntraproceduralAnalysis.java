@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import soot.Body;
+import soot.SootMethod;
 import soot.Unit;
 import soot.options.Options;
 import soot.toolkits.graph.ExceptionalUnitGraph;
@@ -15,81 +16,83 @@ import soot.toolkits.scalar.ForwardFlowAnalysis;
 
 public class IntraproceduralAnalysis extends ForwardFlowAnalysis<Unit, Set<FlowAbstraction>> {
 	public int flowThroughCount = 0;
+
 	static ExceptionalUnitGraph eg;
-	public static int nodeNumber=0;
-	public static int edgeNumber=0;
-	public static int nodeCount=0;
-	public static int edgeCount=0;
-	public static HashMap<Unit,Integer> nodesMap = new HashMap<>();
+	public static int nodeNumber;
+	public static int edgeNumber;
+	public static int nodeCount = 0;
+	public static int edgeCount = 0;
+	public static HashMap<Unit, Integer> nodesMap = new HashMap<>();
 	public static HashMap<Integer, List<Integer>> edgesMap = new HashMap<>();
+	public static HashMap<SootMethod, GraphStructure> hashMap = new HashMap<>();
 	public static Node[] nodes = new Node[20];
 	public static Edge[] edges = new Edge[20];
-	public static List<Node> listNodes = new ArrayList<>();
-	public static List<Edge> listEdges = new ArrayList<>();
+	public static List<Node> listNodes;
+	public static List<Edge> listEdges;
 
-
-	public IntraproceduralAnalysis(Body b,GraphStructure g) {
+	public IntraproceduralAnalysis(Body b, final HashMap<SootMethod, GraphStructure> hashMap) {
 		super(new ExceptionalUnitGraph(b));
-		b.getMethod();
 		Options.v().set_keep_line_number(true);
-		if(b.getMethod().getDeclaration().toString().contains("sourceToSink"))
-		{
+		nodeNumber=0;
+		edgeNumber=0;
+		listNodes = new ArrayList<>();
+		listEdges = new ArrayList<>();
+		GraphStructure g = new GraphStructure();
+		System.out.println("body method is "+b);	
+		//if ((b.getMethod().getDeclaration().toString().contains(sm.getDeclaration().toString()))) {
+	//if ((b.getMethod().getDeclaration().toString().contains("wrong1"))) {
+			//System.out.println("Methods are same");
+			Unit head = null;
 			eg = new ExceptionalUnitGraph(b);
 			List<Unit> list = eg.getHeads();
 			Iterator<Unit> it1 = list.iterator();
-			while(it1.hasNext())
-			{
-				Unit head = it1.next();
+			while (it1.hasNext()) {
+				head = it1.next();
+				System.out.println("Unit type "+head.getClass());
 				nodeNumber++;
 				Node node = new Node(head, nodeNumber);
 				listNodes.add(node);
-				traverseUnits(head);
+				break;
 			}
-
+			traverseUnits(head);
 			g.listEdges = listEdges;
 			g.listNodes = listNodes;
+			hashMap.put(b.getMethod(), g);
 
-		}
+		//}
 	}
-	public static void traverseUnits(Unit currentNode)
-	{
-		boolean present=false;
+
+	public static void traverseUnits(Unit currentNode) {
+		boolean present = false;
 		List<Unit> l = eg.getSuccsOf(currentNode);
 		Iterator<Unit> it = l.iterator();
-		while(it.hasNext())
-		{
+		while (it.hasNext()) {
 			Unit temp = it.next();
 			Iterator<Node> nodesIterator = listNodes.iterator();
-			while(nodesIterator.hasNext())
-			{
-				Node node = (Node)nodesIterator.next();
-				if(node.getLabel().equals(temp))
-				{
+			while (nodesIterator.hasNext()) {
+				Node node = (Node) nodesIterator.next();
+				if (node.getLabel().equals(temp)) {
 					present = true;
 				}
 			}
-			if(!present)
-			{
+			if (!present) {
 				nodeNumber++;
 				Node node = new Node(temp, nodeNumber);
 				listNodes.add(node);
 			}
-			Node source=null, destination=null;
+			Node source = null, destination = null;
 			Iterator<Node> it1 = listNodes.iterator();
-			while(it1.hasNext())
-			{
-				Node node = (Node)it1.next();
-				if(node.getLabel().equals(currentNode))
-				{
+			while (it1.hasNext()) {
+				Node node = (Node) it1.next();
+				if (node.getLabel().equals(currentNode)) {
 					source = node;
 				}
-				if(node.getLabel().equals(temp))
-				{
+				if (node.getLabel().equals(temp)) {
 					destination = node;
 				}
 			}
 			edgeNumber++;
-			Edge edgeEntry = new Edge(edgeNumber,source , destination);
+			Edge edgeEntry = new Edge(edgeNumber, source, destination);
 			listEdges.add(edgeEntry);
 			traverseUnits(temp);
 		}
