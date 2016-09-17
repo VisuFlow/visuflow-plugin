@@ -27,5 +27,18 @@
             id="graphstreamfeasibility.wizards.SampleNewWizard">
       </wizard>
    </extension>
-
+   <extension
+         point="org.eclipse.ui.popupMenus">
+	   <viewerContribution
+	            targetID="#CompilationUnitRulerContext"
+	            id="org.eclipse.jdt.debug.ui.CompilationUnitRulerPopupActions">
+	         <action
+	               label="Unit Breakpoint Properties"
+	               helpContextId="breakpoint_properties_action_context_test"
+	               class="de.unipaderborn.visuflow.debug.ui.UnitBreakpointPropertiesActionDelegate"
+	               menubarPath="group.properties"
+	               id="de.unipaderborn.visuflow.debug.ui.UnitBreakpointPropertiesActionDelegate">
+	         </action>
+	      </viewerContribution>
+	</extension>
 </plugin>
