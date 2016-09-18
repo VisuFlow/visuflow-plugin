@@ -1,5 +1,9 @@
 package de.unipaderborn.visuflow.debug.ui;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -12,6 +16,22 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
+import de.visuflow.callgraph.CallGraphGenerator;
+import de.visuflow.callgraph.GraphStructure;
+import soot.SootMethod;
+import soot.jimple.BreakpointStmt;
+import soot.jimple.DefinitionStmt;
+import soot.jimple.GotoStmt;
+import soot.jimple.IfStmt;
+import soot.jimple.InvokeStmt;
+import soot.jimple.MonitorStmt;
+import soot.jimple.NopStmt;
+import soot.jimple.RetStmt;
+import soot.jimple.ReturnStmt;
+import soot.jimple.ReturnVoidStmt;
+import soot.jimple.SwitchStmt;
+import soot.jimple.ThrowStmt;
+
 public class UnitBreakpointPropertiesDialog extends Dialog implements SelectionListener {
 
     private Composite compositeType;
@@ -21,6 +41,23 @@ public class UnitBreakpointPropertiesDialog extends Dialog implements SelectionL
     private Combo cmbTypes;
     private Combo cmbClass;
     private Combo cmbMethod;
+
+    // @formatter:off
+    private static String[] stmts = {
+            BreakpointStmt.class.getSimpleName(),
+            DefinitionStmt.class.getSimpleName(),
+            GotoStmt.class.getSimpleName(),
+            IfStmt.class.getSimpleName(),
+            InvokeStmt.class.getSimpleName(),
+            MonitorStmt.class.getSimpleName(),
+            NopStmt.class.getSimpleName(),
+            RetStmt.class.getSimpleName(),
+            ReturnStmt.class.getSimpleName(),
+            ReturnVoidStmt.class.getSimpleName(),
+            SwitchStmt.class.getSimpleName(),
+            ThrowStmt.class.getSimpleName()
+    };
+    // @formatter:on
 
     private Object currentSelection;
 
@@ -43,10 +80,6 @@ public class UnitBreakpointPropertiesDialog extends Dialog implements SelectionL
         bSuspendOnType.addSelectionListener(this);
         cmbTypes = new Combo(compositeType, SWT.READ_ONLY);
         cmbTypes.addSelectionListener(this);
-        cmbTypes.add("JAssignmnt");
-        cmbTypes.add("JExpression");
-        cmbTypes.add("JReturnStmt");
-        cmbTypes.select(0);
 
         compositeUnit = new Composite(verticalGroup, SWT.NONE);
         compositeUnit.setLayout(new RowLayout(SWT.HORIZONTAL));
@@ -55,14 +88,38 @@ public class UnitBreakpointPropertiesDialog extends Dialog implements SelectionL
         bSuspendOnUnit.addSelectionListener(this);
         cmbClass = new Combo(compositeUnit, SWT.READ_ONLY);
         cmbClass.addSelectionListener(this);
-        cmbClass.add("HelloWorld");
-        cmbClass.select(0);
         cmbMethod = new Combo(compositeUnit, SWT.READ_ONLY);
         cmbMethod.addSelectionListener(this);
-        cmbMethod.add("main()");
+
+        fillCombos();
+
+        cmbClass.select(0);
         cmbMethod.select(0);
+        cmbTypes.select(0);
 
         return container;
+    }
+
+    private void fillCombos() {
+        for (String stmt : stmts) {
+            cmbTypes.add(stmt);
+        }
+
+        CallGraphGenerator generator = new CallGraphGenerator();
+        HashMap<SootMethod, GraphStructure> analysisData; analysisData = new HashMap<>();
+        generator.runAnalysis(analysisData);
+
+        Set<String> classes = new HashSet<>();
+        analysisData.keySet().forEach(key -> {
+            classes.add(key.getDeclaringClass().getName());
+        });
+        classes.forEach(cls -> {
+            cmbClass.add(cls);
+        });
+
+        analysisData.keySet().forEach(key -> {
+            cmbMethod.add(key.getName());
+        });
     }
 
     // overriding this methods allows you to set the
@@ -75,7 +132,7 @@ public class UnitBreakpointPropertiesDialog extends Dialog implements SelectionL
 
     @Override
     protected Point getInitialSize() {
-        return new Point(450, 300);
+        return new Point(600, 300);
     }
 
     @Override
