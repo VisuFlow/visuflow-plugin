@@ -3,12 +3,8 @@ package de.unipaderborn.visuflow.debug.ui;
 import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.ui.actions.RulerBreakpointAction;
 import org.eclipse.jdt.debug.core.IJavaBreakpoint;
+import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.text.source.IVerticalRulerInfo;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.ui.dialogs.PropertyDialogAction;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.IUpdate;
 
@@ -36,24 +32,32 @@ public class UnitBreakpointPropertiesAction extends RulerBreakpointAction implem
         System.out.println(getEditor());
         System.out.println(getBreakpoint());
 
-        if (getBreakpoint() != null) {
-            PropertyDialogAction action=
-                    new PropertyDialogAction(getEditor().getEditorSite(), new ISelectionProvider() {
-                        @Override
-                        public void addSelectionChangedListener(ISelectionChangedListener listener) {
-                        }
-                        @Override
-                        public ISelection getSelection() {
-                            return new StructuredSelection(getBreakpoint());
-                        }
-                        @Override
-                        public void removeSelectionChangedListener(ISelectionChangedListener listener) {
-                        }
-                        @Override
-                        public void setSelection(ISelection selection) {
-                        }
-                    });
-            action.run();
+        //        if (getBreakpoint() != null) {
+        //            PropertyDialogAction action=
+        //                    new PropertyDialogAction(getEditor().getEditorSite(), new ISelectionProvider() {
+        //                        @Override
+        //                        public void addSelectionChangedListener(ISelectionChangedListener listener) {
+        //                        }
+        //                        @Override
+        //                        public ISelection getSelection() {
+        //                            return new StructuredSelection(getBreakpoint());
+        //                        }
+        //                        @Override
+        //                        public void removeSelectionChangedListener(ISelectionChangedListener listener) {
+        //                        }
+        //                        @Override
+        //                        public void setSelection(ISelection selection) {
+        //                        }
+        //                    });
+        //            action.run();
+        //        }
+
+        UnitBreakpointPropertiesDialog dialog = new UnitBreakpointPropertiesDialog(getEditor().getSite().getShell());
+        int returnCode = dialog.open();
+        if(returnCode == Dialog.OK) {
+            System.out.println("OK");
+        } else {
+            System.out.println("Cancel");
         }
     }
 
