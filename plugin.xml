@@ -41,4 +41,51 @@
 	         </action>
 	      </viewerContribution>
 	</extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="de.unipaderborn.visuflow.ui.VisuflowEditorPerspective"
+            id="visuflow-plugin.perspective.editor"
+            name="Visuflow">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="GraphStreamFeasibility"
+            name="Visuflow">
+      </category>
+      <view
+            category="GraphStreamFeasibility"
+            class="graphstreamfeasibility.views.SampleView"
+            icon="icons/sample.gif"
+            id="graphstreamfeasibility.views.SampleView"
+            name="Jimple">
+      </view>
+      <view
+            category="GraphStreamFeasibility"
+            class="de.unipaderborn.visuflow.graphdisplaycomponent.CFGViewPart"
+            icon="icons/sample.gif"
+            id="de.unipaderborn.visuflow.graphdisplaycomponent.CFGViewPart"
+            name="CFG">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.eclipse.jdt.ui.JavaPerspective">
+         <view
+               id="graphstreamfeasibility.views.SampleView"
+               ratio="0.5"
+               relationship="right"
+               relative="org.eclipse.ui.views.ProblemView">
+         </view>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.help.contexts">
+      <contexts
+            file="contexts.xml">
+      </contexts>
+   </extension>
 </plugin>
