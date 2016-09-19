@@ -98,6 +98,13 @@ public class MultiPageEditor extends MultiPageEditorPart implements IResourceCha
 
 		int index = addPage(composite);
 		setPageText(index, "Test Graph");
+		
+		try {
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView("visuflow.views.nodeView");
+		} catch (PartInitException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**

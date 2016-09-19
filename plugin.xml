@@ -6,7 +6,7 @@
          point="org.eclipse.ui.editors">
       <editor
             name="Sample Multi-page Editor"
-            extensions="mpe"
+            extensions="gph"
             icon="icons/sample.gif"
             contributorClass="graphstreamfeasibility.editors.MultiPageEditorContributor"
             class="graphstreamfeasibility.editors.MultiPageEditor"
@@ -26,6 +26,35 @@
             class="graphstreamfeasibility.wizards.SampleNewWizard"
             id="graphstreamfeasibility.wizards.SampleNewWizard">
       </wizard>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="visuflow.nodeView"
+            name="NodeView">
+      </category>
+      <view
+            class="de.unipaderborn.visuflow.NodeView"
+            id="visuflow.views.nodeView"
+            name="nodeView"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.eclipse.jdt.ui.JavaPerspective">
+         <view
+               id="GraphStreamFeasibility.view1"
+               minimized="false"
+               relationship="stack">
+         <view
+               id="visuflow.views.nodeView1"
+               minimized="false"
+               relationship="stack">
+         </view>
+         </view>
+      </perspectiveExtension>
    </extension>
 
 </plugin>
