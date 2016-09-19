@@ -62,4 +62,30 @@
             file="contexts.xml">
       </contexts>
    </extension>
+   <extension
+      point="org.eclipse.ui.menus">
+   <menuContribution
+         allPopups="false"
+         locationURI="popup:#AbstractTextEditorRulerContext?after=additions">
+      <command
+            commandId="JimpleEditor.JimpleEditorBreakpoint"
+            label="ToggleBreakpoint"
+            style="push">
+      </command>
+   </menuContribution>
+</extension>
+<extension
+      point="org.eclipse.ui.commands">
+   <command
+         id="JimpleEditor.JimpleEditorBreakpoint"
+         name="name">
+   </command>
+</extension>
+<extension
+      point="org.eclipse.ui.handlers">
+   <handler
+         class="de.unipaderborn.visuflow.debug.handlers.JimpleBreakPointHandler"
+         commandId="JimpleEditor.JimpleEditorBreakpoint">
+   </handler>
+</extension>
 </plugin>
