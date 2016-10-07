@@ -540,8 +540,16 @@ public class GraphManager implements Runnable, ViewerListener {
 		fromViewer.addViewerListener(this);
 		fromViewer.addSink(graph);
 
-		while(true)
-			fromViewer.pump();
+		// FIXME the Thread.sleep slows down the loop, so that it does not eat up the CPU
+        // but this really should be implemented differently. isn't there an event listener
+        // or something we can use, so that we call pump() only when necessary
+        while(true) {
+        	try {
+				Thread.sleep(1);
+			} catch (InterruptedException e) {
+			}
+            fromViewer.pump();
+        }
 	}
 
 	@Override
