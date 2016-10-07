@@ -16,7 +16,7 @@ public class ServiceUtil {
         if(service != null) {
             return service;
         } else {
-            throw new ServiceException("Service "+serviceClass.toString()+" not available");
+            throw new ServiceException("Service "+serviceClass.getName()+" not available");
         }
     }
 }
