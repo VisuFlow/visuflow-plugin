@@ -41,7 +41,7 @@ public class SampleView extends ViewPart {
 	private Action action1;
 	private Action action2;
 	private Action doubleClickAction;
-	 
+
 
 	class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
 		public String getColumnText(Object obj, int index) {
@@ -55,7 +55,7 @@ public class SampleView extends ViewPart {
 		}
 	}
 
-/**
+	/**
 	 * The constructor.
 	 */
 	public SampleView() {
@@ -67,10 +67,10 @@ public class SampleView extends ViewPart {
 	 */
 	public void createPartControl(Composite parent) {
 		viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
-		
+
 		viewer.setContentProvider(ArrayContentProvider.getInstance());
 		viewer.setInput(new String[] { "One", "Two", "Three" });
-	viewer.setLabelProvider(new ViewLabelProvider());
+		viewer.setLabelProvider(new ViewLabelProvider());
 
 		// Create the help context id for the viewer's control
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(viewer.getControl(), "GraphStreamFeasibility.viewer");
@@ -112,7 +112,7 @@ public class SampleView extends ViewPart {
 		// Other plug-ins can contribute there actions here
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
-	
+
 	private void fillLocalToolBar(IToolBarManager manager) {
 		manager.add(action1);
 		manager.add(action2);
@@ -127,8 +127,8 @@ public class SampleView extends ViewPart {
 		action1.setText("Action 1");
 		action1.setToolTipText("Action 1 tooltip");
 		action1.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-			getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
-		
+				getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+
 		action2 = new Action() {
 			public void run() {
 				showMessage("Action 2 executed");
@@ -156,9 +156,9 @@ public class SampleView extends ViewPart {
 	}
 	private void showMessage(String message) {
 		MessageDialog.openInformation(
-			viewer.getControl().getShell(),
-			"Sample View",
-			message);
+				viewer.getControl().getShell(),
+				"Sample View",
+				message);
 	}
 
 	/**

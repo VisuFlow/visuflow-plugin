@@ -32,35 +32,29 @@ public class IntraproceduralAnalysis extends ForwardFlowAnalysis<Unit, Set<FlowA
 
 	public IntraproceduralAnalysis(Body b, final HashMap<SootMethod, GraphStructure> hashMap) {
 		super(new ExceptionalUnitGraph(b));
+		System.out.println(b);
 		Options.v().set_keep_line_number(true);
 		nodeNumber=0;
 		edgeNumber=0;
 		listNodes = new ArrayList<>();
 		listEdges = new ArrayList<>();
 		GraphStructure g = new GraphStructure();
-		System.out.println("body method is "+b);	
-		//if ((b.getMethod().getDeclaration().toString().contains(sm.getDeclaration().toString()))) {
-	//if ((b.getMethod().getDeclaration().toString().contains("wrong1"))) {
-			//System.out.println("Methods are same");
-			Unit head = null;
-			eg = new ExceptionalUnitGraph(b);
-			List<Unit> list = eg.getHeads();
-			Iterator<Unit> it1 = list.iterator();
-			while (it1.hasNext()) {
-				head = it1.next();
-				System.out.println("Unit type "+head.getClass());
-				nodeNumber++;
-				Node node = new Node(head, nodeNumber);
-				listNodes.add(node);
-				break;
-			}
-			traverseUnits(head);
-			g.listEdges = listEdges;
-			g.listNodes = listNodes;
-			hashMap.put(b.getMethod(), g);
-
-		//}
-	}
+		Unit head = null;
+		eg = new ExceptionalUnitGraph(b);
+		List<Unit> list = eg.getHeads();
+		Iterator<Unit> it1 = list.iterator();
+		while (it1.hasNext()) {
+			head = it1.next();
+			nodeNumber++;
+			Node node = new Node(head, nodeNumber);
+			listNodes.add(node);
+			break;
+		}
+		traverseUnits(head);
+		g.listEdges = listEdges;
+		g.listNodes = listNodes;
+		hashMap.put(b.getMethod(), g);
+}
 
 	public static void traverseUnits(Unit currentNode) {
 		boolean present = false;

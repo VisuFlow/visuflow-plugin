@@ -12,33 +12,33 @@ import org.eclipse.ui.part.ViewPart;
 
 public class CFGViewPart extends ViewPart {
 
-    @Override
-    public void createPartControl(Composite parent) {
-        createGraphComposite(parent);
-    }
+	@Override
+	public void createPartControl(Composite parent) {
+		createGraphComposite(parent);
+	}
 
-    private void createGraphComposite(Composite parent) {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-                | UnsupportedLookAndFeelException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+	private void createGraphComposite(Composite parent) {
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+				| UnsupportedLookAndFeelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-        Composite composite = new Composite(parent, SWT.EMBEDDED | SWT.NO_BACKGROUND);
-        GraphManager manager = new GraphManager("test", "url('file:../../styles/stylesheet.css')");
-        Thread t = new Thread(manager);
-        t.start();
+		Composite composite = new Composite(parent, SWT.EMBEDDED | SWT.NO_BACKGROUND);
+		GraphManager manager = new GraphManager("test", "url('file:../../styles/stylesheet.css')");
+		Thread t = new Thread(manager);
+		t.start();
 
-        Frame frame = SWT_AWT.new_Frame(composite);
-        frame.add(manager.getApplet());
-        frame.pack();
-    }
+		Frame frame = SWT_AWT.new_Frame(composite);
+		frame.add(manager.getApplet());
+		frame.pack();
+	}
 
-    @Override
-    public void setFocus() {
-        System.out.println(getClass().getName() + " Set Focus");
-    }
+	@Override
+	public void setFocus() {
+		System.out.println(getClass().getName() + " Set Focus");
+	}
 
 }

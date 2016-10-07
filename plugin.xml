@@ -22,19 +22,6 @@
             id="visuflow-plugin.perspective.editor"
             name="Visuflow">
       </perspective>
-      </extension>
-
-<extension
-         point="org.eclipse.ui.editors">
-      <editor
-            name="Sample Multi-page Editor"
-            extensions="gph"
-            icon="icons/sample.gif"
-            contributorClass="graphstreamfeasibility.editors.MultiPageEditorContributor"
-            class="graphstreamfeasibility.editors.MultiPageEditor"
-            id="graphstreamfeasibility.editors.MultiPageEditor">
-      </editor>
-
    </extension>
    <extension
          point="org.eclipse.ui.views">
@@ -55,19 +42,6 @@
             icon="icons/sample.gif"
             id="de.unipaderborn.visuflow.graphdisplaycomponent.CFGViewPart"
             name="CFG">
-      </view>
-   </extension>
-   <extension
-         point="org.eclipse.ui.views">
-      <category
-            id="visuflow.nodeView"
-            name="NodeView">
-      </category>
-      <view
-            class="de.unipaderborn.visuflow.NodeView"
-            id="visuflow.views.nodeView"
-            name="nodeView"
-            restorable="true">
       </view>
    </extension>
    <extension
@@ -99,12 +73,25 @@
             style="push">
       </command>
    </menuContribution>
+   <menuContribution
+         allPopups="false"
+         locationURI="popup:#AbstractTextEditorRulerContext?after=additions">
+      <command
+            commandId="GraphStreamFeasibility.sourceCodeCommand"
+            label="View Java Source"
+            style="push">
+      </command>
+   </menuContribution>
 </extension>
 <extension
       point="org.eclipse.ui.commands">
    <command
          id="JimpleEditor.JimpleEditorBreakpoint"
          name="name">
+   </command>
+   <command
+         id="GraphStreamFeasibility.sourceCodeCommand"
+         name="sourceCodeCommand">
    </command>
 </extension>
 <extension
@@ -113,6 +100,9 @@
          class="de.unipaderborn.visuflow.debug.handlers.JimpleBreakPointHandler"
          commandId="JimpleEditor.JimpleEditorBreakpoint">
    </handler>
+   <handler
+         class="de.unipaderborn.visuflow.debug.handlers.ViewJavaSource"
+         commandId="GraphStreamFeasibility.sourceCodeCommand">
+   </handler>
 </extension>
-
 </plugin>

@@ -1,4 +1,5 @@
 package de.visuflow.callgraph;
+import de.visuflow.callgraph.Node;
 
 public class Edge {
 	
