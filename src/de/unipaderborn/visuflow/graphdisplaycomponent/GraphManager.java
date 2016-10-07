@@ -6,22 +6,30 @@ import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.Map.Entry;
 
+import javax.swing.BorderFactory;
 import javax.swing.JApplet;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
+import javax.swing.border.Border;
 
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.graphstream.algorithm.generator.BaseGenerator;
 import org.graphstream.algorithm.generator.LobsterGenerator;
 import org.graphstream.graph.Edge;
@@ -30,15 +38,19 @@ import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
 import org.graphstream.stream.SinkAdapter;
 import org.graphstream.ui.geom.Point3;
+import org.graphstream.ui.graphicGraph.GraphicElement;
 import org.graphstream.ui.layout.Layout;
 import org.graphstream.ui.layout.springbox.implementations.SpringBox;
 import org.graphstream.ui.swingViewer.ViewPanel;
+import org.graphstream.ui.view.View;
 import org.graphstream.ui.view.Viewer;
 import org.graphstream.ui.view.ViewerListener;
 import org.graphstream.ui.view.ViewerPipe;
 
+import de.unipaderborn.visuflow.NodeView;
 import de.visuflow.callgraph.CallGraphGenerator;
 import de.visuflow.callgraph.GraphStructure;
+import graphstreamfeasibility.editors.test;
 import soot.SootMethod;
 
 public class GraphManager implements Runnable, ViewerListener {
@@ -58,12 +70,14 @@ public class GraphManager implements Runnable, ViewerListener {
 	JTextField attribute;
 	JScrollPane scrollbar;
 	JComboBox<String> methodList;
+	JTable nodeData;
 
 	double zoomInDelta, zoomOutDelta, maxZoomPercent, minZoomPercent;
 
 	boolean autoLayoutEnabled = false;
 
 	Layout graphLayout = new SpringBox();
+	private Border raisedbevel = BorderFactory.createRaisedBevelBorder();
 
 	public GraphManager(String graphName, String styleSheet)
 	{
@@ -86,7 +100,7 @@ public class GraphManager implements Runnable, ViewerListener {
 	{
 		if(graph == null && graphName != null)
 			graph = new MultiGraph(graphName);
-		
+
 		graph.clear();
 		graph.addAttribute("ui.stylesheet", styleSheet);
 		graph.setStrict(true);
@@ -96,7 +110,7 @@ public class GraphManager implements Runnable, ViewerListener {
 
 		viewer = new Viewer(graph, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
 		viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
-		
+
 		view = viewer.addDefaultView(false);
 	}
 
@@ -124,6 +138,7 @@ public class GraphManager implements Runnable, ViewerListener {
 		// TODO Auto-generated method stub
 		attribute = new JTextField("ui.screenshot,C:/Users/Shashank B S/Desktop/image.png");
 		filterGraphButton = new JButton("SetAttribute");
+		filterGraphButton.setBorder(raisedbevel);
 
 		filterGraphButton.addActionListener(new ActionListener() {
 
@@ -140,9 +155,9 @@ public class GraphManager implements Runnable, ViewerListener {
 	{
 		methodList = new JComboBox<String>();
 		methodList.addItem("Select Method");
-		
+
 		methodList.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
@@ -160,7 +175,7 @@ public class GraphManager implements Runnable, ViewerListener {
 			}
 		});
 	}
-	
+
 	private void createSettingsBar() {
 		// TODO Auto-generated method stub
 		settingsBar = new JToolBar("ControlsBar", JToolBar.HORIZONTAL);
@@ -206,6 +221,20 @@ public class GraphManager implements Runnable, ViewerListener {
 			@Override
 			public void mouseMoved(MouseEvent e) {
 				// TODO Auto-generated method stub
+				/*try {
+					Collection<GraphicElement> highlightedNodes = ((View) e.getComponent()).allNodesOrSpritesIn(e.getX(), e.getY(), e.getX(), e.getY());
+					Iterator<GraphicElement> nodes = highlightedNodes.iterator();
+					while(nodes.hasNext())
+					{
+						Node curr = (Node) nodes.next();
+						System.out.println("left " + curr.getAttribute("leftOp"));
+						System.out.println("right " + curr.getAttribute("rightOp"));
+					}
+					//					System.out.println("Node to display pop info about " + ((View) e.getComponent()).allNodesOrSpritesIn(e.getX(), e.getY(), e.getX(), e.getY()));
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}*/
 			}
 
 			@Override
@@ -234,6 +263,55 @@ public class GraphManager implements Runnable, ViewerListener {
 				}
 			}
 		});
+
+		view.addMouseListener(new MouseListener() {
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				// TODO Auto-generated method stub
+				System.out.println("Inside the event " + e.getButton());
+				if(e.getButton() == MouseEvent.BUTTON3)
+				{
+					try {
+						Collection<GraphicElement> highlightedNodes = ((View) e.getComponent()).allNodesOrSpritesIn(e.getX(), e.getY(), e.getX(), e.getY());
+						Iterator<GraphicElement> nodes = highlightedNodes.iterator();
+						if(nodes.hasNext())
+						{
+							System.out.println("Inside the event");
+							test lineHighlighter = new test();
+							lineHighlighter.highlightCodeLine();
+						}
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+			}
+		});
 	}
 
 	private void createZoomControls() {
@@ -243,29 +321,34 @@ public class GraphManager implements Runnable, ViewerListener {
 		viewCenterButton = new JButton("reset");
 
 		zoomInButton.setBackground(Color.gray);
+		zoomInButton.setBorder(raisedbevel);
 		zoomInButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
+				System.out.println("event triggered for zoomin");
 				double viewPercent = view.getCamera().getViewPercent();
-				if(viewPercent > maxZoomPercent)
+//				if(viewPercent > maxZoomPercent)
 					view.getCamera().setViewPercent(viewPercent - zoomInDelta);
 			}
 		});
 
 		zoomOutButton.setBackground(Color.gray);
+		zoomOutButton.setBorder(raisedbevel);
 		zoomOutButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				double viewPercent = view.getCamera().getViewPercent();
-				if(viewPercent < minZoomPercent)
+				System.out.println("event triggered for zoomout");
+//				if(viewPercent < minZoomPercent)
 					view.getCamera().setViewPercent(viewPercent + zoomOutDelta);
 			}
 		});
 
+		viewCenterButton.setBorder(raisedbevel);
 		viewCenterButton.addActionListener(new ActionListener() {
 
 			@Override
@@ -279,6 +362,7 @@ public class GraphManager implements Runnable, ViewerListener {
 	private void createToggleLayoutButton()
 	{
 		toggleLayout = new JButton();
+		toggleLayout.setBorder(raisedbevel);
 		toggleAutoLayout();
 		toggleLayout.addActionListener(new ActionListener() {
 
@@ -341,17 +425,50 @@ public class GraphManager implements Runnable, ViewerListener {
 			SootMethod currMethod = curr.getKey();
 			methodList.addItem(currMethod.getName());
 		}
-//		renderMethodCFG(analysisData.entrySet().iterator().next().getValue());
+		//		renderMethodCFG(analysisData.entrySet().iterator().next().getValue());
 		experimentalLayout();
 	}
-	
+
+	private void createNode(de.visuflow.callgraph.Node node)
+	{
+		if(graph.getNode(node.getId() + "") == null)
+		{
+			Node newNode = graph.addNode(node.getId() + "");
+			newNode.setAttribute("ui.label", node.getLabel());
+		}
+	}
+
+	private void createEdge(de.visuflow.callgraph.Node src, de.visuflow.callgraph.Node dest)
+	{
+		if(graph.getEdge("" + src.getId() + dest.getId()) == null)
+			graph.addEdge(src.getId() + "" + dest.getId(), src.getId() + "", dest.getId() + "", true);
+	}
+
 	private void renderMethodCFG(GraphStructure interGraph) throws Exception
 	{
+		String[] columnNames = {"First Name",
+				"Last Name",
+				"Sport",
+				"# of Years",
+		"Vegetarian"};
+
+		Object[][] data = {
+				{"Kathy", "Smith",
+					"Snowboarding", new Integer(5), new Boolean(false)},
+				{"John", "Doe",
+						"Rowing", new Integer(3), new Boolean(true)},
+				{"Sue", "Black",
+							"Knitting", new Integer(2), new Boolean(false)},
+				{"Jane", "White",
+								"Speed reading", new Integer(20), new Boolean(true)},
+				{"Joe", "Brown",
+									"Pool", new Integer(10), new Boolean(false)}
+		};
+
 		if(interGraph == null)
 			throw new Exception("GraphStructure is null");
 
 		createGraph(null);
-		graph.addAttribute("ui.stylesheet", styleSheet);
 		ListIterator<de.visuflow.callgraph.Edge> edgeIterator = interGraph.listEdges.listIterator();
 
 		while(edgeIterator.hasNext())
@@ -361,22 +478,45 @@ public class GraphManager implements Runnable, ViewerListener {
 			de.visuflow.callgraph.Node src = currEdgeIterator.getSource();
 			de.visuflow.callgraph.Node dest = currEdgeIterator.getDestination();
 
-			if(graph.getNode(src.getId() + "") == null)
-				graph.addNode(src.getId() + "").setAttribute("ui.label", src.getLabel());
-
-			if(graph.getNode(dest.getId() + "") == null)
-				graph.addNode(dest.getId() + "").setAttribute("ui.label", dest.getLabel());
-
-			if(graph.getEdge("" + src.getId() + dest.getId()) == null)
-				graph.addEdge(src.getId() + "" + dest.getId(), src.getId() + "", dest.getId() + "", true);
+			createNode(src);
+			createNode(dest);
+			createEdge(src, dest);
 		}
+
+		//		PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView("");
+
+		/*Display display = PlatformUI.createDisplay();
+		display.syncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				try {
+					NodeView view = (NodeView) PlatformUI.getWorkbench()
+							.getActiveWorkbenchWindow()
+							.getActivePage()
+							.showView("visuflow.nodeView");
+
+					System.out.println("View created ");
+
+					view.setColumnNames(columnNames);
+					view.setData(data);
+
+					System.out.println("Data has been set");
+				} catch (PartInitException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
+		System.out.println("Active shell " + display.getActiveShell());*/
 	}
 
 	private void experimentalLayout()
 	{
 		//		viewer.disableAutoLayout();
 		int spacing = 2;
-		int rowSpacing = 12;
+		int rowSpacing = 2;
 		int nodeCount = graph.getNodeCount() * spacing;
 		Iterator<Node> nodeIterator = graph.getNodeIterator();
 		while(nodeIterator.hasNext())

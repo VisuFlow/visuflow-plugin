@@ -22,6 +22,19 @@
             id="visuflow-plugin.perspective.editor"
             name="Visuflow">
       </perspective>
+      </extension>
+
+<extension
+         point="org.eclipse.ui.editors">
+      <editor
+            name="Sample Multi-page Editor"
+            extensions="gph"
+            icon="icons/sample.gif"
+            contributorClass="graphstreamfeasibility.editors.MultiPageEditorContributor"
+            class="graphstreamfeasibility.editors.MultiPageEditor"
+            id="graphstreamfeasibility.editors.MultiPageEditor">
+      </editor>
+
    </extension>
    <extension
          point="org.eclipse.ui.views">
@@ -42,6 +55,19 @@
             icon="icons/sample.gif"
             id="de.unipaderborn.visuflow.graphdisplaycomponent.CFGViewPart"
             name="CFG">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="visuflow.nodeView"
+            name="NodeView">
+      </category>
+      <view
+            class="de.unipaderborn.visuflow.NodeView"
+            id="visuflow.views.nodeView"
+            name="nodeView"
+            restorable="true">
       </view>
    </extension>
    <extension
@@ -88,4 +114,5 @@
          commandId="JimpleEditor.JimpleEditorBreakpoint">
    </handler>
 </extension>
+
 </plugin>
