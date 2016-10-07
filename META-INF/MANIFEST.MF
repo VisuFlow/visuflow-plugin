@@ -23,3 +23,6 @@ Bundle-ClassPath: .,
  lib/gs-ui-1.3.jar,
  lib/gs-algo-1.3.jar,
  lib/soot.jar
+Bundle-ActivationPolicy: lazy
+Service-Component: 
+ OSGI-INF/datamodel.xml

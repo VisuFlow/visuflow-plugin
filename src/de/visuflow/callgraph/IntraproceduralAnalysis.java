@@ -5,8 +5,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import de.unipaderborn.visuflow.model.VFMethod;
 import soot.Body;
 import soot.SootMethod;
 import soot.Unit;
@@ -30,7 +32,7 @@ public class IntraproceduralAnalysis extends ForwardFlowAnalysis<Unit, Set<FlowA
 	public static List<Node> listNodes;
 	public static List<Edge> listEdges;
 
-	public IntraproceduralAnalysis(Body b, final HashMap<SootMethod, GraphStructure> hashMap) {
+	public IntraproceduralAnalysis(Body b, final Map<VFMethod, GraphStructure> map) {
 		super(new ExceptionalUnitGraph(b));
 		System.out.println(b);
 		Options.v().set_keep_line_number(true);
@@ -53,7 +55,8 @@ public class IntraproceduralAnalysis extends ForwardFlowAnalysis<Unit, Set<FlowA
 		traverseUnits(head);
 		g.listEdges = listEdges;
 		g.listNodes = listNodes;
-		hashMap.put(b.getMethod(), g);
+		VFMethod method = new VFMethod(b.getMethod());
+		map.put(method, g);
 }
 
 	public static void traverseUnits(Unit currentNode) {

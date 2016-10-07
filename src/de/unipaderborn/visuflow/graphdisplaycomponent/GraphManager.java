@@ -12,8 +12,9 @@ import java.awt.event.MouseWheelListener;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
-import java.util.Map.Entry;
+import java.util.Map;
 
 import javax.swing.JApplet;
 import javax.swing.JButton;
@@ -39,9 +40,11 @@ import org.graphstream.ui.view.Viewer;
 import org.graphstream.ui.view.ViewerListener;
 import org.graphstream.ui.view.ViewerPipe;
 
+import de.unipaderborn.visuflow.model.DataModel;
+import de.unipaderborn.visuflow.model.VFMethod;
+import de.unipaderborn.visuflow.util.ServiceUtil;
 import de.visuflow.callgraph.CallGraphGenerator;
 import de.visuflow.callgraph.GraphStructure;
-import soot.SootMethod;
 
 public class GraphManager implements Runnable, ViewerListener {
 
@@ -49,7 +52,7 @@ public class GraphManager implements Runnable, ViewerListener {
 	String styleSheet;
 	private Viewer viewer;
 	private ViewPanel view;
-	HashMap<SootMethod, GraphStructure> analysisData;
+	Map<VFMethod, GraphStructure> analysisData;
 
 	ViewerPipe fromViewer;
 
@@ -359,15 +362,12 @@ public class GraphManager implements Runnable, ViewerListener {
 		analysisData = new HashMap<>();
 		generator.runAnalysis(analysisData);
 
-		Iterator<Entry<SootMethod, GraphStructure>> methodIterator = analysisData.entrySet().iterator();
-		while(methodIterator.hasNext())
-		{
-			Entry<SootMethod, GraphStructure> curr = methodIterator.next();
-			SootMethod currMethod = curr.getKey();
-//			System.out.println("method " + currMethod.getName());
-			methodList.addItem(currMethod.getName());
+		DataModel dataModel = ServiceUtil.getService(DataModel.class);
+		List<VFMethod> methods = dataModel.listMethods(null);
+		for (VFMethod vfMethod : methods) {
+			methodList.addItem(vfMethod.getSootMethod().getName());
 		}
-		//		experimentalLayout();
+		
 	}
 
 	private void renderMethodCFG(GraphStructure interGraph) throws Exception

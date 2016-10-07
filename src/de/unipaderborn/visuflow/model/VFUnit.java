@@ -7,7 +7,6 @@ public class VFUnit {
     protected Unit wrapped;
 
     public VFUnit(Unit wrapped) {
-        super();
         this.wrapped = wrapped;
     }
 

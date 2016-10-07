@@ -2,6 +2,7 @@ package de.unipaderborn.visuflow.debug.ui;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jface.dialogs.Dialog;
@@ -16,9 +17,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
+import de.unipaderborn.visuflow.model.VFMethod;
 import de.visuflow.callgraph.CallGraphGenerator;
 import de.visuflow.callgraph.GraphStructure;
-import soot.SootMethod;
 import soot.jimple.BreakpointStmt;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.GotoStmt;
@@ -106,19 +107,19 @@ public class UnitBreakpointPropertiesDialog extends Dialog implements SelectionL
         }
 
         CallGraphGenerator generator = new CallGraphGenerator();
-        HashMap<SootMethod, GraphStructure> analysisData; analysisData = new HashMap<>();
+        Map<VFMethod, GraphStructure> analysisData; analysisData = new HashMap<>();
         generator.runAnalysis(analysisData);
 
         Set<String> classes = new HashSet<>();
         analysisData.keySet().forEach(key -> {
-            classes.add(key.getDeclaringClass().getName());
+            classes.add(key.getSootMethod().getDeclaringClass().getName());
         });
         classes.forEach(cls -> {
             cmbClass.add(cls);
         });
 
         analysisData.keySet().forEach(key -> {
-            cmbMethod.add(key.getName());
+            cmbMethod.add(key.getSootMethod().getName());
         });
     }
 

@@ -12,6 +12,10 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
+
+import de.unipaderborn.visuflow.model.DataModel;
+import de.unipaderborn.visuflow.util.ServiceUtil;
+
 import org.eclipse.jface.dialogs.*;
 
 public class JimpleBreakPointHandler extends AbstractHandler {
@@ -19,6 +23,8 @@ public class JimpleBreakPointHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
+		System.out.println( ServiceUtil.getService(DataModel.class));
+		
 		IEditorPart part =PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
 		IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindow(event);
 
