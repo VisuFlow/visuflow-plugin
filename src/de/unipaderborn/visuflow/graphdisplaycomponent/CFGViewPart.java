@@ -27,7 +27,7 @@ public class CFGViewPart extends ViewPart {
 		}
 
 		Composite composite = new Composite(parent, SWT.EMBEDDED | SWT.NO_BACKGROUND);
-		GraphManager manager = new GraphManager("test", "url('file:../../styles/stylesheet.css')");
+		GraphManager manager = new GraphManager("test", "url('file:styles/stylesheet.css')");
 		Thread t = new Thread(manager);
 		t.start();
 

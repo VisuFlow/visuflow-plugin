@@ -6,7 +6,6 @@ import java.util.List;
 import de.visuflow.callgraph.ControlFlowGraph;
 import soot.Body;
 import soot.SootMethod;
-import soot.Unit;
 
 public class VFMethod {
 
@@ -17,9 +16,6 @@ public class VFMethod {
 
 	public VFMethod(SootMethod wrapped) {
         this.wrapped = wrapped;
-		for (Unit unit : wrapped.getActiveBody().getUnits()) {
-			units.add(new VFUnit(unit));
-		}
     }
 
     public SootMethod getSootMethod() {
@@ -44,6 +40,11 @@ public class VFMethod {
 	
 	public void setControlFlowGraph(ControlFlowGraph controlFLowGraph) {
 		this.controlFlowGraph = controlFLowGraph;
+	}
+	
+	@Override
+	public String toString() {
+		return wrapped != null ? /*wrapped.getDeclaringClass().getName()+"."+*/ wrapped.getName() : super.toString();
 	}
     
 }

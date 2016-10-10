@@ -9,8 +9,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -38,12 +38,14 @@ import org.graphstream.ui.view.View;
 import org.graphstream.ui.view.Viewer;
 import org.graphstream.ui.view.ViewerListener;
 import org.graphstream.ui.view.ViewerPipe;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.util.ServiceUtil;
-import de.visuflow.callgraph.CallGraphGenerator;
 import de.visuflow.callgraph.ControlFlowGraph;
 
 public class GraphManager implements Runnable, ViewerListener {
@@ -62,7 +64,7 @@ public class GraphManager implements Runnable, ViewerListener {
 	JToolBar settingsBar;
 	JTextField attribute;
 	JScrollPane scrollbar;
-	JComboBox<String> methodList;
+	JComboBox<VFMethod> methodList;
 
 	double zoomInDelta, zoomOutDelta, maxZoomPercent, minZoomPercent;
 
@@ -81,6 +83,18 @@ public class GraphManager implements Runnable, ViewerListener {
 		this.styleSheet = styleSheet;
 		createGraph(graphName);
 		createUI();
+
+		EventHandler dataModelHandler = new EventHandler() {
+			@Override
+			public void handleEvent(Event event) {
+				@SuppressWarnings("unchecked")
+				List<VFClass> vfClasses = (List<VFClass>) event.getProperty("model");
+				System.out.println("Model changed " + vfClasses.size() + " " + vfClasses);
+			}
+		};
+		Hashtable<String, String> properties = new Hashtable<String, String>();
+		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_MODEL_CHANGED);
+		ServiceUtil.registerService(EventHandler.class, dataModelHandler, properties);
 	}
 
 	public Container getApplet() {
@@ -146,8 +160,8 @@ public class GraphManager implements Runnable, ViewerListener {
 
 	private void createMethodComboBox()
 	{
-		methodList = new JComboBox<String>();
-		methodList.addItem("Select Method");
+		methodList = new JComboBox<VFMethod>();
+//		methodList.addItem("Select Method");
 
 		methodList.addActionListener(new ActionListener() {
 
@@ -159,7 +173,10 @@ public class GraphManager implements Runnable, ViewerListener {
 				if(analysisData == null)
 					System.out.println("analysis data is null");
 				try {
-					//renderMethodCFG((ControlFlowGraph) analysisData.values().toArray()[methodBox.getSelectedIndex()-1]);
+					VFMethod selectedMethod = (VFMethod) methodBox.getSelectedItem();
+					System.out.println(selectedMethod.getControlFlowGraph().listEdges.size());
+					System.out.println(selectedMethod.getControlFlowGraph().listNodes.size());
+					renderMethodCFG(selectedMethod.getControlFlowGraph());
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -215,10 +232,10 @@ public class GraphManager implements Runnable, ViewerListener {
 					while(nodes.hasNext())
 					{
 						Node curr = (Node) nodes.next();
-						System.out.println("left " + curr.getAttribute("leftOp"));
-						System.out.println("right " + curr.getAttribute("rightOp"));
+//						System.out.println("left " + curr.getAttribute("leftOp"));
+//						System.out.println("right " + curr.getAttribute("rightOp"));
 					}
-					System.out.println("Node to display pop info about " + ((View) e.getComponent()).allNodesOrSpritesIn(e.getX(), e.getY(), e.getX(), e.getY()));
+					//System.out.println("Node to display pop info about " + ((View) e.getComponent()).allNodesOrSpritesIn(e.getX(), e.getY(), e.getX(), e.getY()));
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -358,16 +375,14 @@ public class GraphManager implements Runnable, ViewerListener {
 
 	void generateGraphFromGraphStructure()
 	{
-		CallGraphGenerator generator = new CallGraphGenerator();
-		analysisData = new ArrayList<>();
-		generator.runAnalysis(analysisData);
-
 		DataModel dataModel = ServiceUtil.getService(DataModel.class);
-		List<VFMethod> methods = dataModel.listMethods(null);
-		for (VFMethod vfMethod : methods) {
-			methodList.addItem(vfMethod.getSootMethod().getName());
+		analysisData = dataModel.listClasses();
+		if(!analysisData.isEmpty()) {
+			VFClass first = analysisData.get(0);
+			for (VFMethod vfMethod : first.getMethods()) {
+				methodList.addItem(vfMethod);
+			}
 		}
-		
 	}
 
 	private void renderMethodCFG(ControlFlowGraph interGraph) throws Exception
