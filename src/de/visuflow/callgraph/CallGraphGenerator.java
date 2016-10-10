@@ -29,6 +29,6 @@ public class CallGraphGenerator {
         });
         PackManager.v().getPack("jtp").add(transform);
         //		String rtJar = System.getProperty("java.home") + File.separator + "lib" + File.separator + "rt.jar";
-        Main.main(new String[] { "-pp", "-process-dir", "/home/henni/devel/pg/workspace-plugin/visuflow-plugin/targetBin2", "-src-prec", "class", "-output-format", "none", "-keep-line-number","de.visuflow.analyzeMe.ex2.TargetClass2" });
+        Main.main(new String[] { "-pp", "-process-dir", "C:/Users/Shashank B S/Documents/Projects/visuflow/visuflow-plugin/targetBin2/", "-src-prec", "class", "-output-format", "none", "-keep-line-number","de.visuflow.analyzeMe.ex2.TargetClass2" });
     }
 }

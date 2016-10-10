@@ -9,9 +9,9 @@ import soot.SootMethod;
 public class VFClass {
 
 	private SootClass wrapped;
-	
+
 	private List<VFMethod> methods = new ArrayList<VFMethod>();
-	
+
 	public VFClass(SootClass sootClass) {
 		this.wrapped = sootClass;
 		for (SootMethod sootMethod : sootClass.getMethods()) {
@@ -22,7 +22,7 @@ public class VFClass {
 	public SootClass getSootClass() {
 		return wrapped;
 	}
-	
+
 	public List<VFMethod> getMethods() {
 		return methods;
 	}

@@ -2,6 +2,7 @@ package de.visuflow.analyzeMe.ex2;
 
 public class TargetClass2 {
 	
+	@SuppressWarnings("unused")
 	private String whatsoever;
 	
 	private void leak(String data) {
@@ -26,6 +27,4 @@ public class TargetClass2 {
 	private String getSecret() {
 		return "top secret";
 	}
-	
-
 }

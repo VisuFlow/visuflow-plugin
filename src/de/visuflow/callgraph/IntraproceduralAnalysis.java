@@ -34,7 +34,6 @@ public class IntraproceduralAnalysis extends ForwardFlowAnalysis<Unit, Set<FlowA
 
 	public IntraproceduralAnalysis(Body b, final Map<VFMethod, GraphStructure> map) {
 		super(new ExceptionalUnitGraph(b));
-		System.out.println(b);
 		Options.v().set_keep_line_number(true);
 		nodeNumber=0;
 		edgeNumber=0;
