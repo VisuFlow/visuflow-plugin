@@ -21,7 +21,7 @@ import de.visuflow.callgraph.CallGraphGenerator;
 import de.visuflow.callgraph.ControlFlowGraph;
 
 public class DummyDataModel implements DataModel {
-	private Map<VFMethod, ControlFlowGraph> analysisData = new HashMap<>();
+	private List<VFClass> analysisData = new ArrayList<VFClass>();
 
 	private EventAdmin eventAdmin;
 	
@@ -34,13 +34,13 @@ public class DummyDataModel implements DataModel {
 	@Override
 	public List<VFMethod> listMethods(VFClass vfClass) {
 		List<VFMethod> methods = new ArrayList<VFMethod>();
-		Iterator<Entry<VFMethod, ControlFlowGraph>> methodIterator = analysisData.entrySet().iterator();
-		while(methodIterator.hasNext())
-		{
-			Entry<VFMethod, ControlFlowGraph> curr = methodIterator.next();
-			VFMethod currMethod = curr.getKey();
-			methods.add(currMethod);
-		}
+//		Iterator<Entry<VFMethod, ControlFlowGraph>> methodIterator = analysisData.entrySet().iterator();
+//		while(methodIterator.hasNext())
+//		{
+//			Entry<VFMethod, ControlFlowGraph> curr = methodIterator.next();
+//			VFMethod currMethod = curr.getKey();
+//			methods.add(currMethod);
+//		}
 		
 		return methods;
 	}

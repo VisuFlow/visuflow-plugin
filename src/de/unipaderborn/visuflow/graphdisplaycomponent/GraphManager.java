@@ -9,12 +9,11 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
 
 import javax.swing.JApplet;
 import javax.swing.JButton;
@@ -41,6 +40,7 @@ import org.graphstream.ui.view.ViewerListener;
 import org.graphstream.ui.view.ViewerPipe;
 
 import de.unipaderborn.visuflow.model.DataModel;
+import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 import de.visuflow.callgraph.CallGraphGenerator;
@@ -52,7 +52,7 @@ public class GraphManager implements Runnable, ViewerListener {
 	String styleSheet;
 	private Viewer viewer;
 	private ViewPanel view;
-	Map<VFMethod, ControlFlowGraph> analysisData;
+	List<VFClass> analysisData;
 
 	ViewerPipe fromViewer;
 
@@ -159,7 +159,7 @@ public class GraphManager implements Runnable, ViewerListener {
 				if(analysisData == null)
 					System.out.println("analysis data is null");
 				try {
-					renderMethodCFG((ControlFlowGraph) analysisData.values().toArray()[methodBox.getSelectedIndex()-1]);
+					//renderMethodCFG((ControlFlowGraph) analysisData.values().toArray()[methodBox.getSelectedIndex()-1]);
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -359,7 +359,7 @@ public class GraphManager implements Runnable, ViewerListener {
 	void generateGraphFromGraphStructure()
 	{
 		CallGraphGenerator generator = new CallGraphGenerator();
-		analysisData = new HashMap<>();
+		analysisData = new ArrayList<>();
 		generator.runAnalysis(analysisData);
 
 		DataModel dataModel = ServiceUtil.getService(DataModel.class);
