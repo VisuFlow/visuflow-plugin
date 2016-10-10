@@ -26,3 +26,7 @@ Bundle-ClassPath: .,
 Bundle-ActivationPolicy: lazy
 Service-Component: 
  OSGI-INF/datamodel.xml
+Import-Package: org.osgi.service.component,
+ org.osgi.service.component.annotations,
+ org.osgi.service.event,
+ org.osgi.service.log

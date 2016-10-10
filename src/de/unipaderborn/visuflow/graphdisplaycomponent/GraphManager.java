@@ -44,7 +44,7 @@ import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 import de.visuflow.callgraph.CallGraphGenerator;
-import de.visuflow.callgraph.GraphStructure;
+import de.visuflow.callgraph.ControlFlowGraph;
 
 public class GraphManager implements Runnable, ViewerListener {
 
@@ -52,7 +52,7 @@ public class GraphManager implements Runnable, ViewerListener {
 	String styleSheet;
 	private Viewer viewer;
 	private ViewPanel view;
-	Map<VFMethod, GraphStructure> analysisData;
+	Map<VFMethod, ControlFlowGraph> analysisData;
 
 	ViewerPipe fromViewer;
 
@@ -159,7 +159,7 @@ public class GraphManager implements Runnable, ViewerListener {
 				if(analysisData == null)
 					System.out.println("analysis data is null");
 				try {
-					renderMethodCFG((GraphStructure) analysisData.values().toArray()[methodBox.getSelectedIndex()-1]);
+					renderMethodCFG((ControlFlowGraph) analysisData.values().toArray()[methodBox.getSelectedIndex()-1]);
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -370,7 +370,7 @@ public class GraphManager implements Runnable, ViewerListener {
 		
 	}
 
-	private void renderMethodCFG(GraphStructure interGraph) throws Exception
+	private void renderMethodCFG(ControlFlowGraph interGraph) throws Exception
 	{
 		if(interGraph == null)
 			throw new Exception("GraphStructure is null");
