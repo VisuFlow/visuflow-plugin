@@ -2,14 +2,6 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         point="org.eclipse.ui.perspectives">
-      <perspective
-            class="de.unipaderborn.visuflow.ui.VisuflowEditorPerspective"
-            id="visuflow-plugin.perspective.editor"
-            name="Visuflow">
-      </perspective>
-   </extension>
-   <extension
          point="org.eclipse.ui.views">
       <category
             id="GraphStreamFeasibility"
