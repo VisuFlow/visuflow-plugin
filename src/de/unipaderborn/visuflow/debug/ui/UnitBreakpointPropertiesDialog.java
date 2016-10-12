@@ -19,7 +19,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import de.unipaderborn.visuflow.model.VFMethod;
 import de.visuflow.callgraph.CallGraphGenerator;
-import de.visuflow.callgraph.GraphStructure;
+import de.visuflow.callgraph.ControlFlowGraph;
 import soot.jimple.BreakpointStmt;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.GotoStmt;
@@ -102,25 +102,26 @@ public class UnitBreakpointPropertiesDialog extends Dialog implements SelectionL
     }
 
     private void fillCombos() {
-        for (String stmt : stmts) {
-            cmbTypes.add(stmt);
-        }
-
-        CallGraphGenerator generator = new CallGraphGenerator();
-        Map<VFMethod, GraphStructure> analysisData; analysisData = new HashMap<>();
-        generator.runAnalysis(analysisData);
-
-        Set<String> classes = new HashSet<>();
-        analysisData.keySet().forEach(key -> {
-            classes.add(key.getSootMethod().getDeclaringClass().getName());
-        });
-        classes.forEach(cls -> {
-            cmbClass.add(cls);
-        });
-
-        analysisData.keySet().forEach(key -> {
-            cmbMethod.add(key.getSootMethod().getName());
-        });
+    	// TODO implement with DataModel
+//        for (String stmt : stmts) {
+//            cmbTypes.add(stmt);
+//        }
+//
+//        CallGraphGenerator generator = new CallGraphGenerator();
+//        Map<VFMethod, ControlFlowGraph> analysisData; analysisData = new HashMap<>();
+//        generator.runAnalysis(analysisData);
+//
+//        Set<String> classes = new HashSet<>();
+//        analysisData.keySet().forEach(key -> {
+//            classes.add(key.getSootMethod().getDeclaringClass().getName());
+//        });
+//        classes.forEach(cls -> {
+//            cmbClass.add(cls);
+//        });
+//
+//        analysisData.keySet().forEach(key -> {
+//            cmbMethod.add(key.getSootMethod().getName());
+//        });
     }
 
     // overriding this methods allows you to set the

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import soot.SootClass;
-import soot.SootMethod;
 
 public class VFClass {
 
@@ -14,9 +13,6 @@ public class VFClass {
 
 	public VFClass(SootClass sootClass) {
 		this.wrapped = sootClass;
-		for (SootMethod sootMethod : sootClass.getMethods()) {
-			methods.add(new VFMethod(sootMethod));
-		}
 	}
 
 	public SootClass getSootClass() {

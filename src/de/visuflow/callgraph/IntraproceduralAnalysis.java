@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
 import soot.Body;
 import soot.SootMethod;
@@ -26,20 +27,20 @@ public class IntraproceduralAnalysis extends ForwardFlowAnalysis<Unit, Set<FlowA
 	public static int edgeCount = 0;
 	public static HashMap<Unit, Integer> nodesMap = new HashMap<>();
 	public static HashMap<Integer, List<Integer>> edgesMap = new HashMap<>();
-	public static HashMap<SootMethod, GraphStructure> hashMap = new HashMap<>();
+	public static HashMap<SootMethod, ControlFlowGraph> hashMap = new HashMap<>();
 	public static Node[] nodes = new Node[20];
 	public static Edge[] edges = new Edge[20];
 	public static List<Node> listNodes;
 	public static List<Edge> listEdges;
 
-	public IntraproceduralAnalysis(Body b, final Map<VFMethod, GraphStructure> map) {
+	public IntraproceduralAnalysis(Body b, final List<VFClass> vfClasses) {
 		super(new ExceptionalUnitGraph(b));
 		Options.v().set_keep_line_number(true);
 		nodeNumber=0;
 		edgeNumber=0;
 		listNodes = new ArrayList<>();
 		listEdges = new ArrayList<>();
-		GraphStructure g = new GraphStructure();
+		ControlFlowGraph g = new ControlFlowGraph();
 		Unit head = null;
 		eg = new ExceptionalUnitGraph(b);
 		List<Unit> list = eg.getHeads();
@@ -55,7 +56,9 @@ public class IntraproceduralAnalysis extends ForwardFlowAnalysis<Unit, Set<FlowA
 		g.listEdges = listEdges;
 		g.listNodes = listNodes;
 		VFMethod method = new VFMethod(b.getMethod());
-		map.put(method, g);
+		method.setBody(b);
+		method.setControlFlowGraph(g);
+		
 }
 
 	public static void traverseUnits(Unit currentNode) {

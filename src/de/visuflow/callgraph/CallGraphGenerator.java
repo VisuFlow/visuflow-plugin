@@ -1,7 +1,9 @@
 package de.visuflow.callgraph;
 
+import java.util.List;
 import java.util.Map;
 
+import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
 import soot.Body;
 import soot.BodyTransformer;
@@ -13,7 +15,7 @@ import soot.options.Options;
 
 public class CallGraphGenerator {
 
-    public void runAnalysis(final Map<VFMethod, GraphStructure> hashMap) {
+    public void runAnalysis(final List<VFClass> vfClasses) {
         G.reset();
         Transform transform = new Transform("jtp.analysis", new BodyTransformer() {
 
@@ -22,7 +24,7 @@ public class CallGraphGenerator {
 
                 Options.v().set_keep_line_number(true);
                 Options.v().debug();
-                IntraproceduralAnalysis ipa = new IntraproceduralAnalysis(b, hashMap);
+                IntraproceduralAnalysis ipa = new IntraproceduralAnalysis(b, vfClasses);
                 ipa.doAnalyis();
             }
 

@@ -1,5 +1,7 @@
 package de.unipaderborn.visuflow.debug.handlers;
 
+import java.util.List;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -14,6 +16,7 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import de.unipaderborn.visuflow.model.DataModel;
+import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 
 import org.eclipse.jface.dialogs.*;
@@ -23,7 +26,11 @@ public class JimpleBreakPointHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		System.out.println( ServiceUtil.getService(DataModel.class));
+		DataModel model = ServiceUtil.getService(DataModel.class);
+		List<VFMethod> methods = model.listMethods(null);
+		for (VFMethod vfMethod : methods) {
+			System.out.println(vfMethod.getBody());
+		}
 		
 		IEditorPart part =PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
 		IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindow(event);
