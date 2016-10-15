@@ -1,10 +1,5 @@
 package de.unipaderborn.visuflow.debug.ui;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -17,9 +12,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
-import de.unipaderborn.visuflow.model.VFMethod;
-import de.visuflow.callgraph.CallGraphGenerator;
-import de.visuflow.callgraph.ControlFlowGraph;
 import soot.jimple.BreakpointStmt;
 import soot.jimple.DefinitionStmt;
 import soot.jimple.GotoStmt;

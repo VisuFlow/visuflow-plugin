@@ -21,6 +21,13 @@
             id="de.unipaderborn.visuflow.graphdisplaycomponent.CFGViewPart"
             name="CFG">
       </view>
+      <view
+            category="GraphStreamFeasibility"
+            class="de.unipaderborn.visuflow.ResultView"
+            icon="icons/sample.gif"
+            id="de.unipaderborn.visuflow.graphdisplaycomponent.ResultsViewPart"
+            name="Results">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
