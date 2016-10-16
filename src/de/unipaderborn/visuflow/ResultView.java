@@ -1,7 +1,5 @@
 package de.unipaderborn.visuflow;
 
-import java.util.List;
-
 import javax.swing.JTable;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -17,36 +15,14 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ViewPart;
 
-import de.unipaderborn.visuflow.model.DataModel;
-import de.unipaderborn.visuflow.model.VFClass;
-import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.model.VFUnit;
-import de.unipaderborn.visuflow.util.ServiceUtil;
 
 public class ResultView extends ViewPart {
 
 	JTable nodeTable;
 	String[] columnNames = {"Unit","Statement Type"};
 	Object[][] data = new Object[10000][2];
-	private List<VFClass> analysisData;
 	private TableViewer viewer;
-
-	public ResultView() {
-		// TODO Auto-generated constructor stub
-		DataModel dataModel = ServiceUtil.getService(DataModel.class);
-		analysisData = dataModel.listClasses();
-		if(!analysisData.isEmpty()) {
-			VFClass first = analysisData.get(0);
-			for (VFMethod vfMethod : first.getMethods()) {
-				int row = 0;
-				for(VFUnit vfUnit : vfMethod.getUnits()) {
-					data[row][0] = vfUnit.getUnit();
-					data[row][1] = vfUnit.getUnit().getClass();
-					row++;
-				}
-			}
-		}
-	}
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -93,10 +69,9 @@ public class ResultView extends ViewPart {
 	}
 
 	private void createColumns(final Composite parent, final TableViewer viewer) {
-		String[] titles = { "Unit", "Unit Type"};
+		String[] titles = { "Unit", "Unit Type", "In-Set", "Out-Set"};
 		int[] bounds = { 100, 100, 100, 100 };
-
-		// first column is for the first name
+		//Unit
 		TableViewerColumn col = createTableViewerColumn(titles[0], bounds[0], 0);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
@@ -105,14 +80,29 @@ public class ResultView extends ViewPart {
 				return unit.getUnit().toString();
 			}
 		});
-
-		// second column is for the last name
+		//Unit Type
 		col = createTableViewerColumn(titles[1], bounds[1], 1);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				VFUnit unit = (VFUnit) element;
 				return unit.getUnit().getClass().getName();
+			}
+		});
+		//In-Set
+		col = createTableViewerColumn(titles[1], bounds[1], 1);
+		col.setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				return "InSet";
+			}
+		});
+		//Out-Set
+		col = createTableViewerColumn(titles[1], bounds[1], 1);
+		col.setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				return "OutSet";
 			}
 		});
 	}
