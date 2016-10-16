@@ -6,6 +6,8 @@ import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -23,6 +25,7 @@ public class ResultView extends ViewPart {
 	String[] columnNames = {"Unit","Statement Type"};
 	Object[][] data = new Object[10000][2];
 	private TableViewer viewer;
+	private VFUnitFilter filter;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -34,6 +37,16 @@ public class ResultView extends ViewPart {
 		searchText.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL
 				| GridData.HORIZONTAL_ALIGN_FILL));
 		createViewer(parent);
+		
+		searchText.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent ke) {
+                    filter.setSearchText(searchText.getText());
+                    viewer.refresh();
+            }
+
+    });
+    filter = new VFUnitFilter();
+    viewer.addFilter(filter);
 	}
 
 	@Override

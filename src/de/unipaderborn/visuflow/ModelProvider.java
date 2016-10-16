@@ -13,8 +13,7 @@ public enum ModelProvider {
 
         private ModelProvider() {
         	DataModel dataModel = ServiceUtil.getService(DataModel.class);
-    		units = dataModel.listClasses().get(0).getMethods().get(0).getUnits();
-    		
+    		units = dataModel.listClasses().get(0).getMethods().get(2).getUnits();
         }
 
         public List<VFUnit> getUnits() {
