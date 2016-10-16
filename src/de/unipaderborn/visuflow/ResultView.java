@@ -1,6 +1,5 @@
 package de.unipaderborn.visuflow;
 
-import javax.swing.JTable;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
@@ -21,9 +20,6 @@ import de.unipaderborn.visuflow.model.VFUnit;
 
 public class ResultView extends ViewPart {
 
-	JTable nodeTable;
-	String[] columnNames = {"Unit","Statement Type"};
-	Object[][] data = new Object[10000][2];
 	private TableViewer viewer;
 	private VFUnitFilter filter;
 
@@ -34,8 +30,7 @@ public class ResultView extends ViewPart {
 		Label searchLabel = new Label(parent, SWT.NONE);
 		searchLabel.setText("Search: ");
 		final Text searchText = new Text(parent, SWT.BORDER | SWT.SEARCH);
-		searchText.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL
-				| GridData.HORIZONTAL_ALIGN_FILL));
+		searchText.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
 		createViewer(parent);
 		
 		searchText.addKeyListener(new KeyAdapter() {
@@ -56,8 +51,7 @@ public class ResultView extends ViewPart {
 	}
 
 	private void createViewer(Composite parent) {
-		viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL
-				| SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER);
+		viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER | SWT.CHECK);
 		createColumns(parent, viewer);
 		final Table table = viewer.getTable();
 		table.setHeaderVisible(true);
