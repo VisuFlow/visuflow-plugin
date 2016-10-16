@@ -22,13 +22,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 
-import org.graphstream.algorithm.generator.BaseGenerator;
-import org.graphstream.algorithm.generator.LobsterGenerator;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
-import org.graphstream.stream.SinkAdapter;
 import org.graphstream.ui.layout.Layout;
 import org.graphstream.ui.layout.springbox.implementations.SpringBox;
 import org.graphstream.ui.swingViewer.ViewPanel;
@@ -117,6 +114,7 @@ public class GraphManager implements Runnable, ViewerListener {
 		viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
 
 		view = viewer.addDefaultView(false);
+		fromViewer = viewer.newViewerPipe();
 	}
 
 	private void createUI() {
@@ -355,21 +353,6 @@ public class GraphManager implements Runnable, ViewerListener {
 		}
 	}
 
-	void generateTestGraph()
-	{
-		graph.setStrict(false);
-		graph.setAutoCreate( true );
-		for (int i = 0; i < 50; i++) {
-			String source = i + "";
-			int temp = i + 1;
-			String destination = temp + "";
-			graph.addEdge(source+destination, source, destination);
-			graph.addEdge(i+"", source, destination, true);
-		}
-		graph.addAttribute("ui.quality");
-		graph.addAttribute("ui.antialias");
-	}
-
 	void generateGraphFromGraphStructure()
 	{
 		DataModel dataModel = ServiceUtil.getService(DataModel.class);
@@ -407,35 +390,6 @@ public class GraphManager implements Runnable, ViewerListener {
 			if(graph.getEdge("" + src.getId() + dest.getId()) == null)
 				graph.addEdge(src.getId() + "" + dest.getId(), src.getId() + "", dest.getId() + "", true);
 		}
-
-		new Runnable(){      
-			@Override
-			public void run(){
-				for(int i=0; i<5; i++)
-				{
-					System.out.println("Zooming in");
-					zoomIn();
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-
-				/*for(int i=0; i<5; i++)
-				{
-					System.out.println("Zooming out");
-					zoomOut();
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}*/
-			}
-		};
 	}
 
 	private void experimentalLayout()
@@ -464,40 +418,8 @@ public class GraphManager implements Runnable, ViewerListener {
 		}
 	}
 
-	void generateGraphFromGenerator()
-	{
-		BaseGenerator gen  = new LobsterGenerator();
-		gen.setDirectedEdges(true, false);
-		gen.addNodeLabels(true);
-		gen.addSink(graph);
-
-		gen.begin();
-		for (int i = 0; i < 100; i++) {
-			gen.nextEvents();
-		}
-		gen.end();
-
-		fromViewer = viewer.newViewerPipe();
-		fromViewer.addSink(graph);
-
-		fromViewer.addSink(new SinkAdapter(){
-			@Override
-			public void nodeAttributeAdded(String sourceId, long timeId, String nodeId, String attribute, Object value) {
-				if(attribute.equals("ui.clicked")){
-					toggleNode(nodeId);
-				}
-			}
-
-			@Override
-			public void nodeAttributeChanged(String sourceId, long timeId, String nodeId, String attribute, Object oldValue, Object newValue) {
-				if(attribute.equals("ui.clicked")){
-					toggleNode(nodeId);
-				}
-			}
-		});
-	}
-
 	void toggleNode(String id){
+		System.out.println("Togglenodes called");
 		Node n  = graph.getNode(id);
 		Object[] pos = n.getAttribute("xyz");
 		Iterator<Node> it = n.getBreadthFirstIterator(true);
@@ -546,9 +468,8 @@ public class GraphManager implements Runnable, ViewerListener {
 	public void run() {
 		// TODO Auto-generated method stub
 		generateGraphFromGraphStructure();
-		//		generateGraphFromGenerator();
 
-		fromViewer = viewer.newViewerPipe();
+//		fromViewer = viewer.newViewerPipe();
 		fromViewer.addViewerListener(this);
 		fromViewer.addSink(graph);
 
@@ -567,6 +488,7 @@ public class GraphManager implements Runnable, ViewerListener {
 	@Override
 	public void buttonPushed(String id) {
 		// TODO Auto-generated method stub
+		System.out.println("Button pushed on node " + id);
 		toggleNode(id);
 		experimentalLayout();
 		//		Node selectedNode = graph.getNode(id);
