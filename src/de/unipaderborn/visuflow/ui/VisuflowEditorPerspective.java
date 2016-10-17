@@ -16,6 +16,8 @@ public class VisuflowEditorPerspective implements IPerspectiveFactory {
     //private static final String ID_JIMPLE_VIEW = "graphstreamfeasibility.views.SampleView";
     private static final String ID_JIMPLE_VIEW = "jimpleeditor.editors.MultiPageEditor";
     private static final String ID_CONSOLE_VIEW = "org.eclipse.ui.console.ConsoleView";
+    private static final String ID_RESULT_VIEW = "de.unipaderborn.visuflow.ResultView";
+    private static final String ID_UNIT_VIEW = "graphstreamfeasibility.views.UnitView";
 
     @Override
     public void createInitialLayout(IPageLayout layout) {
@@ -23,6 +25,9 @@ public class VisuflowEditorPerspective implements IPerspectiveFactory {
         consoleFolder.addView(ID_CONSOLE_VIEW);
 
         IFolderLayout debugFolder = layout.createFolder(ID_FOLDER_DEBUG, IPageLayout.RIGHT, (float) 0.5, ID_FOLDER_CONSOLE);
+        
+        debugFolder.addView(ID_RESULT_VIEW);
+        debugFolder.addView(ID_UNIT_VIEW);
         debugFolder.addView(IDebugUIConstants.ID_VARIABLE_VIEW);
         debugFolder.addView(IDebugUIConstants.ID_BREAKPOINT_VIEW);
         debugFolder.addPlaceholder(IDebugUIConstants.ID_EXPRESSION_VIEW);
@@ -44,6 +49,9 @@ public class VisuflowEditorPerspective implements IPerspectiveFactory {
      * Sets the initial contents of the "Show View" menu.
      */
     protected void setContentsOfShowViewMenu(IPageLayout layout) {
+    	layout.addShowViewShortcut(ID_RESULT_VIEW);
+    	layout.addShowViewShortcut(ID_UNIT_VIEW);
+    	layout.addShowViewShortcut(IDebugUIConstants.ID_DEBUG_VIEW);
         layout.addShowViewShortcut(IDebugUIConstants.ID_DEBUG_VIEW);
         layout.addShowViewShortcut(IDebugUIConstants.ID_VARIABLE_VIEW);
         layout.addShowViewShortcut(IDebugUIConstants.ID_BREAKPOINT_VIEW);
