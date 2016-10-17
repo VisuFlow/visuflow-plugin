@@ -28,6 +28,14 @@
             id="de.unipaderborn.visuflow.graphdisplaycomponent.ResultsViewPart"
             name="Results">
       </view>
+      <view
+      		category="GraphStreamFeasibility"
+            class="graphstreamfeasibility.views.UnitView"
+            icon="icons/sample.gif"
+            id="GraphStreamFeasibility.view1"
+            name="Unit Inspection View"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
