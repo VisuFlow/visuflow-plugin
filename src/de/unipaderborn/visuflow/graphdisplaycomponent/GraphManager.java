@@ -50,8 +50,6 @@ public class GraphManager implements Runnable, ViewerListener {
 	private ViewPanel view;
 	List<VFClass> analysisData;
 
-	ViewerPipe fromViewer;
-
 	Container panel;
 	JApplet applet;
 	JButton zoomInButton, zoomOutButton, viewCenterButton, filterGraphButton, toggleLayout;
@@ -114,7 +112,6 @@ public class GraphManager implements Runnable, ViewerListener {
 		viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
 
 		view = viewer.addDefaultView(false);
-		fromViewer = viewer.newViewerPipe();
 	}
 
 	private void createUI() {
@@ -266,7 +263,6 @@ public class GraphManager implements Runnable, ViewerListener {
 	private void zoomIn()
 	{
 		double viewPercent = view.getCamera().getViewPercent();
-		System.out.println("zooming In " + viewPercent);
 		if(viewPercent > maxZoomPercent)
 			view.getCamera().setViewPercent(viewPercent - zoomInDelta);
 	}
@@ -370,8 +366,25 @@ public class GraphManager implements Runnable, ViewerListener {
 		if(interGraph == null)
 			throw new Exception("GraphStructure is null");
 
-		createGraph(null);
-		graph.addAttribute("ui.stylesheet", styleSheet);
+//		createGraph(null);
+//		graph.addAttribute("ui.stylesheet", styleSheet);
+		
+		Iterator<Node> itr = graph.iterator();
+		
+		try {
+			for(Edge curr : itr.next())
+			{
+				if(graph.getId() != null)
+				{
+					graph.removeNode(curr.getNode0().getId());
+					graph.removeNode(curr.getNode1().getId());
+				}
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		ListIterator<de.visuflow.callgraph.Edge> edgeIterator = interGraph.listEdges.listIterator();
 
 		while(edgeIterator.hasNext())
@@ -468,8 +481,8 @@ public class GraphManager implements Runnable, ViewerListener {
 	public void run() {
 		// TODO Auto-generated method stub
 		generateGraphFromGraphStructure();
-
-//		fromViewer = viewer.newViewerPipe();
+		
+		ViewerPipe fromViewer = viewer.newViewerPipe();
 		fromViewer.addViewerListener(this);
 		fromViewer.addSink(graph);
 
@@ -481,34 +494,26 @@ public class GraphManager implements Runnable, ViewerListener {
 				Thread.sleep(1);
 			} catch (InterruptedException e) {
 			}
-            fromViewer.pump();
+        	fromViewer.pump();
         }
 	}
 
 	@Override
 	public void buttonPushed(String id) {
 		// TODO Auto-generated method stub
-		System.out.println("Button pushed on node " + id);
 		toggleNode(id);
 		experimentalLayout();
-		//		Node selectedNode = graph.getNode(id);
-		//		if(selectedNode.hasAttribute("ui.class"))
-		//		{
-		//			System.out.println("Node has attribute clicked");
-		//			selectedNode.removeAttribute("ui.class");
-		//		}
-		//		selectedNode.addAttribute("ui.class", "clicked");
 	}
 
 	@Override
-	public void buttonReleased(String id) {
+	public void buttonReleased(String arg0) {
 		// TODO Auto-generated method stub
-
+		
 	}
 
 	@Override
-	public void viewClosed(String id) {
+	public void viewClosed(String arg0) {
 		// TODO Auto-generated method stub
-
+		
 	}
 }
