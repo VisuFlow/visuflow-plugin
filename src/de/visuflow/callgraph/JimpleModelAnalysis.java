@@ -135,7 +135,7 @@ public class JimpleModelAnalysis {
 
 		// Run Soot
 		Main.main(new String[] { "-cp", "./bin" + File.pathSeparator + rtJar, "-exclude", "javax",
-				"-allow-phantom-refs", "-no-bodies-for-excluded", "-process-dir", "C:\\Projects\\myfork\\visuflow-plugin\\targetBin2", "-src-prec",
+				"-allow-phantom-refs", "-no-bodies-for-excluded", "-process-dir", "targetBin2", "-src-prec",
 				"only-class", "-w", "-output-format", "n", "-keep-line-number" /*,"tag.ln","on"*/ });
 	}
 	
