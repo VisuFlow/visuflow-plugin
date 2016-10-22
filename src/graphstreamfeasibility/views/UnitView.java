@@ -1,7 +1,5 @@
 package graphstreamfeasibility.views;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.*;
 
@@ -72,7 +70,7 @@ public class UnitView extends ViewPart{
 	}
 
 	public void setFocus(){
-		m_treeViewer.getControl().setFocus();
+		
 	}
 
 	
