@@ -406,9 +406,6 @@ public class GraphManager implements Runnable, ViewerListener {
 		if(interGraph == null)
 			throw new Exception("GraphStructure is null");
 
-		//		createGraph(null);
-		//		graph.addAttribute("ui.stylesheet", styleSheet);
-
 		Iterator<Node> itr = graph.iterator();
 
 		try {
@@ -434,15 +431,33 @@ public class GraphManager implements Runnable, ViewerListener {
 
 			de.visuflow.callgraph.Node src = currEdgeIterator.getSource();
 			de.visuflow.callgraph.Node dest = currEdgeIterator.getDestination();
+			
+			createGraphNode(src);
+			createGraphNode(dest);
+			createGraphEdge(src,dest);
+		}
+	}
 
-			if(graph.getNode(src.getId() + "") == null)
-				graph.addNode(src.getId() + "").setAttribute("ui.label", src.getLabel());
+	private void createGraphEdge(de.visuflow.callgraph.Node src, de.visuflow.callgraph.Node dest) {
+		// TODO Auto-generated method stub
+		if(graph.getEdge("" + src.getId() + dest.getId()) == null)
+		{
+			Edge createdEdge = graph.addEdge(src.getId() + "" + dest.getId(), src.getId() + "", dest.getId() + "", true);
+			createdEdge.addAttribute("ui.label", "{a,b}");
+			createdEdge.addAttribute("edgeData.outSet", "{a,b}");
+		}
+	}
 
-			if(graph.getNode(dest.getId() + "") == null)
-				graph.addNode(dest.getId() + "").setAttribute("ui.label", dest.getLabel());
-
-			if(graph.getEdge("" + src.getId() + dest.getId()) == null)
-				graph.addEdge(src.getId() + "" + dest.getId(), src.getId() + "", dest.getId() + "", true);
+	private void createGraphNode(de.visuflow.callgraph.Node node) {
+		// TODO Auto-generated method stub
+		if(graph.getNode(node.getId() + "") == null)
+		{
+			Node createdNode = graph.addNode(node.getId() + "");
+			createdNode.setAttribute("ui.label", node.getLabel().toString());
+			createdNode.setAttribute("nodeData.unit", node.getLabel().toString());
+			createdNode.setAttribute("nodeData.unitType", node.getLabel().getClass());
+			createdNode.setAttribute("nodeData.inSet", "coming soon");
+			createdNode.setAttribute("nodeData.outSet", "coming soon");
 		}
 	}
 
@@ -561,6 +576,5 @@ public class GraphManager implements Runnable, ViewerListener {
 	protected void setTip(JToolTip toolTip) {
 		this.tip = toolTip;
 	}
-
 
 }
