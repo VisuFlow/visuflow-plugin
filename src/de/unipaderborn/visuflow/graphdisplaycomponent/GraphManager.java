@@ -3,8 +3,11 @@ package de.unipaderborn.visuflow.graphdisplaycomponent;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
@@ -26,6 +29,7 @@ import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
+import org.graphstream.ui.geom.Point3;
 import org.graphstream.ui.layout.Layout;
 import org.graphstream.ui.layout.springbox.implementations.SpringBox;
 import org.graphstream.ui.swingViewer.ViewPanel;
@@ -130,7 +134,32 @@ public class GraphManager implements Runnable, ViewerListener {
 		// TODO Auto-generated method stub
 		applet = new JApplet();
 
-		scrollbar = new JScrollPane(panel);
+		scrollbar = new JScrollPane(panel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS );
+		view.setAutoscrolls(true);
+		scrollbar.setPreferredSize(new Dimension(20, 0));
+		scrollbar.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+			
+			@Override
+			public void adjustmentValueChanged(AdjustmentEvent e) {
+				// TODO Auto-generated method stub
+				System.out.println("vertical scrollbar " + e.getValue());
+			}
+		});
+		
+		scrollbar.getHorizontalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+			
+			@Override
+			public void adjustmentValueChanged(AdjustmentEvent e) {
+				// TODO Auto-generated method stub
+				Point3 viewCenter = view.getCamera().getViewCenter();
+				System.out.println("horizontal scrollbar " + e.getValue());
+				System.out.println("view center " + viewCenter);
+				if(e.getAdjustmentType() == AdjustmentEvent.UNIT_INCREMENT)
+					view.getCamera().setViewCenter(viewCenter.x + 1.0, viewCenter.y + 1.0, 0.0);
+				if(e.getAdjustmentType() == AdjustmentEvent.UNIT_DECREMENT)
+					view.getCamera().setViewCenter(viewCenter.x + 1.0, viewCenter.y + 1.0, 0.0);
+			}
+		});
 		applet.add(scrollbar);
 	}
 
@@ -382,7 +411,8 @@ public class GraphManager implements Runnable, ViewerListener {
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+//			e.printStackTrace();
+			System.out.println(e.getMessage());
 		}
 		
 		ListIterator<de.visuflow.callgraph.Edge> edgeIterator = interGraph.listEdges.listIterator();
