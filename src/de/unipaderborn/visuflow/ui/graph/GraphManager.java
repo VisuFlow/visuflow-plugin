@@ -1,4 +1,4 @@
-package de.unipaderborn.visuflow.graphdisplaycomponent;
+package de.unipaderborn.visuflow.ui.graph;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -558,6 +558,14 @@ public class GraphManager implements Runnable, ViewerListener {
 		ViewerPipe fromViewer = viewer.newViewerPipe();
 		fromViewer.addViewerListener(this);
 		fromViewer.addSink(graph);
+		
+		/*Iterator<? extends Node> nodeIterator = graph.getEachNode().iterator();
+		while(nodeIterator.hasNext())
+		{
+			Node curr = nodeIterator.next();
+			System.out.println("Attribute count " + curr.getAttributeCount());
+			System.out.println("nodeData.unit " + curr.getAttribute("nodeData.unit").toString());
+		}*/
 
 		// FIXME the Thread.sleep slows down the loop, so that it does not eat up the CPU
 		// but this really should be implemented differently. isn't there an event listener
