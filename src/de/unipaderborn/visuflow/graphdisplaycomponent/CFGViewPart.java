@@ -10,6 +10,8 @@ import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
+import de.unipaderborn.visuflow.ui.graph.GraphManager;
+
 public class CFGViewPart extends ViewPart {
 
 	@Override
