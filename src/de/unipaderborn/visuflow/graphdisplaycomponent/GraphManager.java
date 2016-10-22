@@ -9,14 +9,10 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.util.Currency;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.swing.JApplet;
 import javax.swing.JButton;
@@ -26,30 +22,14 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.JToolTip;
-import javax.swing.plaf.ToolBarUI;
-import javax.swing.plaf.ToolTipUI;
-import javax.swing.plaf.basic.BasicToolTipUI;
-
-import org.eclipse.jface.window.DefaultToolTip;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.layout.RowLayout;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.ToolTip;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
-import org.graphstream.stream.AttributeSink;
-import org.graphstream.ui.geom.Point3;
 import org.graphstream.ui.graphicGraph.GraphicElement;
 import org.graphstream.ui.layout.Layout;
 import org.graphstream.ui.layout.springbox.implementations.SpringBox;
 import org.graphstream.ui.swingViewer.ViewPanel;
-import org.graphstream.ui.view.View;
 import org.graphstream.ui.view.Viewer;
 import org.graphstream.ui.view.ViewerListener;
 import org.graphstream.ui.view.ViewerPipe;
@@ -63,7 +43,7 @@ import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 import de.visuflow.callgraph.ControlFlowGraph;
 
-public class GraphManager implements Runnable, ViewerListener, AttributeSink {
+public class GraphManager implements Runnable, ViewerListener {
 
 	Graph graph;
 	String styleSheet;
@@ -85,18 +65,6 @@ public class GraphManager implements Runnable, ViewerListener, AttributeSink {
 
 	Layout graphLayout = new SpringBox();
 
-	private GraphicElement hoveredElement;
-
-	private long hoveredElementLastChanged;
-
-	private ReentrantLock hoverLock = new ReentrantLock();
-
-	private Timer hoverTimer = new Timer(true);
-
-	private HoverTimerTask latestHoverTimerTask;
-
-	private final long delay;
-
 	private JToolTip tip;
 
 	public GraphManager(String graphName, String styleSheet)
@@ -108,7 +76,6 @@ public class GraphManager implements Runnable, ViewerListener, AttributeSink {
 		this.maxZoomPercent = .5;
 		this.minZoomPercent = 2.0;
 		this.styleSheet = styleSheet;
-		delay=500;
 		createGraph(graphName);
 		createUI();
 
@@ -252,45 +219,30 @@ public class GraphManager implements Runnable, ViewerListener, AttributeSink {
 		view.addMouseMotionListener(new MouseMotionListener() {
 
 			@Override
-			public void mouseMoved(MouseEvent e) {
-				// TODO Auto-generated method stub
-				try {
-					View view = (View) e.getSource();
-					hoverLock.lockInterruptibly();
-					boolean stayedOnElement = false;
-
-					GraphicElement currentElement = view.findNodeOrSpriteAt(e.getX(), e.getY());
-					if (hoveredElement != null && currentElement!=null) {
-						System.out.println(1);
-						stayedOnElement = currentElement.equals(hoveredElement);
-						if (!stayedOnElement && hoveredElement.hasAttribute("ui.mouseOver")) {
-							System.out.println(2);
-							mouseLeftElement(hoveredElement);
-						}
-					}
-					if (!stayedOnElement && currentElement != null) {
-						System.out.println(3);
-						if (delay <= 0) {
-							System.out.println(4);
-							mouseOverElement(currentElement);
-						} else {
-							System.out.println(5);
-							hoveredElement = currentElement;
-							hoveredElementLastChanged = e.getWhen();
-							if (latestHoverTimerTask != null) {
-								System.out.println(6);
-								latestHoverTimerTask.cancel();
-							}
-							latestHoverTimerTask = new HoverTimerTask(hoveredElementLastChanged, hoveredElement);
-							hoverTimer.schedule(latestHoverTimerTask, delay);
-						}
-					}
-
-				} catch(InterruptedException iex) {
-					// NOP
-				} finally {
-					hoverLock.unlock();
-				}
+			public void mouseMoved(MouseEvent event) {
+					
+				GraphicElement curElement = view.findNodeOrSpriteAt(event.getX(), event.getY());
+        		if(curElement == null && tip != null) {
+        			tip.setVisible(false);
+					setTip(null);
+					view.repaint();
+        		}
+        		
+        		if(curElement != null && tip == null) {
+        			String tipText = curElement.getAttribute("ui.label").toString();;
+        			tip = new JToolTip();
+        			tip.setTipText(tipText);
+        			tip.setBounds(event.getX() - tipText.length()*3 + 1, event.getY(), tipText.length()*6 + 3, 20);
+        			setTip(tip);
+        			tip.setVisible(true);
+        			
+        			if(tipText.length() > 10) {
+        				tip.setLocation(event.getX()-15, event.getY());
+        			}
+        			
+        			view.add(tip);
+        			tip.repaint();
+        		}
 			}
 
 			@Override
@@ -541,8 +493,6 @@ public class GraphManager implements Runnable, ViewerListener, AttributeSink {
 		// TODO Auto-generated method stub
 		generateGraphFromGraphStructure();
 
-		graph.addAttributeSink(this);
-
 		ViewerPipe fromViewer = viewer.newViewerPipe();
 		fromViewer.addViewerListener(this);
 		fromViewer.addSink(graph);
@@ -577,139 +527,10 @@ public class GraphManager implements Runnable, ViewerListener, AttributeSink {
 		// TODO Auto-generated method stub
 
 	}
-	protected void mouseOverElement(GraphicElement element) {
-		element.addAttribute("ui.mouseOver");
-		//	    	System.out.println(element.getLabel());
-	}
-
-	protected void mouseLeftElement(GraphicElement element) {
-		element.removeAttribute("ui.mouseOver");
-	}
-
-	private final class HoverTimerTask extends TimerTask {
-
-		private final long lastChanged;
-
-		private final GraphicElement element;
-
-		public HoverTimerTask(long lastChanged, GraphicElement element) {
-			this.lastChanged = lastChanged;
-			this.element = element;
-		}
-
-		@Override
-		public void run() {
-			try {
-				hoverLock.lock();
-				if (hoveredElementLastChanged == lastChanged) {
-					mouseOverElement(element);
-				}
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			} finally {
-				hoverLock.unlock();
-			}
-		}
-	}
-
-	@Override
-	public void edgeAttributeAdded(String arg0, long arg1, String arg2, String arg3, Object arg4) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void edgeAttributeChanged(String arg0, long arg1, String arg2, String arg3, Object arg4, Object arg5) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void edgeAttributeRemoved(String arg0, long arg1, String arg2, String arg3) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void graphAttributeAdded(String arg0, long arg1, String arg2, Object arg3) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void graphAttributeChanged(String arg0, long arg1, String arg2, Object arg3, Object arg4) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void graphAttributeRemoved(String arg0, long arg1, String arg2) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void nodeAttributeAdded(String sourceId, long timeId, String nodeId, String attribute, Object arg4) {
-		// TODO Auto-generated method stub
-		if(attribute.contentEquals("ui.mouseOver"))
-		{
-			double x = 0;
-			double y = 0;
-			Point3 pixels = null;
-			System.out.println(nodeId);
-			Node n = null;
-			Object[] coordinates = null;
-			if(graph.getNode(nodeId) != null)
-			{
-				n = graph.getNode(nodeId);
-				System.out.println("Node" +n.getAttribute("ui.label"));
-				coordinates = n.getArray("xyz");
-				x = (double) coordinates[0];
-				y = (double) coordinates[1];
-				System.out.println("x" + x);
-				System.out.println("y" + y);
-				pixels = viewer.getDefaultView().getCamera().transformGuToPx(x, y, 0);
-			}
-
-			tip = new JToolTip();
-			String tipText = n.getAttribute("ui.label").toString();
-			tip.setTipText(tipText);
-			tip.setBounds((int)(pixels.x) - tipText.length()*3 + 1, (int)(pixels.y), tipText.length()*6 + 3, 20);
-			setTip(tip);
-			tip.setVisible(true);
-
-			if(tipText.length() > 10) {
-				tip.setLocation((int)(pixels.x)-15, (int)(pixels.y));
-			}
-
-			view.add(tip);
-			view.repaint();
-		}
-	}
 
 	protected void setTip(JToolTip toolTip) {
 		this.tip = toolTip;
 	}
-	@Override
-	public void nodeAttributeChanged(String arg0, long arg1, String arg2, String arg3, Object arg4, Object arg5) {
-		// TODO Auto-generated method stub
 
-	}
 
-	@Override
-	public void nodeAttributeRemoved(String arg0, long arg1, String arg2, String attribute) {
-		// TODO Auto-generated method stub
-		if(attribute.contentEquals("ui.mouseOver"))
-		{
-			tip.setVisible(false);
-			System.out.println(tip);
-			view.repaint();
-//			tip.setEnabled(false);
-
-			/*tip.setVisible(false);
-			setTip(null);
-			view.repaint();*/
-			System.out.println("Hover removed on node " + attribute);
-		}
-	}
 }
