@@ -24,12 +24,13 @@ import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
-
+import javax.swing.JToolTip;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
 import org.graphstream.ui.geom.Point3;
+import org.graphstream.ui.graphicGraph.GraphicElement;
 import org.graphstream.ui.layout.Layout;
 import org.graphstream.ui.layout.springbox.implementations.SpringBox;
 import org.graphstream.ui.swingViewer.ViewPanel;
@@ -67,6 +68,8 @@ public class GraphManager implements Runnable, ViewerListener {
 	boolean autoLayoutEnabled = false;
 
 	Layout graphLayout = new SpringBox();
+
+	private JToolTip tip;
 
 	public GraphManager(String graphName, String styleSheet)
 	{
@@ -182,7 +185,7 @@ public class GraphManager implements Runnable, ViewerListener {
 	private void createMethodComboBox()
 	{
 		methodList = new JComboBox<VFMethod>();
-//		methodList.addItem("Select Method");
+		//		methodList.addItem("Select Method");
 
 		methodList.addActionListener(new ActionListener() {
 
@@ -245,22 +248,30 @@ public class GraphManager implements Runnable, ViewerListener {
 		view.addMouseMotionListener(new MouseMotionListener() {
 
 			@Override
-			public void mouseMoved(MouseEvent e) {
-				// TODO Auto-generated method stub
-				/*try {
-					Collection<GraphicElement> highlightedNodes = ( (View) e.getComponent()).allNodesOrSpritesIn(e.getX(), e.getY(), e.getX(), e.getY());
-					Iterator<GraphicElement> nodes = highlightedNodes.iterator();
-					while(nodes.hasNext())
-					{
-						Node curr = (Node) nodes.next();
-//						System.out.println("left " + curr.getAttribute("leftOp"));
-//						System.out.println("right " + curr.getAttribute("rightOp"));
-					}
-					//System.out.println("Node to display pop info about " + ((View) e.getComponent()).allNodesOrSpritesIn(e.getX(), e.getY(), e.getX(), e.getY()));
-				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}*/
+			public void mouseMoved(MouseEvent event) {
+					
+				GraphicElement curElement = view.findNodeOrSpriteAt(event.getX(), event.getY());
+        		if(curElement == null && tip != null) {
+        			tip.setVisible(false);
+					setTip(null);
+					view.repaint();
+        		}
+        		
+        		if(curElement != null && tip == null) {
+        			String tipText = curElement.getAttribute("ui.label").toString();;
+        			tip = new JToolTip();
+        			tip.setTipText(tipText);
+        			tip.setBounds(event.getX() - tipText.length()*3 + 1, event.getY(), tipText.length()*6 + 3, 20);
+        			setTip(tip);
+        			tip.setVisible(true);
+        			
+        			if(tipText.length() > 10) {
+        				tip.setLocation(event.getX()-15, event.getY());
+        			}
+        			
+        			view.add(tip);
+        			tip.repaint();
+        		}
 			}
 
 			@Override
@@ -395,11 +406,11 @@ public class GraphManager implements Runnable, ViewerListener {
 		if(interGraph == null)
 			throw new Exception("GraphStructure is null");
 
-//		createGraph(null);
-//		graph.addAttribute("ui.stylesheet", styleSheet);
-		
+		//		createGraph(null);
+		//		graph.addAttribute("ui.stylesheet", styleSheet);
+
 		Iterator<Node> itr = graph.iterator();
-		
+
 		try {
 			for(Edge curr : itr.next())
 			{
@@ -414,7 +425,7 @@ public class GraphManager implements Runnable, ViewerListener {
 //			e.printStackTrace();
 			System.out.println(e.getMessage());
 		}
-		
+
 		ListIterator<de.visuflow.callgraph.Edge> edgeIterator = interGraph.listEdges.listIterator();
 
 		while(edgeIterator.hasNext())
@@ -511,21 +522,21 @@ public class GraphManager implements Runnable, ViewerListener {
 	public void run() {
 		// TODO Auto-generated method stub
 		generateGraphFromGraphStructure();
-		
+
 		ViewerPipe fromViewer = viewer.newViewerPipe();
 		fromViewer.addViewerListener(this);
 		fromViewer.addSink(graph);
 
 		// FIXME the Thread.sleep slows down the loop, so that it does not eat up the CPU
-        // but this really should be implemented differently. isn't there an event listener
-        // or something we can use, so that we call pump() only when necessary
-        while(true) {
-        	try {
+		// but this really should be implemented differently. isn't there an event listener
+		// or something we can use, so that we call pump() only when necessary
+		while(true) {
+			try {
 				Thread.sleep(1);
 			} catch (InterruptedException e) {
 			}
-        	fromViewer.pump();
-        }
+			fromViewer.pump();
+		}
 	}
 
 	@Override
@@ -538,12 +549,18 @@ public class GraphManager implements Runnable, ViewerListener {
 	@Override
 	public void buttonReleased(String arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void viewClosed(String arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
+
+	protected void setTip(JToolTip toolTip) {
+		this.tip = toolTip;
+	}
+
+
 }
