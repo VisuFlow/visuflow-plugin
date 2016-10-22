@@ -1,9 +1,11 @@
 package graphstreamfeasibility.views;
 
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.*;
 
 import de.unipaderborn.visuflow.model.DataModel;
+import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 import soot.Body;
 import soot.Unit;
@@ -11,6 +13,8 @@ import soot.jimple.internal.JAssignStmt;
 
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.ui.*;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
@@ -40,9 +44,39 @@ public class UnitView extends ViewPart{
 
 	public void createPartControl(Composite parent){
 		
+		GridLayout layout = new GridLayout(3, true);
+		parent.setLayout(layout);
+		
+		GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
+		gridData.widthHint = SWT.DEFAULT;
+		gridData.heightHint = SWT.DEFAULT;
+		
+		Combo combo = new Combo(parent, SWT.DROP_DOWN);
+		combo.setLayout(layout);
+		combo.setLayoutData(gridData);
+		for (VFMethod method : dataModel.listClasses().get(0).getMethods()) {
+			
+			combo.add(method.getSootMethod().getName());
+		}				
+		
+		GridData gridData1 = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
+		gridData1.widthHint = SWT.DEFAULT;
+		gridData1.heightHint = SWT.DEFAULT;
+		
+		Combo combo1 = new Combo(parent, SWT.DROP_DOWN);
+		combo1.setLayout(layout);
+		combo1.setLayoutData(gridData1);
+		combo1.setItems();
+		
+		GridData gridData3 = new GridData(SWT.FILL, SWT.FILL, true, true, 3, 1);
+		gridData3.widthHint = SWT.DEFAULT;
+		gridData3.heightHint = SWT.DEFAULT;
+			    
 		Body body = dataModel.listClasses().get(0).getMethods().get(2).getBody();
-		Tree tree = new Tree(parent, SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BACKGROUND | SWT.MULTI | SWT.BACKGROUND);
+		Tree tree = new Tree(parent, SWT.FILL| SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BACKGROUND | SWT.MULTI | SWT.BACKGROUND);
 	    tree.setHeaderVisible(true);
+	    tree.setLayout(layout);
+	    tree.setLayoutData(gridData3);
 	    TreeColumn column1 = new TreeColumn(tree, SWT.LEFT | SWT.BORDER);
 	    column1.setText("Unit");
 	    column1.setWidth(200);
@@ -65,7 +99,7 @@ public class UnitView extends ViewPart{
 				right.setText(new String[] {"Right",stmt.rightBox.getValue().toString(),stmt.rightBox.getValue().getClass().toString()});
 				
 			}
-		}
+		}	    
 
 	}
 
