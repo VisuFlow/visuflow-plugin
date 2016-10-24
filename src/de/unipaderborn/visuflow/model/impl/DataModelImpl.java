@@ -26,4 +26,40 @@ public class DataModelImpl implements DataModel {
         return Collections.emptyList();
     }
 
+	@Override
+	public VFClass getSelectedClass() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<VFMethod> getSelectedClassMethods() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<VFUnit> getSelectedMethodUnits() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setSelectedClass(VFClass selectedClass) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setSelectedMethod(VFMethod selectedMethod) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public VFMethod getSelectedMethod() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

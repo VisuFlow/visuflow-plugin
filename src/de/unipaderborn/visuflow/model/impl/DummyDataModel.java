@@ -19,6 +19,55 @@ import de.visuflow.callgraph.JimpleModelAnalysis;
 
 public class DummyDataModel implements DataModel {
 	private List<VFClass> jimpleClasses = new ArrayList<VFClass>();
+	
+	private VFClass selectedClass;
+	private VFMethod selectedMethod;
+	
+	private List<VFMethod> selectedClassMethods;
+	private List<VFUnit> selectedMethodUnits;
+
+	public VFClass getSelectedClass() {
+		return selectedClass;
+	}
+	
+	public List<VFMethod> getSelectedClassMethods() {
+		return selectedClassMethods;
+	}
+	
+	public VFMethod getSelectedMethod() {
+//		System.out.println("Current selected method is " + selectedMethod);
+		return selectedMethod;
+	}
+
+	public List<VFUnit> getSelectedMethodUnits() {
+		return selectedMethodUnits;
+	}
+
+	public void setSelectedClass(VFClass selectedClass) {
+		this.selectedClass = selectedClass;
+		this.selectedMethod = this.selectedClass.getMethods().get(0);
+		this.selectedClassMethods = this.selectedClass.getMethods();
+		this.populateUnits();
+	}
+	
+	public void setSelectedMethod(VFMethod selectedMethod)
+	{
+		this.selectedMethod = selectedMethod;
+		this.populateUnits();
+//		System.out.println("Changing selected method to " + selectedMethod);
+		
+		Dictionary<String, Object> properties = new Hashtable<String, Object>();
+		properties.put("selectedMethod", selectedMethod);
+		properties.put("selectedMethodUnits", selectedMethodUnits);
+		Event modelChanged = new Event(DataModel.EA_TOPIC_DATA_SELECTION, properties);
+		eventAdmin.postEvent(modelChanged);
+//		System.out.println("EA_TOPIC_DATA_SELECTION triggered from dataModel");
+	}
+
+	private void populateUnits() {
+		// TODO Auto-generated method stub
+		this.selectedMethodUnits = this.selectedMethod.getUnits();
+	}
 
 	private EventAdmin eventAdmin;
 	
@@ -60,6 +109,7 @@ public class DummyDataModel implements DataModel {
 		ICFGStructure icfg = new ICFGStructure();
 		JimpleModelAnalysis analysis = new JimpleModelAnalysis();
 		analysis.createICFG(icfg, jimpleClasses);
+		this.setSelectedClass(jimpleClasses.get(0));
 		
 		Dictionary<String, Object> properties = new Hashtable<String, Object>();
 		properties.put("model", jimpleClasses);
