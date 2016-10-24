@@ -3,11 +3,8 @@ package de.unipaderborn.visuflow.ui.graph;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
@@ -25,11 +22,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.JToolTip;
+
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
-import org.graphstream.ui.geom.Point3;
 import org.graphstream.ui.graphicGraph.GraphicElement;
 import org.graphstream.ui.layout.Layout;
 import org.graphstream.ui.layout.springbox.implementations.SpringBox;
@@ -102,13 +99,7 @@ public class GraphManager implements Runnable, ViewerListener {
 
 	void createGraph(String graphName)
 	{
-		if(graph == null && graphName != null)
-		{
-			System.out.println("Graph object is null... Creating a new Graph");
-			graph = new MultiGraph(graphName);
-		}
-
-		graph.clear();
+		graph = new MultiGraph(graphName);
 		graph.addAttribute("ui.stylesheet", styleSheet);
 		graph.setStrict(true);
 		graph.setAutoCreate(true);
@@ -119,6 +110,21 @@ public class GraphManager implements Runnable, ViewerListener {
 		viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
 
 		view = viewer.addDefaultView(false);
+	}
+
+	private void reintializeGraph() throws Exception
+	{
+		if(graph != null)
+		{
+			graph.clear();
+			graph.addAttribute("ui.stylesheet", styleSheet);
+			graph.setStrict(true);
+			graph.setAutoCreate(true);
+			graph.addAttribute("ui.quality");
+			graph.addAttribute("ui.antialias");
+		}
+		else
+			throw new Exception("Graph is null");
 	}
 
 	private void createUI() {
@@ -139,7 +145,7 @@ public class GraphManager implements Runnable, ViewerListener {
 
 		scrollbar = new JScrollPane(panel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS );
 		view.setAutoscrolls(true);
-		scrollbar.setPreferredSize(new Dimension(20, 0));
+		/*scrollbar.setPreferredSize(new Dimension(20, 0));
 		scrollbar.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
 
 			@Override
@@ -162,9 +168,10 @@ public class GraphManager implements Runnable, ViewerListener {
 				if(e.getAdjustmentType() == AdjustmentEvent.UNIT_DECREMENT)
 					view.getCamera().setViewCenter(viewCenter.x + 1.0, viewCenter.y + 1.0, 0.0);
 			}
-		});
+		});*/
 		applet.add(scrollbar);
 	}
+	
 
 	private void createAttributeControls() {
 		// TODO Auto-generated method stub
@@ -181,6 +188,7 @@ public class GraphManager implements Runnable, ViewerListener {
 			}
 		});
 	}
+	
 
 	private void createMethodComboBox()
 	{
@@ -198,9 +206,12 @@ public class GraphManager implements Runnable, ViewerListener {
 					System.out.println("analysis data is null");
 				try {
 					VFMethod selectedMethod = (VFMethod) methodBox.getSelectedItem();
-					System.out.println(selectedMethod.getControlFlowGraph().listEdges.size());
-					System.out.println(selectedMethod.getControlFlowGraph().listNodes.size());
-					renderMethodCFG(selectedMethod.getControlFlowGraph());
+
+					DataModel dataModel = ServiceUtil.getService(DataModel.class);
+					dataModel.setSelectedMethod(selectedMethod);
+
+					//					renderMethodCFG(selectedMethod.getControlFlowGraph());
+					renderMethodCFG(dataModel.getSelectedMethod().getControlFlowGraph());
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -209,6 +220,7 @@ public class GraphManager implements Runnable, ViewerListener {
 			}
 		});
 	}
+	
 
 	private void createSettingsBar() {
 		// TODO Auto-generated method stub
@@ -222,6 +234,7 @@ public class GraphManager implements Runnable, ViewerListener {
 		settingsBar.add(attribute);
 		settingsBar.add(toggleLayout);
 	}
+	
 
 	private void createPanel() {
 		// TODO Auto-generated method stub
@@ -229,6 +242,7 @@ public class GraphManager implements Runnable, ViewerListener {
 		panel.add(view);
 		panel.add(settingsBar, BorderLayout.PAGE_START);
 	}
+	
 
 	private void createViewListeners() {
 		// TODO Auto-generated method stub
@@ -316,6 +330,7 @@ public class GraphManager implements Runnable, ViewerListener {
 			}
 		});
 	}
+	
 
 	private void zoomIn()
 	{
@@ -323,6 +338,7 @@ public class GraphManager implements Runnable, ViewerListener {
 		if(viewPercent > maxZoomPercent)
 			view.getCamera().setViewPercent(viewPercent - zoomInDelta);
 	}
+	
 
 	private void zoomOut()
 	{
@@ -330,6 +346,7 @@ public class GraphManager implements Runnable, ViewerListener {
 		if(viewPercent < minZoomPercent)
 			view.getCamera().setViewPercent(viewPercent + zoomOutDelta);
 	}
+	
 
 	private void createZoomControls() {
 		// TODO Auto-generated method stub
@@ -366,6 +383,7 @@ public class GraphManager implements Runnable, ViewerListener {
 			}
 		});
 	}
+	
 
 	private void createToggleLayoutButton()
 	{
@@ -380,6 +398,7 @@ public class GraphManager implements Runnable, ViewerListener {
 			}
 		});
 	}
+	
 
 	private void toggleAutoLayout()
 	{
@@ -405,17 +424,23 @@ public class GraphManager implements Runnable, ViewerListener {
 			toggleLayout.setText("Enable Layouting");
 		}
 	}
+	
 
 	void generateGraphFromGraphStructure()
 	{
-		DataModel dataModel = ServiceUtil.getService(DataModel.class);
+		/*DataModel dataModel = ServiceUtil.getService(DataModel.class);
+
 		analysisData = dataModel.listClasses();
 		if(!analysisData.isEmpty()) {
 			VFClass first = analysisData.get(0);
 			for (VFMethod vfMethod : first.getMethods()) {
 				methodList.addItem(vfMethod);
 			}
-		}
+		}*/
+
+		List<VFMethod> currentClassMethods = ServiceUtil.getService(DataModel.class).getSelectedClassMethods();
+		for(VFMethod vfMethod : currentClassMethods)
+			methodList.addItem(vfMethod);
 	}
 
 	private void renderMethodCFG(ControlFlowGraph interGraph) throws Exception
@@ -423,23 +448,7 @@ public class GraphManager implements Runnable, ViewerListener {
 		if(interGraph == null)
 			throw new Exception("GraphStructure is null");
 
-		Iterator<Node> itr = graph.iterator();
-
-		try {
-			for(Edge curr : itr.next())
-			{
-				if(graph.getId() != null)
-				{
-					graph.removeNode(curr.getNode0().getId());
-					graph.removeNode(curr.getNode1().getId());
-				}
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			//			e.printStackTrace();
-			System.out.println(e.getMessage());
-		}
-
+		this.reintializeGraph();
 		ListIterator<de.visuflow.callgraph.Edge> edgeIterator = interGraph.listEdges.listIterator();
 
 		while(edgeIterator.hasNext())
@@ -558,7 +567,7 @@ public class GraphManager implements Runnable, ViewerListener {
 		ViewerPipe fromViewer = viewer.newViewerPipe();
 		fromViewer.addViewerListener(this);
 		fromViewer.addSink(graph);
-		
+
 		/*Iterator<? extends Node> nodeIterator = graph.getEachNode().iterator();
 		while(nodeIterator.hasNext())
 		{
