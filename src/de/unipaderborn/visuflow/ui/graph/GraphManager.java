@@ -1,10 +1,13 @@
-package de.unipaderborn.visuflow.graphdisplaycomponent;
+package de.unipaderborn.visuflow.ui.graph;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
@@ -21,11 +24,13 @@ import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
-
+import javax.swing.JToolTip;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
+import org.graphstream.ui.geom.Point3;
+import org.graphstream.ui.graphicGraph.GraphicElement;
 import org.graphstream.ui.layout.Layout;
 import org.graphstream.ui.layout.springbox.implementations.SpringBox;
 import org.graphstream.ui.swingViewer.ViewPanel;
@@ -63,6 +68,8 @@ public class GraphManager implements Runnable, ViewerListener {
 	boolean autoLayoutEnabled = false;
 
 	Layout graphLayout = new SpringBox();
+
+	private JToolTip tip;
 
 	public GraphManager(String graphName, String styleSheet)
 	{
@@ -130,7 +137,32 @@ public class GraphManager implements Runnable, ViewerListener {
 		// TODO Auto-generated method stub
 		applet = new JApplet();
 
-		scrollbar = new JScrollPane(panel);
+		scrollbar = new JScrollPane(panel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS );
+		view.setAutoscrolls(true);
+		scrollbar.setPreferredSize(new Dimension(20, 0));
+		scrollbar.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+
+			@Override
+			public void adjustmentValueChanged(AdjustmentEvent e) {
+				// TODO Auto-generated method stub
+				System.out.println("vertical scrollbar " + e.getValue());
+			}
+		});
+
+		scrollbar.getHorizontalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+
+			@Override
+			public void adjustmentValueChanged(AdjustmentEvent e) {
+				// TODO Auto-generated method stub
+				Point3 viewCenter = view.getCamera().getViewCenter();
+				System.out.println("horizontal scrollbar " + e.getValue());
+				System.out.println("view center " + viewCenter);
+				if(e.getAdjustmentType() == AdjustmentEvent.UNIT_INCREMENT)
+					view.getCamera().setViewCenter(viewCenter.x + 1.0, viewCenter.y + 1.0, 0.0);
+				if(e.getAdjustmentType() == AdjustmentEvent.UNIT_DECREMENT)
+					view.getCamera().setViewCenter(viewCenter.x + 1.0, viewCenter.y + 1.0, 0.0);
+			}
+		});
 		applet.add(scrollbar);
 	}
 
@@ -153,7 +185,7 @@ public class GraphManager implements Runnable, ViewerListener {
 	private void createMethodComboBox()
 	{
 		methodList = new JComboBox<VFMethod>();
-//		methodList.addItem("Select Method");
+		//		methodList.addItem("Select Method");
 
 		methodList.addActionListener(new ActionListener() {
 
@@ -216,24 +248,49 @@ public class GraphManager implements Runnable, ViewerListener {
 		view.addMouseMotionListener(new MouseMotionListener() {
 
 			@Override
-			public void mouseMoved(MouseEvent e) {
-				// TODO Auto-generated method stub
-				/*try {
-					Collection<GraphicElement> highlightedNodes = ( (View) e.getComponent()).allNodesOrSpritesIn(e.getX(), e.getY(), e.getX(), e.getY());
-					Iterator<GraphicElement> nodes = highlightedNodes.iterator();
-					while(nodes.hasNext())
-					{
-						Node curr = (Node) nodes.next();
-//						System.out.println("left " + curr.getAttribute("leftOp"));
-//						System.out.println("right " + curr.getAttribute("rightOp"));
-					}
-					//System.out.println("Node to display pop info about " + ((View) e.getComponent()).allNodesOrSpritesIn(e.getX(), e.getY(), e.getX(), e.getY()));
-				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}*/
-			}
+			public void mouseMoved(MouseEvent event) {
 
+				GraphicElement curElement = view.findNodeOrSpriteAt(event.getX(), event.getY());
+
+				if(curElement == null && tip != null) {
+					tip.setVisible(false);
+					setTip(null);
+					view.repaint();
+				}
+
+				if(curElement != null && tip == null) {
+					Node node=graph.getNode(curElement.getId());
+					String result = "<html>";
+					int maxToolTipLength=0;
+					int height=0;
+					for(String key:node.getEachAttributeKey()) {
+						if(key.startsWith("nodeData")){
+							height++;
+							Object value = node.getAttribute(key);
+							String tempVal=key.substring(key.lastIndexOf(".")+1)+" : "+value.toString();
+							if(tempVal.length()>maxToolTipLength){
+								maxToolTipLength=tempVal.length();
+							}
+
+							result+=tempVal+"<br>";
+						}
+					}
+					result+="</html>";
+					tip = new JToolTip();
+					String tipText = result;
+					tip.setTipText(tipText);
+					tip.setBounds(event.getX() - tipText.length()*3 + 1, event.getY(), maxToolTipLength*6+3,height*20 );
+					setTip(tip);
+					tip.setVisible(true);
+
+					if(tipText.length() > 10) {
+						tip.setLocation(event.getX()-15, event.getY());
+					}
+
+					view.add(tip);
+					tip.repaint();
+				}
+			}
 			@Override
 			public void mouseDragged(MouseEvent e) {
 				// TODO Auto-generated method stub
@@ -366,11 +423,8 @@ public class GraphManager implements Runnable, ViewerListener {
 		if(interGraph == null)
 			throw new Exception("GraphStructure is null");
 
-//		createGraph(null);
-//		graph.addAttribute("ui.stylesheet", styleSheet);
-		
 		Iterator<Node> itr = graph.iterator();
-		
+
 		try {
 			for(Edge curr : itr.next())
 			{
@@ -382,9 +436,10 @@ public class GraphManager implements Runnable, ViewerListener {
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//			e.printStackTrace();
+			System.out.println(e.getMessage());
 		}
-		
+
 		ListIterator<de.visuflow.callgraph.Edge> edgeIterator = interGraph.listEdges.listIterator();
 
 		while(edgeIterator.hasNext())
@@ -394,14 +449,32 @@ public class GraphManager implements Runnable, ViewerListener {
 			de.visuflow.callgraph.Node src = currEdgeIterator.getSource();
 			de.visuflow.callgraph.Node dest = currEdgeIterator.getDestination();
 
-			if(graph.getNode(src.getId() + "") == null)
-				graph.addNode(src.getId() + "").setAttribute("ui.label", src.getLabel());
+			createGraphNode(src);
+			createGraphNode(dest);
+			createGraphEdge(src,dest);
+		}
+	}
 
-			if(graph.getNode(dest.getId() + "") == null)
-				graph.addNode(dest.getId() + "").setAttribute("ui.label", dest.getLabel());
+	private void createGraphEdge(de.visuflow.callgraph.Node src, de.visuflow.callgraph.Node dest) {
+		// TODO Auto-generated method stub
+		if(graph.getEdge("" + src.getId() + dest.getId()) == null)
+		{
+			Edge createdEdge = graph.addEdge(src.getId() + "" + dest.getId(), src.getId() + "", dest.getId() + "", true);
+			createdEdge.addAttribute("ui.label", "{a,b}");
+			createdEdge.addAttribute("edgeData.outSet", "{a,b}");
+		}
+	}
 
-			if(graph.getEdge("" + src.getId() + dest.getId()) == null)
-				graph.addEdge(src.getId() + "" + dest.getId(), src.getId() + "", dest.getId() + "", true);
+	private void createGraphNode(de.visuflow.callgraph.Node node) {
+		// TODO Auto-generated method stub
+		if(graph.getNode(node.getId() + "") == null)
+		{
+			Node createdNode = graph.addNode(node.getId() + "");
+			createdNode.setAttribute("ui.label", node.getLabel().toString());
+			createdNode.setAttribute("nodeData.unit", node.getLabel().toString());
+			createdNode.setAttribute("nodeData.unitType", node.getLabel().getClass());
+			createdNode.setAttribute("nodeData.inSet", "coming soon");
+			createdNode.setAttribute("nodeData.outSet", "coming soon");
 		}
 	}
 
@@ -481,21 +554,29 @@ public class GraphManager implements Runnable, ViewerListener {
 	public void run() {
 		// TODO Auto-generated method stub
 		generateGraphFromGraphStructure();
-		
+
 		ViewerPipe fromViewer = viewer.newViewerPipe();
 		fromViewer.addViewerListener(this);
 		fromViewer.addSink(graph);
+		
+		/*Iterator<? extends Node> nodeIterator = graph.getEachNode().iterator();
+		while(nodeIterator.hasNext())
+		{
+			Node curr = nodeIterator.next();
+			System.out.println("Attribute count " + curr.getAttributeCount());
+			System.out.println("nodeData.unit " + curr.getAttribute("nodeData.unit").toString());
+		}*/
 
 		// FIXME the Thread.sleep slows down the loop, so that it does not eat up the CPU
-        // but this really should be implemented differently. isn't there an event listener
-        // or something we can use, so that we call pump() only when necessary
-        while(true) {
-        	try {
+		// but this really should be implemented differently. isn't there an event listener
+		// or something we can use, so that we call pump() only when necessary
+		while(true) {
+			try {
 				Thread.sleep(1);
 			} catch (InterruptedException e) {
 			}
-        	fromViewer.pump();
-        }
+			fromViewer.pump();
+		}
 	}
 
 	@Override
@@ -508,12 +589,17 @@ public class GraphManager implements Runnable, ViewerListener {
 	@Override
 	public void buttonReleased(String arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void viewClosed(String arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
+
+	protected void setTip(JToolTip toolTip) {
+		this.tip = toolTip;
+	}
+
 }

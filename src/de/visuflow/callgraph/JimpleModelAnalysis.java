@@ -23,17 +23,17 @@ import soot.jimple.toolkits.callgraph.Targets;
 import soot.util.Chain;
 
 public class JimpleModelAnalysis {
-	
+
 	private int methodcount = 0;
 	private int edgeCount = 0;
-	
+
 	public void createICFG(final ICFGStructure methodGraph, List<VFClass> vfClasses) {
 		G.reset();
 		Transform transform = new Transform("wjtp.myTransform", new SceneTransformer() {
 			@Override
 			protected void internalTransform(String phase, Map<String, String> arg1) {
 				createJimpleHierarchyWithCfgs(vfClasses);
-				createICFG();				
+				createICFG();
 			}
 
 			private void createICFG() {
@@ -45,7 +45,7 @@ public class JimpleModelAnalysis {
 				{
 					entryMethod = iterEntryMethod.next();
 					if(entryMethod.isMain())
-					{						
+					{
 						methodcount++;
 						Method method = new Method(methodcount, entryMethod);
 						methodGraph.listMethods.add(method);
@@ -62,17 +62,17 @@ public class JimpleModelAnalysis {
 					if(sootClass.isJavaLibraryClass()) {
 						continue;
 					}
-					
+
 					VFClass currentClass = new VFClass(sootClass);
 					vfClasses.add(currentClass);
-					
+
 					for (SootMethod sootMethod : sootClass.getMethods()) {
 						VFMethod currentMethod = new VFMethod(sootMethod);
 						Body body = sootMethod.retrieveActiveBody();
 						currentMethod.setBody(body);
 						currentMethod.setControlFlowGraph(new ControlFlowGraphGenerator().generateControlFlowGraph(body));
 						currentClass.getMethods().add(currentMethod);
-						
+
 						for (Unit unit : body.getUnits()) {
 							VFUnit currentUnit = new VFUnit(unit);
 							currentMethod.getUnits().add(currentUnit);
@@ -80,7 +80,7 @@ public class JimpleModelAnalysis {
 					}
 				}
 			}
-			
+
 			private void traverseMethods(SootMethod source, CallGraph cg)
 			{			
 				Targets tc = new Targets(cg.edgesOutOf(source));		
@@ -100,7 +100,7 @@ public class JimpleModelAnalysis {
 								break;
 							}
 						}
-						
+
 						if(!methodPresent)
 						{
 							methodcount++;
@@ -138,7 +138,7 @@ public class JimpleModelAnalysis {
 				"-allow-phantom-refs", "-no-bodies-for-excluded", "-process-dir", "targetBin2", "-src-prec",
 				"only-class", "-w", "-output-format", "n", "-keep-line-number" /*,"tag.ln","on"*/ });
 	}
-	
+
 
 }
 

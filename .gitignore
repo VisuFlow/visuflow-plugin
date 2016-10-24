@@ -11,3 +11,9 @@
 hs_err_pid*
 /bin/
 /targetBin2/
+
+#Mergetool Files
+.orig
+
+#metadata folder
+/.metadata
