@@ -260,7 +260,7 @@ public class GraphManager implements Runnable, ViewerListener {
 
 				if(curElement != null && tip == null) {
 					Node node=graph.getNode(curElement.getId());
-					String result = "<html>";
+					String result = "<html><table>";
 					int maxToolTipLength=0;
 					int height=0;
 					for(String key:node.getEachAttributeKey()) {
@@ -272,14 +272,14 @@ public class GraphManager implements Runnable, ViewerListener {
 								maxToolTipLength=tempVal.length();
 							}
 
-							result+=tempVal+"<br>";
+							result+="<tr><td>"+key.substring(key.lastIndexOf(".")+1)+"</td>"+"<td>"+value.toString()+"</td></tr>";
 						}
 					}
-					result+="</html>";
+					result+="</table></html>";
 					tip = new JToolTip();
 					String tipText = result;
 					tip.setTipText(tipText);
-					tip.setBounds(event.getX() - tipText.length()*3 + 1, event.getY(), maxToolTipLength*6+3,height*20 );
+					tip.setBounds(event.getX() - tipText.length()*3 + 1, event.getY(), maxToolTipLength*6+3,height*30 );
 					setTip(tip);
 					tip.setVisible(true);
 
