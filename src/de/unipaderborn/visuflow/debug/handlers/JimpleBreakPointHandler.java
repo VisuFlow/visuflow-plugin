@@ -23,7 +23,6 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.util.ServiceUtil;
-import scala.reflect.macros.internal.macroImpl;
 
 import org.eclipse.jface.dialogs.*;
 
@@ -59,7 +58,8 @@ public class JimpleBreakPointHandler extends AbstractHandler {
 
 				IMarker[] problems = null;
 				int depth = IResource.DEPTH_ZERO;
-				problems = res.findMarkers(IMarker.TASK, true, depth);
+				problems = res.findMarkers("de.uni-paderborn.visuflow.plugin.JimpleBreakPointMarker", true, depth);
+				
 				Boolean markerPresent = false;
 				for (IMarker item : problems) {
 					int markerLineNmber = (int) item.getAttribute(IMarker.LINE_NUMBER);
@@ -72,7 +72,7 @@ public class JimpleBreakPointHandler extends AbstractHandler {
 
 				if(!markerPresent){
 
-					IMarker m = res.createMarker(IMarker.TASK);
+					IMarker m = res.createMarker("de.uni-paderborn.visuflow.plugin.JimpleBreakPointMarker");
 					m.setAttribute(IMarker.LINE_NUMBER,actualLineNumber);
 					m.setAttribute(IMarker.MESSAGE, content);
 					m.setAttribute(IMarker.TEXT, "Jimple Breakpoint");
