@@ -64,6 +64,18 @@
             commandId="JimpleEditor.JimpleEditorBreakpoint"
             label="Toggle Breakpoint"
             style="push">
+            <visibleWhen>
+   <or>
+      <with variable="selection">
+         <iterate>
+           <reference definitionId="de.unipaderborn.visuflow.jimpleextension"/>
+         </iterate>
+      </with>
+      <with variable="activeEditorInput">
+        <reference definitionId="de.unipaderborn.visuflow.jimpleextension"/>
+      </with>
+   </or>
+</visibleWhen>
       </command>
    </menuContribution>
    <menuContribution
@@ -73,6 +85,18 @@
             commandId="GraphStreamFeasibility.sourceCodeCommand"
             label="View Java Source"
             style="push">
+            <visibleWhen>
+   <or>
+      <with variable="selection">
+         <iterate>
+           <reference definitionId="de.unipaderborn.visuflow.jimpleextension"/>
+         </iterate>
+      </with>
+      <with variable="activeEditorInput">
+        <reference definitionId="de.unipaderborn.visuflow.jimpleextension"/>
+      </with>
+   </or>
+</visibleWhen>
       </command>
    </menuContribution>
 </extension>
@@ -246,5 +270,13 @@
             verticalRulerPreferenceValue="true">
       </specification>
    </extension>
-   
+   <extension point="org.eclipse.core.expressions.definitions">
+   <definition id="de.unipaderborn.visuflow.jimpleextension">
+      <adapt type="org.eclipse.core.resources.IResource">
+             <test property="org.eclipse.core.resources.extension"
+                   value="jimple">
+             </test>
+      </adapt>
+   </definition>
+</extension>
 </plugin>
