@@ -62,7 +62,7 @@
          locationURI="popup:#AbstractTextEditorRulerContext?after=additions">
       <command
             commandId="JimpleEditor.JimpleEditorBreakpoint"
-            label="ToggleBreakpoint"
+            label="Toggle Breakpoint"
             style="push">
       </command>
    </menuContribution>
