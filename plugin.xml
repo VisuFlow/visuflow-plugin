@@ -258,12 +258,38 @@
       </specification>
    </extension>
    <extension point="org.eclipse.core.expressions.definitions">
-   <definition id="de.unipaderborn.visuflow.jimpleextension">
-      <adapt type="org.eclipse.core.resources.IResource">
-             <test property="org.eclipse.core.resources.extension"
-                   value="jimple">
-             </test>
-      </adapt>
-   </definition>
-</extension>
+	   <definition id="de.unipaderborn.visuflow.jimpleextension">
+	      <adapt type="org.eclipse.core.resources.IResource">
+	             <test property="org.eclipse.core.resources.extension"
+	                   value="jimple">
+	             </test>
+	      </adapt>
+	   </definition>
+    </extension>
+
+    <!--
+      ########### LaunchConfigurationDelegate
+    -->
+    <extension point="org.eclipse.debug.core.launchConfigurationTypes">
+           <launchConfigurationType
+               name="Visuflow"
+               delegate="de.unipaderborn.visuflow.debug.LaunchConfigurationDelegate"
+               modes="run, debug"
+               id="de.unipaderborn.visuflow.launchConfigurationType">
+           </launchConfigurationType>
+       </extension>
+       <extension point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+           <launchConfigurationTabGroup
+               class="de.unipaderborn.visuflow.debug.ui.LaunchConfigurationTabGroup"
+               id="de.unipaderborn.visuflow.debug.ui.launchConfigurationTabGroup"
+               type="de.unipaderborn.visuflow.launchConfigurationType">
+           </launchConfigurationTabGroup>
+       </extension>
+       <extension point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+           <launchConfigurationTypeImage
+                   id="de.unipaderborn.visuflow.debug.ui.launchConfigurationTypeImage"
+                   configTypeID="de.unipaderborn.visuflow.launchConfigurationType"
+                   icon="icons/monkey16.png">
+           </launchConfigurationTypeImage>
+        </extension>
 </plugin>
