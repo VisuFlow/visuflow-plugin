@@ -9,28 +9,21 @@
       </category>
       <view
             category="GraphStreamFeasibility"
-            class="graphstreamfeasibility.views.SampleView"
-            icon="icons/sample.gif"
-            id="graphstreamfeasibility.views.SampleView"
-            name="Jimple">
-      </view>
-      <view
-            category="GraphStreamFeasibility"
-            class="de.unipaderborn.visuflow.graphdisplaycomponent.CFGViewPart"
+            class="de.unipaderborn.visuflow.ui.view.CFGView"
             icon="icons/sample.gif"
             id="de.unipaderborn.visuflow.graphdisplaycomponent.CFGViewPart"
             name="CFG">
       </view>
       <view
             category="GraphStreamFeasibility"
-            class="de.unipaderborn.visuflow.ResultView"
+            class="de.unipaderborn.visuflow.ui.view.ResultView"
             icon="icons/sample.gif"
-            id="de.unipaderborn.visuflow.graphdisplaycomponent.ResultsViewPart"
+            id="de.unipaderborn.visuflow.ui.view.ResultsViewPart"
             name="Results">
       </view>
       <view
       		category="GraphStreamFeasibility"
-            class="graphstreamfeasibility.views.UnitView"
+            class="de.unipaderborn.visuflow.ui.view.UnitView"
             icon="icons/sample.gif"
             id="GraphStreamFeasibility.view1"
             name="Unit Inspection View"
@@ -41,12 +34,6 @@
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension
             targetID="org.eclipse.jdt.ui.JavaPerspective">
-         <view
-               id="graphstreamfeasibility.views.SampleView"
-               ratio="0.5"
-               relationship="right"
-               relative="org.eclipse.ui.views.ProblemView">
-         </view>
       </perspectiveExtension>
    </extension>
    <extension
@@ -62,8 +49,20 @@
          locationURI="popup:#AbstractTextEditorRulerContext?after=additions">
       <command
             commandId="JimpleEditor.JimpleEditorBreakpoint"
-            label="ToggleBreakpoint"
+            label="Toggle Breakpoint"
             style="push">
+            <visibleWhen>
+   <or>
+      <with variable="selection">
+         <iterate>
+           <reference definitionId="de.unipaderborn.visuflow.jimpleextension"/>
+         </iterate>
+      </with>
+      <with variable="activeEditorInput">
+        <reference definitionId="de.unipaderborn.visuflow.jimpleextension"/>
+      </with>
+   </or>
+</visibleWhen>
       </command>
    </menuContribution>
    <menuContribution
@@ -73,6 +72,18 @@
             commandId="GraphStreamFeasibility.sourceCodeCommand"
             label="View Java Source"
             style="push">
+            <visibleWhen>
+   <or>
+      <with variable="selection">
+         <iterate>
+           <reference definitionId="de.unipaderborn.visuflow.jimpleextension"/>
+         </iterate>
+      </with>
+      <with variable="activeEditorInput">
+        <reference definitionId="de.unipaderborn.visuflow.jimpleextension"/>
+      </with>
+   </or>
+</visibleWhen>
       </command>
    </menuContribution>
 </extension>
@@ -201,5 +212,58 @@
             value="true">
       </persistent>
    </extension>
-   
+   <extension
+         id="JimpleBreakPointMarker"
+         point="org.eclipse.core.resources.markers">
+      <persistent
+            value="true">
+      </persistent>
+      <super
+            type="org.eclipse.core.resources.textmarker">
+      </super>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.annotationTypes">
+      <type
+            markerSeverity="1"
+            markerType="de.uni-paderborn.visuflow.plugin.JimpleBreakPointMarker"
+            name="JimpleBreakPointAnnotation"
+            super="org.eclipse.ui.workbench.texteditor.warning">
+      </type>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.markerAnnotationSpecification">
+      <specification
+            annotationType="JimpleBreakPointAnnotation"
+            colorPreferenceKey="de.uni-paderborn.visuflow.plugin.jimplebreakpoint.color"
+            colorPreferenceValue="192,255,192"
+            contributesToHeader="false"
+            highlightPreferenceKey="de.uni-paderborn.visuflow.plugin.jimplebreakpoint.highlight"
+            highlightPreferenceValue="true"
+            icon="icons/breakpoint.png"
+            includeOnPreferencePage="true"
+            isGoToPreviousNavigationTarget="true"
+            label="Jimple Breakpoint"
+            overviewRulerPreferenceKey="de.uni-paderborn.visuflow.plugin.jimplebreakpoint.overview"
+            overviewRulerPreferenceValue="true"
+            presentationLayer="0"
+            quickFixIcon="icons/breakpoint.png"
+            showInNextPrevDropdownToolbarAction="false"
+            symbolicIcon="warning"
+            textPreferenceKey="de.uni-paderborn.visuflow.plugin.jimplebreakpoint.text"
+            textPreferenceValue="false"
+            textStylePreferenceValue="BOX"
+            verticalRulerPreferenceKey="de.uni-paderborn.visuflow.plugin.jimplebreakpoint.ruler"
+            verticalRulerPreferenceValue="true">
+      </specification>
+   </extension>
+   <extension point="org.eclipse.core.expressions.definitions">
+   <definition id="de.unipaderborn.visuflow.jimpleextension">
+      <adapt type="org.eclipse.core.resources.IResource">
+             <test property="org.eclipse.core.resources.extension"
+                   value="jimple">
+             </test>
+      </adapt>
+   </definition>
+</extension>
 </plugin>

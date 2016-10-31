@@ -1,11 +1,11 @@
-package de.unipaderborn.visuflow;
+package de.unipaderborn.visuflow.ui.view.filter;
 
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
 import de.unipaderborn.visuflow.model.VFUnit;
 
-public class VFUnitFilter extends ViewerFilter {
+public class ResultViewFilter extends ViewerFilter {
 
 	private String searchString;
 

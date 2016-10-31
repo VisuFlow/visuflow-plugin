@@ -77,14 +77,15 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 	public static final String BUILDER_ID = "JimpleBuilder.JimpleBuilder";
 
 	@Override
-	protected IProject[] build(int kind, Map args, IProgressMonitor monitor) throws CoreException {
+	protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
 		System.out.println("Build Start");
 		IJavaProject project = JavaCore.create(getProject());
 		classpath = getSootCP(project);
 		String location = getOutputLocation(project);
 		System.out.println(location);
 		classpath = location + File.pathSeparator + classpath;
-		G.v().reset();
+		G.v();
+		G.reset();
 		soot.Main.main(new String[] { "-cp", ".;" + classpath, "-allow-phantom-refs", "-src-prec", "class",
 				"-keep-line-number", "-f","J" ,"-d", location + File.separator + "Jimple","-process-dir",location});
 		//call update

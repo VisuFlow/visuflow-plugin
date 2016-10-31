@@ -14,8 +14,8 @@ import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.model.VFUnit;
-import de.visuflow.callgraph.ICFGStructure;
-import de.visuflow.callgraph.JimpleModelAnalysis;
+import de.unipaderborn.visuflow.model.callgraph.ICFGStructure;
+import de.unipaderborn.visuflow.model.callgraph.JimpleModelAnalysis;
 
 public class DummyDataModel implements DataModel {
 	private List<VFClass> jimpleClasses = new ArrayList<VFClass>();

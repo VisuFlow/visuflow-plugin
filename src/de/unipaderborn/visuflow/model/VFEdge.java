@@ -1,22 +1,21 @@
-package de.visuflow.callgraph;
-import de.visuflow.callgraph.Node;
+package de.unipaderborn.visuflow.model;
 
-public class Edge {
+public class VFEdge {
 	
 	int id;
-	Node source;
-	Node destination;
+	VFNode source;
+	VFNode destination;
 	Method sourceMethod;
 	Method destMethod;
 	
-	public Edge(int id, Node source, Node destination)
+	public VFEdge(int id, VFNode source, VFNode destination)
 	{
 		this.id=id;
 		this.source=source;
 		this.destination=destination;
 	}
 	
-	public Edge(int id, Method sourceMethod, Method destMethod)
+	public VFEdge(int id, Method sourceMethod, Method destMethod)
 	{
 		this.id=id;
 		this.sourceMethod=sourceMethod;
@@ -41,16 +40,16 @@ public class Edge {
 	public void setId(int id) {
 		this.id = id;
 	}
-	public Node getSource() {
+	public VFNode getSource() {
 		return source;
 	}
-	public void setSource(Node source) {
+	public void setSource(VFNode source) {
 		this.source = source;
 	}
-	public Node getDestination() {
+	public VFNode getDestination() {
 		return destination;
 	}
-	public void setDestination(Node destination) {
+	public void setDestination(VFNode destination) {
 		this.destination = destination;
 	}	
 

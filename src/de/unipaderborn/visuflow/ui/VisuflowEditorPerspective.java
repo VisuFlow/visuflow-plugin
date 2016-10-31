@@ -12,12 +12,12 @@ public class VisuflowEditorPerspective implements IPerspectiveFactory {
     private static final String ID_FOLDER_CONSOLE = "perspective.folder.console";
     private static final String ID_FOLDER_DEBUG = "perspective.folder.debug";
 
-    private static final String ID_GRAPH_VIEW = "de.unipaderborn.visuflow.graphdisplaycomponent.CFGViewPart";
+    private static final String ID_GRAPH_VIEW = "de.unipaderborn.visuflow.ui.view.CFGViewPart";
     //private static final String ID_JIMPLE_VIEW = "graphstreamfeasibility.views.SampleView";
     private static final String ID_JIMPLE_VIEW = "jimpleeditor.editors.MultiPageEditor";
     private static final String ID_CONSOLE_VIEW = "org.eclipse.ui.console.ConsoleView";
-    private static final String ID_RESULT_VIEW = "de.unipaderborn.visuflow.ResultView";
-    private static final String ID_UNIT_VIEW = "graphstreamfeasibility.views.UnitView";
+    private static final String ID_RESULT_VIEW = "de.unipaderborn.visuflow.ui.view.ResultView";
+    private static final String ID_UNIT_VIEW = "de.unipaderborn.visuflow.ui.view.UnitView";
 
     @Override
     public void createInitialLayout(IPageLayout layout) {

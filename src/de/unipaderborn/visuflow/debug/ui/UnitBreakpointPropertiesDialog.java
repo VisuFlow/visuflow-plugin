@@ -12,19 +12,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
-import soot.jimple.BreakpointStmt;
-import soot.jimple.DefinitionStmt;
-import soot.jimple.GotoStmt;
-import soot.jimple.IfStmt;
-import soot.jimple.InvokeStmt;
-import soot.jimple.MonitorStmt;
-import soot.jimple.NopStmt;
-import soot.jimple.RetStmt;
-import soot.jimple.ReturnStmt;
-import soot.jimple.ReturnVoidStmt;
-import soot.jimple.SwitchStmt;
-import soot.jimple.ThrowStmt;
-
 public class UnitBreakpointPropertiesDialog extends Dialog implements SelectionListener {
 
     private Composite compositeType;
@@ -36,7 +23,7 @@ public class UnitBreakpointPropertiesDialog extends Dialog implements SelectionL
     private Combo cmbMethod;
 
     // @formatter:off
-    private static String[] stmts = {
+    /*private static String[] stmts = {
             BreakpointStmt.class.getSimpleName(),
             DefinitionStmt.class.getSimpleName(),
             GotoStmt.class.getSimpleName(),
@@ -49,7 +36,7 @@ public class UnitBreakpointPropertiesDialog extends Dialog implements SelectionL
             ReturnVoidStmt.class.getSimpleName(),
             SwitchStmt.class.getSimpleName(),
             ThrowStmt.class.getSimpleName()
-    };
+    };*/
     // @formatter:on
 
     private Object currentSelection;
