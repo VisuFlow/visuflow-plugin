@@ -2,6 +2,8 @@ package de.unipaderborn.visuflow.model;
 
 import java.util.List;
 
+import de.unipaderborn.visuflow.model.graph.ICFGStructure;
+
 public interface DataModel {
 	public static final String EA_TOPIC_DATA = "de/unipaderborn/visuflow/DataModel";
 	public static final String EA_TOPIC_DATA_MODEL_CHANGED = EA_TOPIC_DATA + "/ModelChanged";
@@ -17,13 +19,14 @@ public interface DataModel {
 
 	public static final String EA_TOPIC_DATA_SELECTION = EA_TOPIC_DATA + "/SeclectionChanged";
 
-    public List<VFClass> listClasses();
-    public List<VFMethod> listMethods(VFClass vfClass);
-    public List<VFUnit> listUnits(VFMethod vfMethod);
-    public VFClass getSelectedClass();
-    public List<VFMethod> getSelectedClassMethods();
-    public List<VFUnit> getSelectedMethodUnits();
-    public void setSelectedClass(VFClass selectedClass);
-    public void setSelectedMethod(VFMethod selectedMethod);
-    public VFMethod getSelectedMethod();
+	public ICFGStructure getIcfg();
+	public List<VFClass> listClasses();
+	public List<VFMethod> listMethods(VFClass vfClass);
+	public List<VFUnit> listUnits(VFMethod vfMethod);
+	public VFClass getSelectedClass();
+	public List<VFMethod> getSelectedClassMethods();
+	public List<VFUnit> getSelectedMethodUnits();
+	public void setSelectedClass(VFClass selectedClass);
+	public void setSelectedMethod(VFMethod selectedMethod);
+	public VFMethod getSelectedMethod();
 }

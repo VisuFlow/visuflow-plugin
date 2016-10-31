@@ -44,6 +44,7 @@ import de.unipaderborn.visuflow.model.VFEdge;
 import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.model.VFNode;
 import de.unipaderborn.visuflow.model.graph.ControlFlowGraph;
+import de.unipaderborn.visuflow.model.graph.ICFGStructure;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 
 public class GraphManager implements Runnable, ViewerListener {
@@ -189,8 +190,6 @@ public class GraphManager implements Runnable, ViewerListener {
 	private void createMethodComboBox()
 	{
 		methodList = new JComboBox<VFMethod>();
-		//		methodList.addItem("Select Method");
-
 		methodList.addActionListener(new ActionListener() {
 
 			@Override
@@ -401,9 +400,34 @@ public class GraphManager implements Runnable, ViewerListener {
 
 	void generateGraphFromGraphStructure()
 	{
-		List<VFMethod> currentClassMethods = ServiceUtil.getService(DataModel.class).getSelectedClassMethods();
+		DataModel tempDataModel = ServiceUtil.getService(DataModel.class);
+		List<VFMethod> currentClassMethods = tempDataModel.getSelectedClassMethods();
 		for(VFMethod vfMethod : currentClassMethods)
 			methodList.addItem(vfMethod);
+		/*System.out.println("Temp Model " + tempDataModel.getIcfg());
+		renderICFG(tempDataModel.getIcfg());*/
+	}
+
+	@SuppressWarnings("unused")
+	private void renderICFG(ICFGStructure test) {
+		Iterator<VFEdge> iterator = test.listEdges.iterator();
+		/*try {
+			reintializeGraph();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
+		while(iterator.hasNext())
+		{
+			VFEdge curr = iterator.next();
+
+			VFNode src = curr.getSource();
+			VFNode dest = curr.getDestination();
+
+			createGraphNode(src);
+			createGraphNode(dest);
+			createGraphEdge(src, dest);
+		}
 	}
 
 	private void renderMethodCFG(ControlFlowGraph interGraph) throws Exception
@@ -433,6 +457,7 @@ public class GraphManager implements Runnable, ViewerListener {
 			Edge createdEdge = graph.addEdge(src.getId() + "" + dest.getId(), src.getId() + "", dest.getId() + "", true);
 			createdEdge.addAttribute("ui.label", "{a,b}");
 			createdEdge.addAttribute("edgeData.outSet", "{a,b}");
+			System.out.println("Rendered graph edge between " + src.getId() + " and " + dest.getId());
 		}
 	}
 
@@ -445,6 +470,7 @@ public class GraphManager implements Runnable, ViewerListener {
 			createdNode.setAttribute("nodeData.unitType", node.getLabel().getClass());
 			createdNode.setAttribute("nodeData.inSet", "coming soon");
 			createdNode.setAttribute("nodeData.outSet", "coming soon");
+			System.out.println("Rendered graph node " + node.getId());
 		}
 	}
 

@@ -9,5 +9,4 @@ import de.unipaderborn.visuflow.model.VFEdge;
 public class ICFGStructure {
 	public List<Method> listMethods = new ArrayList<Method>();
 	public List<VFEdge> listEdges = new ArrayList<VFEdge>();
-
 }

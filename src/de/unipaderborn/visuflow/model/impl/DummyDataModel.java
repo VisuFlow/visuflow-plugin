@@ -25,6 +25,12 @@ public class DummyDataModel implements DataModel {
 	
 	private List<VFMethod> selectedClassMethods;
 	private List<VFUnit> selectedMethodUnits;
+	
+	private ICFGStructure icfg;
+
+	public ICFGStructure getIcfg() {
+		return icfg;
+	}
 
 	public VFClass getSelectedClass() {
 		return selectedClass;
@@ -35,7 +41,6 @@ public class DummyDataModel implements DataModel {
 	}
 	
 	public VFMethod getSelectedMethod() {
-//		System.out.println("Current selected method is " + selectedMethod);
 		return selectedMethod;
 	}
 
@@ -54,18 +59,15 @@ public class DummyDataModel implements DataModel {
 	{
 		this.selectedMethod = selectedMethod;
 		this.populateUnits();
-//		System.out.println("Changing selected method to " + selectedMethod);
 		
 		Dictionary<String, Object> properties = new Hashtable<String, Object>();
 		properties.put("selectedMethod", selectedMethod);
 		properties.put("selectedMethodUnits", selectedMethodUnits);
 		Event modelChanged = new Event(DataModel.EA_TOPIC_DATA_SELECTION, properties);
 		eventAdmin.postEvent(modelChanged);
-//		System.out.println("EA_TOPIC_DATA_SELECTION triggered from dataModel");
 	}
 
 	private void populateUnits() {
-		// TODO Auto-generated method stub
 		this.selectedMethodUnits = this.selectedMethod.getUnits();
 	}
 
@@ -106,10 +108,11 @@ public class DummyDataModel implements DataModel {
 	
 	protected void activate(ComponentContext context)
     {
-		ICFGStructure icfg = new ICFGStructure();
+		this.icfg = new ICFGStructure();
 		JimpleModelAnalysis analysis = new JimpleModelAnalysis();
-		analysis.createICFG(icfg, jimpleClasses);
+		analysis.createICFG(this.icfg, jimpleClasses);
 		this.setSelectedClass(jimpleClasses.get(0));
+		System.out.println(this.icfg.listEdges.size());
 		
 		Dictionary<String, Object> properties = new Hashtable<String, Object>();
 		properties.put("model", jimpleClasses);

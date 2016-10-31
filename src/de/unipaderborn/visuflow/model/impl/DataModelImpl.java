@@ -7,6 +7,7 @@ import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.model.VFUnit;
+import de.unipaderborn.visuflow.model.graph.ICFGStructure;
 
 
 public class DataModelImpl implements DataModel {
@@ -58,6 +59,12 @@ public class DataModelImpl implements DataModel {
 
 	@Override
 	public VFMethod getSelectedMethod() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ICFGStructure getIcfg() {
 		// TODO Auto-generated method stub
 		return null;
 	}
