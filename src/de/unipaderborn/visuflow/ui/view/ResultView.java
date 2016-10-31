@@ -1,4 +1,4 @@
-package de.unipaderborn.visuflow;
+package de.unipaderborn.visuflow.ui.view;
 
 import java.util.Hashtable;
 import java.util.List;
@@ -24,12 +24,13 @@ import org.osgi.service.event.EventHandler;
 
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFUnit;
+import de.unipaderborn.visuflow.ui.view.filter.ResultViewFilter;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 
 public class ResultView extends ViewPart implements EventHandler{
 
 	private TableViewer viewer;
-	private VFUnitFilter filter;
+	private ResultViewFilter filter;
 	private List<VFUnit> units;
 
 	@Override
@@ -50,7 +51,7 @@ public class ResultView extends ViewPart implements EventHandler{
 			}
 
 		});
-		filter = new VFUnitFilter();
+		filter = new ResultViewFilter();
 		viewer.addFilter(filter);
 	}
 
@@ -68,8 +69,6 @@ public class ResultView extends ViewPart implements EventHandler{
 		table.setLinesVisible(true);
 
 		viewer.setContentProvider(new ArrayContentProvider());
-//		viewer.setInput(ServiceUtil.getService(DataModel.class).getSelectedMethodUnits());
-		//		viewer.setInput(ModelProvider.INSTANCE.getUnits());
 		viewer.setInput(this.units);
 		getSite().setSelectionProvider(viewer);
 
@@ -81,15 +80,6 @@ public class ResultView extends ViewPart implements EventHandler{
 		gridData.horizontalAlignment = GridData.FILL;
 		viewer.getControl().setLayoutData(gridData);
 
-		/*EventHandler dataModelHandler = new EventHandler(this); {
-			@SuppressWarnings("unchecked")
-			@Override
-			public void handleEvent(Event event) {
-				System.out.println("selection changed event detected by ResultView" + event.getProperty("selectedMethodUnits"));
-				units = (List<VFUnit>) event.getProperty("selectedMethodUnits");
-				refreshTable();
-			}
-		};*/
 		Hashtable<String, String> properties = new Hashtable<String, String>();
 		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_SELECTION);
 		ServiceUtil.registerService(EventHandler.class, this, properties);
@@ -117,7 +107,7 @@ public class ResultView extends ViewPart implements EventHandler{
 			}
 		});
 		//In-Set
-		col = createTableViewerColumn(titles[1], bounds[1], 1);
+		col = createTableViewerColumn(titles[2], bounds[1], 1);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -125,7 +115,7 @@ public class ResultView extends ViewPart implements EventHandler{
 			}
 		});
 		//Out-Set
-		col = createTableViewerColumn(titles[1], bounds[1], 1);
+		col = createTableViewerColumn(titles[3], bounds[1], 1);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {

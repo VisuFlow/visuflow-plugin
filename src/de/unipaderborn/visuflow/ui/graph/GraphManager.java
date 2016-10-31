@@ -42,7 +42,7 @@ import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.util.ServiceUtil;
-import de.visuflow.callgraph.ControlFlowGraph;
+import de.unipaderborn.visuflow.model.callgraph.ControlFlowGraph;
 
 public class GraphManager implements Runnable, ViewerListener {
 
@@ -171,7 +171,6 @@ public class GraphManager implements Runnable, ViewerListener {
 		});*/
 		applet.add(scrollbar);
 	}
-	
 
 	private void createAttributeControls() {
 		// TODO Auto-generated method stub
@@ -188,7 +187,6 @@ public class GraphManager implements Runnable, ViewerListener {
 			}
 		});
 	}
-	
 
 	private void createMethodComboBox()
 	{
@@ -202,15 +200,12 @@ public class GraphManager implements Runnable, ViewerListener {
 				// TODO Auto-generated method stub
 				@SuppressWarnings("unchecked")
 				JComboBox<String> methodBox = (JComboBox<String>) e.getSource();
-				if(analysisData == null)
-					System.out.println("analysis data is null");
 				try {
 					VFMethod selectedMethod = (VFMethod) methodBox.getSelectedItem();
 
 					DataModel dataModel = ServiceUtil.getService(DataModel.class);
 					dataModel.setSelectedMethod(selectedMethod);
 
-					//					renderMethodCFG(selectedMethod.getControlFlowGraph());
 					renderMethodCFG(dataModel.getSelectedMethod().getControlFlowGraph());
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
@@ -220,7 +215,6 @@ public class GraphManager implements Runnable, ViewerListener {
 			}
 		});
 	}
-	
 
 	private void createSettingsBar() {
 		// TODO Auto-generated method stub
@@ -234,7 +228,6 @@ public class GraphManager implements Runnable, ViewerListener {
 		settingsBar.add(attribute);
 		settingsBar.add(toggleLayout);
 	}
-	
 
 	private void createPanel() {
 		// TODO Auto-generated method stub
@@ -242,7 +235,6 @@ public class GraphManager implements Runnable, ViewerListener {
 		panel.add(view);
 		panel.add(settingsBar, BorderLayout.PAGE_START);
 	}
-	
 
 	private void createViewListeners() {
 		// TODO Auto-generated method stub
@@ -330,7 +322,6 @@ public class GraphManager implements Runnable, ViewerListener {
 			}
 		});
 	}
-	
 
 	private void zoomIn()
 	{
@@ -338,7 +329,6 @@ public class GraphManager implements Runnable, ViewerListener {
 		if(viewPercent > maxZoomPercent)
 			view.getCamera().setViewPercent(viewPercent - zoomInDelta);
 	}
-	
 
 	private void zoomOut()
 	{
@@ -346,7 +336,6 @@ public class GraphManager implements Runnable, ViewerListener {
 		if(viewPercent < minZoomPercent)
 			view.getCamera().setViewPercent(viewPercent + zoomOutDelta);
 	}
-	
 
 	private void createZoomControls() {
 		// TODO Auto-generated method stub
@@ -383,7 +372,6 @@ public class GraphManager implements Runnable, ViewerListener {
 			}
 		});
 	}
-	
 
 	private void createToggleLayoutButton()
 	{
@@ -398,7 +386,6 @@ public class GraphManager implements Runnable, ViewerListener {
 			}
 		});
 	}
-	
 
 	private void toggleAutoLayout()
 	{
@@ -424,7 +411,6 @@ public class GraphManager implements Runnable, ViewerListener {
 			toggleLayout.setText("Enable Layouting");
 		}
 	}
-	
 
 	void generateGraphFromGraphStructure()
 	{
@@ -449,14 +435,14 @@ public class GraphManager implements Runnable, ViewerListener {
 			throw new Exception("GraphStructure is null");
 
 		this.reintializeGraph();
-		ListIterator<de.visuflow.callgraph.Edge> edgeIterator = interGraph.listEdges.listIterator();
+		ListIterator<de.unipaderborn.visuflow.model.VFEdge> edgeIterator = interGraph.listEdges.listIterator();
 
 		while(edgeIterator.hasNext())
 		{
-			de.visuflow.callgraph.Edge currEdgeIterator = edgeIterator.next();
+			de.unipaderborn.visuflow.model.VFEdge currEdgeIterator = edgeIterator.next();
 
-			de.visuflow.callgraph.Node src = currEdgeIterator.getSource();
-			de.visuflow.callgraph.Node dest = currEdgeIterator.getDestination();
+			de.unipaderborn.visuflow.model.VFNode src = currEdgeIterator.getSource();
+			de.unipaderborn.visuflow.model.VFNode dest = currEdgeIterator.getDestination();
 
 			createGraphNode(src);
 			createGraphNode(dest);
@@ -464,7 +450,7 @@ public class GraphManager implements Runnable, ViewerListener {
 		}
 	}
 
-	private void createGraphEdge(de.visuflow.callgraph.Node src, de.visuflow.callgraph.Node dest) {
+	private void createGraphEdge(de.unipaderborn.visuflow.model.VFNode src, de.unipaderborn.visuflow.model.VFNode dest) {
 		// TODO Auto-generated method stub
 		if(graph.getEdge("" + src.getId() + dest.getId()) == null)
 		{
@@ -474,7 +460,7 @@ public class GraphManager implements Runnable, ViewerListener {
 		}
 	}
 
-	private void createGraphNode(de.visuflow.callgraph.Node node) {
+	private void createGraphNode(de.unipaderborn.visuflow.model.VFNode node) {
 		// TODO Auto-generated method stub
 		if(graph.getNode(node.getId() + "") == null)
 		{
