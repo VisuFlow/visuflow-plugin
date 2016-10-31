@@ -414,16 +414,6 @@ public class GraphManager implements Runnable, ViewerListener {
 
 	void generateGraphFromGraphStructure()
 	{
-		/*DataModel dataModel = ServiceUtil.getService(DataModel.class);
-
-		analysisData = dataModel.listClasses();
-		if(!analysisData.isEmpty()) {
-			VFClass first = analysisData.get(0);
-			for (VFMethod vfMethod : first.getMethods()) {
-				methodList.addItem(vfMethod);
-			}
-		}*/
-
 		List<VFMethod> currentClassMethods = ServiceUtil.getService(DataModel.class).getSelectedClassMethods();
 		for(VFMethod vfMethod : currentClassMethods)
 			methodList.addItem(vfMethod);
