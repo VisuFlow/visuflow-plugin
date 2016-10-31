@@ -1,4 +1,4 @@
-package de.visuflow.callgraph;
+package de.unipaderborn.visuflow.model;
 
 import soot.SootMethod;
 

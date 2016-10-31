@@ -1,13 +1,13 @@
-package de.visuflow.callgraph;
+package de.unipaderborn.visuflow.model;
 
 import soot.Unit;
 
-public class Node {
+public class VFNode {
 	
 	Unit label;
 	int id;
 	
-	Node(Unit label, int id)
+	public VFNode(Unit label, int id)
 	{
 		this.label=label;
 		this.id=id;

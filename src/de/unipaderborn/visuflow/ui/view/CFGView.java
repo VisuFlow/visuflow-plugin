@@ -1,4 +1,4 @@
-package de.unipaderborn.visuflow.graphdisplaycomponent;
+package de.unipaderborn.visuflow.ui.view;
 
 import java.awt.Frame;
 
@@ -12,7 +12,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import de.unipaderborn.visuflow.ui.graph.GraphManager;
 
-public class CFGViewPart extends ViewPart {
+public class CFGView extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {

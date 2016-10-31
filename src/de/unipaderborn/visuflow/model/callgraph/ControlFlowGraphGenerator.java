@@ -1,9 +1,12 @@
-package de.visuflow.callgraph;
+package de.unipaderborn.visuflow.model.callgraph;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import de.unipaderborn.visuflow.model.VFEdge;
+import de.unipaderborn.visuflow.model.VFNode;
+import de.unipaderborn.visuflow.model.callgraph.ControlFlowGraph;
 import soot.Body;
 import soot.Unit;
 import soot.toolkits.graph.ExceptionalUnitGraph;
@@ -13,8 +16,8 @@ public class ControlFlowGraphGenerator {
 	static ExceptionalUnitGraph eg;
 	private int nodeNumber;
 	private int edgeNumber;
-	private List<Node> listNodes;
-	private List<Edge> listEdges;
+	private List<VFNode> listNodes;
+	private List<VFEdge> listEdges;
 	
 	public ControlFlowGraph generateControlFlowGraph(Body b) {
 		nodeNumber=0;
@@ -29,7 +32,7 @@ public class ControlFlowGraphGenerator {
 		while (it1.hasNext()) {
 			head = it1.next();
 			nodeNumber++;
-			Node node = new Node(head, nodeNumber);
+			VFNode node = new VFNode(head, nodeNumber);
 			listNodes.add(node);
 			break;
 		}
@@ -45,22 +48,22 @@ public class ControlFlowGraphGenerator {
 		Iterator<Unit> it = l.iterator();
 		while (it.hasNext()) {
 			Unit temp = it.next();
-			Iterator<Node> nodesIterator = listNodes.iterator();
+			Iterator<VFNode> nodesIterator = listNodes.iterator();
 			while (nodesIterator.hasNext()) {
-				Node node = (Node) nodesIterator.next();
+				VFNode node = (VFNode) nodesIterator.next();
 				if (node.getLabel().equals(temp)) {
 					present = true;
 				}
 			}
 			if (!present) {
 				nodeNumber++;
-				Node node = new Node(temp, nodeNumber);
+				VFNode node = new VFNode(temp, nodeNumber);
 				listNodes.add(node);
 			}
-			Node source = null, destination = null;
-			Iterator<Node> it1 = listNodes.iterator();
+			VFNode source = null, destination = null;
+			Iterator<VFNode> it1 = listNodes.iterator();
 			while (it1.hasNext()) {
-				Node node = (Node) it1.next();
+				VFNode node = (VFNode) it1.next();
 				if (node.getLabel().equals(currentNode)) {
 					source = node;
 				}
@@ -69,7 +72,7 @@ public class ControlFlowGraphGenerator {
 				}
 			}
 			edgeNumber++;
-			Edge edgeEntry = new Edge(edgeNumber, source, destination);
+			VFEdge edgeEntry = new VFEdge(edgeNumber, source, destination);
 			listEdges.add(edgeEntry);
 			traverseUnits(temp);
 		}

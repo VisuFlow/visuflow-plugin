@@ -1,11 +1,13 @@
-package de.visuflow.callgraph;
+package de.unipaderborn.visuflow.model.callgraph;
 
 import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import de.unipaderborn.visuflow.model.Method;
 import de.unipaderborn.visuflow.model.VFClass;
+import de.unipaderborn.visuflow.model.VFEdge;
 import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.model.VFUnit;
 import soot.Body;
@@ -122,7 +124,7 @@ public class JimpleModelAnalysis {
 							}
 						}
 						edgeCount++;
-						Edge edge = new Edge(edgeCount, sourceMethod, destinationMethod);
+						VFEdge edge = new VFEdge(edgeCount, sourceMethod, destinationMethod);
 						methodGraph.listEdges.add(edge);
 						traverseMethods(destination, cg);
 					}
