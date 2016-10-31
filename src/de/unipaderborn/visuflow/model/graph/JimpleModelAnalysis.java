@@ -28,6 +28,16 @@ public class JimpleModelAnalysis {
 
 	private int methodcount = 0;
 	private int edgeCount = 0;
+	
+	private String[] sootString = new String[] { "-cp", "./bin" + File.pathSeparator + 
+			System.getProperty("java.home") + File.separator + "lib" + File.separator + 
+			"rt.jar", "-exclude", "javax", "-allow-phantom-refs", "-no-bodies-for-excluded", 
+			"-process-dir", "targetBin2", "-src-prec", "only-class", "-w", "-output-format", 
+			"n", "-keep-line-number" /*,"tag.ln","on"*/ };
+	
+	public void setSootString(String[] s){
+		this.sootString = s;
+	}
 
 	public void createICFG(final ICFGStructure methodGraph, List<VFClass> vfClasses) {
 		G.reset();
@@ -133,12 +143,8 @@ public class JimpleModelAnalysis {
 		});
 
 		PackManager.v().getPack("wjtp").add(transform);
-		String rtJar = System.getProperty("java.home") + File.separator + "lib" + File.separator + "rt.jar";
-
 		// Run Soot
-		Main.main(new String[] { "-cp", "./bin" + File.pathSeparator + rtJar, "-exclude", "javax",
-				"-allow-phantom-refs", "-no-bodies-for-excluded", "-process-dir", "targetBin2", "-src-prec",
-				"only-class", "-w", "-output-format", "n", "-keep-line-number" /*,"tag.ln","on"*/ });
+		Main.main(sootString);
 	}
 
 

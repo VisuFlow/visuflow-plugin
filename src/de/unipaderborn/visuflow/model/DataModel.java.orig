@@ -19,15 +19,27 @@ public interface DataModel {
 
 	public static final String EA_TOPIC_DATA_SELECTION = EA_TOPIC_DATA + "/SeclectionChanged";
 
+<<<<<<< HEAD
 	public ICFGStructure getIcfg();
 	public List<VFClass> listClasses();
 	public List<VFMethod> listMethods(VFClass vfClass);
 	public List<VFUnit> listUnits(VFMethod vfMethod);
-    public void setClassList(List<VFClass> classList);
 	public VFClass getSelectedClass();
 	public List<VFMethod> getSelectedClassMethods();
 	public List<VFUnit> getSelectedMethodUnits();
 	public void setSelectedClass(VFClass selectedClass);
 	public void setSelectedMethod(VFMethod selectedMethod);
 	public VFMethod getSelectedMethod();
+=======
+    public List<VFClass> listClasses();
+    public List<VFMethod> listMethods(VFClass vfClass);
+    public List<VFUnit> listUnits(VFMethod vfMethod);
+    public void setClassList(List<VFClass> classList);
+    public VFClass getSelectedClass();
+    public List<VFMethod> getSelectedClassMethods();
+    public List<VFUnit> getSelectedMethodUnits();
+    public void setSelectedClass(VFClass selectedClass);
+    public void setSelectedMethod(VFMethod selectedMethod);
+    public VFMethod getSelectedMethod();
+>>>>>>> 2ad2b7a4c242b3751217336433c1a6afad627f0c
 }
