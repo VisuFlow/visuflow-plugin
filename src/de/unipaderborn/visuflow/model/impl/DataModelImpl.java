@@ -28,6 +28,9 @@ public class DataModelImpl implements DataModel {
 
     @Override
     public List<VFClass> listClasses() {
+    	if(classList == null){
+			return Collections.emptyList();
+		}
         return classList;
     }
 
@@ -62,11 +65,17 @@ public class DataModelImpl implements DataModel {
 
 	@Override
 	public List<VFMethod> getSelectedClassMethods() {
+		if(selectedClassMethods == null){
+			return Collections.emptyList();
+		}
 		return selectedClassMethods;
 	}
 
 	@Override
 	public List<VFUnit> getSelectedMethodUnits() {
+		if(selectedMethodUnits == null){
+			return Collections.emptyList();
+		}
 		return selectedMethodUnits;
 	}
 
