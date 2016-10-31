@@ -115,22 +115,6 @@ public class DummyDataModel implements DataModel {
 		properties.put("model", jimpleClasses);
 		Event modelChanged = new Event(DataModel.EA_TOPIC_DATA_MODEL_CHANGED, properties);
 		eventAdmin.postEvent(modelChanged);
-		
-		new Thread() {
-			public void run() {
-				try {
-					Thread.sleep(20000);
-					System.out.println("Fire!!!!");
-					Dictionary<String, Object> properties = new Hashtable<String, Object>();
-					properties.put("model", jimpleClasses);
-					Event modelChanged = new Event(DataModel.EA_TOPIC_DATA_MODEL_CHANGED, properties);
-					eventAdmin.postEvent(modelChanged);
-				
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			};
-		}.start();
     }
 
     protected void deactivate(ComponentContext context)
