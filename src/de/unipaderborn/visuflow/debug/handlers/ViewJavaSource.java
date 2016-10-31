@@ -24,7 +24,6 @@ public class ViewJavaSource extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		// TODO Auto-generated method stub
 		IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
 		//      MessageDialog.openInformation(
 		//                   window.getShell(),

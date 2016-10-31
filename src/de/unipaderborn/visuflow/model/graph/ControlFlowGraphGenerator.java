@@ -1,4 +1,4 @@
-package de.unipaderborn.visuflow.model.callgraph;
+package de.unipaderborn.visuflow.model.graph;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -6,7 +6,7 @@ import java.util.List;
 
 import de.unipaderborn.visuflow.model.VFEdge;
 import de.unipaderborn.visuflow.model.VFNode;
-import de.unipaderborn.visuflow.model.callgraph.ControlFlowGraph;
+import de.unipaderborn.visuflow.model.graph.ControlFlowGraph;
 import soot.Body;
 import soot.Unit;
 import soot.toolkits.graph.ExceptionalUnitGraph;

@@ -3,7 +3,7 @@ package de.unipaderborn.visuflow.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.unipaderborn.visuflow.model.callgraph.ControlFlowGraph;
+import de.unipaderborn.visuflow.model.graph.ControlFlowGraph;
 import soot.Body;
 import soot.SootMethod;
 
