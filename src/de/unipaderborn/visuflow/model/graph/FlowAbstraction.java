@@ -1,4 +1,4 @@
-package de.unipaderborn.visuflow.model.callgraph;
+package de.unipaderborn.visuflow.model.graph;
 
 import soot.Local;
 import soot.SootField;

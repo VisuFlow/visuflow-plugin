@@ -1,4 +1,4 @@
-package de.unipaderborn.visuflow.model.callgraph;
+package de.unipaderborn.visuflow.model.graph;
 
 import java.io.File;
 import java.util.Iterator;
