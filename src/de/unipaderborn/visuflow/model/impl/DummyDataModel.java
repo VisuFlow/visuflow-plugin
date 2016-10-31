@@ -122,4 +122,10 @@ public class DummyDataModel implements DataModel {
     	// noop
     }
 
+	@Override
+	public void setClassList(List<VFClass> classList) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

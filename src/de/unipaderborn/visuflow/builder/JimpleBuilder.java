@@ -1,7 +1,12 @@
 package de.unipaderborn.visuflow.builder;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Dictionary;
 import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import soot.G;
@@ -19,10 +24,22 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
+
+import de.unipaderborn.visuflow.model.DataModel;
+import de.unipaderborn.visuflow.model.VFClass;
+import de.unipaderborn.visuflow.model.VFMethod;
+import de.unipaderborn.visuflow.model.VFUnit;
+import de.unipaderborn.visuflow.model.callgraph.ICFGStructure;
+import de.unipaderborn.visuflow.model.callgraph.JimpleModelAnalysis;
+import de.unipaderborn.visuflow.util.ServiceUtil;
 
 public class JimpleBuilder extends IncrementalProjectBuilder {
 
 	private String classpath;
+	
+	private EventAdmin eventAdmin;
 
 	protected String getClassFilesLocation(IJavaProject javaProject) throws JavaModelException {
 		String path = javaProject.getOutputLocation().toString();
@@ -73,6 +90,12 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 		}
 		return outputLocation;
 	}
+	
+	private void fillDataModel(ICFGStructure icfg, List<VFClass> jimpleClasses){
+		DataModel data = ServiceUtil.getService(DataModel.class);
+		data.setClassList(jimpleClasses);
+		data.setSelectedClass(jimpleClasses.get(0));
+	}
 
 	public static final String BUILDER_ID = "JimpleBuilder.JimpleBuilder";
 
@@ -84,11 +107,15 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 		String location = getOutputLocation(project);
 		System.out.println(location);
 		classpath = location + File.pathSeparator + classpath;
-		G.v();
-		G.reset();
-		soot.Main.main(new String[] { "-cp", ".;" + classpath, "-allow-phantom-refs", "-src-prec", "class",
-				"-keep-line-number", "-f","J" ,"-d", location + File.separator + "Jimple","-process-dir",location});
-		//call update
+		String[] sootString = new String[] { "-cp", classpath, "-exclude", "javax", "-allow-phantom-refs", "-no-bodies-for-excluded", 
+				"-process-dir", location, "-src-prec", "only-class", "-w", "-output-format", 
+				"n", "-keep-line-number" /*,"tag.ln","on"*/ };
+		ICFGStructure icfg = new ICFGStructure();
+		JimpleModelAnalysis analysis = new JimpleModelAnalysis();
+		analysis.setSootString(sootString);
+		List<VFClass> jimpleClasses = new ArrayList<VFClass>();
+		analysis.createICFG(icfg, jimpleClasses);
+		fillDataModel(icfg, jimpleClasses);
 		return null;
 	}
 

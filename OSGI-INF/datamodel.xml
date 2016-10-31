@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="DataModel" immediate="true">
-   <implementation class="de.unipaderborn.visuflow.model.impl.DummyDataModel"/>
-   <!--<implementation class="de.unipaderborn.visuflow.model.impl.DataModelImpl"/>-->
+   <implementation class="de.unipaderborn.visuflow.model.impl.DataModelImpl"/>
+   <!--<implementation class="de.unipaderborn.visuflow.model.impl.DummyDataModel"/>-->
    <service>
       <provide interface="de.unipaderborn.visuflow.model.DataModel"/>
    </service>

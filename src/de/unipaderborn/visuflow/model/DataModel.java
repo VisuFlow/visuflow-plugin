@@ -20,6 +20,7 @@ public interface DataModel {
     public List<VFClass> listClasses();
     public List<VFMethod> listMethods(VFClass vfClass);
     public List<VFUnit> listUnits(VFMethod vfMethod);
+    public void setClassList(List<VFClass> classList);
     public VFClass getSelectedClass();
     public List<VFMethod> getSelectedClassMethods();
     public List<VFUnit> getSelectedMethodUnits();
