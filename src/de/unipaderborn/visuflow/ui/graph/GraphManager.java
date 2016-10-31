@@ -40,9 +40,11 @@ import org.osgi.service.event.EventHandler;
 
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
+import de.unipaderborn.visuflow.model.VFEdge;
 import de.unipaderborn.visuflow.model.VFMethod;
+import de.unipaderborn.visuflow.model.VFNode;
+import de.unipaderborn.visuflow.model.graph.ControlFlowGraph;
 import de.unipaderborn.visuflow.util.ServiceUtil;
-import de.unipaderborn.visuflow.model.callgraph.ControlFlowGraph;
 
 public class GraphManager implements Runnable, ViewerListener {
 
@@ -425,14 +427,14 @@ public class GraphManager implements Runnable, ViewerListener {
 			throw new Exception("GraphStructure is null");
 
 		this.reintializeGraph();
-		ListIterator<de.unipaderborn.visuflow.model.VFEdge> edgeIterator = interGraph.listEdges.listIterator();
+		ListIterator<VFEdge> edgeIterator = interGraph.listEdges.listIterator();
 
 		while(edgeIterator.hasNext())
 		{
-			de.unipaderborn.visuflow.model.VFEdge currEdgeIterator = edgeIterator.next();
+			VFEdge currEdgeIterator = edgeIterator.next();
 
-			de.unipaderborn.visuflow.model.VFNode src = currEdgeIterator.getSource();
-			de.unipaderborn.visuflow.model.VFNode dest = currEdgeIterator.getDestination();
+			VFNode src = currEdgeIterator.getSource();
+			VFNode dest = currEdgeIterator.getDestination();
 
 			createGraphNode(src);
 			createGraphNode(dest);
@@ -440,7 +442,7 @@ public class GraphManager implements Runnable, ViewerListener {
 		}
 	}
 
-	private void createGraphEdge(de.unipaderborn.visuflow.model.VFNode src, de.unipaderborn.visuflow.model.VFNode dest) {
+	private void createGraphEdge(VFNode src, VFNode dest) {
 		// TODO Auto-generated method stub
 		if(graph.getEdge("" + src.getId() + dest.getId()) == null)
 		{
@@ -450,7 +452,7 @@ public class GraphManager implements Runnable, ViewerListener {
 		}
 	}
 
-	private void createGraphNode(de.unipaderborn.visuflow.model.VFNode node) {
+	private void createGraphNode(VFNode node) {
 		// TODO Auto-generated method stub
 		if(graph.getNode(node.getId() + "") == null)
 		{
