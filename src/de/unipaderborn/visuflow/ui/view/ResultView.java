@@ -57,7 +57,6 @@ public class ResultView extends ViewPart implements EventHandler{
 
 	@Override
 	public void setFocus() {
-		// TODO Auto-generated method stub
 		viewer.getControl().setFocus();
 	}
 
@@ -139,12 +138,10 @@ public class ResultView extends ViewPart implements EventHandler{
 	@SuppressWarnings("unchecked")
 	@Override
 	public void handleEvent(Event event) {
-		// TODO Auto-generated method stub
 		viewer.getTable().getDisplay().asyncExec(new Runnable() {
 			
 			@Override
 			public void run() {
-				// TODO Auto-generated method stub
 				viewer.setInput((List<VFUnit>) event.getProperty("selectedMethodUnits"));
 			}
 		});

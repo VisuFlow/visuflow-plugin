@@ -130,7 +130,6 @@ public class GraphManager implements Runnable, ViewerListener {
 	}
 
 	private void createUI() {
-		// TODO Auto-generated method stub
 		createZoomControls();
 		createViewListeners();
 		createAttributeControls();
@@ -142,7 +141,6 @@ public class GraphManager implements Runnable, ViewerListener {
 	}
 
 	private void createAppletContainer() {
-		// TODO Auto-generated method stub
 		applet = new JApplet();
 
 		scrollbar = new JScrollPane(panel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS );
@@ -175,7 +173,6 @@ public class GraphManager implements Runnable, ViewerListener {
 	}
 
 	private void createAttributeControls() {
-		// TODO Auto-generated method stub
 		attribute = new JTextField("ui.screenshot,C:/Users/Shashank B S/Desktop/image.png");
 		filterGraphButton = new JButton("SetAttribute");
 
@@ -183,7 +180,6 @@ public class GraphManager implements Runnable, ViewerListener {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				String[] newAttribute = attribute.getText().split(",");
 				graph.setAttribute(newAttribute[0], newAttribute[1]);
 			}
@@ -199,7 +195,6 @@ public class GraphManager implements Runnable, ViewerListener {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				@SuppressWarnings("unchecked")
 				JComboBox<String> methodBox = (JComboBox<String>) e.getSource();
 				try {
@@ -210,7 +205,6 @@ public class GraphManager implements Runnable, ViewerListener {
 
 					renderMethodCFG(dataModel.getSelectedMethod().getControlFlowGraph());
 				} catch (Exception e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 				experimentalLayout();
@@ -219,7 +213,6 @@ public class GraphManager implements Runnable, ViewerListener {
 	}
 
 	private void createSettingsBar() {
-		// TODO Auto-generated method stub
 		settingsBar = new JToolBar("ControlsBar", JToolBar.HORIZONTAL);
 
 		settingsBar.add(zoomInButton);
@@ -232,19 +225,16 @@ public class GraphManager implements Runnable, ViewerListener {
 	}
 
 	private void createPanel() {
-		// TODO Auto-generated method stub
 		panel = new JFrame().getContentPane();
 		panel.add(view);
 		panel.add(settingsBar, BorderLayout.PAGE_START);
 	}
 
 	private void createViewListeners() {
-		// TODO Auto-generated method stub
 		view.addMouseWheelListener(new MouseWheelListener() {
 
 			@Override
 			public void mouseWheelMoved(MouseWheelEvent e) {
-				// TODO Auto-generated method stub
 				int rotationDirection = e.getWheelRotation();
 				if(rotationDirection > 0)
 					zoomIn();
@@ -340,7 +330,6 @@ public class GraphManager implements Runnable, ViewerListener {
 	}
 
 	private void createZoomControls() {
-		// TODO Auto-generated method stub
 		zoomInButton = new JButton("+");
 		zoomOutButton = new JButton("-");
 		viewCenterButton = new JButton("reset");
@@ -350,7 +339,6 @@ public class GraphManager implements Runnable, ViewerListener {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				zoomIn();
 			}
 		});
@@ -360,7 +348,6 @@ public class GraphManager implements Runnable, ViewerListener {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				zoomOut();
 			}
 		});
@@ -369,7 +356,6 @@ public class GraphManager implements Runnable, ViewerListener {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				view.getCamera().resetView();
 			}
 		});
@@ -383,7 +369,6 @@ public class GraphManager implements Runnable, ViewerListener {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				toggleAutoLayout();
 			}
 		});
@@ -443,7 +428,6 @@ public class GraphManager implements Runnable, ViewerListener {
 	}
 
 	private void createGraphEdge(VFNode src, VFNode dest) {
-		// TODO Auto-generated method stub
 		if(graph.getEdge("" + src.getId() + dest.getId()) == null)
 		{
 			Edge createdEdge = graph.addEdge(src.getId() + "" + dest.getId(), src.getId() + "", dest.getId() + "", true);
@@ -453,7 +437,6 @@ public class GraphManager implements Runnable, ViewerListener {
 	}
 
 	private void createGraphNode(VFNode node) {
-		// TODO Auto-generated method stub
 		if(graph.getNode(node.getId() + "") == null)
 		{
 			Node createdNode = graph.addNode(node.getId() + "");
@@ -539,20 +522,11 @@ public class GraphManager implements Runnable, ViewerListener {
 
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
 		generateGraphFromGraphStructure();
 
 		ViewerPipe fromViewer = viewer.newViewerPipe();
 		fromViewer.addViewerListener(this);
 		fromViewer.addSink(graph);
-
-		/*Iterator<? extends Node> nodeIterator = graph.getEachNode().iterator();
-		while(nodeIterator.hasNext())
-		{
-			Node curr = nodeIterator.next();
-			System.out.println("Attribute count " + curr.getAttributeCount());
-			System.out.println("nodeData.unit " + curr.getAttribute("nodeData.unit").toString());
-		}*/
 
 		// FIXME the Thread.sleep slows down the loop, so that it does not eat up the CPU
 		// but this really should be implemented differently. isn't there an event listener
@@ -568,7 +542,6 @@ public class GraphManager implements Runnable, ViewerListener {
 
 	@Override
 	public void buttonPushed(String id) {
-		// TODO Auto-generated method stub
 		toggleNode(id);
 		experimentalLayout();
 	}
