@@ -12,8 +12,6 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 public class AddRemoveVisuFlowNatureHandler extends AbstractHandler {
 
-	private ISelection selection;
-
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		// TODO Auto-generated method stub
 		ISelection selection = HandlerUtil.getCurrentSelection(event);
