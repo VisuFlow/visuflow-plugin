@@ -258,12 +258,22 @@
       </specification>
    </extension>
    <extension point="org.eclipse.core.expressions.definitions">
-   <definition id="de.unipaderborn.visuflow.jimpleextension">
-      <adapt type="org.eclipse.core.resources.IResource">
-             <test property="org.eclipse.core.resources.extension"
-                   value="jimple">
-             </test>
-      </adapt>
-   </definition>
-</extension>
+	   <definition id="de.unipaderborn.visuflow.jimpleextension">
+	      <adapt type="org.eclipse.core.resources.IResource">
+	             <test property="org.eclipse.core.resources.extension"
+	                   value="jimple">
+	             </test>
+	      </adapt>
+	   </definition>
+	</extension>
+	
+   <!-- this defines the perspective. don't delete this again shanki!!! -->
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="de.unipaderborn.visuflow.ui.VisuflowEditorPerspective"
+            id="visuflow-plugin.perspective.editor"
+            name="Visuflow">
+      </perspective>
+   </extension>
 </plugin>
