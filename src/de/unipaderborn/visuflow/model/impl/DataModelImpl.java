@@ -26,6 +26,8 @@ public class DataModelImpl implements DataModel {
 	private List<VFUnit> selectedMethodUnits;
 	
 	private EventAdmin eventAdmin;
+	
+	private ICFGStructure icfg;
 
     @Override
     public List<VFClass> listClasses() {
@@ -74,9 +76,14 @@ public class DataModelImpl implements DataModel {
 	@Override
 	public void setSelectedClass(VFClass selectedClass) {
 		this.selectedClass = selectedClass;
-		this.selectedMethod = this.selectedClass.getMethods().get(0);
 		this.selectedClassMethods = this.selectedClass.getMethods();
-		this.populateUnits();
+		/*try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
+		this.setSelectedMethod(this.selectedClass.getMethods().get(1));
 	}
 
 	@Override
@@ -85,6 +92,7 @@ public class DataModelImpl implements DataModel {
 		this.populateUnits();
 		Dictionary<String, Object> properties = new Hashtable<String, Object>();
 		properties.put("selectedMethod", selectedMethod);
+		properties.put("selectedClassMethods", selectedClassMethods);
 		properties.put("selectedMethodUnits", selectedMethodUnits);
 		Event modelChanged = new Event(DataModel.EA_TOPIC_DATA_SELECTION, properties);
 		eventAdmin.postEvent(modelChanged);
@@ -99,6 +107,7 @@ public class DataModelImpl implements DataModel {
 		this.classList = classList;
 		Dictionary<String, Object> properties = new Hashtable<String, Object>();
 		properties.put("model", classList);
+		properties.put("icfg", icfg);
 		Event modelChanged = new Event(DataModel.EA_TOPIC_DATA_MODEL_CHANGED, properties);
 		eventAdmin.postEvent(modelChanged);
 	}
@@ -113,8 +122,14 @@ public class DataModelImpl implements DataModel {
 
 	@Override
 	public ICFGStructure getIcfg() {
-		// TODO Auto-generated method stub
-		return null;
+		return icfg;
+	}
+	
+	@Override
+	public void setIcfg(ICFGStructure icfg) {
+		this.icfg = icfg;
+		System.out.println("ICFG " + icfg);
+		System.out.println("ICFG size " + icfg.listEdges.size());
 	}
 
 }

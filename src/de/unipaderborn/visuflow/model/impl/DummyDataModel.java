@@ -131,4 +131,10 @@ public class DummyDataModel implements DataModel {
 		
 	}
 
+	@Override
+	public void setIcfg(ICFGStructure icfg) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

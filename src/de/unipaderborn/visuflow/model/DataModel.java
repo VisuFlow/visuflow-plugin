@@ -30,4 +30,5 @@ public interface DataModel {
 	public void setSelectedClass(VFClass selectedClass);
 	public void setSelectedMethod(VFMethod selectedMethod);
 	public VFMethod getSelectedMethod();
+	public void setIcfg(ICFGStructure icfg);
 }

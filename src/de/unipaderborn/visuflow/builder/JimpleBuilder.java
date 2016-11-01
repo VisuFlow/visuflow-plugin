@@ -30,7 +30,11 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 
 	private String classpath;
 	
-//	private EventAdmin eventAdmin;
+	private String[] sootString = new String[] { "-cp", "./bin" + File.pathSeparator + 
+			System.getProperty("java.home") + File.separator + "lib" + File.separator + 
+			"rt.jar", "-exclude", "javax", "-allow-phantom-refs", "-no-bodies-for-excluded", 
+			"-process-dir", "targetBin2", "-src-prec", "only-class", "-w", "-output-format", 
+			"n", "-keep-line-number" /*,"tag.ln","on"*/ };
 
 	protected String getClassFilesLocation(IJavaProject javaProject) throws JavaModelException {
 		String path = javaProject.getOutputLocation().toString();
@@ -43,7 +47,6 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 	private String getSootCP(IJavaProject javaProject) {
 		String sootCP = "";
 		try {
-			// sootCP = getClassFilesLocation(javaProject);
 			for (String resource : getJarFilesLocation(javaProject))
 				sootCP = sootCP + File.pathSeparator + resource;
 		} catch (JavaModelException e) {
@@ -84,8 +87,9 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 	
 	private void fillDataModel(ICFGStructure icfg, List<VFClass> jimpleClasses){
 		DataModel data = ServiceUtil.getService(DataModel.class);
+		data.setIcfg(icfg);
 		data.setClassList(jimpleClasses);
-		data.setSelectedClass(jimpleClasses.get(0));
+//		data.setSelectedClass(jimpleClasses.get(0));
 	}
 
 	public static final String BUILDER_ID = "JimpleBuilder.JimpleBuilder";
@@ -98,9 +102,6 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 		String location = getOutputLocation(project);
 		System.out.println(location);
 		classpath = location + File.pathSeparator + classpath;
-		String[] sootString = new String[] { "-cp", classpath, "-exclude", "javax", "-allow-phantom-refs", "-no-bodies-for-excluded", 
-				"-process-dir", location, "-src-prec", "only-class", "-w", "-output-format", 
-				"n", "-keep-line-number" /*,"tag.ln","on"*/ };
 		ICFGStructure icfg = new ICFGStructure();
 		JimpleModelAnalysis analysis = new JimpleModelAnalysis();
 		analysis.setSootString(sootString);

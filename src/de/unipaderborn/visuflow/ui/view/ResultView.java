@@ -27,7 +27,7 @@ import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.ui.view.filter.ResultViewFilter;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 
-public class ResultView extends ViewPart implements EventHandler{
+public class ResultView extends ViewPart implements EventHandler {
 
 	private TableViewer viewer;
 	private ResultViewFilter filter;

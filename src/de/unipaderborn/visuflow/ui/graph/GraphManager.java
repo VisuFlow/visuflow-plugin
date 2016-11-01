@@ -39,6 +39,7 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 
 import de.unipaderborn.visuflow.model.DataModel;
+import de.unipaderborn.visuflow.model.Method;
 import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFEdge;
 import de.unipaderborn.visuflow.model.VFMethod;
@@ -83,7 +84,7 @@ public class GraphManager implements Runnable, ViewerListener {
 		createGraph(graphName);
 		createUI();
 
-		EventHandler dataModelHandler = new EventHandler() {
+		/*EventHandler dataModelHandler = new EventHandler() {
 			@Override
 			public void handleEvent(Event event) {
 				@SuppressWarnings("unchecked")
@@ -93,7 +94,7 @@ public class GraphManager implements Runnable, ViewerListener {
 		};
 		Hashtable<String, String> properties = new Hashtable<String, String>();
 		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_MODEL_CHANGED);
-		ServiceUtil.registerService(EventHandler.class, dataModelHandler, properties);
+		ServiceUtil.registerService(EventHandler.class, dataModelHandler, properties);*/
 	}
 
 	public Container getApplet() {
@@ -408,7 +409,6 @@ public class GraphManager implements Runnable, ViewerListener {
 		renderICFG(tempDataModel.getIcfg());*/
 	}
 
-	@SuppressWarnings("unused")
 	private void renderICFG(ICFGStructure test) {
 		Iterator<VFEdge> iterator = test.listEdges.iterator();
 		/*try {
@@ -421,12 +421,31 @@ public class GraphManager implements Runnable, ViewerListener {
 		{
 			VFEdge curr = iterator.next();
 
-			VFNode src = curr.getSource();
-			VFNode dest = curr.getDestination();
+			Method src = curr.getSourceMethod();
+			Method dest = curr.getDestMethod();
 
-			createGraphNode(src);
-			createGraphNode(dest);
-			createGraphEdge(src, dest);
+			createGraphMethodNode(src);
+			createGraphMethodNode(dest);
+			createGraphMethodEdge(src, dest);
+		}
+		experimentalLayout();
+	}
+
+	private void createGraphMethodEdge(Method src, Method dest) {
+		if(graph.getEdge("" + src.getID() + dest.getID()) == null)
+		{
+			graph.addEdge(src.getID() + "" + dest.getID(), src.getID() + "", dest.getID() + "", true);
+			System.out.println("Rendered graph edge between " + src.getID() + " and " + dest.getID());
+		}
+	}
+
+	private void createGraphMethodNode(Method node) {
+		if(graph.getNode(node.getID() + "") == null)
+		{
+			Node createdNode = graph.addNode(node.getID() + "");
+			createdNode.setAttribute("ui.label", node.getMethod().getName().toString());
+			createdNode.setAttribute("nodeData.unit", node.getMethod().getName().toString());
+			System.out.println("Rendered graph node " + node.getID());
 		}
 	}
 
@@ -449,6 +468,7 @@ public class GraphManager implements Runnable, ViewerListener {
 			createGraphNode(dest);
 			createGraphEdge(src,dest);
 		}
+		experimentalLayout();
 	}
 
 	private void createGraphEdge(VFNode src, VFNode dest) {
@@ -548,11 +568,36 @@ public class GraphManager implements Runnable, ViewerListener {
 
 	@Override
 	public void run() {
-		generateGraphFromGraphStructure();
-
+		//		generateGraphFromGraphStructure();
 		ViewerPipe fromViewer = viewer.newViewerPipe();
 		fromViewer.addViewerListener(this);
 		fromViewer.addSink(graph);
+
+		EventHandler dataModelHandler = new EventHandler() {
+			@Override
+			public void handleEvent(Event event) {
+				if(event.getTopic().equals(DataModel.EA_TOPIC_DATA_SELECTION))
+				{
+					VFMethod selectedMethod = (VFMethod) event.getProperty("selectedMethod");
+					try {
+						createMethodComboBox();
+						renderMethodCFG(selectedMethod.getControlFlowGraph());
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				else if(event.getTopic().equals(DataModel.EA_TOPIC_DATA_MODEL_CHANGED))
+				{
+					System.out.println("Model changed " + event.getProperty("icfg"));
+					renderICFG((ICFGStructure) event.getProperty("icfg"));
+				}
+			}
+		};
+		Hashtable<String, String> properties = new Hashtable<String, String>();
+		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_SELECTION);
+		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_MODEL_CHANGED);
+		ServiceUtil.registerService(EventHandler.class, dataModelHandler, properties);
 
 		// FIXME the Thread.sleep slows down the loop, so that it does not eat up the CPU
 		// but this really should be implemented differently. isn't there an event listener
@@ -587,5 +632,6 @@ public class GraphManager implements Runnable, ViewerListener {
 	protected void setTip(JToolTip toolTip) {
 		this.tip = toolTip;
 	}
+
 
 }
