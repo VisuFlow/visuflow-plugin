@@ -6,6 +6,7 @@ import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
@@ -13,7 +14,6 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-
 import javax.swing.JApplet;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -289,6 +289,7 @@ public class GraphManager implements Runnable, ViewerListener {
 					tip.repaint();
 				}
 			}
+			
 			@Override
 			public void mouseDragged(MouseEvent e) {
 				// TODO Auto-generated method stub
@@ -311,6 +312,73 @@ public class GraphManager implements Runnable, ViewerListener {
 						//						}
 					}
 				}*/
+			}
+		});
+	
+		view.addMouseListener(new MouseListener() {
+			
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				//noop
+			}
+			
+			@Override
+			public void mousePressed(MouseEvent e) {
+				//noop
+			}
+			
+			@Override
+			public void mouseExited(MouseEvent e) {
+				//noop
+			}
+			
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				//noop
+			}
+			
+//			boolean isAlreadyOneClick = false;
+//			boolean isEventHandled = false;
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				
+				//noop
+				/*if (isAlreadyOneClick ) {
+			        System.out.println("double click");
+//			        isEventHandled = true;
+			        isAlreadyOneClick = false;
+			    } else {
+			        isAlreadyOneClick = true;
+			        Timer t = new Timer("doubleclickTimer", false);
+			        t.schedule(new TimerTask() {
+
+			            @Override
+			            public void run() {
+			                isAlreadyOneClick = false;
+			            }
+			        }, 500);
+			    }*/
+				/*if(!isEventHandled && isAlreadyOneClick)
+				{
+					System.out.println("Single Click");
+				}*/
+//				System.out.println("event " + e.getButton() + "click count " + e.getClickCount());
+				if(e.getButton() == MouseEvent.BUTTON3)
+				{
+					System.out.println("Right click");
+					GraphicElement curElement = view.findNodeOrSpriteAt(e.getX(), e.getY());
+					Node curr = graph.getNode(curElement.getId());
+					Method temp = curr.getAttribute("nodeMethod");
+					System.out.println("methodName " + temp.getMethod().getName());
+					/*Object node = curr.getAttribute("nodeDataObject");
+					if(node instanceof Method)
+					{
+						VFMethod currentMethod = (VFMethod) node;
+						System.out.println("Node is a Method node");
+//						renderMethodCFG(currentMethod.getControlFlowGraph());
+					}*/
+					System.out.println("current node " + curr.toString());
+				}
 			}
 		});
 	}
@@ -411,12 +479,11 @@ public class GraphManager implements Runnable, ViewerListener {
 
 	private void renderICFG(ICFGStructure test) {
 		Iterator<VFEdge> iterator = test.listEdges.iterator();
-		/*try {
+		try {
 			reintializeGraph();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}*/
+		}
 		while(iterator.hasNext())
 		{
 			VFEdge curr = iterator.next();
@@ -435,7 +502,6 @@ public class GraphManager implements Runnable, ViewerListener {
 		if(graph.getEdge("" + src.getID() + dest.getID()) == null)
 		{
 			graph.addEdge(src.getID() + "" + dest.getID(), src.getID() + "", dest.getID() + "", true);
-			System.out.println("Rendered graph edge between " + src.getID() + " and " + dest.getID());
 		}
 	}
 
@@ -444,8 +510,9 @@ public class GraphManager implements Runnable, ViewerListener {
 		{
 			Node createdNode = graph.addNode(node.getID() + "");
 			createdNode.setAttribute("ui.label", node.getMethod().getName().toString());
-			createdNode.setAttribute("nodeData.unit", node.getMethod().getName().toString());
-			System.out.println("Rendered graph node " + node.getID());
+			createdNode.setAttribute("nodeData.methodName", node.getMethod().getName());
+			createdNode.setAttribute("nodeData.methodSignature", node.getMethod().getSignature());
+			createdNode.setAttribute("nodeMethod", node);
 		}
 	}
 
@@ -477,7 +544,6 @@ public class GraphManager implements Runnable, ViewerListener {
 			Edge createdEdge = graph.addEdge(src.getId() + "" + dest.getId(), src.getId() + "", dest.getId() + "", true);
 			createdEdge.addAttribute("ui.label", "{a,b}");
 			createdEdge.addAttribute("edgeData.outSet", "{a,b}");
-			System.out.println("Rendered graph edge between " + src.getId() + " and " + dest.getId());
 		}
 	}
 
@@ -490,7 +556,6 @@ public class GraphManager implements Runnable, ViewerListener {
 			createdNode.setAttribute("nodeData.unitType", node.getLabel().getClass());
 			createdNode.setAttribute("nodeData.inSet", "coming soon");
 			createdNode.setAttribute("nodeData.outSet", "coming soon");
-			System.out.println("Rendered graph node " + node.getId());
 		}
 	}
 
@@ -568,11 +633,10 @@ public class GraphManager implements Runnable, ViewerListener {
 
 	@Override
 	public void run() {
-		//		generateGraphFromGraphStructure();
 		ViewerPipe fromViewer = viewer.newViewerPipe();
 		fromViewer.addViewerListener(this);
 		fromViewer.addSink(graph);
-
+		
 		EventHandler dataModelHandler = new EventHandler() {
 			@Override
 			public void handleEvent(Event event) {
@@ -613,20 +677,18 @@ public class GraphManager implements Runnable, ViewerListener {
 
 	@Override
 	public void buttonPushed(String id) {
+		//noop
+	}
+
+	@Override
+	public void buttonReleased(String id) {
 		toggleNode(id);
 		experimentalLayout();
 	}
 
 	@Override
-	public void buttonReleased(String arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void viewClosed(String arg0) {
-		// TODO Auto-generated method stub
-
+	public void viewClosed(String id) {
+		//noop
 	}
 
 	protected void setTip(JToolTip toolTip) {

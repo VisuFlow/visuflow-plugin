@@ -1,6 +1,5 @@
 package de.unipaderborn.visuflow.model.graph;
 
-import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -29,11 +28,7 @@ public class JimpleModelAnalysis {
 	private int methodcount = 0;
 	private int edgeCount = 0;
 
-	private String[] sootString = new String[] { "-cp", "./bin" + File.pathSeparator + 
-			System.getProperty("java.home") + File.separator + "lib" + File.separator + 
-			"rt.jar", "-exclude", "javax", "-allow-phantom-refs", "-no-bodies-for-excluded", 
-			"-process-dir", "targetBin2", "-src-prec", "only-class", "-w", "-output-format", 
-			"n", "-keep-line-number" /*,"tag.ln","on"*/ };
+	private String[] sootString;
 
 	public void setSootString(String[] s){
 		this.sootString = s;
@@ -66,8 +61,6 @@ public class JimpleModelAnalysis {
 				}
 
 				traverseMethods(entryMethod, cg);
-				System.out.println("Method list is "+ methodGraph.listMethods.toString());
-				System.out.println("Method list is "+ methodGraph.listEdges.toString());
 			}
 
 			private void createJimpleHierarchyWithCfgs(List<VFClass> vfClasses) {
@@ -104,7 +97,6 @@ public class JimpleModelAnalysis {
 					System.out.println(destination+" is java library "+destination.isJavaLibraryMethod());
 					if(!destination.isJavaLibraryMethod())
 					{
-						System.out.println(destination+" has active body "+destination.hasActiveBody());
 						boolean methodPresent = false;
 						Iterator<Method> iteratorMethod = methodGraph.listMethods.iterator();
 						while(iteratorMethod.hasNext())
@@ -138,19 +130,16 @@ public class JimpleModelAnalysis {
 						}
 						edgeCount++;
 						VFEdge edge = new VFEdge(edgeCount, sourceMethod, destinationMethod);
-						System.out.println(edgeCount+" adding edge "+edge);
 						methodGraph.listEdges.add(edge);
 						traverseMethods(destination, cg);
 					}
 				}
-			}	
+			}
 		});
 
 		PackManager.v().getPack("wjtp").add(transform);
 		// Run Soot
 		Main.main(sootString);
 	}
-
-
 }
 
