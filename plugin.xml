@@ -279,7 +279,6 @@
 
     <!--
       ########### LaunchConfigurationDelegate
-    -->
     <extension point="org.eclipse.debug.core.launchConfigurationTypes">
         <launchConfigurationType
             name="Visuflow"
@@ -302,4 +301,25 @@
             icon="icons/monkey16.png">
         </launchConfigurationTypeImage>
     </extension>
+    -->
+    
+	<extension point="org.eclipse.debug.ui.launchConfigurationTabs">
+		<tab
+		    class="de.unipaderborn.visuflow.debug.ui.LaunchConfigurationTab"
+		    group="org.eclipse.jdt.debug.ui.launchConfigurationTabGroup.localJavaApplication"
+		    id="de.unipaderborn.visuflow.debug.ui.launchConfigurationTab"
+		    name="Visuflow">
+		</tab>
+	</extension> 
+	<extension point="org.eclipse.debug.core.launchDelegates">
+  		<launchDelegate id="de.unipaderborn.visuflow.debug.launchConfigurationDelegate"
+						delegate="de.unipaderborn.visuflow.debug.LaunchConfigurationDelegate"
+						type="org.eclipse.jdt.launching.localJavaApplication"
+						name="Visuflow"
+						delegateDescription="Description of this launch delegate 
+							(plugin.xml extension point=org.eclipse.debug.core.launchDelegates)">
+			<!--<modeCombination modes="run" perspective="de.unipaderborn.visuflow.ui.VisuflowEditorPerspective"></modeCombination>-->
+			<modeCombination modes="debug" perspective="de.unipaderborn.visuflow.ui.VisuflowEditorPerspective"></modeCombination>
+  		</launchDelegate>
+ 	</extension>
 </plugin>

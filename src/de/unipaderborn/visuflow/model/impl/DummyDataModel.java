@@ -16,116 +16,135 @@ import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.model.graph.ICFGStructure;
 import de.unipaderborn.visuflow.model.graph.JimpleModelAnalysis;
+import soot.Unit;
 
 public class DummyDataModel implements DataModel {
-	private List<VFClass> jimpleClasses = new ArrayList<VFClass>();
-	
-	private VFClass selectedClass;
-	private VFMethod selectedMethod;
-	
-	private List<VFMethod> selectedClassMethods;
-	private List<VFUnit> selectedMethodUnits;
+    private List<VFClass> jimpleClasses = new ArrayList<>();
 
-	public VFClass getSelectedClass() {
-		return selectedClass;
-	}
-	
-	public List<VFMethod> getSelectedClassMethods() {
-		return selectedClassMethods;
-	}
-	
-	public VFMethod getSelectedMethod() {
-//		System.out.println("Current selected method is " + selectedMethod);
-		return selectedMethod;
-	}
+    private VFClass selectedClass;
+    private VFMethod selectedMethod;
 
-	public List<VFUnit> getSelectedMethodUnits() {
-		return selectedMethodUnits;
-	}
+    private List<VFMethod> selectedClassMethods;
+    private List<VFUnit> selectedMethodUnits;
 
-	public void setSelectedClass(VFClass selectedClass) {
-		this.selectedClass = selectedClass;
-		this.selectedMethod = this.selectedClass.getMethods().get(0);
-		this.selectedClassMethods = this.selectedClass.getMethods();
-		this.populateUnits();
-	}
-	
-	public void setSelectedMethod(VFMethod selectedMethod)
-	{
-		this.selectedMethod = selectedMethod;
-		this.populateUnits();
-//		System.out.println("Changing selected method to " + selectedMethod);
-		
-		Dictionary<String, Object> properties = new Hashtable<String, Object>();
-		properties.put("selectedMethod", selectedMethod);
-		properties.put("selectedMethodUnits", selectedMethodUnits);
-		Event modelChanged = new Event(DataModel.EA_TOPIC_DATA_SELECTION, properties);
-		eventAdmin.postEvent(modelChanged);
-//		System.out.println("EA_TOPIC_DATA_SELECTION triggered from dataModel");
-	}
+    @Override
+    public VFClass getSelectedClass() {
+        return selectedClass;
+    }
 
-	private void populateUnits() {
-		// TODO Auto-generated method stub
-		this.selectedMethodUnits = this.selectedMethod.getUnits();
-	}
+    @Override
+    public List<VFMethod> getSelectedClassMethods() {
+        return selectedClassMethods;
+    }
 
-	private EventAdmin eventAdmin;
-	
-	@Override
-	public List<VFClass> listClasses() {
-		return jimpleClasses;
-	}
+    @Override
+    public VFMethod getSelectedMethod() {
+        //		System.out.println("Current selected method is " + selectedMethod);
+        return selectedMethod;
+    }
 
-	@Override
-	public List<VFMethod> listMethods(VFClass vfClass) {
-		List<VFMethod> methods = Collections.emptyList();
-		for (VFClass current : jimpleClasses) {
-			if(current == vfClass) {
-				methods = vfClass.getMethods();
-			}
-		}
-		return methods;
-	}
+    @Override
+    public List<VFUnit> getSelectedMethodUnits() {
+        return selectedMethodUnits;
+    }
 
-	@Override
-	public List<VFUnit> listUnits(VFMethod vfMethod) {
-		List<VFUnit> units = Collections.emptyList();
-		for (VFClass currentClass : jimpleClasses) {
-			for (VFMethod currentMethod : currentClass.getMethods()) {
-				if(currentMethod == vfMethod) {
-					units = vfMethod.getUnits();
-				}
-			}
-		}
-		return units;
-	}
-	
-	public void setEventAdmin(EventAdmin eventAdmin) {
-		this.eventAdmin = eventAdmin;
-	}
-	
-	protected void activate(ComponentContext context)
+    @Override
+    public void setSelectedClass(VFClass selectedClass) {
+        this.selectedClass = selectedClass;
+        this.selectedMethod = this.selectedClass.getMethods().get(0);
+        this.selectedClassMethods = this.selectedClass.getMethods();
+        this.populateUnits();
+    }
+
+    @Override
+    public void setSelectedMethod(VFMethod selectedMethod)
     {
-		ICFGStructure icfg = new ICFGStructure();
-		JimpleModelAnalysis analysis = new JimpleModelAnalysis();
-		analysis.createICFG(icfg, jimpleClasses);
-		this.setSelectedClass(jimpleClasses.get(0));
-		
-		Dictionary<String, Object> properties = new Hashtable<String, Object>();
-		properties.put("model", jimpleClasses);
-		Event modelChanged = new Event(DataModel.EA_TOPIC_DATA_MODEL_CHANGED, properties);
-		eventAdmin.postEvent(modelChanged);
+        this.selectedMethod = selectedMethod;
+        this.populateUnits();
+        //		System.out.println("Changing selected method to " + selectedMethod);
+
+        Dictionary<String, Object> properties = new Hashtable<>();
+        properties.put("selectedMethod", selectedMethod);
+        properties.put("selectedMethodUnits", selectedMethodUnits);
+        Event modelChanged = new Event(DataModel.EA_TOPIC_DATA_SELECTION, properties);
+        eventAdmin.postEvent(modelChanged);
+        //		System.out.println("EA_TOPIC_DATA_SELECTION triggered from dataModel");
+    }
+
+    private void populateUnits() {
+        // TODO Auto-generated method stub
+        this.selectedMethodUnits = this.selectedMethod.getUnits();
+    }
+
+    private EventAdmin eventAdmin;
+
+    @Override
+    public List<VFClass> listClasses() {
+        return jimpleClasses;
+    }
+
+    @Override
+    public List<VFMethod> listMethods(VFClass vfClass) {
+        List<VFMethod> methods = Collections.emptyList();
+        for (VFClass current : jimpleClasses) {
+            if(current == vfClass) {
+                methods = vfClass.getMethods();
+            }
+        }
+        return methods;
+    }
+
+    @Override
+    public List<VFUnit> listUnits(VFMethod vfMethod) {
+        List<VFUnit> units = Collections.emptyList();
+        for (VFClass currentClass : jimpleClasses) {
+            for (VFMethod currentMethod : currentClass.getMethods()) {
+                if(currentMethod == vfMethod) {
+                    units = vfMethod.getUnits();
+                }
+            }
+        }
+        return units;
+    }
+
+    public void setEventAdmin(EventAdmin eventAdmin) {
+        this.eventAdmin = eventAdmin;
+    }
+
+    protected void activate(ComponentContext context)
+    {
+        ICFGStructure icfg = new ICFGStructure();
+        JimpleModelAnalysis analysis = new JimpleModelAnalysis();
+        analysis.createICFG(icfg, jimpleClasses);
+        this.setSelectedClass(jimpleClasses.get(0));
+
+        Dictionary<String, Object> properties = new Hashtable<>();
+        properties.put("model", jimpleClasses);
+        Event modelChanged = new Event(DataModel.EA_TOPIC_DATA_MODEL_CHANGED, properties);
+        eventAdmin.postEvent(modelChanged);
     }
 
     protected void deactivate(ComponentContext context)
     {
-    	// noop
+        // noop
     }
 
-	@Override
-	public void setClassList(List<VFClass> classList) {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void setClassList(List<VFClass> classList) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void setInSet(Unit unit, String name, String value) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void setOutSet(Unit unit, String name, String value) {
+        // TODO Auto-generated method stub
+
+    }
 
 }
