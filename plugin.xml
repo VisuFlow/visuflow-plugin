@@ -86,6 +86,25 @@
 </visibleWhen>
       </command>
    </menuContribution>
+   <menuContribution
+         allPopups="false"
+         locationURI="toolbar:org.eclipse.ui.main.toolbar">
+      <toolbar
+            id="GraphStreamFeasibility.toolbar2">
+         <command
+               commandId="GraphStreamFeasibility.sourceCodeCommand"
+               icon="icons/breakpoint.png"
+               label="Left"
+               style="push">
+         </command>
+         <command
+               commandId="GraphStreamFeasibility.sourceCodeCommand"
+               icon="icons/breakpoint.png"
+               label="Right"
+               style="push">
+         </command>
+      </toolbar>
+   </menuContribution>
 </extension>
 <extension
       point="org.eclipse.ui.commands">
