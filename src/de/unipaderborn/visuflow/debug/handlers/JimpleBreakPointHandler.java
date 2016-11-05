@@ -55,6 +55,7 @@ public class JimpleBreakPointHandler extends AbstractHandler {
 				int length = document.getLineInformation(lineNumber).getLength();
 				int actualLineNumber = lineNumber + 1;
 				String content = document.get(offset, length).trim();
+				if(content.trim().length()>0){
 				String className = file.getName().substring(0, file.getName().lastIndexOf('.'));
 				VFUnit resultantUnit = getSelectedUnit(content.trim().substring(0, content.length() - 1), className);
 				if (resultantUnit == null) {
@@ -92,6 +93,11 @@ public class JimpleBreakPointHandler extends AbstractHandler {
 					System.out.printf("The contents of the line :   %s", content);
 
 					System.out.println();
+				}
+				}
+				else{
+					MessageDialog.openInformation(window.getShell(), "Breakpoint could not be placed",
+							"Error in inserting breakpoint");
 				}
 			} catch (BadLocationException e) {
 				// TODO Auto-generated catch block
