@@ -5,6 +5,12 @@ public class VFMethodEdge {
 	VFMethod sourceMethod;
 	VFMethod destMethod;
 	
+	public VFMethodEdge(int id, VFMethod sourceMethod, VFMethod destinationMethod) {
+		this.id = id;
+		this.sourceMethod = sourceMethod;
+		this.destMethod = destinationMethod;
+	}
+
 	public int getId() {
 		return id;
 	}

@@ -4,10 +4,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import de.unipaderborn.visuflow.model.Method;
 import de.unipaderborn.visuflow.model.VFClass;
-import de.unipaderborn.visuflow.model.VFEdge;
 import de.unipaderborn.visuflow.model.VFMethod;
+import de.unipaderborn.visuflow.model.VFMethodEdge;
 import de.unipaderborn.visuflow.model.VFUnit;
 import soot.Body;
 import soot.G;
@@ -45,7 +44,7 @@ public class JimpleModelAnalysis {
 
 			private void createICFG() {
 				CallGraph cg = Scene.v().getCallGraph();
-				SootMethod entryMethod = null;				
+				SootMethod entryMethod = null;
 				java.util.List<SootMethod> listMethod = Scene.v().getEntryPoints();
 				Iterator<SootMethod> iterEntryMethod = listMethod.iterator();
 				while(iterEntryMethod.hasNext())
@@ -54,8 +53,9 @@ public class JimpleModelAnalysis {
 					if(entryMethod.isMain())
 					{
 						methodcount++;
-						Method method = new Method(methodcount, entryMethod);
-						methodGraph.listMethods.add(method);
+						VFMethod vfmethod = new VFMethod(entryMethod);
+						vfmethod.setControlFlowGraph(new ControlFlowGraphGenerator().generateControlFlowGraph(entryMethod.getActiveBody()));
+						methodGraph.listMethods.add(vfmethod);
 						break;
 					}
 				}
@@ -94,14 +94,14 @@ public class JimpleModelAnalysis {
 				while(tc.hasNext())
 				{
 					SootMethod destination = (SootMethod)tc.next();	
-					System.out.println(destination+" is java library "+destination.isJavaLibraryMethod());
+					//					System.out.println(destination+" is java library "+destination.isJavaLibraryMethod());
 					if(!destination.isJavaLibraryMethod())
 					{
 						boolean methodPresent = false;
-						Iterator<Method> iteratorMethod = methodGraph.listMethods.iterator();
+						Iterator<VFMethod> iteratorMethod = methodGraph.listMethods.iterator();
 						while(iteratorMethod.hasNext())
 						{
-							if(iteratorMethod.next().getMethod().equals(destination))
+							if(iteratorMethod.next().getSootMethod().equals(destination))
 							{
 								methodPresent = true;
 								break;
@@ -111,25 +111,26 @@ public class JimpleModelAnalysis {
 						if(!methodPresent)
 						{
 							methodcount++;
-							Method method = new Method(methodcount, destination);
+							VFMethod method = new VFMethod(methodcount, destination);
 							methodGraph.listMethods.add(method);
 						}
-						Method sourceMethod = null, destinationMethod = null;
-						Iterator<Method> iteratorMethods = methodGraph.listMethods.iterator();
+						VFMethod sourceMethod = null;
+						VFMethod destinationMethod = null;
+						Iterator<VFMethod> iteratorMethods = methodGraph.listMethods.iterator();
 						while(iteratorMethods.hasNext())
 						{
-							Method method = iteratorMethods.next();
-							if(method.getMethod().equals(source))
+							VFMethod method = iteratorMethods.next();
+							if(method.getSootMethod().equals(source))
 							{
 								sourceMethod = method;
 							}
-							if(method.getMethod().equals(destination))
+							if(method.getSootMethod().equals(destination))
 							{
 								destinationMethod = method;
 							}
 						}
 						edgeCount++;
-						VFEdge edge = new VFEdge(edgeCount, sourceMethod, destinationMethod);
+						VFMethodEdge edge = new VFMethodEdge(edgeCount, sourceMethod, destinationMethod);
 						methodGraph.listEdges.add(edge);
 						traverseMethods(destination, cg);
 					}

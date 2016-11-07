@@ -39,10 +39,10 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 
 import de.unipaderborn.visuflow.model.DataModel;
-import de.unipaderborn.visuflow.model.Method;
 import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFEdge;
 import de.unipaderborn.visuflow.model.VFMethod;
+import de.unipaderborn.visuflow.model.VFMethodEdge;
 import de.unipaderborn.visuflow.model.VFNode;
 import de.unipaderborn.visuflow.model.graph.ControlFlowGraph;
 import de.unipaderborn.visuflow.model.graph.ICFGStructure;
@@ -289,7 +289,7 @@ public class GraphManager implements Runnable, ViewerListener {
 					tip.repaint();
 				}
 			}
-			
+
 			@Override
 			public void mouseDragged(MouseEvent e) {
 				// TODO Auto-generated method stub
@@ -314,69 +314,49 @@ public class GraphManager implements Runnable, ViewerListener {
 				}*/
 			}
 		});
-	
+
 		view.addMouseListener(new MouseListener() {
-			
+
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				//noop
 			}
-			
+
 			@Override
 			public void mousePressed(MouseEvent e) {
 				//noop
 			}
-			
+
 			@Override
 			public void mouseExited(MouseEvent e) {
 				//noop
 			}
-			
+
 			@Override
 			public void mouseEntered(MouseEvent e) {
 				//noop
 			}
-			
-//			boolean isAlreadyOneClick = false;
-//			boolean isEventHandled = false;
+
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				
-				//noop
-				/*if (isAlreadyOneClick ) {
-			        System.out.println("double click");
-//			        isEventHandled = true;
-			        isAlreadyOneClick = false;
-			    } else {
-			        isAlreadyOneClick = true;
-			        Timer t = new Timer("doubleclickTimer", false);
-			        t.schedule(new TimerTask() {
-
-			            @Override
-			            public void run() {
-			                isAlreadyOneClick = false;
-			            }
-			        }, 500);
-			    }*/
-				/*if(!isEventHandled && isAlreadyOneClick)
-				{
-					System.out.println("Single Click");
-				}*/
-//				System.out.println("event " + e.getButton() + "click count " + e.getClickCount());
 				if(e.getButton() == MouseEvent.BUTTON3)
 				{
 					System.out.println("Right click");
 					GraphicElement curElement = view.findNodeOrSpriteAt(e.getX(), e.getY());
 					Node curr = graph.getNode(curElement.getId());
-					Method temp = curr.getAttribute("nodeMethod");
-					System.out.println("methodName " + temp.getMethod().getName());
-					/*Object node = curr.getAttribute("nodeDataObject");
-					if(node instanceof Method)
+					Object node = curr.getAttribute("nodeMethod");
+					if(node instanceof VFMethod)
 					{
 						VFMethod currentMethod = (VFMethod) node;
+//						DataModel dataModel = ServiceUtil.getService(DataModel.class);
+//						dataModel.
 						System.out.println("Node is a Method node");
-//						renderMethodCFG(currentMethod.getControlFlowGraph());
-					}*/
+						try {
+							renderMethodCFG(currentMethod.getControlFlowGraph());
+						} catch (Exception e1) {
+							e1.printStackTrace();
+						}
+					}
 					System.out.println("current node " + curr.toString());
 				}
 			}
@@ -478,7 +458,7 @@ public class GraphManager implements Runnable, ViewerListener {
 	}
 
 	private void renderICFG(ICFGStructure test) {
-		Iterator<VFEdge> iterator = test.listEdges.iterator();
+		Iterator<VFMethodEdge> iterator = test.listEdges.iterator();
 		try {
 			reintializeGraph();
 		} catch (Exception e) {
@@ -486,10 +466,10 @@ public class GraphManager implements Runnable, ViewerListener {
 		}
 		while(iterator.hasNext())
 		{
-			VFEdge curr = iterator.next();
+			VFMethodEdge curr = iterator.next();
 
-			Method src = curr.getSourceMethod();
-			Method dest = curr.getDestMethod();
+			VFMethod src = curr.getSourceMethod();
+			VFMethod dest = curr.getDestMethod();
 
 			createGraphMethodNode(src);
 			createGraphMethodNode(dest);
@@ -498,21 +478,21 @@ public class GraphManager implements Runnable, ViewerListener {
 		experimentalLayout();
 	}
 
-	private void createGraphMethodEdge(Method src, Method dest) {
-		if(graph.getEdge("" + src.getID() + dest.getID()) == null)
+	private void createGraphMethodEdge(VFMethod src, VFMethod dest) {
+		if(graph.getEdge("" + src.getId() + dest.getId()) == null)
 		{
-			graph.addEdge(src.getID() + "" + dest.getID(), src.getID() + "", dest.getID() + "", true);
+			graph.addEdge(src.getId() + "" + dest.getId(), src.getId() + "", dest.getId() + "", true);
 		}
 	}
 
-	private void createGraphMethodNode(Method node) {
-		if(graph.getNode(node.getID() + "") == null)
+	private void createGraphMethodNode(VFMethod src) {
+		if(graph.getNode(src.getId() + "") == null)
 		{
-			Node createdNode = graph.addNode(node.getID() + "");
-			createdNode.setAttribute("ui.label", node.getMethod().getName().toString());
-			createdNode.setAttribute("nodeData.methodName", node.getMethod().getName());
-			createdNode.setAttribute("nodeData.methodSignature", node.getMethod().getSignature());
-			createdNode.setAttribute("nodeMethod", node);
+			Node createdNode = graph.addNode(src.getId() + "");
+			createdNode.setAttribute("ui.label", src.getSootMethod().getName().toString());
+			createdNode.setAttribute("nodeData.methodName", src.getSootMethod().getName());
+			createdNode.setAttribute("nodeData.methodSignature", src.getSootMethod().getSignature());
+			createdNode.setAttribute("nodeMethod", src);
 		}
 	}
 
@@ -636,7 +616,7 @@ public class GraphManager implements Runnable, ViewerListener {
 		ViewerPipe fromViewer = viewer.newViewerPipe();
 		fromViewer.addViewerListener(this);
 		fromViewer.addSink(graph);
-		
+
 		EventHandler dataModelHandler = new EventHandler() {
 			@Override
 			public void handleEvent(Event event) {
