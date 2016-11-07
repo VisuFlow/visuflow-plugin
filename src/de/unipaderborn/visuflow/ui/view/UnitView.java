@@ -14,6 +14,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
@@ -25,6 +26,7 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 
 import de.unipaderborn.visuflow.model.DataModel;
+import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 import soot.Body;
@@ -34,9 +36,9 @@ import soot.jimple.internal.JAssignStmt;
 
 public class UnitView extends ViewPart implements EventHandler {
 
-	DataModel dataModel = ServiceUtil.getService(DataModel.class);
+	DataModel dataModel;
 	Tree tree;
-	Combo combo;
+	Combo classCombo,methodCombo;
 
 	class ViewLabelProvider extends LabelProvider implements ILabelProvider{
 		public String getColumnText(Object obj, int index){
@@ -62,19 +64,18 @@ public class UnitView extends ViewPart implements EventHandler {
 		gridData.widthHint = SWT.DEFAULT;
 		gridData.heightHint = SWT.DEFAULT;
 
-		combo = new Combo(parent, SWT.DROP_DOWN);
-		combo.setLayout(layout);
-		combo.setLayoutData(gridData);
+		classCombo = new Combo(parent, SWT.DROP_DOWN);
+		classCombo.setLayout(layout);
+		classCombo.setLayoutData(gridData);
 
 
 		GridData gridData1 = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
 		gridData1.widthHint = SWT.DEFAULT;
 		gridData1.heightHint = SWT.DEFAULT;
 
-		Combo combo1 = new Combo(parent, SWT.DROP_DOWN);
-		combo1.setLayout(layout);
-		combo1.setLayoutData(gridData1);
-		combo1.setItems();
+		methodCombo = new Combo(parent, SWT.DROP_DOWN);
+		methodCombo.setLayout(layout);
+		methodCombo.setLayoutData(gridData1);
 
 		GridData gridData3 = new GridData(SWT.FILL, SWT.FILL, true, true, 3, 1);
 		gridData3.widthHint = SWT.DEFAULT;
@@ -84,15 +85,6 @@ public class UnitView extends ViewPart implements EventHandler {
 		tree.setHeaderVisible(true);
 		tree.setLayout(layout);
 		tree.setLayoutData(gridData3);
-		TreeColumn column1 = new TreeColumn(tree, SWT.LEFT | SWT.BORDER);
-		column1.setText("Unit");
-		column1.setWidth(200);
-		TreeColumn column2 = new TreeColumn(tree, SWT.LEFT | SWT.BORDER);
-		column2.setText("Value");
-		column2.setWidth(200);
-		TreeColumn column3 = new TreeColumn(tree, SWT.LEFT | SWT.BORDER);
-		column3.setText("Type");
-		column3.setWidth(200);
 
 		Dictionary<String, String> properties = new Hashtable<>();
 		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_SELECTION);
@@ -110,27 +102,38 @@ public class UnitView extends ViewPart implements EventHandler {
 			getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					Body body = dataModel.listClasses().get(0).getMethods().get(0).getBody();
+					
+					for (VFClass vfclass : dataModel.listClasses()) {
+						classCombo.add(vfclass.getSootClass().toString());
+						
+						for(VFMethod vfmethod : dataModel.listMethods(vfclass))
+						{
+							methodCombo.add(vfmethod.getSootMethod().toString());
+						}
+					}
 					tree.removeAll();
-					for (Unit unit : body.getUnits()) {
+					java.util.List<Unit> listUnits = (java.util.List<Unit>)event.getProperty("selectedMethodUnits");
+					for (Unit unit : listUnits) {
 						TreeItem treeItem= new TreeItem(tree, SWT.NONE | SWT.BORDER);
 						treeItem.setText(unit.toString());
 						if (unit instanceof JAssignStmt)
 						{
 							JAssignStmt stmt = (JAssignStmt)unit;
-							TreeItem treeItemchild = new TreeItem(treeItem, SWT.LEFT | SWT.BORDER);						
-							treeItemchild.setText(new String[] {"Left",stmt.leftBox.getValue().toString(),stmt.leftBox.getValue().getClass().toString()});
-							TreeItem treeItem2= new TreeItem(treeItemchild, SWT.LEFT | SWT.BORDER);
-							treeItem2.setText(new String[]{"Child"});
-							TreeItem right = new TreeItem(treeItem, SWT.LEFT | SWT.BORDER);
-							right.setText(new String[] {"Right",stmt.rightBox.getValue().toString(),stmt.rightBox.getValue().getClass().toString()});
-						}
-					}
+							TreeItem treeLeft = new TreeItem(treeItem, SWT.LEFT | SWT.BORDER);						
+							treeLeft.setText(new String[] {"Left"});
+							TreeItem treeLeftValue= new TreeItem(treeLeft, SWT.LEFT | SWT.BORDER);
+							treeLeftValue.setText(new String[] {"Value : "+stmt.leftBox.getValue().toString()});
+							TreeItem treeLeftClass= new TreeItem(treeLeft, SWT.LEFT | SWT.BORDER);
+							treeLeftClass.setText(new String[] {"Class : "+stmt.leftBox.getValue().getClass().toString()});
 
-					combo.removeAll();
-					for (VFMethod method : dataModel.listClasses().get(0).getMethods()) {
-						combo.add(method.getSootMethod().getName());
-					}
+							TreeItem treeRight = new TreeItem(treeItem, SWT.LEFT | SWT.BORDER);
+							treeRight.setText(new String[] {"Right"});
+							TreeItem treeRightValue= new TreeItem(treeRight, SWT.LEFT | SWT.BORDER);
+							treeRightValue.setText(new String[] {"Value : "+stmt.leftBox.getValue().toString()});
+							TreeItem treeRightClass= new TreeItem(treeRight, SWT.LEFT | SWT.BORDER);
+							treeRightClass.setText(new String[] {"Class : "+stmt.leftBox.getValue().getClass().toString()});
+						}
+					}					
 				}
 			});
 		}
