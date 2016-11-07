@@ -54,7 +54,6 @@ public class JimpleModelAnalysis {
 					{
 						methodcount++;
 						VFMethod vfmethod = new VFMethod(entryMethod);
-						vfmethod.setControlFlowGraph(new ControlFlowGraphGenerator().generateControlFlowGraph(entryMethod.getActiveBody()));
 						methodGraph.listMethods.add(vfmethod);
 						break;
 					}

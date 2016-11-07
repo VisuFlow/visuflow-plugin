@@ -343,16 +343,22 @@ public class GraphManager implements Runnable, ViewerListener {
 				{
 					System.out.println("Right click");
 					GraphicElement curElement = view.findNodeOrSpriteAt(e.getX(), e.getY());
+					if(curElement == null)
+						return;
 					Node curr = graph.getNode(curElement.getId());
 					Object node = curr.getAttribute("nodeMethod");
 					if(node instanceof VFMethod)
 					{
 						VFMethod currentMethod = (VFMethod) node;
-//						DataModel dataModel = ServiceUtil.getService(DataModel.class);
-//						dataModel.
+						DataModel dataModel = ServiceUtil.getService(DataModel.class);
+						//						dataModel.getVFMethodByName(currentMethod.getSootMethod());
 						System.out.println("Node is a Method node");
+//						System.out.println("soot method " + dataModel.getVFMethodByName(currentMethod.getSootMethod()).getControlFlowGraph().listEdges.get(0).getId());
 						try {
-							renderMethodCFG(currentMethod.getControlFlowGraph());
+							if(dataModel.getVFMethodByName(currentMethod.getSootMethod()).getControlFlowGraph() == null)
+								throw new Exception("CFG Null Exception");
+							else
+								renderMethodCFG(dataModel.getVFMethodByName(currentMethod.getSootMethod()).getControlFlowGraph());
 						} catch (Exception e1) {
 							e1.printStackTrace();
 						}
@@ -541,7 +547,7 @@ public class GraphManager implements Runnable, ViewerListener {
 
 	private void experimentalLayout()
 	{
-		//		viewer.disableAutoLayout();
+		viewer.disableAutoLayout();
 		double spacing = 2.0;
 		double rowSpacing = 12.0;
 		double nodeCount = graph.getNodeCount() * spacing;
@@ -563,6 +569,7 @@ public class GraphManager implements Runnable, ViewerListener {
 			curr.setAttribute("xyz", 0.0, nodeCount, 0.0);
 			nodeCount -= spacing;
 		}
+		System.out.println("graph node count " + graph.getNodeCount());
 	}
 
 	void toggleNode(String id){
@@ -633,7 +640,6 @@ public class GraphManager implements Runnable, ViewerListener {
 				}
 				else if(event.getTopic().equals(DataModel.EA_TOPIC_DATA_MODEL_CHANGED))
 				{
-					System.out.println("Model changed " + event.getProperty("icfg"));
 					renderICFG((ICFGStructure) event.getProperty("icfg"));
 				}
 			}

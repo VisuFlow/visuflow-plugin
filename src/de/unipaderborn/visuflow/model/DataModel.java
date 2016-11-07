@@ -3,6 +3,7 @@ package de.unipaderborn.visuflow.model;
 import java.util.List;
 
 import de.unipaderborn.visuflow.model.graph.ICFGStructure;
+import soot.SootMethod;
 
 public interface DataModel {
 	public static final String EA_TOPIC_DATA = "de/unipaderborn/visuflow/DataModel";
@@ -30,5 +31,6 @@ public interface DataModel {
 	public void setSelectedClass(VFClass selectedClass);
 	public void setSelectedMethod(VFMethod selectedMethod);
 	public VFMethod getSelectedMethod();
+	public VFMethod getVFMethodByName(SootMethod method);
 	public void setIcfg(ICFGStructure icfg);
 }

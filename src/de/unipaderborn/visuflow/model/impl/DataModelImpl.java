@@ -3,6 +3,7 @@ package de.unipaderborn.visuflow.model.impl;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 
 import org.osgi.service.event.Event;
@@ -13,6 +14,7 @@ import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.model.graph.ICFGStructure;
+import soot.SootMethod;
 
 
 public class DataModelImpl implements DataModel {
@@ -139,6 +141,38 @@ public class DataModelImpl implements DataModel {
 		this.icfg = icfg;
 		System.out.println("ICFG " + icfg);
 		System.out.println("ICFG size " + icfg.listEdges.size());
+	}
+
+	@Override
+	public VFMethod getVFMethodByName(SootMethod method) {
+		// TODO Auto-generated method stub
+		VFClass methodIncludingClass = null;
+		String className = method.getDeclaringClass().getName();
+		List<VFClass> classes = listClasses();
+		Iterator<VFClass> classIterator = classes.iterator();
+		while(classIterator.hasNext())
+		{
+			VFClass temp = classIterator.next();
+			if(temp.getSootClass().getName().contentEquals(className))
+			{
+				methodIncludingClass = temp;
+				break;
+			}
+		}
+		System.out.println("inside VFMethodByName");
+		
+		Iterator<VFMethod> methodListIterator = listMethods(methodIncludingClass).iterator();
+		while(methodListIterator.hasNext())
+		{
+			VFMethod temp = methodListIterator.next();
+			if(temp.getSootMethod().getSignature().contentEquals(method.getSignature()))
+			{
+				System.out.println("selected method " + temp);
+				System.out.println("size of cfg " + temp.getControlFlowGraph().listEdges.size());
+				return temp;
+			}
+		}
+		return null;
 	}
 
 }

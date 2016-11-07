@@ -16,6 +16,7 @@ import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.model.graph.ICFGStructure;
 import de.unipaderborn.visuflow.model.graph.JimpleModelAnalysis;
+import soot.SootMethod;
 
 public class DummyDataModel implements DataModel {
 	private List<VFClass> jimpleClasses = new ArrayList<VFClass>();
@@ -135,6 +136,12 @@ public class DummyDataModel implements DataModel {
 	public void setIcfg(ICFGStructure icfg) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public VFMethod getVFMethodByName(SootMethod method) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
