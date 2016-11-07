@@ -100,8 +100,7 @@ public class JimpleModelAnalysis {
 				{
 					SootMethod destination = (SootMethod)tc.next();			
 					if(!destination.isJavaLibraryMethod())
-					{
-						System.out.println(destination+" has active body "+destination.hasActiveBody());
+					{						
 						boolean methodPresent = false;
 						Iterator<Method> iteratorMethod = methodGraph.listMethods.iterator();
 						while(iteratorMethod.hasNext())

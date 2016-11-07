@@ -44,10 +44,23 @@ public class ControlFlowGraphGenerator {
 	
 	private void traverseUnits(Unit currentNode) {
 		boolean present = false;
+		boolean edgeconnection = false;
 		List<Unit> l = eg.getSuccsOf(currentNode);
 		Iterator<Unit> it = l.iterator();
 		while (it.hasNext()) {
 			Unit temp = it.next();
+			Iterator<VFEdge> edges = listEdges.iterator();
+			while(edges.hasNext()){
+				VFEdge edge = (VFEdge) edges.next();
+				if(edge.getSource().getLabel().equals(currentNode) && edge.getDestination().getLabel().equals(temp))
+				{
+					System.out.println("Here");
+					edgeconnection = true;
+					break;
+				}
+			}
+			if(edgeconnection)
+			continue;
 			Iterator<VFNode> nodesIterator = listNodes.iterator();
 			while (nodesIterator.hasNext()) {
 				VFNode node = (VFNode) nodesIterator.next();
@@ -74,6 +87,8 @@ public class ControlFlowGraphGenerator {
 			edgeNumber++;
 			VFEdge edgeEntry = new VFEdge(edgeNumber, source, destination);
 			listEdges.add(edgeEntry);
+			System.out.println(edgeEntry.getSource().toString());
+			System.out.println(edgeEntry.getDestination().toString());
 			traverseUnits(temp);
 		}
 
