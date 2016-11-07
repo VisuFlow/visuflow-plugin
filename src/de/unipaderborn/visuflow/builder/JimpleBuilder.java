@@ -94,7 +94,7 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
         IJavaProject project = JavaCore.create(getProject());
         classpath = getSootCP(project);
         String location = getOutputLocation(project);
-        location = "/home/henni/devel/pg/workspace-plugin/visuflow-plugin-workspace/dfa17/targetsBin";
+        //location = "/home/henni/devel/pg/workspace-plugin/visuflow-plugin-workspace/dfa17/targetsBin";
         System.out.println(location);
         classpath = location + File.pathSeparator + classpath;
         String[] sootString = new String[] { "-cp", classpath, "-exclude", "javax", "-allow-phantom-refs", "-no-bodies-for-excluded",
