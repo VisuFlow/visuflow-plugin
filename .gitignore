@@ -14,7 +14,7 @@ hs_err_pid*
 /target/
 
 #Mergetool Files
-.orig
+*.orig
 
 #metadata folder
 /.metadata
