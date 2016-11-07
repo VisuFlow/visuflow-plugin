@@ -5,13 +5,14 @@ import soot.Unit;
 public class VFNode {
 	
 	Unit label;
-	int id;
+	int id;	
 	
 	public VFNode(Unit label, int id)
 	{
 		this.label=label;
 		this.id=id;
 	}
+
 	public void setLabel(Unit label)
 	{
 		this.label = label;

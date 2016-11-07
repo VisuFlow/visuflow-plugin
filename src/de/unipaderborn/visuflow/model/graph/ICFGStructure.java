@@ -3,11 +3,10 @@ package de.unipaderborn.visuflow.model.graph;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.unipaderborn.visuflow.model.Method;
-import de.unipaderborn.visuflow.model.VFEdge;
+import de.unipaderborn.visuflow.model.VFMethod;
+import de.unipaderborn.visuflow.model.VFMethodEdge;
 
 public class ICFGStructure {
-	public List<Method> listMethods = new ArrayList<Method>();
-	public List<VFEdge> listEdges = new ArrayList<VFEdge>();
-
+	public List<VFMethod> listMethods = new ArrayList<VFMethod>();
+	public List<VFMethodEdge> listEdges = new ArrayList<VFMethodEdge>();
 }

@@ -21,12 +21,15 @@ public class VFEdge {
 		this.sourceMethod=sourceMethod;
 		this.destMethod=destMethod;
 	}
+	
 	public Method getSourceMethod() {
 		return sourceMethod;
 	}
+	
 	public void setSourceMethod(Method sourceMethod) {
 		this.sourceMethod = sourceMethod;
 	}
+	
 	public Method getDestMethod() {
 		return destMethod;
 	}
@@ -37,18 +40,23 @@ public class VFEdge {
 	public int getId() {
 		return id;
 	}
+	
 	public void setId(int id) {
 		this.id = id;
 	}
+	
 	public VFNode getSource() {
 		return source;
 	}
+	
 	public void setSource(VFNode source) {
 		this.source = source;
 	}
+	
 	public VFNode getDestination() {
 		return destination;
 	}
+	
 	public void setDestination(VFNode destination) {
 		this.destination = destination;
 	}	

@@ -1,14 +1,12 @@
 package de.unipaderborn.visuflow.model.graph;
 
-import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import de.unipaderborn.visuflow.model.Method;
 import de.unipaderborn.visuflow.model.VFClass;
-import de.unipaderborn.visuflow.model.VFEdge;
 import de.unipaderborn.visuflow.model.VFMethod;
+import de.unipaderborn.visuflow.model.VFMethodEdge;
 import de.unipaderborn.visuflow.model.VFUnit;
 import soot.Body;
 import soot.G;
@@ -29,6 +27,12 @@ public class JimpleModelAnalysis {
 	private int methodcount = 0;
 	private int edgeCount = 0;
 
+	private String[] sootString;
+
+	public void setSootString(String[] s){
+		this.sootString = s;
+	}
+
 	public void createICFG(final ICFGStructure methodGraph, List<VFClass> vfClasses) {
 		G.reset();
 		Transform transform = new Transform("wjtp.myTransform", new SceneTransformer() {
@@ -40,7 +44,7 @@ public class JimpleModelAnalysis {
 
 			private void createICFG() {
 				CallGraph cg = Scene.v().getCallGraph();
-				SootMethod entryMethod = null;				
+				SootMethod entryMethod = null;
 				java.util.List<SootMethod> listMethod = Scene.v().getEntryPoints();
 				Iterator<SootMethod> iterEntryMethod = listMethod.iterator();
 				while(iterEntryMethod.hasNext())
@@ -49,8 +53,8 @@ public class JimpleModelAnalysis {
 					if(entryMethod.isMain())
 					{
 						methodcount++;
-						Method method = new Method(methodcount, entryMethod);
-						methodGraph.listMethods.add(method);
+						VFMethod vfmethod = new VFMethod(entryMethod);
+						methodGraph.listMethods.add(vfmethod);
 						break;
 					}
 				}
@@ -85,18 +89,18 @@ public class JimpleModelAnalysis {
 
 			private void traverseMethods(SootMethod source, CallGraph cg)
 			{			
-				Targets tc = new Targets(cg.edgesOutOf(source));		
+				Targets tc = new Targets(cg.edgesOutOf(source));
 				while(tc.hasNext())
 				{
-					SootMethod destination = (SootMethod)tc.next();			
+					SootMethod destination = (SootMethod)tc.next();	
+					//					System.out.println(destination+" is java library "+destination.isJavaLibraryMethod());
 					if(!destination.isJavaLibraryMethod())
 					{
-						System.out.println(destination+" has active body "+destination.hasActiveBody());
 						boolean methodPresent = false;
-						Iterator<Method> iteratorMethod = methodGraph.listMethods.iterator();
+						Iterator<VFMethod> iteratorMethod = methodGraph.listMethods.iterator();
 						while(iteratorMethod.hasNext())
 						{
-							if(iteratorMethod.next().getMethod().equals(destination))
+							if(iteratorMethod.next().getSootMethod().equals(destination))
 							{
 								methodPresent = true;
 								break;
@@ -106,41 +110,36 @@ public class JimpleModelAnalysis {
 						if(!methodPresent)
 						{
 							methodcount++;
-							Method method = new Method(methodcount, destination);
+							VFMethod method = new VFMethod(methodcount, destination);
 							methodGraph.listMethods.add(method);
 						}
-						Method sourceMethod = null, destinationMethod = null;
-						Iterator<Method> iteratorMethods = methodGraph.listMethods.iterator();
+						VFMethod sourceMethod = null;
+						VFMethod destinationMethod = null;
+						Iterator<VFMethod> iteratorMethods = methodGraph.listMethods.iterator();
 						while(iteratorMethods.hasNext())
 						{
-							Method method = iteratorMethods.next();
-							if(method.getMethod().equals(source))
+							VFMethod method = iteratorMethods.next();
+							if(method.getSootMethod().equals(source))
 							{
 								sourceMethod = method;
 							}
-							if(method.getMethod().equals(destination))
+							if(method.getSootMethod().equals(destination))
 							{
 								destinationMethod = method;
 							}
 						}
 						edgeCount++;
-						VFEdge edge = new VFEdge(edgeCount, sourceMethod, destinationMethod);
+						VFMethodEdge edge = new VFMethodEdge(edgeCount, sourceMethod, destinationMethod);
 						methodGraph.listEdges.add(edge);
 						traverseMethods(destination, cg);
 					}
 				}
-			}	
+			}
 		});
 
 		PackManager.v().getPack("wjtp").add(transform);
-		String rtJar = System.getProperty("java.home") + File.separator + "lib" + File.separator + "rt.jar";
-
 		// Run Soot
-		Main.main(new String[] { "-cp", "./bin" + File.pathSeparator + rtJar, "-exclude", "javax",
-				"-allow-phantom-refs", "-no-bodies-for-excluded", "-process-dir", "targetBin2", "-src-prec",
-				"only-class", "-w", "-output-format", "n", "-keep-line-number" /*,"tag.ln","on"*/ });
+		Main.main(sootString);
 	}
-
-
 }
 
