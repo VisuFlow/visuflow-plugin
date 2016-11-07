@@ -91,7 +91,7 @@ public class DataModelImpl implements DataModel {
         this.selectedMethod = this.selectedClass.getMethods().get(0);
         this.selectedClassMethods = this.selectedClass.getMethods();
         this.populateUnits();
-		this.setSelectedMethod(this.selectedClass.getMethods().get(1));
+		this.setSelectedMethod(this.selectedClass.getMethods().get(0));
     }
 
     @Override
@@ -100,7 +100,7 @@ public class DataModelImpl implements DataModel {
         this.populateUnits();
         Dictionary<String, Object> properties = new Hashtable<>();
         properties.put("selectedMethod", selectedMethod);
-		properties.put("selectedClassMethods", selectedClassMethods);
+//		properties.put("selectedClassMethods", selectedClassMethods);
         properties.put("selectedMethodUnits", selectedMethodUnits);
         Event modelChanged = new Event(DataModel.EA_TOPIC_DATA_SELECTION, properties);
         eventAdmin.postEvent(modelChanged);
@@ -137,8 +137,6 @@ public class DataModelImpl implements DataModel {
 	@Override
 	public void setIcfg(ICFGStructure icfg) {
 		this.icfg = icfg;
-		System.out.println("ICFG " + icfg);
-		System.out.println("ICFG size " + icfg.listEdges.size());
 	}
 
 	@Override
@@ -157,16 +155,12 @@ public class DataModelImpl implements DataModel {
 				break;
 			}
 		}
-		System.out.println("inside VFMethodByName");
-		
 		Iterator<VFMethod> methodListIterator = listMethods(methodIncludingClass).iterator();
 		while(methodListIterator.hasNext())
 		{
 			VFMethod temp = methodListIterator.next();
 			if(temp.getSootMethod().getSignature().contentEquals(method.getSignature()))
 			{
-				System.out.println("selected method " + temp);
-				System.out.println("size of cfg " + temp.getControlFlowGraph().listEdges.size());
 				return temp;
 			}
 		}
@@ -175,7 +169,6 @@ public class DataModelImpl implements DataModel {
 
     @Override
     public void setInSet(Unit unit, String name, String value) {
-        System.out.println(name + " " + value);
         VFUnit vfUnit = getVFUnit(unit);
         if(vfUnit != null) {
             vfUnit.setInSet(value);
@@ -185,7 +178,6 @@ public class DataModelImpl implements DataModel {
 
     @Override
     public void setOutSet(Unit unit, String name, String value) {
-        System.out.println(name + " " + value);
         VFUnit vfUnit = getVFUnit(unit);
         if(vfUnit != null) {
             vfUnit.setOutSet(value);
