@@ -2,7 +2,9 @@ package de.unipaderborn.visuflow.debug.ui;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
@@ -30,13 +32,23 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 public class BreakpointLocator {
 
     // @formatter:off
-    private List<String> flowFunctionNames = Arrays.asList(new String[] {
+    private static List<String> flowFunctionNames = Arrays.asList(new String[] {
             "getNormalFlowFunction",
             "getCallFlowFunction",
             "getReturnFlowFunction",
             "getCallToReturnFlowFunction",
             "union"
     });
+    
+    private static Map<String, int[]> methodParameterIndices = new HashMap<>();
+    static {
+    	methodParameterIndices.put("getNormalFlowFunction", 	  new int[] {0, 1});
+    	methodParameterIndices.put("getCallFlowFunction", 		  new int[] {0, 1});
+    	methodParameterIndices.put("getReturnFlowFunction", 	  new int[] {0, 1});
+    	methodParameterIndices.put("getCallToReturnFlowFunction", new int[] {0, 1});
+    	methodParameterIndices.put("union", 					  new int[] {0, 1});
+    	
+    }
     // @formatter:on
 
     public List<BreakpointLocation> findFlowFunctions() throws JavaModelException {
@@ -55,9 +67,9 @@ public class BreakpointLocator {
         //        }
         //
         List<IJavaElement> flowFunctions = new ArrayList<>();
-        for (IJavaElement factory : sourceFolders) {
+        for (IJavaElement packageFragment : sourceFolders) { // TODO make sure to only use the target code
             for (String functionName : flowFunctionNames) {
-                findRecursive(flowFunctions, factory, functionName);
+                findRecursive(flowFunctions, packageFragment, functionName);
             }
         }
 
@@ -79,24 +91,22 @@ public class BreakpointLocator {
                 @Override
                 public boolean visit(MethodDeclaration node) {
                     int lineNumber = compilationUnit.getLineNumber(node.getName().getStartPosition());
-                    for (String flowFunctionName : flowFunctionNames) {
-                        if (node.getName().toString().equals(flowFunctionName)) {
-                            IResource res = cu.getResource();
-                            try {
-                                BreakpointLocation location = new BreakpointLocation();
-                                location.method = method;
-                                location.resource = res;
-                                location.className = method.getDeclaringType().getFullyQualifiedName();
-                                location.methodName = method.getElementName();
-                                location.methodSignature = resolveMethodSignature(method);
-                                location.lineNumber = lineNumber;
-                                location.offset = node.getName().getStartPosition();
-                                location.length = node.getName().getLength();
-                                locations.add(location);
-                            } catch (CoreException e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
-                            }
+                    if (node.getName().toString().equals(method.getElementName())) {
+                        IResource res = cu.getResource();
+                        try {
+                            BreakpointLocation location = new BreakpointLocation();
+                            location.method = method;
+                            location.resource = res;
+                            location.className = method.getDeclaringType().getFullyQualifiedName();
+                            location.methodName = method.getElementName();
+                            location.methodSignature = resolveMethodSignature(method);
+                            location.lineNumber = lineNumber;
+                            location.offset = node.getName().getStartPosition();
+                            location.length = node.getName().getLength();
+                            locations.add(location);
+                        } catch (CoreException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
                         }
                     }
 
