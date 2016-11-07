@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.ListIterator;
 import javax.swing.JApplet;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -62,7 +61,6 @@ public class GraphManager implements Runnable, ViewerListener {
 	JToolBar settingsBar;
 	JTextField attribute;
 	JScrollPane scrollbar;
-	JComboBox<VFMethod> methodList;
 
 	double zoomInDelta, zoomOutDelta, maxZoomPercent, minZoomPercent;
 
@@ -117,6 +115,14 @@ public class GraphManager implements Runnable, ViewerListener {
 		view = viewer.addDefaultView(false);
 	}
 
+	/*private void createDefaultNodes()
+	{
+		Node showICFGNode = graph.addNode("showICFG");
+		showICFGNode.setAttribute("ui.label", "Show ICFG");
+		System.out.println("Added showICFG label");
+		
+	}*/
+	
 	private void reintializeGraph() throws Exception
 	{
 		if(graph != null)
@@ -127,6 +133,8 @@ public class GraphManager implements Runnable, ViewerListener {
 			graph.setAutoCreate(true);
 			graph.addAttribute("ui.quality");
 			graph.addAttribute("ui.antialias");
+//			createDefaultNodes();
+			System.out.println("node count after creating " + graph.getNodeCount());
 		}
 		else
 			throw new Exception("Graph is null");
@@ -137,7 +145,6 @@ public class GraphManager implements Runnable, ViewerListener {
 		createViewListeners();
 		createAttributeControls();
 		createToggleLayoutButton();
-		createMethodComboBox();
 		createSettingsBar();
 		createPanel();
 		createAppletContainer();
@@ -189,29 +196,6 @@ public class GraphManager implements Runnable, ViewerListener {
 		});
 	}
 
-	private void createMethodComboBox()
-	{
-		methodList = new JComboBox<>();
-		methodList.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				@SuppressWarnings("unchecked")
-				JComboBox<String> methodBox = (JComboBox<String>) e.getSource();
-				try {
-					VFMethod selectedMethod = (VFMethod) methodBox.getSelectedItem();
-
-					DataModel dataModel = ServiceUtil.getService(DataModel.class);
-					dataModel.setSelectedMethod(selectedMethod);
-
-					renderMethodCFG(dataModel.getSelectedMethod().getControlFlowGraph());
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
-				experimentalLayout();
-			}
-		});
-	}
 
 	private void createSettingsBar() {
 		settingsBar = new JToolBar("ControlsBar", JToolBar.HORIZONTAL);
@@ -219,7 +203,6 @@ public class GraphManager implements Runnable, ViewerListener {
 		settingsBar.add(zoomInButton);
 		settingsBar.add(zoomOutButton);
 		settingsBar.add(viewCenterButton);
-		settingsBar.add(methodList);
 		settingsBar.add(filterGraphButton);
 		settingsBar.add(attribute);
 		settingsBar.add(toggleLayout);
@@ -453,15 +436,6 @@ public class GraphManager implements Runnable, ViewerListener {
 		}
 	}
 
-	void generateGraphFromGraphStructure()
-	{
-		List<VFMethod> currentClassMethods = ServiceUtil.getService(DataModel.class).getSelectedClassMethods();
-		methodList.removeAllItems();
-		for(VFMethod vfMethod : currentClassMethods)
-			methodList.addItem(vfMethod);
-		/*System.out.println("Temp Model " + tempDataModel.getIcfg());
-		renderICFG(tempDataModel.getIcfg());*/
-	}
 
 	private void renderICFG(ICFGStructure test) {
 		Iterator<VFMethodEdge> iterator = test.listEdges.iterator();
@@ -555,6 +529,8 @@ public class GraphManager implements Runnable, ViewerListener {
 		while(nodeIterator.hasNext())
 		{
 			Node curr = nodeIterator.next();
+			if(curr.getId().contentEquals("showICFG"))
+				continue;
 
 			Iterator<Edge> leavingEdgeIterator = curr.getEdgeIterator();
 			double outEdges = 0.0;
@@ -631,7 +607,6 @@ public class GraphManager implements Runnable, ViewerListener {
 				{
 					VFMethod selectedMethod = (VFMethod) event.getProperty("selectedMethod");
 					try {
-						createMethodComboBox();
 						renderMethodCFG(selectedMethod.getControlFlowGraph());
 					} catch (Exception e) {
 						e.printStackTrace();

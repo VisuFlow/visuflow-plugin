@@ -65,7 +65,20 @@ public class UnitView extends ViewPart implements EventHandler {
 		combo = new Combo(parent, SWT.DROP_DOWN);
 		combo.setLayout(layout);
 		combo.setLayoutData(gridData);
+		combo.addSelectionListener(new SelectionListener() {
 
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				int index = combo.getSelectionIndex();
+				VFMethod method = dataModel.listClasses().get(0).getMethods().get(index);
+				dataModel.setSelectedMethod(method);
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				System.out.println(e);
+			}
+		});
 
 		GridData gridData1 = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
 		gridData1.widthHint = SWT.DEFAULT;
@@ -94,8 +107,23 @@ public class UnitView extends ViewPart implements EventHandler {
 		column3.setText("Type");
 		column3.setWidth(200);
 
+		Body body = dataModel.listClasses().get(0).getMethods().get(2).getBody();
+		for (Unit unit : body.getUnits()) {
+			TreeItem treeItem= new TreeItem(tree, SWT.NONE | SWT.BORDER);
+			treeItem.setText(unit.toString());
+			if (unit instanceof JAssignStmt)
+			{
+				JAssignStmt stmt = (JAssignStmt)unit;
+				TreeItem treeItemchild = new TreeItem(treeItem, SWT.LEFT | SWT.BORDER);
+
+				treeItemchild.setText(new String[] {"Left",stmt.leftBox.getValue().toString(),stmt.leftBox.getValue().getClass().toString()});
+				TreeItem right = new TreeItem(treeItem, SWT.LEFT | SWT.BORDER);
+				right.setText(new String[] {"Right",stmt.rightBox.getValue().toString(),stmt.rightBox.getValue().getClass().toString()});
+			}
+		}
+
 		Dictionary<String, String> properties = new Hashtable<>();
-		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_SELECTION);
+		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_MODEL_CHANGED);
 		ServiceUtil.registerService(EventHandler.class, this, properties);
 	}
 
@@ -106,7 +134,7 @@ public class UnitView extends ViewPart implements EventHandler {
 
 	@Override
 	public void handleEvent(Event event) {
-		if(event.getTopic().equals(DataModel.EA_TOPIC_DATA_SELECTION)) {
+		if(event.getTopic().equals(DataModel.EA_TOPIC_DATA_MODEL_CHANGED)) {
 			getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
@@ -118,10 +146,9 @@ public class UnitView extends ViewPart implements EventHandler {
 						if (unit instanceof JAssignStmt)
 						{
 							JAssignStmt stmt = (JAssignStmt)unit;
-							TreeItem treeItemchild = new TreeItem(treeItem, SWT.LEFT | SWT.BORDER);						
+							TreeItem treeItemchild = new TreeItem(treeItem, SWT.LEFT | SWT.BORDER);
+
 							treeItemchild.setText(new String[] {"Left",stmt.leftBox.getValue().toString(),stmt.leftBox.getValue().getClass().toString()});
-							TreeItem treeItem2= new TreeItem(treeItemchild, SWT.LEFT | SWT.BORDER);
-							treeItem2.setText(new String[]{"Child"});
 							TreeItem right = new TreeItem(treeItem, SWT.LEFT | SWT.BORDER);
 							right.setText(new String[] {"Right",stmt.rightBox.getValue().toString(),stmt.rightBox.getValue().getClass().toString()});
 						}
