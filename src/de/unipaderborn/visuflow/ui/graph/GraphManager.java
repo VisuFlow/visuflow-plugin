@@ -6,6 +6,7 @@ import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
@@ -13,7 +14,6 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-
 import javax.swing.JApplet;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -42,111 +42,113 @@ import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFEdge;
 import de.unipaderborn.visuflow.model.VFMethod;
+import de.unipaderborn.visuflow.model.VFMethodEdge;
 import de.unipaderborn.visuflow.model.VFNode;
 import de.unipaderborn.visuflow.model.graph.ControlFlowGraph;
+import de.unipaderborn.visuflow.model.graph.ICFGStructure;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 
 public class GraphManager implements Runnable, ViewerListener {
 
-    Graph graph;
-    String styleSheet;
-    private Viewer viewer;
-    private ViewPanel view;
-    List<VFClass> analysisData;
+	Graph graph;
+	String styleSheet;
+	private Viewer viewer;
+	private ViewPanel view;
+	List<VFClass> analysisData;
 
-    Container panel;
-    JApplet applet;
-    JButton zoomInButton, zoomOutButton, viewCenterButton, filterGraphButton, toggleLayout;
-    JToolBar settingsBar;
-    JTextField attribute;
-    JScrollPane scrollbar;
-    JComboBox<VFMethod> methodList;
+	Container panel;
+	JApplet applet;
+	JButton zoomInButton, zoomOutButton, viewCenterButton, filterGraphButton, toggleLayout;
+	JToolBar settingsBar;
+	JTextField attribute;
+	JScrollPane scrollbar;
+	JComboBox<VFMethod> methodList;
 
-    double zoomInDelta, zoomOutDelta, maxZoomPercent, minZoomPercent;
+	double zoomInDelta, zoomOutDelta, maxZoomPercent, minZoomPercent;
 
-    boolean autoLayoutEnabled = false;
+	boolean autoLayoutEnabled = false;
 
-    Layout graphLayout = new SpringBox();
+	Layout graphLayout = new SpringBox();
 
-    private JToolTip tip;
+	private JToolTip tip;
 
-    public GraphManager(String graphName, String styleSheet)
-    {
-        System.setProperty("sun.awt.noerasebackground", "true");
-        System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
-        this.zoomInDelta = .2;
-        this.zoomOutDelta = .2;
-        this.maxZoomPercent = .5;
-        this.minZoomPercent = 2.0;
-        this.styleSheet = styleSheet;
-        createGraph(graphName);
-        createUI();
+	public GraphManager(String graphName, String styleSheet)
+	{
+		System.setProperty("sun.awt.noerasebackground", "true");
+		System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
+		this.zoomInDelta = .2;
+		this.zoomOutDelta = .2;
+		this.maxZoomPercent = .5;
+		this.minZoomPercent = 2.0;
+		this.styleSheet = styleSheet;
+		createGraph(graphName);
+		createUI();
 
-        EventHandler dataModelHandler = new EventHandler() {
-            @Override
-            public void handleEvent(Event event) {
-                @SuppressWarnings("unchecked")
-                List<VFClass> vfClasses = (List<VFClass>) event.getProperty("model");
-                System.out.println("Model changed " + vfClasses.size() + " " + vfClasses);
-                generateGraphFromGraphStructure();
-            }
-        };
-        Hashtable<String, String> properties = new Hashtable<>();
-        properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_MODEL_CHANGED);
-        ServiceUtil.registerService(EventHandler.class, dataModelHandler, properties);
-    }
+		/*EventHandler dataModelHandler = new EventHandler() {
+			@Override
+			public void handleEvent(Event event) {
+				@SuppressWarnings("unchecked")
+				List<VFClass> vfClasses = (List<VFClass>) event.getProperty("model");
+				System.out.println("Model changed " + vfClasses.size() + " " + vfClasses);
+				generateGraphFromGraphStructure();
+			}
+		};
+		Hashtable<String, String> properties = new Hashtable<>();
+		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_MODEL_CHANGED);
+		ServiceUtil.registerService(EventHandler.class, dataModelHandler, properties);*/
+	}
 
-    public Container getApplet() {
-        return applet.getRootPane();
-    }
+	public Container getApplet() {
+		return applet.getRootPane();
+	}
 
-    void createGraph(String graphName)
-    {
-        graph = new MultiGraph(graphName);
-        graph.addAttribute("ui.stylesheet", styleSheet);
-        graph.setStrict(true);
-        graph.setAutoCreate(true);
-        graph.addAttribute("ui.quality");
-        graph.addAttribute("ui.antialias");
+	void createGraph(String graphName)
+	{
+		graph = new MultiGraph(graphName);
+		graph.addAttribute("ui.stylesheet", styleSheet);
+		graph.setStrict(true);
+		graph.setAutoCreate(true);
+		graph.addAttribute("ui.quality");
+		graph.addAttribute("ui.antialias");
 
-        viewer = new Viewer(graph, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
-        viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
+		viewer = new Viewer(graph, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
+		viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
 
-        view = viewer.addDefaultView(false);
-    }
+		view = viewer.addDefaultView(false);
+	}
 
-    private void reintializeGraph() throws Exception
-    {
-        if(graph != null)
-        {
-            graph.clear();
-            graph.addAttribute("ui.stylesheet", styleSheet);
-            graph.setStrict(true);
-            graph.setAutoCreate(true);
-            graph.addAttribute("ui.quality");
-            graph.addAttribute("ui.antialias");
-        }
-        else
-            throw new Exception("Graph is null");
-    }
+	private void reintializeGraph() throws Exception
+	{
+		if(graph != null)
+		{
+			graph.clear();
+			graph.addAttribute("ui.stylesheet", styleSheet);
+			graph.setStrict(true);
+			graph.setAutoCreate(true);
+			graph.addAttribute("ui.quality");
+			graph.addAttribute("ui.antialias");
+		}
+		else
+			throw new Exception("Graph is null");
+	}
 
-    private void createUI() {
-        createZoomControls();
-        createViewListeners();
-        createAttributeControls();
-        createToggleLayoutButton();
-        createMethodComboBox();
-        createSettingsBar();
-        createPanel();
-        createAppletContainer();
-    }
+	private void createUI() {
+		createZoomControls();
+		createViewListeners();
+		createAttributeControls();
+		createToggleLayoutButton();
+		createMethodComboBox();
+		createSettingsBar();
+		createPanel();
+		createAppletContainer();
+	}
 
-    private void createAppletContainer() {
-        applet = new JApplet();
+	private void createAppletContainer() {
+		applet = new JApplet();
 
-        scrollbar = new JScrollPane(panel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS );
-        view.setAutoscrolls(true);
-        /*scrollbar.setPreferredSize(new Dimension(20, 0));
+		scrollbar = new JScrollPane(panel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS );
+		view.setAutoscrolls(true);
+		/*scrollbar.setPreferredSize(new Dimension(20, 0));
 		scrollbar.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
 
 			@Override
@@ -170,130 +172,129 @@ public class GraphManager implements Runnable, ViewerListener {
 					view.getCamera().setViewCenter(viewCenter.x + 1.0, viewCenter.y + 1.0, 0.0);
 			}
 		});*/
-        applet.add(scrollbar);
-    }
+		applet.add(scrollbar);
+	}
 
-    private void createAttributeControls() {
-        attribute = new JTextField("ui.screenshot,C:/Users/Shashank B S/Desktop/image.png");
-        filterGraphButton = new JButton("SetAttribute");
+	private void createAttributeControls() {
+		attribute = new JTextField("ui.screenshot,C:/Users/Shashank B S/Desktop/image.png");
+		filterGraphButton = new JButton("SetAttribute");
 
-        filterGraphButton.addActionListener(new ActionListener() {
+		filterGraphButton.addActionListener(new ActionListener() {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String[] newAttribute = attribute.getText().split(",");
-                graph.setAttribute(newAttribute[0], newAttribute[1]);
-            }
-        });
-    }
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String[] newAttribute = attribute.getText().split(",");
+				graph.setAttribute(newAttribute[0], newAttribute[1]);
+			}
+		});
+	}
 
-    private void createMethodComboBox()
-    {
-        methodList = new JComboBox<>();
-        //		methodList.addItem("Select Method");
+	private void createMethodComboBox()
+	{
+		methodList = new JComboBox<>();
+		methodList.addActionListener(new ActionListener() {
 
-        methodList.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				@SuppressWarnings("unchecked")
+				JComboBox<String> methodBox = (JComboBox<String>) e.getSource();
+				try {
+					VFMethod selectedMethod = (VFMethod) methodBox.getSelectedItem();
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                @SuppressWarnings("unchecked")
-                JComboBox<String> methodBox = (JComboBox<String>) e.getSource();
-                try {
-                    VFMethod selectedMethod = (VFMethod) methodBox.getSelectedItem();
+					DataModel dataModel = ServiceUtil.getService(DataModel.class);
+					dataModel.setSelectedMethod(selectedMethod);
 
-                    DataModel dataModel = ServiceUtil.getService(DataModel.class);
-                    dataModel.setSelectedMethod(selectedMethod);
+					renderMethodCFG(dataModel.getSelectedMethod().getControlFlowGraph());
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+				experimentalLayout();
+			}
+		});
+	}
 
-                    renderMethodCFG(dataModel.getSelectedMethod().getControlFlowGraph());
-                } catch (Exception e1) {
-                    e1.printStackTrace();
-                }
-                experimentalLayout();
-            }
-        });
-    }
+	private void createSettingsBar() {
+		settingsBar = new JToolBar("ControlsBar", JToolBar.HORIZONTAL);
 
-    private void createSettingsBar() {
-        settingsBar = new JToolBar("ControlsBar", JToolBar.HORIZONTAL);
+		settingsBar.add(zoomInButton);
+		settingsBar.add(zoomOutButton);
+		settingsBar.add(viewCenterButton);
+		settingsBar.add(methodList);
+		settingsBar.add(filterGraphButton);
+		settingsBar.add(attribute);
+		settingsBar.add(toggleLayout);
+	}
 
-        settingsBar.add(zoomInButton);
-        settingsBar.add(zoomOutButton);
-        settingsBar.add(viewCenterButton);
-        settingsBar.add(methodList);
-        settingsBar.add(filterGraphButton);
-        settingsBar.add(attribute);
-        settingsBar.add(toggleLayout);
-    }
+	private void createPanel() {
+		panel = new JFrame().getContentPane();
+		panel.add(view);
+		panel.add(settingsBar, BorderLayout.PAGE_START);
+	}
 
-    private void createPanel() {
-        panel = new JFrame().getContentPane();
-        panel.add(view);
-        panel.add(settingsBar, BorderLayout.PAGE_START);
-    }
+	private void createViewListeners() {
+		view.addMouseWheelListener(new MouseWheelListener() {
 
-    private void createViewListeners() {
-        view.addMouseWheelListener(new MouseWheelListener() {
+			@Override
+			public void mouseWheelMoved(MouseWheelEvent e) {
+				int rotationDirection = e.getWheelRotation();
+				if(rotationDirection > 0)
+					zoomIn();
+				else
+					zoomOut();
+			}
+		});
 
-            @Override
-            public void mouseWheelMoved(MouseWheelEvent e) {
-                int rotationDirection = e.getWheelRotation();
-                if(rotationDirection > 0)
-                    zoomIn();
-                else
-                    zoomOut();
-            }
-        });
+		view.addMouseMotionListener(new MouseMotionListener() {
 
-        view.addMouseMotionListener(new MouseMotionListener() {
+			@Override
+			public void mouseMoved(MouseEvent event) {
 
-            @Override
-            public void mouseMoved(MouseEvent event) {
+				GraphicElement curElement = view.findNodeOrSpriteAt(event.getX(), event.getY());
 
-                GraphicElement curElement = view.findNodeOrSpriteAt(event.getX(), event.getY());
+				if(curElement == null && tip != null) {
+					tip.setVisible(false);
+					setTip(null);
+					view.repaint();
+				}
 
-                if(curElement == null && tip != null) {
-                    tip.setVisible(false);
-                    setTip(null);
-                    view.repaint();
-                }
+				if(curElement != null && tip == null) {
+					Node node=graph.getNode(curElement.getId());
+					String result = "<html><table>";
+					int maxToolTipLength=0;
+					int height=0;
+					for(String key:node.getEachAttributeKey()) {
+						if(key.startsWith("nodeData")){
+							height++;
+							Object value = node.getAttribute(key);
+							String tempVal=key.substring(key.lastIndexOf(".")+1)+" : "+value.toString();
+							if(tempVal.length()>maxToolTipLength){
+								maxToolTipLength=tempVal.length();
+							}
 
-                if(curElement != null && tip == null) {
-                    Node node=graph.getNode(curElement.getId());
-                    String result = "<html><table>";
-                    int maxToolTipLength=0;
-                    int height=0;
-                    for(String key:node.getEachAttributeKey()) {
-                        if(key.startsWith("nodeData")){
-                            height++;
-                            Object value = node.getAttribute(key);
-                            String tempVal=key.substring(key.lastIndexOf(".")+1)+" : "+value.toString();
-                            if(tempVal.length()>maxToolTipLength){
-                                maxToolTipLength=tempVal.length();
-                            }
+							result+="<tr><td>"+key.substring(key.lastIndexOf(".")+1)+"</td>"+"<td>"+value.toString()+"</td></tr>";
+						}
+					}
+					result+="</table></html>";
+					tip = new JToolTip();
+					String tipText = result;
+					tip.setTipText(tipText);
+					tip.setBounds(event.getX() - tipText.length()*3 + 1, event.getY(), maxToolTipLength*6+3,height*30 );
+					setTip(tip);
+					tip.setVisible(true);
 
-                            result+="<tr><td>"+key.substring(key.lastIndexOf(".")+1)+"</td>"+"<td>"+value.toString()+"</td></tr>";
-                        }
-                    }
-                    result+="</table></html>";
-                    tip = new JToolTip();
-                    String tipText = result;
-                    tip.setTipText(tipText);
-                    tip.setBounds(event.getX() - tipText.length()*3 + 1, event.getY(), maxToolTipLength*6+3,height*30 );
-                    setTip(tip);
-                    tip.setVisible(true);
+					if(tipText.length() > 10) {
+						tip.setLocation(event.getX()-15, event.getY());
+					}
 
-                    if(tipText.length() > 10) {
-                        tip.setLocation(event.getX()-15, event.getY());
-                    }
+					view.add(tip);
+					tip.repaint();
+				}
+			}
 
-                    view.add(tip);
-                    tip.repaint();
-                }
-            }
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                // TODO Auto-generated method stub
-                /*if(e.getButton() == 0)
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				// TODO Auto-generated method stub
+				/*if(e.getButton() == 0)
 				{
 					Point dest = e.getPoint();
 					System.out.println("dragged with button");
@@ -312,256 +313,372 @@ public class GraphManager implements Runnable, ViewerListener {
 						//						}
 					}
 				}*/
-            }
-        });
-    }
+			}
+		});
 
-    private void zoomIn()
-    {
-        double viewPercent = view.getCamera().getViewPercent();
-        if(viewPercent > maxZoomPercent)
-            view.getCamera().setViewPercent(viewPercent - zoomInDelta);
-    }
+		view.addMouseListener(new MouseListener() {
 
-    private void zoomOut()
-    {
-        double viewPercent = view.getCamera().getViewPercent();
-        if(viewPercent < minZoomPercent)
-            view.getCamera().setViewPercent(viewPercent + zoomOutDelta);
-    }
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				//noop
+			}
 
-    private void createZoomControls() {
-        zoomInButton = new JButton("+");
-        zoomOutButton = new JButton("-");
-        viewCenterButton = new JButton("reset");
+			@Override
+			public void mousePressed(MouseEvent e) {
+				//noop
+			}
 
-        zoomInButton.setBackground(Color.gray);
-        zoomInButton.addActionListener(new ActionListener() {
+			@Override
+			public void mouseExited(MouseEvent e) {
+				//noop
+			}
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                zoomIn();
-            }
-        });
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				//noop
+			}
 
-        zoomOutButton.setBackground(Color.gray);
-        zoomOutButton.addActionListener(new ActionListener() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if(e.getButton() == MouseEvent.BUTTON3)
+				{
+					GraphicElement curElement = view.findNodeOrSpriteAt(e.getX(), e.getY());
+					if(curElement == null)
+						return;
+					Node curr = graph.getNode(curElement.getId());
+					Object node = curr.getAttribute("nodeMethod");
+					if(node instanceof VFMethod)
+					{
+						VFMethod currentMethod = (VFMethod) node;
+						DataModel dataModel = ServiceUtil.getService(DataModel.class);
+						VFMethod selectedMethod = dataModel.getVFMethodByName(currentMethod.getSootMethod());
+						try {
+							if(selectedMethod.getControlFlowGraph() == null)
+								throw new Exception("CFG Null Exception");
+							else
+							{
+								renderMethodCFG(dataModel.getVFMethodByName(currentMethod.getSootMethod()).getControlFlowGraph());
+								dataModel.setSelectedMethod(selectedMethod);
+							}
+						} catch (Exception e1) {
+							e1.printStackTrace();
+						}
+					}
+				}
+			}
+		});
+	}
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                zoomOut();
-            }
-        });
+	private void zoomIn()
+	{
+		double viewPercent = view.getCamera().getViewPercent();
+		if(viewPercent > maxZoomPercent)
+			view.getCamera().setViewPercent(viewPercent - zoomInDelta);
+	}
 
-        viewCenterButton.addActionListener(new ActionListener() {
+	private void zoomOut()
+	{
+		double viewPercent = view.getCamera().getViewPercent();
+		if(viewPercent < minZoomPercent)
+			view.getCamera().setViewPercent(viewPercent + zoomOutDelta);
+	}
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                view.getCamera().resetView();
-            }
-        });
-    }
+	private void createZoomControls() {
+		zoomInButton = new JButton("+");
+		zoomOutButton = new JButton("-");
+		viewCenterButton = new JButton("reset");
 
-    private void createToggleLayoutButton()
-    {
-        toggleLayout = new JButton();
-        toggleAutoLayout();
-        toggleLayout.addActionListener(new ActionListener() {
+		zoomInButton.setBackground(Color.gray);
+		zoomInButton.addActionListener(new ActionListener() {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                toggleAutoLayout();
-            }
-        });
-    }
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				zoomIn();
+			}
+		});
 
-    private void toggleAutoLayout()
-    {
-        if(!autoLayoutEnabled)
-        {
-            if(viewer != null && graphLayout != null)
-            {
-                //				viewer.enableAutoLayout(graphLayout);
-                experimentalLayout();
-            }
-            else if(viewer != null)
-            {
-                //				viewer.enableAutoLayout();
-                experimentalLayout();
-            }
-            autoLayoutEnabled = true;
-            toggleLayout.setText("Disable Layouting");
-        }
-        else
-        {
-            viewer.disableAutoLayout();
-            autoLayoutEnabled = false;
-            toggleLayout.setText("Enable Layouting");
-        }
-    }
+		zoomOutButton.setBackground(Color.gray);
+		zoomOutButton.addActionListener(new ActionListener() {
 
-    void generateGraphFromGraphStructure()
-    {
-        List<VFMethod> currentClassMethods = ServiceUtil.getService(DataModel.class).getSelectedClassMethods();
-        methodList.removeAllItems();
-        for(VFMethod vfMethod : currentClassMethods)
-            methodList.addItem(vfMethod);
-    }
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				zoomOut();
+			}
+		});
 
-    private void renderMethodCFG(ControlFlowGraph interGraph) throws Exception
-    {
-        if(interGraph == null)
-            throw new Exception("GraphStructure is null");
+		viewCenterButton.addActionListener(new ActionListener() {
 
-        this.reintializeGraph();
-        ListIterator<VFEdge> edgeIterator = interGraph.listEdges.listIterator();
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				view.getCamera().resetView();
+			}
+		});
+	}
 
-        while(edgeIterator.hasNext())
-        {
-            VFEdge currEdgeIterator = edgeIterator.next();
+	private void createToggleLayoutButton()
+	{
+		toggleLayout = new JButton();
+		toggleAutoLayout();
+		toggleLayout.addActionListener(new ActionListener() {
 
-            VFNode src = currEdgeIterator.getSource();
-            VFNode dest = currEdgeIterator.getDestination();
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				toggleAutoLayout();
+			}
+		});
+	}
 
-            createGraphNode(src);
-            createGraphNode(dest);
-            createGraphEdge(src,dest);
-        }
-    }
+	private void toggleAutoLayout()
+	{
+		if(!autoLayoutEnabled)
+		{
+			if(viewer != null && graphLayout != null)
+			{
+				//				viewer.enableAutoLayout(graphLayout);
+				experimentalLayout();
+			}
+			else if(viewer != null)
+			{
+				//				viewer.enableAutoLayout();
+				experimentalLayout();
+			}
+			autoLayoutEnabled = true;
+			toggleLayout.setText("Disable Layouting");
+		}
+		else
+		{
+			viewer.disableAutoLayout();
+			autoLayoutEnabled = false;
+			toggleLayout.setText("Enable Layouting");
+		}
+	}
 
-    private void createGraphEdge(VFNode src, VFNode dest) {
-        if(graph.getEdge("" + src.getId() + dest.getId()) == null)
-        {
-            Edge createdEdge = graph.addEdge(src.getId() + "" + dest.getId(), src.getId() + "", dest.getId() + "", true);
-            createdEdge.addAttribute("ui.label", "{a,b}");
-            createdEdge.addAttribute("edgeData.outSet", "{a,b}");
-        }
-    }
+	void generateGraphFromGraphStructure()
+	{
+		List<VFMethod> currentClassMethods = ServiceUtil.getService(DataModel.class).getSelectedClassMethods();
+		methodList.removeAllItems();
+		for(VFMethod vfMethod : currentClassMethods)
+			methodList.addItem(vfMethod);
+		/*System.out.println("Temp Model " + tempDataModel.getIcfg());
+		renderICFG(tempDataModel.getIcfg());*/
+	}
 
-    private void createGraphNode(VFNode node) {
-        if(graph.getNode(node.getId() + "") == null)
-        {
-            Node createdNode = graph.addNode(node.getId() + "");
-            createdNode.setAttribute("ui.label", node.getLabel().toString());
-            createdNode.setAttribute("nodeData.unit", node.getLabel().toString());
-            createdNode.setAttribute("nodeData.unitType", node.getLabel().getClass());
-            createdNode.setAttribute("nodeData.inSet", "coming soon");
-            createdNode.setAttribute("nodeData.outSet", "coming soon");
-        }
-    }
+	private void renderICFG(ICFGStructure test) {
+		Iterator<VFMethodEdge> iterator = test.listEdges.iterator();
+		try {
+			reintializeGraph();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		while(iterator.hasNext())
+		{
+			VFMethodEdge curr = iterator.next();
 
-    private void experimentalLayout()
-    {
-        //		viewer.disableAutoLayout();
-        double spacing = 2.0;
-        double rowSpacing = 12.0;
-        double nodeCount = graph.getNodeCount() * spacing;
-        Iterator<Node> nodeIterator = graph.getNodeIterator();
-        while(nodeIterator.hasNext())
-        {
-            Node curr = nodeIterator.next();
+			VFMethod src = curr.getSourceMethod();
+			VFMethod dest = curr.getDestMethod();
 
-            Iterator<Edge> leavingEdgeIterator = curr.getEdgeIterator();
-            double outEdges = 0.0;
-            while(leavingEdgeIterator.hasNext())
-            {
-                Edge outEdge = leavingEdgeIterator.next();
-                Node target = outEdge.getTargetNode();
-                target.setAttribute("xyz", outEdges, nodeCount, 0.0);
-                outEdges += rowSpacing;
-            }
+			createGraphMethodNode(src);
+			createGraphMethodNode(dest);
+			createGraphMethodEdge(src, dest);
+		}
+		experimentalLayout();
+	}
 
-            curr.setAttribute("xyz", 0.0, nodeCount, 0.0);
-            nodeCount -= spacing;
-        }
-    }
+	private void createGraphMethodEdge(VFMethod src, VFMethod dest) {
+		if(graph.getEdge("" + src.getId() + dest.getId()) == null)
+		{
+			graph.addEdge(src.getId() + "" + dest.getId(), src.getId() + "", dest.getId() + "", true);
+		}
+	}
 
-    void toggleNode(String id){
-        System.out.println("Togglenodes called");
-        Node n  = graph.getNode(id);
-        Object[] pos = n.getAttribute("xyz");
-        Iterator<Node> it = n.getBreadthFirstIterator(true);
-        if(n.hasAttribute("collapsed")){
-            n.removeAttribute("collapsed");
-            while(it.hasNext()){
-                Node m  =  it.next();
+	private void createGraphMethodNode(VFMethod src) {
+		if(graph.getNode(src.getId() + "") == null)
+		{
+			Node createdNode = graph.addNode(src.getId() + "");
+			createdNode.setAttribute("ui.label", src.getSootMethod().getName().toString());
+			createdNode.setAttribute("nodeData.methodName", src.getSootMethod().getName());
+			createdNode.setAttribute("nodeData.methodSignature", src.getSootMethod().getSignature());
+			createdNode.setAttribute("nodeMethod", src);
+		}
+	}
 
-                for(Edge e : m.getLeavingEdgeSet()) {
-                    e.removeAttribute("ui.hide");
-                }
-                m.removeAttribute("layout.frozen");
-                m.setAttribute("x",((double)pos[0])+Math.random()*0.0001);
-                m.setAttribute("y",((double)pos[1])+Math.random()*0.0001);
+	private void renderMethodCFG(ControlFlowGraph interGraph) throws Exception
+	{
+		if(interGraph == null)
+			throw new Exception("GraphStructure is null");
 
-                m.removeAttribute("ui.hide");
+		this.reintializeGraph();
+		ListIterator<VFEdge> edgeIterator = interGraph.listEdges.listIterator();
 
-            }
-            n.removeAttribute("ui.class");
+		while(edgeIterator.hasNext())
+		{
+			VFEdge currEdgeIterator = edgeIterator.next();
 
-        } else {
-            n.setAttribute("ui.class", "plus");
-            n.setAttribute("collapsed");
+			VFNode src = currEdgeIterator.getSource();
+			VFNode dest = currEdgeIterator.getDestination();
 
-            while(it.hasNext()){
-                Node m  =  it.next();
+			createGraphNode(src);
+			createGraphNode(dest);
+			createGraphEdge(src,dest);
+		}
+		experimentalLayout();
+	}
 
-                for(Edge e : m.getLeavingEdgeSet()) {
-                    e.setAttribute("ui.hide");
-                }
-                if(n != m) {
-                    m.setAttribute("layout.frozen");
-                    //					m.setAttribute("x", ((double) pos[0]) + Math.random() * 0.0001);
-                    //					m.setAttribute("y", ((double) pos[1]) + Math.random() * 0.0001);
+	private void createGraphEdge(VFNode src, VFNode dest) {
+		if(graph.getEdge("" + src.getId() + dest.getId()) == null)
+		{
+			Edge createdEdge = graph.addEdge(src.getId() + "" + dest.getId(), src.getId() + "", dest.getId() + "", true);
+			createdEdge.addAttribute("ui.label", "{a,b}");
+			createdEdge.addAttribute("edgeData.outSet", "{a,b}");
+		}
+	}
 
-                    m.setAttribute("xyz", ((double) pos[0]) + Math.random() * 0.0001, ((double) pos[1]) + Math.random() * 0.0001, 0.0);
+	private void createGraphNode(VFNode node) {
+		if(graph.getNode(node.getId() + "") == null)
+		{
+			Node createdNode = graph.addNode(node.getId() + "");
+			createdNode.setAttribute("ui.label", node.getLabel().toString());
+			createdNode.setAttribute("nodeData.unit", node.getLabel().toString());
+			createdNode.setAttribute("nodeData.unitType", node.getLabel().getClass());
+			createdNode.setAttribute("nodeData.inSet", "coming soon");
+			createdNode.setAttribute("nodeData.outSet", "coming soon");
+		}
+	}
 
-                    m.setAttribute("ui.hide");
-                }
+	private void experimentalLayout()
+	{
+		//		viewer.disableAutoLayout();
+		double spacing = 2.0;
+		double rowSpacing = 12.0;
+		double nodeCount = graph.getNodeCount() * spacing;
+		Iterator<Node> nodeIterator = graph.getNodeIterator();
+		while(nodeIterator.hasNext())
+		{
+			Node curr = nodeIterator.next();
 
-            }
-        }
-    }
+			Iterator<Edge> leavingEdgeIterator = curr.getEdgeIterator();
+			double outEdges = 0.0;
+			while(leavingEdgeIterator.hasNext())
+			{
+				Edge outEdge = leavingEdgeIterator.next();
+				Node target = outEdge.getTargetNode();
+				target.setAttribute("xyz", outEdges, nodeCount, 0.0);
+				outEdges += rowSpacing;
+			}
 
-    @Override
-    public void run() {
-        generateGraphFromGraphStructure();
+			curr.setAttribute("xyz", 0.0, nodeCount, 0.0);
+			nodeCount -= spacing;
+		}
+		System.out.println("graph node count " + graph.getNodeCount());
+	}
 
-        ViewerPipe fromViewer = viewer.newViewerPipe();
-        fromViewer.addViewerListener(this);
-        fromViewer.addSink(graph);
+	void toggleNode(String id){
+		System.out.println("Togglenodes called");
+		Node n  = graph.getNode(id);
+		Object[] pos = n.getAttribute("xyz");
+		Iterator<Node> it = n.getBreadthFirstIterator(true);
+		if(n.hasAttribute("collapsed")){
+			n.removeAttribute("collapsed");
+			while(it.hasNext()){
+				Node m  =  it.next();
 
-        // FIXME the Thread.sleep slows down the loop, so that it does not eat up the CPU
-        // but this really should be implemented differently. isn't there an event listener
-        // or something we can use, so that we call pump() only when necessary
-        while(true) {
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException e) {
-            }
-            fromViewer.pump();
-        }
-    }
+				for(Edge e : m.getLeavingEdgeSet()) {
+					e.removeAttribute("ui.hide");
+				}
+				m.removeAttribute("layout.frozen");
+				m.setAttribute("x",((double)pos[0])+Math.random()*0.0001);
+				m.setAttribute("y",((double)pos[1])+Math.random()*0.0001);
 
-    @Override
-    public void buttonPushed(String id) {
-        toggleNode(id);
-        experimentalLayout();
-    }
+				m.removeAttribute("ui.hide");
 
-    @Override
-    public void buttonReleased(String arg0) {
-        // TODO Auto-generated method stub
+			}
+			n.removeAttribute("ui.class");
 
-    }
+		} else {
+			n.setAttribute("ui.class", "plus");
+			n.setAttribute("collapsed");
 
-    @Override
-    public void viewClosed(String arg0) {
-        // TODO Auto-generated method stub
+			while(it.hasNext()){
+				Node m  =  it.next();
 
-    }
+				for(Edge e : m.getLeavingEdgeSet()) {
+					e.setAttribute("ui.hide");
+				}
+				if(n != m) {
+					m.setAttribute("layout.frozen");
+					//					m.setAttribute("x", ((double) pos[0]) + Math.random() * 0.0001);
+					//					m.setAttribute("y", ((double) pos[1]) + Math.random() * 0.0001);
 
-    protected void setTip(JToolTip toolTip) {
-        this.tip = toolTip;
-    }
+					m.setAttribute("xyz", ((double) pos[0]) + Math.random() * 0.0001, ((double) pos[1]) + Math.random() * 0.0001, 0.0);
+
+					m.setAttribute("ui.hide");
+				}
+
+			}
+		}
+	}
+
+	@Override
+	public void run() {
+		ViewerPipe fromViewer = viewer.newViewerPipe();
+		fromViewer.addViewerListener(this);
+		fromViewer.addSink(graph);
+
+		EventHandler dataModelHandler = new EventHandler() {
+			@Override
+			public void handleEvent(Event event) {
+				if(event.getTopic().equals(DataModel.EA_TOPIC_DATA_SELECTION))
+				{
+					VFMethod selectedMethod = (VFMethod) event.getProperty("selectedMethod");
+					try {
+						createMethodComboBox();
+						renderMethodCFG(selectedMethod.getControlFlowGraph());
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				else if(event.getTopic().equals(DataModel.EA_TOPIC_DATA_MODEL_CHANGED))
+				{
+					renderICFG((ICFGStructure) event.getProperty("icfg"));
+				}
+			}
+		};
+		Hashtable<String, String> properties = new Hashtable<String, String>();
+		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_SELECTION);
+		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_MODEL_CHANGED);
+		ServiceUtil.registerService(EventHandler.class, dataModelHandler, properties);
+
+		// FIXME the Thread.sleep slows down the loop, so that it does not eat up the CPU
+		// but this really should be implemented differently. isn't there an event listener
+		// or something we can use, so that we call pump() only when necessary
+		while(true) {
+			try {
+				Thread.sleep(1);
+			} catch (InterruptedException e) {
+			}
+			fromViewer.pump();
+		}
+	}
+
+	@Override
+	public void buttonPushed(String id) {
+		//noop
+	}
+
+	@Override
+	public void buttonReleased(String id) {
+		toggleNode(id);
+		experimentalLayout();
+	}
+
+	@Override
+	public void viewClosed(String id) {
+		//noop
+	}
+
+	protected void setTip(JToolTip toolTip) {
+		this.tip = toolTip;
+	}
+
 
 }

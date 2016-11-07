@@ -16,6 +16,7 @@ import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.model.graph.ICFGStructure;
 import de.unipaderborn.visuflow.model.graph.JimpleModelAnalysis;
+import soot.SootMethod;
 import soot.Unit;
 
 public class DummyDataModel implements DataModel {
@@ -26,8 +27,14 @@ public class DummyDataModel implements DataModel {
 
     private List<VFMethod> selectedClassMethods;
     private List<VFUnit> selectedMethodUnits;
-
+	
+	private ICFGStructure icfg;
     @Override
+
+	public ICFGStructure getIcfg() {
+		return icfg;
+	}
+
     public VFClass getSelectedClass() {
         return selectedClass;
     }
@@ -39,7 +46,6 @@ public class DummyDataModel implements DataModel {
 
     @Override
     public VFMethod getSelectedMethod() {
-        //		System.out.println("Current selected method is " + selectedMethod);
         return selectedMethod;
     }
 
@@ -61,18 +67,15 @@ public class DummyDataModel implements DataModel {
     {
         this.selectedMethod = selectedMethod;
         this.populateUnits();
-        //		System.out.println("Changing selected method to " + selectedMethod);
 
         Dictionary<String, Object> properties = new Hashtable<>();
         properties.put("selectedMethod", selectedMethod);
         properties.put("selectedMethodUnits", selectedMethodUnits);
         Event modelChanged = new Event(DataModel.EA_TOPIC_DATA_SELECTION, properties);
         eventAdmin.postEvent(modelChanged);
-        //		System.out.println("EA_TOPIC_DATA_SELECTION triggered from dataModel");
     }
 
     private void populateUnits() {
-        // TODO Auto-generated method stub
         this.selectedMethodUnits = this.selectedMethod.getUnits();
     }
 
@@ -113,10 +116,11 @@ public class DummyDataModel implements DataModel {
 
     protected void activate(ComponentContext context)
     {
-        ICFGStructure icfg = new ICFGStructure();
+		this.icfg = new ICFGStructure();
         JimpleModelAnalysis analysis = new JimpleModelAnalysis();
-        analysis.createICFG(icfg, jimpleClasses);
+		analysis.createICFG(this.icfg, jimpleClasses);
         this.setSelectedClass(jimpleClasses.get(0));
+		System.out.println(this.icfg.listEdges.size());
 
         Dictionary<String, Object> properties = new Hashtable<>();
         properties.put("model", jimpleClasses);
@@ -133,6 +137,18 @@ public class DummyDataModel implements DataModel {
     public void setClassList(List<VFClass> classList) {
         // TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void setIcfg(ICFGStructure icfg) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public VFMethod getVFMethodByName(SootMethod method) {
+		// TODO Auto-generated method stub
+		return null;
     }
 
     @Override

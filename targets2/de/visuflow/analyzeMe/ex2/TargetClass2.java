@@ -24,7 +24,15 @@ public class TargetClass2 {
 	}
 	
 	
-	private String getSecret() {
+	static String getSecret() {
 		return "top secret";
+	}
+	
+	public static void main(String[] args)
+	{
+		TargetClass2 test = new TargetClass2();
+		getSecret();
+		test.sourceToSink();
+		test.leak("Hello");
 	}
 }

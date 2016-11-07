@@ -3,6 +3,7 @@ package de.unipaderborn.visuflow.model.impl;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 
 import org.osgi.service.event.Event;
@@ -12,7 +13,9 @@ import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.model.VFUnit;
+import de.unipaderborn.visuflow.model.graph.ICFGStructure;
 import soot.Unit;
+import soot.SootMethod;
 
 
 public class DataModelImpl implements DataModel {
@@ -26,6 +29,8 @@ public class DataModelImpl implements DataModel {
     private List<VFUnit> selectedMethodUnits;
 
     private EventAdmin eventAdmin;
+	
+	private ICFGStructure icfg;
 
     @Override
     public List<VFClass> listClasses() {
@@ -86,6 +91,7 @@ public class DataModelImpl implements DataModel {
         this.selectedMethod = this.selectedClass.getMethods().get(0);
         this.selectedClassMethods = this.selectedClass.getMethods();
         this.populateUnits();
+		this.setSelectedMethod(this.selectedClass.getMethods().get(0));
     }
 
     @Override
@@ -94,6 +100,7 @@ public class DataModelImpl implements DataModel {
         this.populateUnits();
         Dictionary<String, Object> properties = new Hashtable<>();
         properties.put("selectedMethod", selectedMethod);
+//		properties.put("selectedClassMethods", selectedClassMethods);
         properties.put("selectedMethodUnits", selectedMethodUnits);
         Event modelChanged = new Event(DataModel.EA_TOPIC_DATA_SELECTION, properties);
         eventAdmin.postEvent(modelChanged);
@@ -109,6 +116,7 @@ public class DataModelImpl implements DataModel {
         this.classList = classList;
         Dictionary<String, Object> properties = new Hashtable<>();
         properties.put("model", classList);
+		properties.put("icfg", icfg);
         Event modelChanged = new Event(DataModel.EA_TOPIC_DATA_MODEL_CHANGED, properties);
         eventAdmin.postEvent(modelChanged);
     }
@@ -119,11 +127,48 @@ public class DataModelImpl implements DataModel {
 
     public void setEventAdmin(EventAdmin eventAdmin) {
         this.eventAdmin = eventAdmin;
+	}
+
+	@Override
+	public ICFGStructure getIcfg() {
+		return icfg;
+	}
+	
+	@Override
+	public void setIcfg(ICFGStructure icfg) {
+		this.icfg = icfg;
+	}
+
+	@Override
+	public VFMethod getVFMethodByName(SootMethod method) {
+		// TODO Auto-generated method stub
+		VFClass methodIncludingClass = null;
+		String className = method.getDeclaringClass().getName();
+		List<VFClass> classes = listClasses();
+		Iterator<VFClass> classIterator = classes.iterator();
+		while(classIterator.hasNext())
+		{
+			VFClass temp = classIterator.next();
+			if(temp.getSootClass().getName().contentEquals(className))
+			{
+				methodIncludingClass = temp;
+				break;
+			}
+		}
+		Iterator<VFMethod> methodListIterator = listMethods(methodIncludingClass).iterator();
+		while(methodListIterator.hasNext())
+		{
+			VFMethod temp = methodListIterator.next();
+			if(temp.getSootMethod().getSignature().contentEquals(method.getSignature()))
+			{
+				return temp;
+			}
+		}
+		return null;
     }
 
     @Override
     public void setInSet(Unit unit, String name, String value) {
-        System.out.println(name + " " + value);
         VFUnit vfUnit = getVFUnit(unit);
         if(vfUnit != null) {
             vfUnit.setInSet(value);
@@ -133,7 +178,6 @@ public class DataModelImpl implements DataModel {
 
     @Override
     public void setOutSet(Unit unit, String name, String value) {
-        System.out.println(name + " " + value);
         VFUnit vfUnit = getVFUnit(unit);
         if(vfUnit != null) {
             vfUnit.setOutSet(value);

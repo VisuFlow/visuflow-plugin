@@ -13,12 +13,27 @@ public class VFMethod {
     private List<VFUnit> units = new ArrayList<>();
     private Body body;
     private ControlFlowGraph controlFlowGraph;
+	private int id;
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
 
 	public VFMethod(SootMethod wrapped) {
         this.wrapped = wrapped;
     }
 
-    public SootMethod getSootMethod() {
+    public VFMethod(int methodcount, SootMethod wrapped) {
+		// TODO Auto-generated constructor stub
+    	this.id = methodcount;
+    	this.wrapped = wrapped;
+	}
+
+	public SootMethod getSootMethod() {
         return wrapped;
     }
     
