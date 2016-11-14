@@ -69,30 +69,7 @@ public class WizardPageHandler extends WizardPage {
 			public void widgetSelected(SelectionEvent e) {
 				handleBrowse();
 			}
-		});
-		label = new Label(container, SWT.NULL);
-		label.setText("&File name:");
-
-		fileText = new Text(container, SWT.BORDER | SWT.SINGLE);
-		gd = new GridData(GridData.FILL_HORIZONTAL);
-		fileText.setLayoutData(gd);
-		fileText.addModifyListener(new ModifyListener() {
-			public void modifyText(ModifyEvent e) {
-				dialogChanged();
-			}
-		});
-		
-		gd = new GridData(GridData.FILL_HORIZONTAL);
-		Button button1 = new Button(container, SWT.MULTI);
-		button1.setText("Soot");
-		button1.setLayoutData(gd);
-		Button button2 = new Button(container, SWT.RADIO);
-		button2.setText("Heros");
-		button2.setLayoutData(gd);
-		Button button3 = new Button(container, SWT.RADIO);
-		button3.setText("Vasco");
-		button3.setLayoutData(gd);
-		
+		});		
 		
 		Label labelFile = new Label(container, SWT.NULL);
 		labelFile.setText("Choose Folder:");
