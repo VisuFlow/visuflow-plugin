@@ -116,7 +116,7 @@ public class WizardPageHandler extends WizardPage {
 				containerText.setText(container.getFullPath().toString());
 			}
 		}
-		fileText.setText("new_file.java");
+		
 	}
 
 	/**
@@ -152,7 +152,7 @@ public class WizardPageHandler extends WizardPage {
 	private void dialogChanged() {
 		IResource container = ResourcesPlugin.getWorkspace().getRoot()
 				.findMember(new Path(getContainerName().get("ProjectPath")));
-		String fileName = getFileName();
+		
 
 		if (getContainerName().get("ProjectPath").length() == 0) {
 			updateStatus("File container must be specified");
@@ -167,22 +167,6 @@ public class WizardPageHandler extends WizardPage {
 			updateStatus("Project must be writable");
 			return;
 		}
-		if (fileName.length() == 0) {
-			updateStatus("File name must be specified");
-			return;
-		}
-		if (fileName.replace('\\', '/').indexOf('/', 1) > 0) {
-			updateStatus("File name must be valid");
-			return;
-		}
-		int dotLoc = fileName.lastIndexOf('.');
-		if (dotLoc != -1) {
-			String ext = fileName.substring(dotLoc + 1);
-			if (ext.equalsIgnoreCase("java") == false) {
-				updateStatus("File extension must be \"java\"");
-				return;
-			}
-		}
 		updateStatus(null);
 	}
 
@@ -196,9 +180,5 @@ public class WizardPageHandler extends WizardPage {
 		containerMap.put("ProjectPath", containerText.getText());
 		containerMap.put("TargetPath", containerText1.getText());
 		return containerMap;
-	}
-
-	public String getFileName() {
-		return fileText.getText();
 	}
 }

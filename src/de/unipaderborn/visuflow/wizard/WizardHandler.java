@@ -62,14 +62,12 @@ public class WizardHandler extends Wizard implements INewWizard {
 	public boolean performFinish() {
 		final String containerName = page.getContainerName().get("ProjectPath");
 		final String containerName1 = page.getContainerName().get("TargetPath");
-		final String fileName = page.getFileName();
 		System.out.println("Container name is "+containerName);
 		System.out.println("Container name is "+containerName1);
-		System.out.println("File name is "+fileName);
 		IRunnableWithProgress op = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException {
 				try {
-					doFinish(containerName, containerName1, fileName, monitor);
+					doFinish(containerName, containerName1, monitor);
 				} catch (CoreException e) {
 					throw new InvocationTargetException(e);
 				} catch (FileNotFoundException e) {
@@ -102,11 +100,10 @@ public class WizardHandler extends Wizard implements INewWizard {
 	private void doFinish(
 		String containerName,
 		String containerName1,
-		String fileName,
 		IProgressMonitor monitor)
 		throws CoreException, FileNotFoundException {
 		// create a sample file
-		monitor.beginTask("Creating " + fileName, 2);
+		monitor.beginTask("Creating " + containerName, 2);
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IResource resource = root.findMember(new Path(containerName));
 		//IResource resource1 = root.findMember(new Path(containerName1));
@@ -125,19 +122,7 @@ public class WizardHandler extends Wizard implements INewWizard {
 		IResource r = root.findMember(new Path(target.getFullPath().toString()));
 		IContainer c = (IContainer) r;
 		System.out.println("Container c is "+c);
-		copyFiles(fileDir, c, monitor);
-		final IFile file = container.getFile(new Path(fileName));		
-		try {
-			InputStream stream = openContentStream();
-			if (file.exists()) {
-				file.setContents(stream, true, true, monitor);
-			} else {
-				file.create(stream, true, monitor);
-			}
-			stream.close();
-		} catch (IOException e) {
-		}
-		
+		copyFiles(fileDir, c, monitor);		
 //		IContainer container1 = (IContainer) resource1;
 //		final IFolder folder = container.getFolder(new Path("Test"));
 //		if(!folder.exists())
@@ -148,12 +133,7 @@ public class WizardHandler extends Wizard implements INewWizard {
 		monitor.setTaskName("Opening file for editing...");
 		getShell().getDisplay().asyncExec(new Runnable() {
 			public void run() {
-				IWorkbenchPage page =
-					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-				try {
-					IDE.openEditor(page, file, true);
-				} catch (PartInitException e) {
-				}
+
 			}
 		});
 		monitor.worked(1);
