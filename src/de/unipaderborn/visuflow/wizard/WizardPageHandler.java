@@ -116,7 +116,6 @@ public class WizardPageHandler extends WizardPage {
 				containerText.setText(container.getFullPath().toString());
 			}
 		}
-		fileText.setText("new_file.java");
 	}
 
 	/**

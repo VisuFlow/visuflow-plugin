@@ -32,6 +32,8 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 
+import de.unipaderborn.visuflow.builder.GlobalSettings;
+
 public class WizardHandler extends Wizard implements INewWizard {
 
 	private WizardPageHandler page;
@@ -122,6 +124,7 @@ public class WizardHandler extends Wizard implements INewWizard {
 		IFolder target = container.getFolder(new Path(fileDir.getName()));
 		target.create(true, true, monitor);
 		System.out.println("Target destination "+target.getFullPath().toString());
+		GlobalSettings.put("TargetFolder", target.getLocation().toOSString());
 		IResource r = root.findMember(new Path(target.getFullPath().toString()));
 		IContainer c = (IContainer) r;
 		System.out.println("Container c is "+c);

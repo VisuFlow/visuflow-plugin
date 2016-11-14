@@ -101,7 +101,7 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
     			System.getProperty("java.home") + File.separator + "lib" + File.separator + 
     			"rt.jar", "-exclude", "javax", "-allow-phantom-refs", "-no-bodies-for-excluded", 
     			"-process-dir", "targetBin2", "-src-prec", "only-class", "-w", "-output-format", 
-    			"n", "-keep-line-number" /*,"tag.ln","on"*/ };
+    			"J", "-keep-line-number" ,"-output-dir","C:\\Users\\karth\\runtime-EclipseApplication(1)\\HelloWorld"/*,"tag.ln","on"*/ };
         ICFGStructure icfg = new ICFGStructure();
         JimpleModelAnalysis analysis = new JimpleModelAnalysis();
         analysis.setSootString(sootString);
