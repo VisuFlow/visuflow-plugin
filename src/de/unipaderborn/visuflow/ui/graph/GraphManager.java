@@ -115,13 +115,13 @@ public class GraphManager implements Runnable, ViewerListener {
 		view = viewer.addDefaultView(false);
 	}
 
-	/*private void createDefaultNodes()
+	private void createDefaultNodes()
 	{
 		Node showICFGNode = graph.addNode("showICFG");
 		showICFGNode.setAttribute("ui.label", "Show ICFG");
+		showICFGNode.addAttribute("xyz", 0.0, 0.0, 0.0);
 		System.out.println("Added showICFG label");
-		
-	}*/
+	}
 	
 	private void reintializeGraph() throws Exception
 	{
@@ -133,7 +133,7 @@ public class GraphManager implements Runnable, ViewerListener {
 			graph.setAutoCreate(true);
 			graph.addAttribute("ui.quality");
 			graph.addAttribute("ui.antialias");
-//			createDefaultNodes();
+			createDefaultNodes();
 			System.out.println("node count after creating " + graph.getNodeCount());
 		}
 		else
@@ -195,7 +195,6 @@ public class GraphManager implements Runnable, ViewerListener {
 			}
 		});
 	}
-
 
 	private void createSettingsBar() {
 		settingsBar = new JToolBar("ControlsBar", JToolBar.HORIZONTAL);
@@ -436,9 +435,8 @@ public class GraphManager implements Runnable, ViewerListener {
 		}
 	}
 
-
-	private void renderICFG(ICFGStructure test) {
-		Iterator<VFMethodEdge> iterator = test.listEdges.iterator();
+	private void renderICFG(ICFGStructure icfg) {
+		Iterator<VFMethodEdge> iterator = icfg.listEdges.iterator();
 		try {
 			reintializeGraph();
 		} catch (Exception e) {
@@ -530,7 +528,10 @@ public class GraphManager implements Runnable, ViewerListener {
 		{
 			Node curr = nodeIterator.next();
 			if(curr.getId().contentEquals("showICFG"))
+			{
+				curr.setAttribute("xyz", 0.0, 0.0, 0.0);
 				continue;
+			}
 
 			Iterator<Edge> leavingEdgeIterator = curr.getEdgeIterator();
 			double outEdges = 0.0;
@@ -642,6 +643,11 @@ public class GraphManager implements Runnable, ViewerListener {
 
 	@Override
 	public void buttonReleased(String id) {
+		if(id.contains("showICFG"))
+		{
+			renderICFG(ServiceUtil.getService(DataModel.class).getIcfg());
+			return;
+		}
 		toggleNode(id);
 		experimentalLayout();
 	}
