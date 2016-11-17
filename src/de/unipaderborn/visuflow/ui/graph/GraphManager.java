@@ -119,8 +119,8 @@ public class GraphManager implements Runnable, ViewerListener {
 	{
 		Node showICFGNode = graph.addNode("showICFG");
 		showICFGNode.setAttribute("ui.label", "Show ICFG");
+		showICFGNode.setAttribute("nodeData.label", "Show ICFG");
 		showICFGNode.addAttribute("xyz", 0.0, 0.0, 0.0);
-		System.out.println("Added showICFG label");
 	}
 	
 	private void reintializeGraph() throws Exception
@@ -134,7 +134,6 @@ public class GraphManager implements Runnable, ViewerListener {
 			graph.addAttribute("ui.quality");
 			graph.addAttribute("ui.antialias");
 			createDefaultNodes();
-			System.out.println("node count after creating " + graph.getNodeCount());
 		}
 		else
 			throw new Exception("Graph is null");
@@ -506,10 +505,16 @@ public class GraphManager implements Runnable, ViewerListener {
 	}
 
 	private void createGraphNode(VFNode node) {
+		int maxLength = 65;
 		if(graph.getNode(node.getId() + "") == null)
 		{
 			Node createdNode = graph.addNode(node.getId() + "");
-			createdNode.setAttribute("ui.label", node.getLabel().toString());
+			if(node.getLabel().toString().length() > maxLength)
+			{
+				createdNode.setAttribute("ui.label", node.getLabel().toString().substring(0, maxLength) + "...");
+			}
+			else
+				createdNode.setAttribute("ui.label", node.getLabel().toString());
 			createdNode.setAttribute("nodeData.unit", node.getLabel().toString());
 			createdNode.setAttribute("nodeData.unitType", node.getLabel().getClass());
 			createdNode.setAttribute("nodeData.inSet", "coming soon");
@@ -521,7 +526,7 @@ public class GraphManager implements Runnable, ViewerListener {
 	{
 		//		viewer.disableAutoLayout();
 		double spacing = 2.0;
-		double rowSpacing = 12.0;
+		double rowSpacing = 18.0;
 		double nodeCount = graph.getNodeCount() * spacing;
 		Iterator<Node> nodeIterator = graph.getNodeIterator();
 		while(nodeIterator.hasNext())
@@ -546,7 +551,6 @@ public class GraphManager implements Runnable, ViewerListener {
 			curr.setAttribute("xyz", 0.0, nodeCount, 0.0);
 			nodeCount -= spacing;
 		}
-		System.out.println("graph node count " + graph.getNodeCount());
 	}
 
 	void toggleNode(String id){
