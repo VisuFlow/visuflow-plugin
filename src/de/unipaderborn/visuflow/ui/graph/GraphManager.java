@@ -81,19 +81,6 @@ public class GraphManager implements Runnable, ViewerListener {
 		this.styleSheet = styleSheet;
 		createGraph(graphName);
 		createUI();
-
-		/*EventHandler dataModelHandler = new EventHandler() {
-			@Override
-			public void handleEvent(Event event) {
-				@SuppressWarnings("unchecked")
-				List<VFClass> vfClasses = (List<VFClass>) event.getProperty("model");
-				System.out.println("Model changed " + vfClasses.size() + " " + vfClasses);
-				generateGraphFromGraphStructure();
-			}
-		};
-		Hashtable<String, String> properties = new Hashtable<>();
-		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_MODEL_CHANGED);
-		ServiceUtil.registerService(EventHandler.class, dataModelHandler, properties);*/
 	}
 
 	public Container getApplet() {
@@ -121,8 +108,9 @@ public class GraphManager implements Runnable, ViewerListener {
 		showICFGNode.setAttribute("ui.label", "Show ICFG");
 		showICFGNode.setAttribute("nodeData.label", "Show ICFG");
 		showICFGNode.addAttribute("xyz", 0.0, 0.0, 0.0);
+		showICFGNode.addAttribute("layout.frozen");
 	}
-	
+
 	private void reintializeGraph() throws Exception
 	{
 		if(graph != null)
@@ -524,7 +512,6 @@ public class GraphManager implements Runnable, ViewerListener {
 
 	private void experimentalLayout()
 	{
-		//		viewer.disableAutoLayout();
 		double spacing = 2.0;
 		double rowSpacing = 18.0;
 		double nodeCount = graph.getNodeCount() * spacing;
@@ -551,6 +538,7 @@ public class GraphManager implements Runnable, ViewerListener {
 			curr.setAttribute("xyz", 0.0, nodeCount, 0.0);
 			nodeCount -= spacing;
 		}
+		view.getCamera().resetView();
 	}
 
 	void toggleNode(String id){
