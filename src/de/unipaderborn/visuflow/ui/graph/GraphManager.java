@@ -76,8 +76,8 @@ public class GraphManager implements Runnable, ViewerListener {
 		System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
 		this.zoomInDelta = .2;
 		this.zoomOutDelta = .2;
-		this.maxZoomPercent = .5;
-		this.minZoomPercent = 2.0;
+		this.maxZoomPercent = 1.0;
+		this.minZoomPercent = 3.0;
 		this.styleSheet = styleSheet;
 		createGraph(graphName);
 		createUI();
