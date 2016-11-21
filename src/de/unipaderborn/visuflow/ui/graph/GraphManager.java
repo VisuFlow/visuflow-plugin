@@ -18,7 +18,6 @@ import javax.swing.JApplet;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.JToolTip;
 
@@ -57,9 +56,8 @@ public class GraphManager implements Runnable, ViewerListener {
 
 	Container panel;
 	JApplet applet;
-	JButton zoomInButton, zoomOutButton, viewCenterButton, filterGraphButton, toggleLayout;
+	JButton zoomInButton, zoomOutButton, viewCenterButton, toggleLayout, showICFGButton;
 	JToolBar settingsBar;
-	JTextField attribute;
 	JScrollPane scrollbar;
 
 	double zoomInDelta, zoomOutDelta, maxZoomPercent, minZoomPercent;
@@ -100,16 +98,17 @@ public class GraphManager implements Runnable, ViewerListener {
 		viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
 
 		view = viewer.addDefaultView(false);
+		view.getCamera().setAutoFitView(true);
 	}
 
-	private void createDefaultNodes()
-	{
-		Node showICFGNode = graph.addNode("showICFG");
-		showICFGNode.setAttribute("ui.label", "Show ICFG");
-		showICFGNode.setAttribute("nodeData.label", "Show ICFG");
-		showICFGNode.addAttribute("xyz", 0.0, 0.0, 0.0);
-		showICFGNode.addAttribute("layout.frozen");
-	}
+//	private void createDefaultNodes()
+//	{
+//		Node showICFGNode = graph.addNode("showICFG");
+//		showICFGNode.setAttribute("ui.label", "Show ICFG");
+//		showICFGNode.setAttribute("nodeData.label", "Show ICFG");
+//		showICFGNode.addAttribute("xyz", 0.0, 0.0, 0.0);
+//		showICFGNode.addAttribute("layout.frozen");
+//	}
 
 	private void reintializeGraph() throws Exception
 	{
@@ -121,7 +120,7 @@ public class GraphManager implements Runnable, ViewerListener {
 			graph.setAutoCreate(true);
 			graph.addAttribute("ui.quality");
 			graph.addAttribute("ui.antialias");
-			createDefaultNodes();
+//			createDefaultNodes();
 		}
 		else
 			throw new Exception("Graph is null");
@@ -129,12 +128,23 @@ public class GraphManager implements Runnable, ViewerListener {
 
 	private void createUI() {
 		createZoomControls();
+		createShowICFGButton();
 		createViewListeners();
-		createAttributeControls();
 		createToggleLayoutButton();
 		createSettingsBar();
 		createPanel();
 		createAppletContainer();
+	}
+
+	private void createShowICFGButton() {
+		showICFGButton = new JButton("Show ICFG");
+		showICFGButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				renderICFG(ServiceUtil.getService(DataModel.class).getIcfg());
+			}
+		});
 	}
 
 	private void createAppletContainer() {
@@ -142,45 +152,7 @@ public class GraphManager implements Runnable, ViewerListener {
 
 		scrollbar = new JScrollPane(panel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS );
 		view.setAutoscrolls(true);
-		/*scrollbar.setPreferredSize(new Dimension(20, 0));
-		scrollbar.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
-
-			@Override
-			public void adjustmentValueChanged(AdjustmentEvent e) {
-				// TODO Auto-generated method stub
-				System.out.println("vertical scrollbar " + e.getValue());
-			}
-		});
-
-		scrollbar.getHorizontalScrollBar().addAdjustmentListener(new AdjustmentListener() {
-
-			@Override
-			public void adjustmentValueChanged(AdjustmentEvent e) {
-				// TODO Auto-generated method stub
-				Point3 viewCenter = view.getCamera().getViewCenter();
-				System.out.println("horizontal scrollbar " + e.getValue());
-				System.out.println("view center " + viewCenter);
-				if(e.getAdjustmentType() == AdjustmentEvent.UNIT_INCREMENT)
-					view.getCamera().setViewCenter(viewCenter.x + 1.0, viewCenter.y + 1.0, 0.0);
-				if(e.getAdjustmentType() == AdjustmentEvent.UNIT_DECREMENT)
-					view.getCamera().setViewCenter(viewCenter.x + 1.0, viewCenter.y + 1.0, 0.0);
-			}
-		});*/
 		applet.add(scrollbar);
-	}
-
-	private void createAttributeControls() {
-		attribute = new JTextField("ui.screenshot,C:/Users/Shashank B S/Desktop/image.png");
-		filterGraphButton = new JButton("SetAttribute");
-
-		filterGraphButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String[] newAttribute = attribute.getText().split(",");
-				graph.setAttribute(newAttribute[0], newAttribute[1]);
-			}
-		});
 	}
 
 	private void createSettingsBar() {
@@ -188,16 +160,15 @@ public class GraphManager implements Runnable, ViewerListener {
 
 		settingsBar.add(zoomInButton);
 		settingsBar.add(zoomOutButton);
+		settingsBar.add(showICFGButton);
 		settingsBar.add(viewCenterButton);
-		settingsBar.add(filterGraphButton);
-		settingsBar.add(attribute);
 		settingsBar.add(toggleLayout);
 	}
 
 	private void createPanel() {
 		panel = new JFrame().getContentPane();
 		panel.add(view);
-		panel.add(settingsBar, BorderLayout.PAGE_START);
+		panel.add(settingsBar, BorderLayout.PAGE_END);
 	}
 
 	private void createViewListeners() {
@@ -263,6 +234,14 @@ public class GraphManager implements Runnable, ViewerListener {
 			@Override
 			public void mouseDragged(MouseEvent e) {
 				// TODO Auto-generated method stub
+				int x = e.getX();
+				int y = e.getY();
+				System.out.println("x and y from event " + x + "  " + y);
+				System.out.println("x and y from camera " + view.getCamera().getViewCenter().x + "  " + view.getCamera().getViewCenter().y);
+				System.out.println("x and y from default view " + viewer.getDefaultView().getCamera().getViewCenter().x + "  " + viewer.getDefaultView().getCamera().getViewCenter().y);
+				view.getCamera().setBounds(x-10, y-10, x+10, y+10, 0.0, 0.0);
+//				view.getCamera().setGraphViewport(x-10.0, y-10.0, x+10.0, y+10.0);
+				
 				/*if(e.getButton() == 0)
 				{
 					Point dest = e.getPoint();
