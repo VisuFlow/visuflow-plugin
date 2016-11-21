@@ -68,6 +68,10 @@ public class GraphManager implements Runnable, ViewerListener {
 	Layout graphLayout = new SpringBox();
 
 	private JToolTip tip;
+	private JButton panLeftButton;
+	private JButton panRightButton;
+	private JButton panUpButton;
+	private JButton panDownButton;
 
 	public GraphManager(String graphName, String styleSheet)
 	{
@@ -121,6 +125,7 @@ public class GraphManager implements Runnable, ViewerListener {
 	private void createUI() {
 		createZoomControls();
 		createShowICFGButton();
+		createPanningButtons();
 		createViewListeners();
 		createToggleLayoutButton();
 		createSettingsBar();
@@ -128,10 +133,53 @@ public class GraphManager implements Runnable, ViewerListener {
 		createAppletContainer();
 	}
 
+	private void createPanningButtons() {
+		panLeftButton = new JButton("Pan left");
+		panRightButton = new JButton("Pan right");
+		panUpButton = new JButton("Pan up");
+		panDownButton = new JButton("Pan down");
+
+		panLeftButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Point3 currCenter = view.getCamera().getViewCenter();
+				view.getCamera().setViewCenter(currCenter.x + 1, currCenter.y, 0);
+			}
+		});
+
+		panRightButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Point3 currCenter = view.getCamera().getViewCenter();
+				view.getCamera().setViewCenter(currCenter.x - 1, currCenter.y, 0);
+			}
+		});
+
+		panUpButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Point3 currCenter = view.getCamera().getViewCenter();
+				view.getCamera().setViewCenter(currCenter.x, currCenter.y + 1, 0);
+			}
+		});
+		
+		panDownButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Point3 currCenter = view.getCamera().getViewCenter();
+				view.getCamera().setViewCenter(currCenter.x, currCenter.y - 1, 0);
+			}
+		});
+	}
+
 	private void createShowICFGButton() {
 		showICFGButton = new JButton("Show ICFG");
 		showICFGButton.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				renderICFG(ServiceUtil.getService(DataModel.class).getIcfg());
@@ -155,6 +203,10 @@ public class GraphManager implements Runnable, ViewerListener {
 		settingsBar.add(showICFGButton);
 		settingsBar.add(viewCenterButton);
 		settingsBar.add(toggleLayout);
+		settingsBar.add(panLeftButton);
+		settingsBar.add(panRightButton);
+		settingsBar.add(panUpButton);
+		settingsBar.add(panDownButton);
 	}
 
 	private void createPanel() {
@@ -225,19 +277,7 @@ public class GraphManager implements Runnable, ViewerListener {
 
 			@Override
 			public void mouseDragged(MouseEvent e) {
-				double translateCoeff = view.getCamera().getViewPercent();
-                Point3 center = view.getCamera().getViewCenter();
-                System.out.println("initial view center " + center);
-                if(e.getY()>175){
-                    view.getCamera().setViewCenter(center.x, center.y-5*translateCoeff, center.z);
-                }else{
-                    view.getCamera().setViewCenter(center.x, center.y+5*translateCoeff, center.z);
-                }
-                if(e.getX()>275){
-                    view.getCamera().setViewCenter(center.x+5*translateCoeff, center.y, center.z);
-                }else{
-                    view.getCamera().setViewCenter(center.x-5*translateCoeff, center.y, center.z);
-                }
+
 			}
 		});
 
@@ -524,7 +564,7 @@ public class GraphManager implements Runnable, ViewerListener {
 
 			while(it.hasNext()){
 				Node m  =  it.next();
-				
+
 				for(Edge e : m.getLeavingEdgeSet()) {
 					e.setAttribute("ui.hide");
 				}
