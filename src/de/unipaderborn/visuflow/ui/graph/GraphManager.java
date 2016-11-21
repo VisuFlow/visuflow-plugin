@@ -99,16 +99,8 @@ public class GraphManager implements Runnable, ViewerListener {
 
 		view = viewer.addDefaultView(false);
 		view.getCamera().setAutoFitView(true);
+		view.removeMouseMotionListener(view.getMouseMotionListeners()[0]);
 	}
-
-//	private void createDefaultNodes()
-//	{
-//		Node showICFGNode = graph.addNode("showICFG");
-//		showICFGNode.setAttribute("ui.label", "Show ICFG");
-//		showICFGNode.setAttribute("nodeData.label", "Show ICFG");
-//		showICFGNode.addAttribute("xyz", 0.0, 0.0, 0.0);
-//		showICFGNode.addAttribute("layout.frozen");
-//	}
 
 	private void reintializeGraph() throws Exception
 	{
@@ -120,7 +112,6 @@ public class GraphManager implements Runnable, ViewerListener {
 			graph.setAutoCreate(true);
 			graph.addAttribute("ui.quality");
 			graph.addAttribute("ui.antialias");
-//			createDefaultNodes();
 		}
 		else
 			throw new Exception("Graph is null");
@@ -233,13 +224,12 @@ public class GraphManager implements Runnable, ViewerListener {
 
 			@Override
 			public void mouseDragged(MouseEvent e) {
-				// TODO Auto-generated method stub
-				int x = e.getX();
+				/*int x = e.getX();
 				int y = e.getY();
 				System.out.println("x and y from event " + x + "  " + y);
 				System.out.println("x and y from camera " + view.getCamera().getViewCenter().x + "  " + view.getCamera().getViewCenter().y);
 				System.out.println("x and y from default view " + viewer.getDefaultView().getCamera().getViewCenter().x + "  " + viewer.getDefaultView().getCamera().getViewCenter().y);
-				view.getCamera().setBounds(x-10, y-10, x+10, y+10, 0.0, 0.0);
+				view.getCamera().setBounds(x-10, y-10, x+10, y+10, 0.0, 0.0);*/
 //				view.getCamera().setGraphViewport(x-10.0, y-10.0, x+10.0, y+10.0);
 				
 				/*if(e.getButton() == 0)
@@ -614,11 +604,6 @@ public class GraphManager implements Runnable, ViewerListener {
 
 	@Override
 	public void buttonReleased(String id) {
-		if(id.contains("showICFG"))
-		{
-			renderICFG(ServiceUtil.getService(DataModel.class).getIcfg());
-			return;
-		}
 		toggleNode(id);
 		experimentalLayout();
 	}
@@ -631,6 +616,5 @@ public class GraphManager implements Runnable, ViewerListener {
 	protected void setTip(JToolTip toolTip) {
 		this.tip = toolTip;
 	}
-
 
 }

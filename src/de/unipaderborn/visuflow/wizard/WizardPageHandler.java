@@ -26,6 +26,7 @@ import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 public class WizardPageHandler extends WizardPage {
 	private Text containerText,containerText1;
 
+	@SuppressWarnings("unused")
 	private Text fileText;
 
 	private ISelection selection;
