@@ -25,6 +25,7 @@ import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.MultiGraph;
+import org.graphstream.ui.geom.Point3;
 import org.graphstream.ui.graphicGraph.GraphicElement;
 import org.graphstream.ui.layout.Layout;
 import org.graphstream.ui.layout.springbox.implementations.SpringBox;
@@ -224,33 +225,19 @@ public class GraphManager implements Runnable, ViewerListener {
 
 			@Override
 			public void mouseDragged(MouseEvent e) {
-				/*int x = e.getX();
-				int y = e.getY();
-				System.out.println("x and y from event " + x + "  " + y);
-				System.out.println("x and y from camera " + view.getCamera().getViewCenter().x + "  " + view.getCamera().getViewCenter().y);
-				System.out.println("x and y from default view " + viewer.getDefaultView().getCamera().getViewCenter().x + "  " + viewer.getDefaultView().getCamera().getViewCenter().y);
-				view.getCamera().setBounds(x-10, y-10, x+10, y+10, 0.0, 0.0);*/
-//				view.getCamera().setGraphViewport(x-10.0, y-10.0, x+10.0, y+10.0);
-				
-				/*if(e.getButton() == 0)
-				{
-					Point dest = e.getPoint();
-					System.out.println("dragged with button");
-					System.out.println(dest);
-
-					Point3 currViewCenter = view.getCamera().getViewCenter();
-
-					for(int i=0; i<e.getClickCount(); i++)
-					{
-						view.getCamera().setViewCenter(currViewCenter.x+.2, currViewCenter.y+.2, 0);
-						//						try {
-						//							Thread.sleep(1000);
-						//						} catch (InterruptedException e1) {
-						//							// TODO Auto-generated catch block
-						//							e1.printStackTrace();
-						//						}
-					}
-				}*/
+				double translateCoeff = view.getCamera().getViewPercent();
+                Point3 center = view.getCamera().getViewCenter();
+                System.out.println("initial view center " + center);
+                if(e.getY()>175){
+                    view.getCamera().setViewCenter(center.x, center.y-5*translateCoeff, center.z);
+                }else{
+                    view.getCamera().setViewCenter(center.x, center.y+5*translateCoeff, center.z);
+                }
+                if(e.getX()>275){
+                    view.getCamera().setViewCenter(center.x+5*translateCoeff, center.y, center.z);
+                }else{
+                    view.getCamera().setViewCenter(center.x-5*translateCoeff, center.y, center.z);
+                }
 			}
 		});
 
@@ -511,7 +498,6 @@ public class GraphManager implements Runnable, ViewerListener {
 	}
 
 	void toggleNode(String id){
-		System.out.println("Togglenodes called");
 		Node n  = graph.getNode(id);
 		Object[] pos = n.getAttribute("xyz");
 		Iterator<Node> it = n.getBreadthFirstIterator(true);
@@ -538,7 +524,7 @@ public class GraphManager implements Runnable, ViewerListener {
 
 			while(it.hasNext()){
 				Node m  =  it.next();
-
+				
 				for(Edge e : m.getLeavingEdgeSet()) {
 					e.setAttribute("ui.hide");
 				}
