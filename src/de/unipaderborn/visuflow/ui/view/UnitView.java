@@ -6,17 +6,13 @@ import java.util.Hashtable;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
@@ -30,8 +26,6 @@ import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.util.ServiceUtil;
-import soot.Body;
-import soot.Unit;
 import soot.jimple.internal.JAssignStmt;
 
 
@@ -113,6 +107,7 @@ public class UnitView extends ViewPart implements EventHandler {
 						}
 					}
 					tree.removeAll();
+					@SuppressWarnings("unchecked")
 					java.util.List<VFUnit> listUnits = (java.util.List<VFUnit>)event.getProperty("selectedMethodUnits");
 					for (VFUnit unit : listUnits) {
 						TreeItem treeItem= new TreeItem(tree, SWT.NONE | SWT.BORDER);

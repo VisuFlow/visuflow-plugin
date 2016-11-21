@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 
@@ -26,12 +25,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWizard;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.ide.IDE;
-
 import de.unipaderborn.visuflow.builder.GlobalSettings;
 
 public class WizardHandler extends Wizard implements INewWizard {
@@ -161,6 +155,7 @@ public class WizardHandler extends Wizard implements INewWizard {
 	    }
 	}
 	
+	@SuppressWarnings("unused")
 	private InputStream openContentStream() {
 		String contents =
 			"This is the initial file contents for *.java file that should be word-sorted in the Preview page of the multi-page editor";

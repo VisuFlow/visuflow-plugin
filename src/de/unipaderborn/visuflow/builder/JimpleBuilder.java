@@ -64,6 +64,7 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 		return jars;
 	}
 
+	@SuppressWarnings("unused")
 	private String getOutputLocation(IJavaProject project) {
 		String outputLocation = "";
 		IPath path;
