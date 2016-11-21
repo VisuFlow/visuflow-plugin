@@ -93,14 +93,12 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
         System.out.println("Build Start");
         IJavaProject project = JavaCore.create(getProject());
         classpath = getSootCP(project);
-        String location = getOutputLocation(project);
+        String location = GlobalSettings.get(project, "TargetFolder");
         //location = "/home/henni/devel/pg/workspace-plugin/visuflow-plugin-workspace/dfa17/targetsBin";
         System.out.println(location);
         classpath = location + File.pathSeparator + classpath;
-        String[] sootString = new String[] { "-cp", "./bin" + File.pathSeparator + 
-    			System.getProperty("java.home") + File.separator + "lib" + File.separator + 
-    			"rt.jar", "-exclude", "javax", "-allow-phantom-refs", "-no-bodies-for-excluded", 
-    			"-process-dir", "targetBin2", "-src-prec", "only-class", "-w", "-output-format", 
+        String[] sootString = new String[] { "-cp", classpath, "-exclude", "javax", "-allow-phantom-refs", "-no-bodies-for-excluded", 
+    			"-process-dir", location, "-src-prec", "only-class", "-w", "-output-format", 
     			"J", "-keep-line-number" ,"-output-dir","C:\\Users\\karth\\runtime-EclipseApplication(1)\\HelloWorld"/*,"tag.ln","on"*/ };
         ICFGStructure icfg = new ICFGStructure();
         JimpleModelAnalysis analysis = new JimpleModelAnalysis();

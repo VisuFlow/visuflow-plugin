@@ -54,8 +54,8 @@ public class JimpleBreakPointHandler extends AbstractHandler {
 		IFileEditorInput input = (IFileEditorInput) part.getEditorInput();
 		IFile file = input.getFile();
 		IResource res = (IResource) file;
-GlobalSettings.put("Hello", "World");
-System.out.println(GlobalSettings.get("Hello"));
+//GlobalSettings.put("Hello", "World");
+//System.out.println(GlobalSettings.get("Hello"));
 		if (part instanceof ITextEditor) {
 			final ITextEditor editor = (ITextEditor) part;
 			IVerticalRulerInfo ruleInfo = editor.getAdapter(IVerticalRulerInfo.class);

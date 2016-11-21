@@ -28,6 +28,7 @@ import org.osgi.service.event.EventHandler;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
+import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 import soot.Body;
 import soot.Unit;
@@ -102,23 +103,23 @@ public class UnitView extends ViewPart implements EventHandler {
 			getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					
+					dataModel = ServiceUtil.getService(DataModel.class);
 					for (VFClass vfclass : dataModel.listClasses()) {
-						classCombo.add(vfclass.getSootClass().toString());
+						classCombo.add(vfclass.getSootClass().getName().toString());
 						
 						for(VFMethod vfmethod : dataModel.listMethods(vfclass))
 						{
-							methodCombo.add(vfmethod.getSootMethod().toString());
+							methodCombo.add(vfmethod.getSootMethod().getDeclaration().toString());
 						}
 					}
 					tree.removeAll();
-					java.util.List<Unit> listUnits = (java.util.List<Unit>)event.getProperty("selectedMethodUnits");
-					for (Unit unit : listUnits) {
+					java.util.List<VFUnit> listUnits = (java.util.List<VFUnit>)event.getProperty("selectedMethodUnits");
+					for (VFUnit unit : listUnits) {
 						TreeItem treeItem= new TreeItem(tree, SWT.NONE | SWT.BORDER);
 						treeItem.setText(unit.toString());
-						if (unit instanceof JAssignStmt)
+						if (unit.getUnit() instanceof JAssignStmt)
 						{
-							JAssignStmt stmt = (JAssignStmt)unit;
+							JAssignStmt stmt = (JAssignStmt)unit.getUnit();
 							TreeItem treeLeft = new TreeItem(treeItem, SWT.LEFT | SWT.BORDER);						
 							treeLeft.setText(new String[] {"Left"});
 							TreeItem treeLeftValue= new TreeItem(treeLeft, SWT.LEFT | SWT.BORDER);
