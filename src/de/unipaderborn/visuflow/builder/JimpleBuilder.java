@@ -101,8 +101,6 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
         if (!folder.exists()) {
             folder.create(IResource.NONE, true, null);
         }
-        
-        System.out.println("The jimple path is  " +folder.getLocation().toOSString());
         //location = "/home/henni/devel/pg/workspace-plugin/visuflow-plugin-workspace/dfa17/targetsBin";
         System.out.println(location);
         classpath = location + File.pathSeparator + classpath;
