@@ -268,7 +268,7 @@
             presentationLayer="0"
             quickFixIcon="icons/breakpoint.png"
             showInNextPrevDropdownToolbarAction="false"
-            symbolicIcon="warning"
+            symbolicIcon="task"
             textPreferenceKey="de.uni-paderborn.visuflow.plugin.jimplebreakpoint.text"
             textPreferenceValue="false"
             textStylePreferenceValue="BOX"
