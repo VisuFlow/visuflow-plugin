@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.eclipse.core.internal.resources.Project;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -94,12 +96,19 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
         IJavaProject project = JavaCore.create(getProject());
         classpath = getSootCP(project);
         String location = GlobalSettings.get(project, "TargetFolder");
+        IFolder folder = project.getProject().getFolder("output");
+        //at this point, no resources have been created
+        if (!folder.exists()) {
+            folder.create(IResource.NONE, true, null);
+        }
+        
+        System.out.println("The jimple path is  " +folder.getLocation().toOSString());
         //location = "/home/henni/devel/pg/workspace-plugin/visuflow-plugin-workspace/dfa17/targetsBin";
         System.out.println(location);
         classpath = location + File.pathSeparator + classpath;
         String[] sootString = new String[] { "-cp", classpath, "-exclude", "javax", "-allow-phantom-refs", "-no-bodies-for-excluded", 
     			"-process-dir", location, "-src-prec", "only-class", "-w", "-output-format", 
-    			"J", "-keep-line-number" /*,"tag.ln","on"*/ };
+    			"J", "-keep-line-number" ,"-output-dir",folder.getLocation().toOSString()/*,"tag.ln","on"*/ };
         ICFGStructure icfg = new ICFGStructure();
         JimpleModelAnalysis analysis = new JimpleModelAnalysis();
         analysis.setSootString(sootString);
