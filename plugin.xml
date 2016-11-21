@@ -352,4 +352,18 @@
 			<modeCombination modes="debug" perspective="de.unipaderborn.visuflow.ui.VisuflowEditorPerspective"></modeCombination>
   		</launchDelegate>
  	</extension>
+ <extension
+       id="VisuFlow.PlugIn.Wizard"
+       name="VisuFlow PlugIn Wizard"
+       point="org.eclipse.ui.newWizards">
+    <category
+          id="VisuFlow.PlugIn.Wizard.VFCategory"
+          name="Taget Project">
+    </category>
+    <wizard
+          class="de.unipaderborn.visuflow.wizard.WizardHandler"
+          id="VisuFlow.PlugIn.Wizard.VFWizard"
+          name="Target Folder">
+    </wizard>
+ </extension>
 </plugin>

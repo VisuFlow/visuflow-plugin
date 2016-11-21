@@ -26,6 +26,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 
+import de.unipaderborn.visuflow.builder.GlobalSettings;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
@@ -50,7 +51,8 @@ public class JimpleBreakPointHandler extends AbstractHandler {
 		IFileEditorInput input = (IFileEditorInput) part.getEditorInput();
 		IFile file = input.getFile();
 		IResource res = (IResource) file;
-
+//GlobalSettings.put("Hello", "World");
+//System.out.println(GlobalSettings.get("Hello"));
 		if (part instanceof ITextEditor) {
 			final ITextEditor editor = (ITextEditor) part;
 			IVerticalRulerInfo ruleInfo = editor.getAdapter(IVerticalRulerInfo.class);
