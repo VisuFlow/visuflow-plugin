@@ -13,6 +13,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.FindReplaceDocumentAdapter;
 import org.eclipse.jface.text.IDocument;
@@ -73,7 +74,7 @@ public class JimpleBreakPointHandler extends AbstractHandler {
 					} else {
 						IMarker[] problems = null;
 						int depth = IResource.DEPTH_ZERO;
-						problems = res.findMarkers("de.uni-paderborn.visuflow.plugin.JimpleBreakPointMarker", true,
+						problems = res.findMarkers(IBreakpoint.BREAKPOINT_MARKER, true,
 								depth);
 
 						Boolean markerPresent = false;
@@ -89,12 +90,13 @@ public class JimpleBreakPointHandler extends AbstractHandler {
 
 						if (!markerPresent) {
 
-							IMarker m = res.createMarker("de.uni-paderborn.visuflow.plugin.JimpleBreakPointMarker");
+							IMarker m = res.createMarker(IBreakpoint.BREAKPOINT_MARKER);
 							m.setAttribute(IMarker.LINE_NUMBER, actualLineNumber);
 							m.setAttribute(IMarker.MESSAGE, content);
 							m.setAttribute(IMarker.TEXT, "Jimple Breakpoint");
 							m.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
 							m.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_INFO);
+							//m.setAttribute();
 							MessageDialog.openInformation(window.getShell(),
 									"Debugger set at line: " + actualLineNumber, content);
 						}
