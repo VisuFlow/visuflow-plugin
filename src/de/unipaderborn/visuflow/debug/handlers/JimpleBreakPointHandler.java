@@ -83,8 +83,6 @@ public class JimpleBreakPointHandler extends AbstractHandler {
 							if (markerLineNmber == actualLineNumber) {
 								markerPresent = true;
 								item.delete();
-								MessageDialog.openInformation(window.getShell(),
-										"Debugger deleted at line: " + actualLineNumber, content);
 							}
 						}
 
@@ -97,8 +95,6 @@ public class JimpleBreakPointHandler extends AbstractHandler {
 							m.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
 							m.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_INFO);
 							//m.setAttribute();
-							MessageDialog.openInformation(window.getShell(),
-									"Debugger set at line: " + actualLineNumber, content);
 						}
 
 						System.out.printf("Line Number:%d\n", (lineNumber + 1));
