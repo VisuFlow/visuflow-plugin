@@ -7,16 +7,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.core.resources.IResourceDeltaVisitor;
+import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -93,10 +98,14 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
     @Override
     protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
         System.out.println("Build Start");
+        String targetFolder = "output";
         IJavaProject project = JavaCore.create(getProject());
+        IResourceDelta delta = getDelta(project.getProject());
+        //System.out.println("The delta is "+ ;
+        if(delta == null || !delta.getAffectedChildren()[0].getProjectRelativePath().toString().equals(targetFolder)){
         classpath = getSootCP(project);
         String location = GlobalSettings.get(project, "TargetFolder");
-        IFolder folder = project.getProject().getFolder("output");
+        IFolder folder = project.getProject().getFolder(targetFolder);
         //at this point, no resources have been created
         if (!folder.exists()) {
             folder.create(IResource.NONE, true, null);
@@ -113,6 +122,32 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
         List<VFClass> jimpleClasses = new ArrayList<>();
         analysis.createICFG(icfg, jimpleClasses);
         fillDataModel(icfg, jimpleClasses);
+        }
         return null;
     }
-}
+
+   /* private boolean collect(IProject project, final IProgressMonitor monitor) throws CoreException { 
+
+    	  project.accept(new IResourceVisitor() { 
+    	 
+    	   public boolean visit(IResource resource) throws CoreException { 
+    	    if (monitor.isCanceled()) { 
+    	     throw new OperationCanceledException(); 
+    	    } 
+    	    if (isInterrupted()) { 
+    	     return false; 
+    	    } 
+    	    if (resource instanceof IFile) { 
+    	     IFile file = (IFile) resource; 
+    	    } else if (resource instanceof IContainer) { 
+    	     if (filtered((IContainer) resource)) { 
+    	      return false; 
+    	     } 
+    	    } 
+    	    return true; 
+    	   } 
+    	 
+    	  }); 
+    	  return false; 
+    	 } 
+*/}
