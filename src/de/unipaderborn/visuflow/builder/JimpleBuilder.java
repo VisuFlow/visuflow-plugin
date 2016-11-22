@@ -101,7 +101,6 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
         String targetFolder = "output";
         IJavaProject project = JavaCore.create(getProject());
         IResourceDelta delta = getDelta(project.getProject());
-        //System.out.println("The delta is "+ ;
         if(delta == null || !delta.getAffectedChildren()[0].getProjectRelativePath().toString().equals(targetFolder)){
         classpath = getSootCP(project);
         String location = GlobalSettings.get(project, "TargetFolder");
@@ -111,7 +110,6 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
             folder.create(IResource.NONE, true, null);
         }
         //location = "/home/henni/devel/pg/workspace-plugin/visuflow-plugin-workspace/dfa17/targetsBin";
-        System.out.println(location);
         classpath = location + File.pathSeparator + classpath;
         String[] sootString = new String[] { "-cp", classpath, "-exclude", "javax", "-allow-phantom-refs", "-no-bodies-for-excluded", 
     			"-process-dir", location, "-src-prec", "only-class", "-w", "-output-format", 
