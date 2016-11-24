@@ -8,6 +8,12 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceException;
 import org.osgi.util.tracker.ServiceTracker;
 
+/**
+ * Helper class to retrieve and register OSGi services.
+ *
+ * @author henni@upb.de
+ *
+ */
 public class ServiceUtil {
 
     /**

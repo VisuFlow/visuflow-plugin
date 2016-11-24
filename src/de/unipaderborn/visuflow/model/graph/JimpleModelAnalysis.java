@@ -1,5 +1,6 @@
 package de.unipaderborn.visuflow.model.graph;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -20,126 +21,150 @@ import soot.Transform;
 import soot.Unit;
 import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.jimple.toolkits.callgraph.Targets;
+import soot.tagkit.AttributeValueException;
+import soot.tagkit.Tag;
 import soot.util.Chain;
 
 public class JimpleModelAnalysis {
 
-	private int methodcount = 0;
-	private int edgeCount = 0;
+    private int methodcount = 0;
+    private int edgeCount = 0;
 
-	private String[] sootString;
+    private String[] sootString;
 
-	public void setSootString(String[] s){
-		this.sootString = s;
-	}
+    public void setSootString(String[] s){
+        this.sootString = s;
+    }
 
-	public void createICFG(final ICFGStructure methodGraph, List<VFClass> vfClasses) {
-		G.reset();
-		Transform transform = new Transform("wjtp.myTransform", new SceneTransformer() {
-			@Override
-			protected void internalTransform(String phase, Map<String, String> arg1) {
-				createJimpleHierarchyWithCfgs(vfClasses);
-				createICFG();
-			}
+    public void createICFG(final ICFGStructure methodGraph, List<VFClass> vfClasses) {
+        G.reset();
+        Transform transform = new Transform("wjtp.myTransform", new SceneTransformer() {
+            @Override
+            protected void internalTransform(String phase, Map<String, String> arg1) {
+                createJimpleHierarchyWithCfgs(vfClasses);
+                createICFG();
+            }
 
-			private void createICFG() {
-				CallGraph cg = Scene.v().getCallGraph();
-				SootMethod entryMethod = null;
-				java.util.List<SootMethod> listMethod = Scene.v().getEntryPoints();
-				Iterator<SootMethod> iterEntryMethod = listMethod.iterator();
-				while(iterEntryMethod.hasNext())
-				{
-					entryMethod = iterEntryMethod.next();
-					if(entryMethod.isMain())
-					{
-						methodcount++;
-						VFMethod vfmethod = new VFMethod(entryMethod);
-						methodGraph.listMethods.add(vfmethod);
-						break;
-					}
-				}
+            private void createICFG() {
+                CallGraph cg = Scene.v().getCallGraph();
+                SootMethod entryMethod = null;
+                java.util.List<SootMethod> listMethod = Scene.v().getEntryPoints();
+                Iterator<SootMethod> iterEntryMethod = listMethod.iterator();
+                while(iterEntryMethod.hasNext())
+                {
+                    entryMethod = iterEntryMethod.next();
+                    if(entryMethod.isMain())
+                    {
+                        methodcount++;
+                        VFMethod vfmethod = new VFMethod(entryMethod);
+                        methodGraph.listMethods.add(vfmethod);
+                        break;
+                    }
+                }
 
-				traverseMethods(entryMethod, cg);
-			}
+                traverseMethods(entryMethod, cg);
+            }
 
-			private void createJimpleHierarchyWithCfgs(List<VFClass> vfClasses) {
-				Chain<SootClass> classes = Scene.v().getClasses();
-				for (SootClass sootClass : classes) {
-					if(sootClass.isJavaLibraryClass()) {
-						continue;
-					}
+            private void createJimpleHierarchyWithCfgs(List<VFClass> vfClasses) {
+                Chain<SootClass> classes = Scene.v().getClasses();
+                for (SootClass sootClass : classes) {
+                    if(sootClass.isJavaLibraryClass()) {
+                        continue;
+                    }
 
-					VFClass currentClass = new VFClass(sootClass);
-					vfClasses.add(currentClass);
+                    VFClass currentClass = new VFClass(sootClass);
+                    vfClasses.add(currentClass);
 
-					for (SootMethod sootMethod : sootClass.getMethods()) {
-						VFMethod currentMethod = new VFMethod(sootMethod);
-						Body body = sootMethod.retrieveActiveBody();
-						currentMethod.setBody(body);
-						currentMethod.setControlFlowGraph(new ControlFlowGraphGenerator().generateControlFlowGraph(body));
-						currentClass.getMethods().add(currentMethod);
+                    for (SootMethod sootMethod : sootClass.getMethods()) {
+                        VFMethod currentMethod = new VFMethod(sootMethod);
+                        Body body = sootMethod.retrieveActiveBody();
+                        currentMethod.setBody(body);
+                        currentMethod.setControlFlowGraph(new ControlFlowGraphGenerator().generateControlFlowGraph(body));
+                        currentClass.getMethods().add(currentMethod);
 
-						for (Unit unit : body.getUnits()) {
-							VFUnit currentUnit = new VFUnit(unit);
-							currentMethod.getUnits().add(currentUnit);
-						}
-					}
-				}
-			}
+                        for (Unit unit : body.getUnits()) {
+                            addFullyQualifiedName(unit, sootClass, sootMethod);
+                            VFUnit currentUnit = new VFUnit(unit);
+                            currentMethod.getUnits().add(currentUnit);
+                        }
+                    }
+                }
+            }
 
-			private void traverseMethods(SootMethod source, CallGraph cg)
-			{			
-				Targets tc = new Targets(cg.edgesOutOf(source));
-				while(tc.hasNext())
-				{
-					SootMethod destination = (SootMethod)tc.next();	
-					//					System.out.println(destination+" is java library "+destination.isJavaLibraryMethod());
-					if(!destination.isJavaLibraryMethod())
-					{
-						boolean methodPresent = false;
-						Iterator<VFMethod> iteratorMethod = methodGraph.listMethods.iterator();
-						while(iteratorMethod.hasNext())
-						{
-							if(iteratorMethod.next().getSootMethod().equals(destination))
-							{
-								methodPresent = true;
-								break;
-							}
-						}
+            private void addFullyQualifiedName(Unit unit, SootClass sootClass, SootMethod sootMethod) {
+                unit.addTag(new Tag() {
+                    @Override
+                    public byte[] getValue() throws AttributeValueException {
+                        String fqn = sootClass.getName() + "." + sootMethod.getName() + "." + unit.toString();
+                        try {
+                            return fqn.getBytes("utf-8");
+                        } catch (UnsupportedEncodingException e) {
+                            AttributeValueException ave = new AttributeValueException();
+                            ave.initCause(e);
+                            throw ave;
+                        }
+                    }
 
-						if(!methodPresent)
-						{
-							methodcount++;
-							VFMethod method = new VFMethod(methodcount, destination);
-							methodGraph.listMethods.add(method);
-						}
-						VFMethod sourceMethod = null;
-						VFMethod destinationMethod = null;
-						Iterator<VFMethod> iteratorMethods = methodGraph.listMethods.iterator();
-						while(iteratorMethods.hasNext())
-						{
-							VFMethod method = iteratorMethods.next();
-							if(method.getSootMethod().equals(source))
-							{
-								sourceMethod = method;
-							}
-							if(method.getSootMethod().equals(destination))
-							{
-								destinationMethod = method;
-							}
-						}
-						edgeCount++;
-						VFMethodEdge edge = new VFMethodEdge(edgeCount, sourceMethod, destinationMethod);
-						methodGraph.listEdges.add(edge);
-						traverseMethods(destination, cg);
-					}
-				}
-			}
-		});
+                    @Override
+                    public String getName() {
+                        return "Fully Qualified Name";
+                    }
+                });
+            }
 
-		PackManager.v().getPack("wjtp").add(transform);
-		// Run Soot
-		Main.main(sootString);
-	}
+            private void traverseMethods(SootMethod source, CallGraph cg)
+            {
+                Targets tc = new Targets(cg.edgesOutOf(source));
+                while(tc.hasNext())
+                {
+                    SootMethod destination = (SootMethod)tc.next();
+                    //					System.out.println(destination+" is java library "+destination.isJavaLibraryMethod());
+                    if(!destination.isJavaLibraryMethod())
+                    {
+                        boolean methodPresent = false;
+                        Iterator<VFMethod> iteratorMethod = methodGraph.listMethods.iterator();
+                        while(iteratorMethod.hasNext())
+                        {
+                            if(iteratorMethod.next().getSootMethod().equals(destination))
+                            {
+                                methodPresent = true;
+                                break;
+                            }
+                        }
+
+                        if(!methodPresent)
+                        {
+                            methodcount++;
+                            VFMethod method = new VFMethod(methodcount, destination);
+                            methodGraph.listMethods.add(method);
+                        }
+                        VFMethod sourceMethod = null;
+                        VFMethod destinationMethod = null;
+                        Iterator<VFMethod> iteratorMethods = methodGraph.listMethods.iterator();
+                        while(iteratorMethods.hasNext())
+                        {
+                            VFMethod method = iteratorMethods.next();
+                            if(method.getSootMethod().equals(source))
+                            {
+                                sourceMethod = method;
+                            }
+                            if(method.getSootMethod().equals(destination))
+                            {
+                                destinationMethod = method;
+                            }
+                        }
+                        edgeCount++;
+                        VFMethodEdge edge = new VFMethodEdge(edgeCount, sourceMethod, destinationMethod);
+                        methodGraph.listEdges.add(edge);
+                        traverseMethods(destination, cg);
+                    }
+                }
+            }
+        });
+
+        PackManager.v().getPack("wjtp").add(transform);
+        // Run Soot
+        Main.main(sootString);
+    }
 }
 

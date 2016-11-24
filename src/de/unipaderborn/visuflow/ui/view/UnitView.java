@@ -30,6 +30,7 @@ import de.unipaderborn.visuflow.util.ServiceUtil;
 import soot.Body;
 import soot.Unit;
 import soot.jimple.internal.JAssignStmt;
+import soot.tagkit.Tag;
 
 
 public class UnitView extends ViewPart implements EventHandler {
@@ -143,6 +144,12 @@ public class UnitView extends ViewPart implements EventHandler {
                     for (Unit unit : body.getUnits()) {
                         TreeItem treeItem= new TreeItem(tree, SWT.NONE | SWT.BORDER);
                         treeItem.setText(unit.toString());
+                        Tag fqn = unit.getTag("visuflow.unit.fqn");
+                        try {
+                            System.out.println(new String(fqn.getValue(), "utf-8"));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                         if (unit instanceof JAssignStmt)
                         {
                             JAssignStmt stmt = (JAssignStmt)unit;
