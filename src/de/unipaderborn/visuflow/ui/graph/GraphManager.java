@@ -1,7 +1,6 @@
 package de.unipaderborn.visuflow.ui.graph;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Container;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -41,7 +40,6 @@ import org.graphstream.ui.layout.springbox.implementations.SpringBox;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
 import org.graphstream.ui.view.ViewerListener;
-import org.graphstream.ui.view.ViewerPipe;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
@@ -119,7 +117,7 @@ public class GraphManager implements Runnable, ViewerListener {
 
 		view = viewer.addDefaultView(false);
 		view.getCamera().setAutoFitView(true);
-		view.removeMouseMotionListener(view.getMouseMotionListeners()[0]);
+//		view.removeMouseMotionListener(view.getMouseMotionListeners()[0]);
 	}
 
 	private void reintializeGraph() throws Exception
@@ -630,9 +628,9 @@ public class GraphManager implements Runnable, ViewerListener {
 
 	@Override
 	public void run() {
-		ViewerPipe fromViewer = viewer.newViewerPipe();
+		/*ViewerPipe fromViewer = viewer.newViewerPipe();
 		fromViewer.addViewerListener(this);
-		fromViewer.addSink(graph);
+		fromViewer.addSink(graph);*/
 
 		EventHandler dataModelHandler = new EventHandler() {
 			@Override
@@ -660,13 +658,13 @@ public class GraphManager implements Runnable, ViewerListener {
 		// FIXME the Thread.sleep slows down the loop, so that it does not eat up the CPU
 		// but this really should be implemented differently. isn't there an event listener
 		// or something we can use, so that we call pump() only when necessary
-		while(true) {
+		/*while(true) {
 			try {
 				Thread.sleep(1);
 			} catch (InterruptedException e) {
 			}
 			fromViewer.pump();
-		}
+		}*/
 	}
 
 	@Override
