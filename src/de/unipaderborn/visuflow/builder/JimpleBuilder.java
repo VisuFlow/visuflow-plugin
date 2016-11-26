@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.graph.ICFGStructure;
@@ -94,7 +95,7 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 	@Override
 	protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
 		System.out.println("Build Start");
-		String targetFolder = "output";
+		String targetFolder = "sootOutput";
 		IJavaProject project = JavaCore.create(getProject());
 		IResourceDelta delta = getDelta(project.getProject());
 		if(delta == null || !delta.getAffectedChildren()[0].getProjectRelativePath().toString().equals(targetFolder)){
@@ -116,6 +117,8 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 			List<VFClass> jimpleClasses = new ArrayList<>();
 			analysis.createICFG(icfg, jimpleClasses);
 			fillDataModel(icfg, jimpleClasses);
+			
+			folder.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 		}
 		return null;
 	}
