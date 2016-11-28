@@ -88,7 +88,7 @@ public class WizardPageHandler extends WizardPage {
 		buttonFile.setText("Browse...");
 		buttonFile.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				handleBrowse1();
+				handleBrowse2();
 			}
 		});
 		
@@ -144,6 +144,18 @@ public class WizardPageHandler extends WizardPage {
 		dialog.setFilterPath("C:\\");
 		String result = dialog.open();
 		containerText1.setText(result);
+	}
+	
+	private void handleBrowse2() {
+		ContainerSelectionDialog dialog = new ContainerSelectionDialog(
+				getShell(), ResourcesPlugin.getWorkspace().getRoot(), false,
+				"Select new file container");
+		if (dialog.open() == ContainerSelectionDialog.OK) {
+			Object[] result = dialog.getResult();
+			if (result.length == 1) {
+				containerText1.setText(((Path) result[0]).toString());
+			}
+		}
 	}
 
 	/**

@@ -18,6 +18,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelection;
@@ -102,7 +104,7 @@ public class WizardHandler extends Wizard implements INewWizard {
 		monitor.beginTask("Creating " + containerName, 2);
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IResource resource = root.findMember(new Path(containerName));
-		//IResource resource1 = root.findMember(new Path(containerName1));
+		IResource resource1 = root.findMember(new Path(containerName1));
 		File fileDir = new File(containerName1);
 		System.out.println("file directory is "+fileDir.getName());
 		System.out.println("File directory is directory "+fileDir.isDirectory());
@@ -112,20 +114,12 @@ public class WizardHandler extends Wizard implements INewWizard {
 		}
 		
 		IContainer container = (IContainer) resource;
-		IFolder target = container.getFolder(new Path(fileDir.getName()));
-		target.create(true, true, monitor);
-		System.out.println("Target destination "+target.getFullPath().toString());
-		GlobalSettings.put(resource,"TargetFolder", target.getLocation().toOSString());
-		IResource r = root.findMember(new Path(target.getFullPath().toString()));
-		IContainer c = (IContainer) r;
-		System.out.println("Container c is "+c);
-		copyFiles(fileDir, c, monitor);		
-//		IContainer container1 = (IContainer) resource1;
-//		final IFolder folder = container.getFolder(new Path("Test"));
-//		if(!folder.exists())
-//		{
-//			folder.create(1, true, monitor);
-//		}
+		IContainer container1 = (IContainer) resource1;
+		IJavaProject javaProject = JavaCore.create(resource1.getProject());
+		System.out.println("Java Project Location is "+javaProject.getOutputLocation().toFile().getAbsolutePath());
+		System.out.println("Project is "+container1.getProject());
+		String key = "TargetProject_"+container.getProject().getName(); 
+		//add here
 		monitor.worked(1);
 		monitor.setTaskName("Opening file for editing...");
 		getShell().getDisplay().asyncExec(new Runnable() {
