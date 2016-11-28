@@ -19,6 +19,7 @@ public interface DataModel {
     public static final String EA_TOPIC_DATA_UNIT_ADDED = EA_TOPIC_DATA + "/UnitAdded";
     public static final String EA_TOPIC_DATA_UNIT_CHANGED = EA_TOPIC_DATA + "/UnitChanged";
     public static final String EA_TOPIC_DATA_UNIT_REMOVED = EA_TOPIC_DATA + "/UnitRemoved";
+    public static final String EA_TOPIC_DATA_FILTER_GRAPH = EA_TOPIC_DATA + "/UnitFiltered";
 
     public static final String EA_TOPIC_DATA_SELECTION = EA_TOPIC_DATA + "/SelectionChanged";
 
@@ -32,6 +33,7 @@ public interface DataModel {
 	public List<VFUnit> getSelectedMethodUnits();
 	public void setSelectedClass(VFClass selectedClass);
 	public void setSelectedMethod(VFMethod selectedMethod);
+	public void filterGraph(List<VFUnit> nodesToFilter);
 	public VFMethod getSelectedMethod();
 	public VFMethod getVFMethodByName(SootMethod method);
 	public void setIcfg(ICFGStructure icfg);

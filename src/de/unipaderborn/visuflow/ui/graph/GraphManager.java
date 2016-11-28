@@ -462,6 +462,26 @@ public class GraphManager implements Runnable, ViewerListener {
 		}
 	}
 
+	private void highlightGraphNode(VFNode node)
+	{
+		System.out.println("node id in highlightGraphNode" + node.getId());
+		try {
+			graph.getNode(node.getId()).setAttribute("ui.selected");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private void filterGraphNodes(List<VFNode> nodes)
+	{
+		Iterator<VFNode> nodeIterator = nodes.iterator();
+		while(nodeIterator.hasNext())
+		{
+			this.highlightGraphNode(nodeIterator.next());
+		}
+	}
+	
 	private void renderICFG(ICFGStructure icfg) {
 		Iterator<VFMethodEdge> iterator = icfg.listEdges.iterator();
 		try {
@@ -633,6 +653,7 @@ public class GraphManager implements Runnable, ViewerListener {
 		fromViewer.addSink(graph);*/
 
 		EventHandler dataModelHandler = new EventHandler() {
+			@SuppressWarnings("unchecked")
 			@Override
 			public void handleEvent(Event event) {
 				if(event.getTopic().equals(DataModel.EA_TOPIC_DATA_SELECTION))
@@ -647,6 +668,10 @@ public class GraphManager implements Runnable, ViewerListener {
 				else if(event.getTopic().equals(DataModel.EA_TOPIC_DATA_MODEL_CHANGED))
 				{
 					renderICFG((ICFGStructure) event.getProperty("icfg"));
+				}
+				else if(event.getTopic().equals(DataModel.EA_TOPIC_DATA_FILTER_GRAPH))
+				{
+					filterGraphNodes((List<VFNode>) event.getProperty("filteredNodes"));
 				}
 			}
 		};
