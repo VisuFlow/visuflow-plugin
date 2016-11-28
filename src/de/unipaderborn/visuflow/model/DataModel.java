@@ -22,20 +22,20 @@ public interface DataModel {
 
     public static final String EA_TOPIC_DATA_SELECTION = EA_TOPIC_DATA + "/SelectionChanged";
 
-	public ICFGStructure getIcfg();
-	public List<VFClass> listClasses();
-	public List<VFMethod> listMethods(VFClass vfClass);
-	public List<VFUnit> listUnits(VFMethod vfMethod);
+    public ICFGStructure getIcfg();
+    public List<VFClass> listClasses();
+    public List<VFMethod> listMethods(VFClass vfClass);
+    public List<VFUnit> listUnits(VFMethod vfMethod);
     public void setClassList(List<VFClass> classList);
-	public VFClass getSelectedClass();
-	public List<VFMethod> getSelectedClassMethods();
-	public List<VFUnit> getSelectedMethodUnits();
-	public void setSelectedClass(VFClass selectedClass);
-	public void setSelectedMethod(VFMethod selectedMethod);
-	public VFMethod getSelectedMethod();
-	public VFMethod getVFMethodByName(SootMethod method);
-	public void setIcfg(ICFGStructure icfg);
+    public VFClass getSelectedClass();
+    public List<VFMethod> getSelectedClassMethods();
+    public List<VFUnit> getSelectedMethodUnits();
+    public void setSelectedClass(VFClass selectedClass);
+    public void setSelectedMethod(VFMethod selectedMethod);
+    public VFMethod getSelectedMethod();
+    public VFMethod getVFMethodByName(SootMethod method);
+    public void setIcfg(ICFGStructure icfg);
 
-    public void setInSet(Unit unit, String name, String value);
+    public void setInSet(String unitFqn, String name, String value);
     public void setOutSet(Unit unit, String name, String value);
 }

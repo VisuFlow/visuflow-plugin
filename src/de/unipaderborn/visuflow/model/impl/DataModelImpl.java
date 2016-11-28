@@ -14,8 +14,8 @@ import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.model.graph.ICFGStructure;
-import soot.Unit;
 import soot.SootMethod;
+import soot.Unit;
 
 
 public class DataModelImpl implements DataModel {
@@ -29,8 +29,8 @@ public class DataModelImpl implements DataModel {
     private List<VFUnit> selectedMethodUnits;
 
     private EventAdmin eventAdmin;
-	
-	private ICFGStructure icfg;
+
+    private ICFGStructure icfg;
 
     @Override
     public List<VFClass> listClasses() {
@@ -91,7 +91,7 @@ public class DataModelImpl implements DataModel {
         this.selectedMethod = this.selectedClass.getMethods().get(0);
         this.selectedClassMethods = this.selectedClass.getMethods();
         this.populateUnits();
-		this.setSelectedMethod(this.selectedClass.getMethods().get(1));
+        this.setSelectedMethod(this.selectedClass.getMethods().get(1));
     }
 
     @Override
@@ -100,7 +100,7 @@ public class DataModelImpl implements DataModel {
         this.populateUnits();
         Dictionary<String, Object> properties = new Hashtable<>();
         properties.put("selectedMethod", selectedMethod);
-		properties.put("selectedClassMethods", selectedClassMethods);
+        properties.put("selectedClassMethods", selectedClassMethods);
         properties.put("selectedMethodUnits", selectedMethodUnits);
         Event modelChanged = new Event(DataModel.EA_TOPIC_DATA_SELECTION, properties);
         eventAdmin.postEvent(modelChanged);
@@ -116,7 +116,7 @@ public class DataModelImpl implements DataModel {
         this.classList = classList;
         Dictionary<String, Object> properties = new Hashtable<>();
         properties.put("model", classList);
-		properties.put("icfg", icfg);
+        properties.put("icfg", icfg);
         Event modelChanged = new Event(DataModel.EA_TOPIC_DATA_MODEL_CHANGED, properties);
         eventAdmin.postEvent(modelChanged);
     }
@@ -127,57 +127,58 @@ public class DataModelImpl implements DataModel {
 
     public void setEventAdmin(EventAdmin eventAdmin) {
         this.eventAdmin = eventAdmin;
-	}
-
-	@Override
-	public ICFGStructure getIcfg() {
-		return icfg;
-	}
-	
-	@Override
-	public void setIcfg(ICFGStructure icfg) {
-		this.icfg = icfg;
-		System.out.println("ICFG " + icfg);
-		System.out.println("ICFG size " + icfg.listEdges.size());
-	}
-
-	@Override
-	public VFMethod getVFMethodByName(SootMethod method) {
-		// TODO Auto-generated method stub
-		VFClass methodIncludingClass = null;
-		String className = method.getDeclaringClass().getName();
-		List<VFClass> classes = listClasses();
-		Iterator<VFClass> classIterator = classes.iterator();
-		while(classIterator.hasNext())
-		{
-			VFClass temp = classIterator.next();
-			if(temp.getSootClass().getName().contentEquals(className))
-			{
-				methodIncludingClass = temp;
-				break;
-			}
-		}
-		System.out.println("inside VFMethodByName");
-		
-		Iterator<VFMethod> methodListIterator = listMethods(methodIncludingClass).iterator();
-		while(methodListIterator.hasNext())
-		{
-			VFMethod temp = methodListIterator.next();
-			if(temp.getSootMethod().getSignature().contentEquals(method.getSignature()))
-			{
-				System.out.println("selected method " + temp);
-				System.out.println("size of cfg " + temp.getControlFlowGraph().listEdges.size());
-				return temp;
-			}
-		}
-		return null;
     }
 
     @Override
-    public void setInSet(Unit unit, String name, String value) {
-        System.out.println(name + " " + value);
-        VFUnit vfUnit = getVFUnit(unit);
+    public ICFGStructure getIcfg() {
+        return icfg;
+    }
+
+    @Override
+    public void setIcfg(ICFGStructure icfg) {
+        this.icfg = icfg;
+        System.out.println("ICFG " + icfg);
+        System.out.println("ICFG size " + icfg.listEdges.size());
+    }
+
+    @Override
+    public VFMethod getVFMethodByName(SootMethod method) {
+        // TODO Auto-generated method stub
+        VFClass methodIncludingClass = null;
+        String className = method.getDeclaringClass().getName();
+        List<VFClass> classes = listClasses();
+        Iterator<VFClass> classIterator = classes.iterator();
+        while(classIterator.hasNext())
+        {
+            VFClass temp = classIterator.next();
+            if(temp.getSootClass().getName().contentEquals(className))
+            {
+                methodIncludingClass = temp;
+                break;
+            }
+        }
+        System.out.println("inside VFMethodByName");
+
+        Iterator<VFMethod> methodListIterator = listMethods(methodIncludingClass).iterator();
+        while(methodListIterator.hasNext())
+        {
+            VFMethod temp = methodListIterator.next();
+            if(temp.getSootMethod().getSignature().contentEquals(method.getSignature()))
+            {
+                System.out.println("selected method " + temp);
+                System.out.println("size of cfg " + temp.getControlFlowGraph().listEdges.size());
+                return temp;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void setInSet(String unitFqn, String name, String value) {
+        System.out.println("in-set " + name + " " + value);
+        VFUnit vfUnit = getVFUnit(unitFqn);
         if(vfUnit != null) {
+            System.out.println("Found VFUnit " + vfUnit);
             vfUnit.setInSet(value);
             fireUnitChanged(vfUnit);
         }
@@ -185,9 +186,10 @@ public class DataModelImpl implements DataModel {
 
     @Override
     public void setOutSet(Unit unit, String name, String value) {
-        System.out.println(name + " " + value);
-        VFUnit vfUnit = getVFUnit(unit);
+        System.out.println("out-set " + name + " " + value);
+        VFUnit vfUnit = getVFUnit("TODO"); // TODO
         if(vfUnit != null) {
+            System.out.println("Found VFUnit " + vfUnit);
             vfUnit.setOutSet(value);
             fireUnitChanged(vfUnit);
         }
@@ -196,12 +198,12 @@ public class DataModelImpl implements DataModel {
     /*
      * This is a naive implementation, we might need a faster data structure for this
      */
-    private VFUnit getVFUnit(Unit unit) {
+    private VFUnit getVFUnit(String fqn) {
         VFUnit result = null;
         for (VFClass vfClass : classList) {
             for (VFMethod vfMethod : vfClass.getMethods()) {
                 for (VFUnit vfUnit : vfMethod.getUnits()) {
-                    if(vfUnit.getUnit().equals(unit)) {
+                    if(vfUnit.getFullyQualifiedName().equals(fqn)) {
                         result = vfUnit;
                     }
                 }

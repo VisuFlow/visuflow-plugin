@@ -27,14 +27,15 @@ public class DummyDataModel implements DataModel {
 
     private List<VFMethod> selectedClassMethods;
     private List<VFUnit> selectedMethodUnits;
-	
-	private ICFGStructure icfg;
+
+    private ICFGStructure icfg;
     @Override
 
-	public ICFGStructure getIcfg() {
-		return icfg;
-	}
+    public ICFGStructure getIcfg() {
+        return icfg;
+    }
 
+    @Override
     public VFClass getSelectedClass() {
         return selectedClass;
     }
@@ -116,11 +117,11 @@ public class DummyDataModel implements DataModel {
 
     protected void activate(ComponentContext context)
     {
-		this.icfg = new ICFGStructure();
+        this.icfg = new ICFGStructure();
         JimpleModelAnalysis analysis = new JimpleModelAnalysis();
-		analysis.createICFG(this.icfg, jimpleClasses);
+        analysis.createICFG(this.icfg, jimpleClasses);
         this.setSelectedClass(jimpleClasses.get(0));
-		System.out.println(this.icfg.listEdges.size());
+        System.out.println(this.icfg.listEdges.size());
 
         Dictionary<String, Object> properties = new Hashtable<>();
         properties.put("model", jimpleClasses);
@@ -137,22 +138,22 @@ public class DummyDataModel implements DataModel {
     public void setClassList(List<VFClass> classList) {
         // TODO Auto-generated method stub
 
-	}
-
-	@Override
-	public void setIcfg(ICFGStructure icfg) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public VFMethod getVFMethodByName(SootMethod method) {
-		// TODO Auto-generated method stub
-		return null;
     }
 
     @Override
-    public void setInSet(Unit unit, String name, String value) {
+    public void setIcfg(ICFGStructure icfg) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public VFMethod getVFMethodByName(SootMethod method) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void setInSet(String fqn, String name, String value) {
         // TODO Auto-generated method stub
 
     }
