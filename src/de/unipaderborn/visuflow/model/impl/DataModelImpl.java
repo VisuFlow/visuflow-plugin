@@ -12,6 +12,7 @@ import org.osgi.service.event.EventAdmin;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
+import de.unipaderborn.visuflow.model.VFNode;
 import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.model.graph.ICFGStructure;
 import soot.Unit;
@@ -32,7 +33,9 @@ public class DataModelImpl implements DataModel {
 	
 	private ICFGStructure icfg;
 
-	private List<VFUnit> selectedNodes;
+	private List<VFNode> selectedNodes;
+
+	private boolean selection;
 
     @Override
     public List<VFClass> listClasses() {
@@ -212,10 +215,12 @@ public class DataModelImpl implements DataModel {
     }
 
 	@Override
-	public void filterGraph(List<VFUnit> selectedNodes) {
+	public void filterGraph(List<VFNode> selectedNodes, boolean selection) {
 		this.selectedNodes = selectedNodes;
+		this.selection = selection;
 		Dictionary<String, Object> properties = new Hashtable<>();
-        properties.put("selectedNodes", this.selectedNodes);
+        properties.put("nodesToFilter", this.selectedNodes);
+        properties.put("selection", this.selection);
 		Event filterGraph = new Event(DataModel.EA_TOPIC_DATA_FILTER_GRAPH, properties);
         eventAdmin.postEvent(filterGraph);
 	}

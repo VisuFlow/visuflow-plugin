@@ -33,7 +33,7 @@ public interface DataModel {
 	public List<VFUnit> getSelectedMethodUnits();
 	public void setSelectedClass(VFClass selectedClass);
 	public void setSelectedMethod(VFMethod selectedMethod);
-	public void filterGraph(List<VFUnit> nodesToFilter);
+	public void filterGraph(List<VFNode> nodesToFilter, boolean selection);
 	public VFMethod getSelectedMethod();
 	public VFMethod getVFMethodByName(SootMethod method);
 	public void setIcfg(ICFGStructure icfg);
