@@ -164,4 +164,10 @@ public class DummyDataModel implements DataModel {
 
     }
 
+	@Override
+	public void filterGraph(List<VFUnit> selectedNodes) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

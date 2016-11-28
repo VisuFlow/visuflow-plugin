@@ -1,8 +1,10 @@
 package de.unipaderborn.visuflow.ui.graph;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Container;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -10,10 +12,16 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JApplet;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -32,7 +40,6 @@ import org.graphstream.ui.layout.springbox.implementations.SpringBox;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
 import org.graphstream.ui.view.ViewerListener;
-import org.graphstream.ui.view.ViewerPipe;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
@@ -72,6 +79,12 @@ public class GraphManager implements Runnable, ViewerListener {
 	private JButton panRightButton;
 	private JButton panUpButton;
 	private JButton panDownButton;
+	private BufferedImage imgLeft;
+	private BufferedImage imgRight;
+	private BufferedImage imgUp;
+	private BufferedImage imgDown;
+	private BufferedImage imgPlus;
+	private BufferedImage imgMinus;
 
 	public GraphManager(String graphName, String styleSheet)
 	{
@@ -104,7 +117,7 @@ public class GraphManager implements Runnable, ViewerListener {
 
 		view = viewer.addDefaultView(false);
 		view.getCamera().setAutoFitView(true);
-		view.removeMouseMotionListener(view.getMouseMotionListeners()[0]);
+//		view.removeMouseMotionListener(view.getMouseMotionListeners()[0]);
 	}
 
 	private void reintializeGraph() throws Exception
@@ -123,6 +136,7 @@ public class GraphManager implements Runnable, ViewerListener {
 	}
 
 	private void createUI() {
+		createIcons();
 		createZoomControls();
 		createShowICFGButton();
 		createPanningButtons();
@@ -134,10 +148,15 @@ public class GraphManager implements Runnable, ViewerListener {
 	}
 
 	private void createPanningButtons() {
-		panLeftButton = new JButton("Pan left");
-		panRightButton = new JButton("Pan right");
-		panUpButton = new JButton("Pan up");
-		panDownButton = new JButton("Pan down");
+		panLeftButton = new JButton("");
+		panRightButton = new JButton("");
+		panUpButton = new JButton("");
+		panDownButton = new JButton("");
+		
+		panLeftButton.setIcon(new ImageIcon(getScaledImage(imgLeft, 20, 20)));
+		panRightButton.setIcon(new ImageIcon(getScaledImage(imgRight, 20, 20)));
+		panUpButton.setIcon(new ImageIcon(getScaledImage(imgUp, 20, 20)));
+		panDownButton.setIcon(new ImageIcon(getScaledImage(imgDown, 20, 20)));
 
 		panLeftButton.addActionListener(new ActionListener() {
 
@@ -174,6 +193,30 @@ public class GraphManager implements Runnable, ViewerListener {
 				view.getCamera().setViewCenter(currCenter.x, currCenter.y - 1, 0);
 			}
 		});
+	}
+
+	private void createIcons() {
+		try {
+			imgLeft = ImageIO.read(new File("icons/left.png"));
+			imgRight = ImageIO.read(new File("icons/right.png"));
+			imgUp = ImageIO.read(new File("icons/up.png"));
+			imgDown = ImageIO.read(new File("icons/down.png"));
+			imgPlus = ImageIO.read(new File("icons/plus.png"));
+			imgMinus = ImageIO.read(new File("icons/minus.png"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private Image getScaledImage(Image srcImg, int w, int h){
+	    BufferedImage resizedImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+	    Graphics2D g2 = resizedImg.createGraphics();
+
+	    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+	    g2.drawImage(srcImg, 0, 0, w, h, null);
+	    g2.dispose();
+
+	    return resizedImg;
 	}
 
 	private void createShowICFGButton() {
@@ -349,11 +392,13 @@ public class GraphManager implements Runnable, ViewerListener {
 	}
 
 	private void createZoomControls() {
-		zoomInButton = new JButton("+");
-		zoomOutButton = new JButton("-");
+		zoomInButton = new JButton();
+		zoomOutButton = new JButton();
 		viewCenterButton = new JButton("reset");
+		
+		zoomInButton.setIcon(new ImageIcon(getScaledImage(imgPlus, 20, 20)));
+		zoomOutButton.setIcon(new ImageIcon(getScaledImage(imgMinus, 20, 20)));
 
-		zoomInButton.setBackground(Color.gray);
 		zoomInButton.addActionListener(new ActionListener() {
 
 			@Override
@@ -362,7 +407,6 @@ public class GraphManager implements Runnable, ViewerListener {
 			}
 		});
 
-		zoomOutButton.setBackground(Color.gray);
 		zoomOutButton.addActionListener(new ActionListener() {
 
 			@Override
@@ -418,6 +462,26 @@ public class GraphManager implements Runnable, ViewerListener {
 		}
 	}
 
+	private void highlightGraphNode(VFNode node)
+	{
+		System.out.println("node id in highlightGraphNode" + node.getId());
+		try {
+			graph.getNode(node.getId()).setAttribute("ui.selected");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private void filterGraphNodes(List<VFNode> nodes)
+	{
+		Iterator<VFNode> nodeIterator = nodes.iterator();
+		while(nodeIterator.hasNext())
+		{
+			this.highlightGraphNode(nodeIterator.next());
+		}
+	}
+	
 	private void renderICFG(ICFGStructure icfg) {
 		Iterator<VFMethodEdge> iterator = icfg.listEdges.iterator();
 		try {
@@ -584,11 +648,12 @@ public class GraphManager implements Runnable, ViewerListener {
 
 	@Override
 	public void run() {
-		ViewerPipe fromViewer = viewer.newViewerPipe();
+		/*ViewerPipe fromViewer = viewer.newViewerPipe();
 		fromViewer.addViewerListener(this);
-		fromViewer.addSink(graph);
+		fromViewer.addSink(graph);*/
 
 		EventHandler dataModelHandler = new EventHandler() {
+			@SuppressWarnings("unchecked")
 			@Override
 			public void handleEvent(Event event) {
 				if(event.getTopic().equals(DataModel.EA_TOPIC_DATA_SELECTION))
@@ -604,6 +669,10 @@ public class GraphManager implements Runnable, ViewerListener {
 				{
 					renderICFG((ICFGStructure) event.getProperty("icfg"));
 				}
+				else if(event.getTopic().equals(DataModel.EA_TOPIC_DATA_FILTER_GRAPH))
+				{
+					filterGraphNodes((List<VFNode>) event.getProperty("filteredNodes"));
+				}
 			}
 		};
 		Hashtable<String, String> properties = new Hashtable<String, String>();
@@ -614,13 +683,13 @@ public class GraphManager implements Runnable, ViewerListener {
 		// FIXME the Thread.sleep slows down the loop, so that it does not eat up the CPU
 		// but this really should be implemented differently. isn't there an event listener
 		// or something we can use, so that we call pump() only when necessary
-		while(true) {
+		/*while(true) {
 			try {
 				Thread.sleep(1);
 			} catch (InterruptedException e) {
 			}
 			fromViewer.pump();
-		}
+		}*/
 	}
 
 	@Override

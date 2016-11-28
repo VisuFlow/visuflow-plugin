@@ -51,8 +51,8 @@ public class JimpleBreakPointHandler extends AbstractHandler {
 		IFileEditorInput input = (IFileEditorInput) part.getEditorInput();
 		IFile file = input.getFile();
 		IResource res = (IResource) file;
-//GlobalSettings.put("Hello", "World");
-//System.out.println(GlobalSettings.get("Hello"));
+		//GlobalSettings.put("Hello", "World");
+		//System.out.println(GlobalSettings.get("Hello"));
 		if (part instanceof ITextEditor) {
 			final ITextEditor editor = (ITextEditor) part;
 			IVerticalRulerInfo ruleInfo = editor.getAdapter(IVerticalRulerInfo.class);
@@ -83,8 +83,6 @@ public class JimpleBreakPointHandler extends AbstractHandler {
 							if (markerLineNmber == actualLineNumber) {
 								markerPresent = true;
 								item.delete();
-								MessageDialog.openInformation(window.getShell(),
-										"Debugger deleted at line: " + actualLineNumber, content);
 							}
 						}
 
@@ -97,8 +95,6 @@ public class JimpleBreakPointHandler extends AbstractHandler {
 							m.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
 							m.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_INFO);
 							//m.setAttribute();
-							MessageDialog.openInformation(window.getShell(),
-									"Debugger set at line: " + actualLineNumber, content);
 						}
 
 						System.out.printf("Line Number:%d\n", (lineNumber + 1));

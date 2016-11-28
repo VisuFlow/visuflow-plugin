@@ -231,15 +231,6 @@
             value="true">
       </persistent>
    </extension>
-   <extension
-         point="org.eclipse.ui.editors.annotationTypes">
-      <type
-            markerSeverity="1"
-            markerType="de.uni-paderborn.visuflow.plugin.JimpleBreakPointMarker"
-            name="JimpleBreakPointMarker"
-            super="org.eclipse.ui.workbench.texteditor.warning">
-      </type>
-   </extension>
    <extension point="org.eclipse.core.expressions.definitions">
 	   <definition id="de.unipaderborn.visuflow.jimpleextension">
 	      <adapt type="org.eclipse.core.resources.IResource">

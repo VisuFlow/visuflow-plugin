@@ -87,8 +87,8 @@ public class ControlFlowGraphGenerator {
 			edgeNumber++;
 			VFEdge edgeEntry = new VFEdge(edgeNumber, source, destination);
 			listEdges.add(edgeEntry);
-			System.out.println(edgeEntry.getSource().toString());
-			System.out.println(edgeEntry.getDestination().toString());
+			//System.out.println(edgeEntry.getSource().toString());
+			//System.out.println(edgeEntry.getDestination().toString());
 			traverseUnits(temp);
 		}
 

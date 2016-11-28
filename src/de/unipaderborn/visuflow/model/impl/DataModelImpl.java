@@ -32,6 +32,8 @@ public class DataModelImpl implements DataModel {
 	
 	private ICFGStructure icfg;
 
+	private List<VFUnit> selectedNodes;
+
     @Override
     public List<VFClass> listClasses() {
         if(classList == null){
@@ -100,7 +102,7 @@ public class DataModelImpl implements DataModel {
         this.populateUnits();
         Dictionary<String, Object> properties = new Hashtable<>();
         properties.put("selectedMethod", selectedMethod);
-        properties.put("selectedClassMethods", selectedClassMethods);
+//		properties.put("selectedClassMethods", selectedClassMethods);
         properties.put("selectedMethodUnits", selectedMethodUnits);
         Event modelChanged = new Event(DataModel.EA_TOPIC_DATA_SELECTION, properties);
         eventAdmin.postEvent(modelChanged);
@@ -211,5 +213,14 @@ public class DataModelImpl implements DataModel {
         Event modelChanged = new Event(DataModel.EA_TOPIC_DATA_UNIT_CHANGED, properties);
         eventAdmin.postEvent(modelChanged);
     }
+
+	@Override
+	public void filterGraph(List<VFUnit> selectedNodes) {
+		this.selectedNodes = selectedNodes;
+		Dictionary<String, Object> properties = new Hashtable<>();
+        properties.put("selectedNodes", this.selectedNodes);
+		Event filterGraph = new Event(DataModel.EA_TOPIC_DATA_FILTER_GRAPH, properties);
+        eventAdmin.postEvent(filterGraph);
+	}
 
 }

@@ -115,7 +115,7 @@ public class WizardHandler extends Wizard implements INewWizard {
 		IFolder target = container.getFolder(new Path(fileDir.getName()));
 		target.create(true, true, monitor);
 		System.out.println("Target destination "+target.getFullPath().toString());
-		GlobalSettings.put(resource,"TargetFolder", target.getLocation().toOSString());
+		GlobalSettings.put("TargetFolder", target.getLocation().toOSString());
 		IResource r = root.findMember(new Path(target.getFullPath().toString()));
 		IContainer c = (IContainer) r;
 		System.out.println("Container c is "+c);
