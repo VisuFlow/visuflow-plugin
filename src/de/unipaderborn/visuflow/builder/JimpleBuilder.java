@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.core.internal.resources.Project;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.graph.ICFGStructure;
@@ -31,7 +32,7 @@ import de.unipaderborn.visuflow.util.ServiceUtil;
 public class JimpleBuilder extends IncrementalProjectBuilder {
 
 	private String classpath;
-	
+
 	protected String getClassFilesLocation(IJavaProject javaProject) throws JavaModelException {
 		String path = javaProject.getOutputLocation().toString();
 		IResource binFolder = ResourcesPlugin.getWorkspace().getRoot().findMember(path);
@@ -91,31 +92,58 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 	public static final String BUILDER_ID = "JimpleBuilder.JimpleBuilder";
 
 
-    @Override
-    protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
-        System.out.println("Build Start");
-        IJavaProject project = JavaCore.create(getProject());
-        classpath = getSootCP(project);
-        String location = GlobalSettings.get(project, "TargetFolder");
-        IFolder folder = project.getProject().getFolder("output");
-        //at this point, no resources have been created
-        if (!folder.exists()) {
-            folder.create(IResource.NONE, true, null);
-        }
-        
-        System.out.println("The jimple path is  " +folder.getLocation().toOSString());
-        //location = "/home/henni/devel/pg/workspace-plugin/visuflow-plugin-workspace/dfa17/targetsBin";
-        System.out.println(location);
-        classpath = location + File.pathSeparator + classpath;
-        String[] sootString = new String[] { "-cp", classpath, "-exclude", "javax", "-allow-phantom-refs", "-no-bodies-for-excluded", 
-    			"-process-dir", location, "-src-prec", "only-class", "-w", "-output-format", 
-    			"J", "-keep-line-number" ,"-output-dir",folder.getLocation().toOSString()/*,"tag.ln","on"*/ };
-        ICFGStructure icfg = new ICFGStructure();
-        JimpleModelAnalysis analysis = new JimpleModelAnalysis();
-        analysis.setSootString(sootString);
-        List<VFClass> jimpleClasses = new ArrayList<>();
-        analysis.createICFG(icfg, jimpleClasses);
-        fillDataModel(icfg, jimpleClasses);
-        return null;
-    }
-}
+	@Override
+	protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
+		System.out.println("Build Start");
+		String targetFolder = "sootOutput";
+		IJavaProject project = JavaCore.create(getProject());
+		IResourceDelta delta = getDelta(project.getProject());
+		if(delta == null || !delta.getAffectedChildren()[0].getProjectRelativePath().toString().equals(targetFolder)){
+			classpath = getSootCP(project);
+			String location = GlobalSettings.get("TargetFolder");
+			IFolder folder = project.getProject().getFolder(targetFolder);
+			//at this point, no resources have been created
+			if (!folder.exists()) {
+				folder.create( IResource.BACKGROUND_REFRESH, true, null);
+			}
+			classpath = location + File.pathSeparator + classpath;
+			String[] sootString = new String[] { "-cp", classpath, "-exclude", "javax", "-allow-phantom-refs", "-no-bodies-for-excluded", 
+					"-process-dir", location, "-src-prec", "only-class", "-w", "-output-format", 
+					"J", "-keep-line-number" ,"-output-dir",folder.getLocation().toOSString()/*,"tag.ln","on"*/ };
+			ICFGStructure icfg = new ICFGStructure();
+			JimpleModelAnalysis analysis = new JimpleModelAnalysis();
+			analysis.setSootString(sootString);
+			List<VFClass> jimpleClasses = new ArrayList<>();
+			analysis.createICFG(icfg, jimpleClasses);
+			fillDataModel(icfg, jimpleClasses);
+			
+			folder.refreshLocal(IResource.DEPTH_INFINITE, monitor);
+		}
+		return null;
+	}
+
+	/* private boolean collect(IProject project, final IProgressMonitor monitor) throws CoreException { 
+
+    	  project.accept(new IResourceVisitor() { 
+
+    	   public boolean visit(IResource resource) throws CoreException { 
+    	    if (monitor.isCanceled()) { 
+    	     throw new OperationCanceledException(); 
+    	    } 
+    	    if (isInterrupted()) { 
+    	     return false; 
+    	    } 
+    	    if (resource instanceof IFile) { 
+    	     IFile file = (IFile) resource; 
+    	    } else if (resource instanceof IContainer) { 
+    	     if (filtered((IContainer) resource)) { 
+    	      return false; 
+    	     } 
+    	    } 
+    	    return true; 
+    	   } 
+
+    	  }); 
+    	  return false; 
+    	 } 
+	 */}

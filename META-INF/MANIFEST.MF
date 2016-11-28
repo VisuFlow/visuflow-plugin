@@ -31,3 +31,4 @@ Import-Package: org.osgi.service.component,
  org.osgi.service.component.annotations,
  org.osgi.service.event,
  org.osgi.service.log
+Bundle-Activator: de.unipaderborn.visuflow.Visuflow

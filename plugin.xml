@@ -231,51 +231,6 @@
             value="true">
       </persistent>
    </extension>
-   <extension
-         id="JimpleBreakPointMarker"
-         point="org.eclipse.core.resources.markers">
-      <persistent
-            value="true">
-      </persistent>
-      <super
-            type="org.eclipse.core.resources.textmarker">
-      </super>
-   </extension>
-   <extension
-         point="org.eclipse.ui.editors.annotationTypes">
-      <type
-            markerSeverity="1"
-            markerType="de.uni-paderborn.visuflow.plugin.JimpleBreakPointMarker"
-            name="JimpleBreakPointAnnotation"
-            super="org.eclipse.ui.workbench.texteditor.warning">
-      </type>
-   </extension>
-   <extension
-         point="org.eclipse.ui.editors.markerAnnotationSpecification">
-      <specification
-            annotationType="JimpleBreakPointAnnotation"
-            colorPreferenceKey="de.uni-paderborn.visuflow.plugin.jimplebreakpoint.color"
-            colorPreferenceValue="192,255,192"
-            contributesToHeader="false"
-            highlightPreferenceKey="de.uni-paderborn.visuflow.plugin.jimplebreakpoint.highlight"
-            highlightPreferenceValue="true"
-            icon="icons/breakpoint.png"
-            includeOnPreferencePage="true"
-            isGoToPreviousNavigationTarget="true"
-            label="Jimple Breakpoint"
-            overviewRulerPreferenceKey="de.uni-paderborn.visuflow.plugin.jimplebreakpoint.overview"
-            overviewRulerPreferenceValue="true"
-            presentationLayer="0"
-            quickFixIcon="icons/breakpoint.png"
-            showInNextPrevDropdownToolbarAction="false"
-            symbolicIcon="task"
-            textPreferenceKey="de.uni-paderborn.visuflow.plugin.jimplebreakpoint.text"
-            textPreferenceValue="false"
-            textStylePreferenceValue="BOX"
-            verticalRulerPreferenceKey="de.uni-paderborn.visuflow.plugin.jimplebreakpoint.ruler"
-            verticalRulerPreferenceValue="true">
-      </specification>
-   </extension>
    <extension point="org.eclipse.core.expressions.definitions">
 	   <definition id="de.unipaderborn.visuflow.jimpleextension">
 	      <adapt type="org.eclipse.core.resources.IResource">

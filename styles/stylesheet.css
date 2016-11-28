@@ -21,7 +21,7 @@ node.plus {
 	fill-color: red;
 	text-background-color: #F33;
 	text-color: #DDD;
-	fill-mode: image-scaled; 
+	/* fill-mode: image-scaled; */ 
 	/* fill-image: url('../images/ic_add_black_24dp_1x.png'); */
 }
 
