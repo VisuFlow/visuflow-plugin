@@ -105,6 +105,7 @@ public class UnitView extends ViewPart implements EventHandler {
 				for (VFClass vfclass : dataModel.listClasses()) {
 					if(vfclass.getSootClass().getName().toString().equals(selectedClass))
 					{
+						methodCombo.removeAll();
 						for (VFMethod vfmethod : dataModel.listMethods(vfclass))
 						{
 							methodCombo.add(vfmethod.getSootMethod().getDeclaration());
