@@ -557,14 +557,14 @@ public class GraphManager implements Runnable, ViewerListener {
 		if(graph.getNode(node.getId() + "") == null)
 		{
 			Node createdNode = graph.addNode(node.getId() + "");
-			if(node.getLabel().toString().length() > maxLength)
+			if(node.getUnit().toString().length() > maxLength)
 			{
-				createdNode.setAttribute("ui.label", node.getLabel().toString().substring(0, maxLength) + "...");
+				createdNode.setAttribute("ui.label", node.getUnit().toString().substring(0, maxLength) + "...");
 			}
 			else
-				createdNode.setAttribute("ui.label", node.getLabel().toString());
-			createdNode.setAttribute("nodeData.unit", node.getLabel().toString());
-			createdNode.setAttribute("nodeData.unitType", node.getLabel().getClass());
+				createdNode.setAttribute("ui.label", node.getUnit().toString());
+			createdNode.setAttribute("nodeData.unit", node.getUnit().toString());
+			createdNode.setAttribute("nodeData.unitType", node.getUnit().getClass());
 			createdNode.setAttribute("nodeData.inSet", "coming soon");
 			createdNode.setAttribute("nodeData.outSet", "coming soon");
 		}

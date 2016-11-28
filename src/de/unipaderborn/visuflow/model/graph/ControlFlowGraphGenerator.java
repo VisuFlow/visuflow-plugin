@@ -6,6 +6,7 @@ import java.util.List;
 
 import de.unipaderborn.visuflow.model.VFEdge;
 import de.unipaderborn.visuflow.model.VFNode;
+import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.model.graph.ControlFlowGraph;
 import soot.Body;
 import soot.Unit;
@@ -32,7 +33,7 @@ public class ControlFlowGraphGenerator {
 		while (it1.hasNext()) {
 			head = it1.next();
 			nodeNumber++;
-			VFNode node = new VFNode(head, nodeNumber);
+			VFNode node = new VFNode(new VFUnit(head), nodeNumber);
 			listNodes.add(node);
 			break;
 		}
@@ -52,7 +53,7 @@ public class ControlFlowGraphGenerator {
 			Iterator<VFEdge> edges = listEdges.iterator();
 			while(edges.hasNext()){
 				VFEdge edge = (VFEdge) edges.next();
-				if(edge.getSource().getLabel().equals(currentNode) && edge.getDestination().getLabel().equals(temp))
+				if(edge.getSource().getUnit().equals(currentNode) && edge.getDestination().getUnit().equals(temp))
 				{
 					System.out.println("Here");
 					edgeconnection = true;
@@ -64,23 +65,23 @@ public class ControlFlowGraphGenerator {
 			Iterator<VFNode> nodesIterator = listNodes.iterator();
 			while (nodesIterator.hasNext()) {
 				VFNode node = (VFNode) nodesIterator.next();
-				if (node.getLabel().equals(temp)) {
+				if (node.getUnit().equals(temp)) {
 					present = true;
 				}
 			}
 			if (!present) {
 				nodeNumber++;
-				VFNode node = new VFNode(temp, nodeNumber);
+				VFNode node = new VFNode(new VFUnit(temp), nodeNumber);
 				listNodes.add(node);
 			}
 			VFNode source = null, destination = null;
 			Iterator<VFNode> it1 = listNodes.iterator();
 			while (it1.hasNext()) {
 				VFNode node = (VFNode) it1.next();
-				if (node.getLabel().equals(currentNode)) {
+				if (node.getUnit().equals(currentNode)) {
 					source = node;
 				}
-				if (node.getLabel().equals(temp)) {
+				if (node.getUnit().equals(temp)) {
 					destination = node;
 				}
 			}
