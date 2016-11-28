@@ -1,5 +1,6 @@
 package de.unipaderborn.visuflow.ui.view;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -10,12 +11,16 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ViewPart;
 import org.osgi.service.event.Event;
@@ -39,6 +44,32 @@ public class ResultView extends ViewPart implements EventHandler {
 		parent.setLayout(layout);
 		Label searchLabel = new Label(parent, SWT.NONE);
 		searchLabel.setText("Search: ");
+
+		Button highlightNodes = new Button(parent, SWT.CHECK);
+		highlightNodes.setText("Highlight selected nodes on graph");
+		
+		highlightNodes.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				TableItem[] selectedNodes = viewer.getTable().getItems();
+				List<VFUnit> nodesToFilter = new ArrayList<VFUnit>();
+				for (TableItem tableItem : selectedNodes) {
+					if(tableItem.getChecked())
+					{
+						nodesToFilter.add((VFUnit) tableItem.getData());
+//						System.out.println(((VFUnit) tableItem.getData()).getUnit() + " is selected");
+					}
+				}
+				ServiceUtil.getService(DataModel.class).filterGraph(nodesToFilter);
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+//				noOp
+			}
+		});
+		
 		final Text searchText = new Text(parent, SWT.BORDER | SWT.SEARCH);
 		searchText.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
 		this.units = ServiceUtil.getService(DataModel.class).getSelectedMethodUnits();
@@ -61,12 +92,12 @@ public class ResultView extends ViewPart implements EventHandler {
 	}
 
 	private void createViewer(Composite parent) {
-		viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER | SWT.CHECK | SWT.READ_ONLY);
+		viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER | SWT.CHECK | SWT.READ_ONLY | SWT.PUSH);
 		createColumns(parent, viewer);
 		final Table table = viewer.getTable();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
-
+		
 		viewer.setContentProvider(new ArrayContentProvider());
 		viewer.setInput(this.units);
 		getSite().setSelectionProvider(viewer);
@@ -85,10 +116,18 @@ public class ResultView extends ViewPart implements EventHandler {
 	}
 
 	private void createColumns(final Composite parent, final TableViewer viewer) {
-		String[] titles = { "Unit", "Unit Type", "In-Set", "Out-Set"};
-		int[] bounds = { 100, 100, 100, 100 };
-		//Unit
+		String[] titles = { "Selection", "Unit", "Unit Type", "In-Set", "Out-Set"};
+		int[] bounds = { 100, 100, 100, 100, 100 };
+		
 		TableViewerColumn col = createTableViewerColumn(titles[0], bounds[0], 0);
+		col.setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				return "";
+			}
+		});
+		//Unit
+		col = createTableViewerColumn(titles[1], bounds[1], 1);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -97,7 +136,7 @@ public class ResultView extends ViewPart implements EventHandler {
 			}
 		});
 		//Unit Type
-		col = createTableViewerColumn(titles[1], bounds[1], 1);
+		col = createTableViewerColumn(titles[2], bounds[2], 2);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -106,7 +145,7 @@ public class ResultView extends ViewPart implements EventHandler {
 			}
 		});
 		//In-Set
-		col = createTableViewerColumn(titles[2], bounds[1], 1);
+		col = createTableViewerColumn(titles[3], bounds[3], 3);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -114,7 +153,7 @@ public class ResultView extends ViewPart implements EventHandler {
 			}
 		});
 		//Out-Set
-		col = createTableViewerColumn(titles[3], bounds[1], 1);
+		col = createTableViewerColumn(titles[4], bounds[4], 4);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
@@ -139,12 +178,12 @@ public class ResultView extends ViewPart implements EventHandler {
 	@Override
 	public void handleEvent(Event event) {
 		viewer.getTable().getDisplay().asyncExec(new Runnable() {
-			
+
 			@Override
 			public void run() {
 				viewer.setInput((List<VFUnit>) event.getProperty("selectedMethodUnits"));
 			}
 		});
-		
+
 	}
 }
