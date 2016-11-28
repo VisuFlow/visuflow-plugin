@@ -105,16 +105,48 @@
          </command>
       </toolbar>
    </menuContribution>
+   <menuContribution
+         allPopups="false"
+         locationURI="popup:#AbstractTextEditorRulerContext?after=additions">
+      <command
+            commandId="JimpleEditor.NavigateToCFG"
+            label="Navigate To CFG"
+            style="push"
+            tooltip="Navigate">
+         <visibleWhen>
+            <or>
+               <with
+                     variable="selection">
+                  <iterate>
+                     <reference
+                           definitionId="de.unipaderborn.visuflow.jimpleextension">
+                     </reference>
+                  </iterate>
+               </with>
+               <with
+                     variable="activeEditorInput">
+                  <reference
+                        definitionId="de.unipaderborn.visuflow.jimpleextension">
+                  </reference>
+               </with>
+            </or>
+         </visibleWhen>
+      </command>
+   </menuContribution>
 </extension>
 <extension
       point="org.eclipse.ui.commands">
    <command
          id="JimpleEditor.JimpleEditorBreakpoint"
-         name="name">
+         name="Jimple Breakpoint">
    </command>
    <command
          id="GraphStreamFeasibility.sourceCodeCommand"
          name="sourceCodeCommand">
+   </command>
+   <command
+         id="JimpleEditor.NavigateToCFG"
+         name="Navigate to CFG">
    </command>
 </extension>
 <extension
@@ -126,6 +158,10 @@
    <handler
          class="de.unipaderborn.visuflow.debug.handlers.ViewJavaSource"
          commandId="GraphStreamFeasibility.sourceCodeCommand">
+   </handler>
+   <handler
+         class="de.unipaderborn.visuflow.debug.handlers.NavigateToCFG"
+         commandId="JimpleEditor.NavigateToCFG">
    </handler>
 </extension>
 
