@@ -3,12 +3,12 @@ package de.unipaderborn.visuflow.model;
 public class VFEdge {
 	
 	int id;
-	VFNode source;
-	VFNode destination;
+	VFUnit source;
+	VFUnit destination;
 	Method sourceMethod;
 	Method destMethod;
 	
-	public VFEdge(int id, VFNode source, VFNode destination)
+	public VFEdge(int id, VFUnit source, VFUnit destination)
 	{
 		this.id=id;
 		this.source=source;
@@ -45,19 +45,19 @@ public class VFEdge {
 		this.id = id;
 	}
 	
-	public VFNode getSource() {
+	public VFUnit getSource() {
 		return source;
 	}
 	
-	public void setSource(VFNode source) {
+	public void setSource(VFUnit source) {
 		this.source = source;
 	}
 	
-	public VFNode getDestination() {
+	public VFUnit getDestination() {
 		return destination;
 	}
 	
-	public void setDestination(VFNode destination) {
+	public void setDestination(VFUnit destination) {
 		this.destination = destination;
 	}	
 

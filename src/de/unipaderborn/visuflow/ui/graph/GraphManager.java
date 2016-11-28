@@ -49,7 +49,7 @@ import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFEdge;
 import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.model.VFMethodEdge;
-import de.unipaderborn.visuflow.model.VFNode;
+import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.model.graph.ControlFlowGraph;
 import de.unipaderborn.visuflow.model.graph.ICFGStructure;
 import de.unipaderborn.visuflow.util.ServiceUtil;
@@ -513,8 +513,8 @@ public class GraphManager implements Runnable, ViewerListener {
 		{
 			VFEdge currEdgeIterator = edgeIterator.next();
 
-			VFNode src = currEdgeIterator.getSource();
-			VFNode dest = currEdgeIterator.getDestination();
+			VFUnit src = currEdgeIterator.getSource();
+			VFUnit dest = currEdgeIterator.getDestination();
 
 			createGraphNode(src);
 			createGraphNode(dest);
@@ -523,7 +523,7 @@ public class GraphManager implements Runnable, ViewerListener {
 		experimentalLayout();
 	}
 
-	private void createGraphEdge(VFNode src, VFNode dest) {
+	private void createGraphEdge(VFUnit src, VFUnit dest) {
 		if(graph.getEdge("" + src.getId() + dest.getId()) == null)
 		{
 			Edge createdEdge = graph.addEdge(src.getId() + "" + dest.getId(), src.getId() + "", dest.getId() + "", true);
@@ -532,7 +532,7 @@ public class GraphManager implements Runnable, ViewerListener {
 		}
 	}
 
-	private void createGraphNode(VFNode node) {
+	private void createGraphNode(VFUnit node) {
 		int maxLength = 65;
 		if(graph.getNode(node.getId() + "") == null)
 		{

@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.unipaderborn.visuflow.model.VFEdge;
-import de.unipaderborn.visuflow.model.VFNode;
+import de.unipaderborn.visuflow.model.VFUnit;
 
 public class ControlFlowGraph {
-	public List<VFNode> listNodes = new ArrayList<VFNode>();
+	public List<VFUnit> listNodes = new ArrayList<VFUnit>();
 	public List<VFEdge> listEdges = new ArrayList<VFEdge>();
 
 }
