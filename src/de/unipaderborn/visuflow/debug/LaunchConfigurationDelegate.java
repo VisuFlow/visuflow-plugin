@@ -8,17 +8,26 @@ import java.util.Map.Entry;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.core.DebugEvent;
+import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IDebugEventSetListener;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IDebugTarget;
+import org.eclipse.debug.core.model.RuntimeProcess;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.debug.core.IJavaDebugTarget;
 import org.eclipse.jdt.debug.core.IJavaMethodBreakpoint;
 import org.eclipse.jdt.debug.core.IJavaStackFrame;
 import org.eclipse.jdt.debug.core.IJavaThread;
 import org.eclipse.jdt.debug.core.IJavaVariable;
 import org.eclipse.jdt.debug.core.JDIDebugModel;
+import org.eclipse.jdt.debug.eval.EvaluationManager;
+import org.eclipse.jdt.debug.eval.IAstEvaluationEngine;
+import org.eclipse.jdt.debug.eval.ICompiledExpression;
+import org.eclipse.jdt.debug.eval.IEvaluationListener;
+import org.eclipse.jdt.debug.eval.IEvaluationResult;
 import org.eclipse.jdt.launching.JavaLaunchDelegate;
 
 import de.unipaderborn.visuflow.debug.ui.BreakpointLocator;
@@ -31,60 +40,160 @@ public class LaunchConfigurationDelegate extends JavaLaunchDelegate {
     private DataModel dataModel = ServiceUtil.getService(DataModel.class);
     private IDebugTarget target;
     private List<IBreakpoint> breakpoints = new ArrayList<>();
+
+    private String inset;
+
     private IDebugEventSetListener listener = new IDebugEventSetListener() {
         @Override
         public void handleDebugEvents(DebugEvent[] events) {
-            for (DebugEvent debugEvent : events) {
-                //System.out.println(debugEvent);
-                if (debugEvent.getKind() == DebugEvent.SUSPEND && debugEvent.getDetail() == DebugEvent.BREAKPOINT) {
+            // System.out.println("Events " + events.length);
+            for (int i = 0; i < events.length; i++) {
+                DebugEvent debugEvent = events[i];
+                if (debugEvent.getKind() == DebugEvent.SUSPEND) {
                     IJavaThread thread = (IJavaThread) debugEvent.getSource();
-                    try {
-                        IJavaStackFrame top = (IJavaStackFrame) thread.getTopStackFrame();
-                        if(top == null) {
-                            continue;
-                        }
-
+                    if (debugEvent.getDetail() == DebugEvent.BREAKPOINT) {
                         IBreakpoint[] breakpoints = thread.getBreakpoints();
                         for (IBreakpoint breakpoint : breakpoints) {
                             IJavaMethodBreakpoint methodBreakpoint = breakpoint.getAdapter(IJavaMethodBreakpoint.class);
-                            if(methodBreakpoint != null) {
-                                IJavaVariable var;
-                                if(methodBreakpoint.isEntrySuspend(target)) {
-                                    // method entry
-                                    var = top.findVariable("inSet"); // TODO determine the variable names in BreakpointLocator or so
-                                    dataModel.setInSet(null, var.getName(), var.getValue().getValueString());
-                                } else {
-                                    // method exit
-                                    var = top.findVariable("outSet"); // TODO determine the variable names in BreakpointLocator or so
-                                    dataModel.setOutSet(null, var.getName(), var.getValue().getValueString());
-                                }
+                            if (methodBreakpoint != null && methodBreakpoint.getMarker() instanceof VisuflowMarkerWrapper) {
+                                try {
+                                    IJavaStackFrame top = (IJavaStackFrame) thread.getTopStackFrame();
+                                    if (top == null) {
+                                        continue;
+                                    }
 
-                                if (var != null) {
-                                    // TODO find a better way to determine, that is breakpoint has been set by us
-                                    // only then we should resume the process
-                                    target.resume();
+                                    IJavaProject project = getJavaProject(target.getLaunch().getLaunchConfiguration());
+                                    IJavaDebugTarget javaDebugTarget = target.getAdapter(IJavaDebugTarget.class);
+                                    IJavaVariable var;
+                                    if (methodBreakpoint.isEntrySuspend(target)) {
+                                        // method entry
+
+                                        if (javaDebugTarget != null && thread.isSuspended()) {
+                                            IAstEvaluationEngine engine = EvaluationManager.newAstEvaluationEngine(project, javaDebugTarget);
+                                            ICompiledExpression compiledExpression = engine.getCompiledExpression("in.toString()", top);
+
+                                            engine.evaluateExpression(compiledExpression, top, new IEvaluationListener() {
+                                                @Override
+                                                public void evaluationComplete(IEvaluationResult result) {
+                                                    try {
+                                                        if (result.getException() != null) {
+                                                            result.getException().printStackTrace();
+                                                        } else {
+                                                            inset = result.getValue().getValueString();
+                                                            thread.suspend();
+                                                            ICompiledExpression compiledExpression = engine.getCompiledExpression("new String(d.getTag(\"Fully Qualified Name\").getValue())", top);
+                                                            engine.evaluateExpression(compiledExpression, top, new IEvaluationListener() {
+                                                                @Override
+                                                                public void evaluationComplete(IEvaluationResult result) {
+                                                                    try {
+                                                                        if (result.getException() != null) {
+                                                                            result.getException().printStackTrace();
+                                                                        } else {
+                                                                            String fqn = result.getValue().getValueString();
+                                                                            dataModel.setInSet(fqn, "in", inset);
+                                                                        }
+                                                                    } catch (Throwable t) {
+                                                                        t.printStackTrace();
+                                                                    } finally {
+                                                                        try {
+                                                                            thread.resume();
+                                                                        } catch (DebugException e) {
+                                                                            // TODO Auto-generated catch block
+                                                                            e.printStackTrace();
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }, DebugEvent.EVALUATION, false);
+                                                        }
+                                                    } catch (Throwable t) {
+                                                        t.printStackTrace();
+                                                    } finally {
+                                                        // if(i < events.length - 1 ) {
+                                                        // try {
+                                                        // thread.resume();
+                                                        // } catch (DebugException e) {
+                                                        // e.printStackTrace();
+                                                        // }
+                                                        // }
+                                                    }
+
+                                                }
+                                            }, DebugEvent.EVALUATION, false);
+
+
+                                        }
+
+                                        // var = top.findVariable("in"); // TODO determine the variable names in BreakpointLocator or so
+                                        // if (var != null) {
+                                        // // for (IVariable variable : var.getValue().getVariables()) {
+                                        // // dataModel.setInSet(null, variable.getName(), variable.getValue().getValueString());
+                                        // // variable.getValue().getVariables();
+                                        // // }
+                                        // dataModel.setInSet(null, var.getName(), var.getValue().getValueString());
+                                        // }
+                                    } else {
+                                        // method exit
+                                        if (javaDebugTarget != null && thread.isSuspended()) {
+                                            IAstEvaluationEngine engine = EvaluationManager.newAstEvaluationEngine(project, javaDebugTarget);
+                                            ICompiledExpression compiledExpression = engine.getCompiledExpression("out.toString()", top);
+                                            engine.evaluateExpression(compiledExpression, top, new IEvaluationListener() {
+                                                @Override
+                                                public void evaluationComplete(IEvaluationResult result) {
+                                                    try {
+                                                        if (result.getException() != null) {
+                                                            result.getException().printStackTrace();
+                                                        } else {
+                                                            dataModel.setOutSet(null, "out", result.getValue().toString());
+                                                        }
+                                                    } catch (Throwable t) {
+                                                        t.printStackTrace();
+                                                    } finally {
+                                                        try {
+                                                            thread.resume();
+                                                        } catch (DebugException e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                    }
+
+                                                }
+                                            }, DebugEvent.EVALUATION, false);
+                                        }
+                                    }
+                                } catch (Throwable t) {
+                                    // TODO replace with proper logging
+                                    t.printStackTrace();
+                                } finally {
+                                    // if (thread.isSuspended()) {
+                                    // try {
+                                    // thread.resume();
+                                    // } catch (DebugException e) {
+                                    // // TODO Auto-generated catch block
+                                    // e.printStackTrace();
+                                    // }
+                                    // }
                                 }
                             }
                         }
-                    } catch (Exception e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
                     }
-                } else if(debugEvent.getKind() == DebugEvent.TERMINATE) {
-                    // remove this debug event listener to release it for garbage collection
-                    DebugPlugin.getDefault().removeDebugEventListener(this);
+                } else if (debugEvent.getKind() == DebugEvent.TERMINATE) {
+                    // this event is fired for each thread and stuff, but we only want to remove our breakpoints,
+                    // when the JVM process terminates
+                    if (debugEvent.getSource() instanceof RuntimeProcess) {
+                        // remove this debug event listener to release it for garbage collection
+                        DebugPlugin.getDefault().removeDebugEventListener(this);
 
-                    // remove breakpoints
-                    // TODO this is the wrong place to do it, occasionally exceptions are thrown
-                    for (IBreakpoint breakpoint : breakpoints) {
-                        try {
-                            DebugPlugin.getDefault().getBreakpointManager().removeBreakpoint(breakpoint, true);
-                        } catch (CoreException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
+                        // remove breakpoints
+                        System.out.println("Removing visuflow breakpoints");
+                        for (IBreakpoint breakpoint : breakpoints) {
+                            try {
+                                DebugPlugin.getDefault().getBreakpointManager().removeBreakpoint(breakpoint, true);
+                            } catch (CoreException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
                         }
+                        breakpoints.clear();
                     }
-                    breakpoints.clear();
                 }
             }
         }
@@ -114,6 +223,7 @@ public class LaunchConfigurationDelegate extends JavaLaunchDelegate {
         // launch the program
         super.launch(configuration, mode, launch, monitor);
         target = launch.getDebugTarget();
+
     }
 
     private IBreakpoint createMethodEntryBreapoint(BreakpointLocation location) throws CoreException {
@@ -143,6 +253,8 @@ public class LaunchConfigurationDelegate extends JavaLaunchDelegate {
 
         IJavaMethodBreakpoint breakpoint = JDIDebugModel.createMethodBreakpoint(location.resource, location.className, location.methodName,
                 location.methodSignature, entry, exit, nativeOnly, location.lineNumber, charStart, charEnd, hitCount, register, attrs);
+        breakpoint.setMarker(new VisuflowMarkerWrapper(breakpoint.getMarker()));
+
         breakpoints.add(breakpoint);
         return breakpoint;
     }

@@ -14,8 +14,8 @@ import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.model.graph.ICFGStructure;
-import soot.Unit;
 import soot.SootMethod;
+import soot.Unit;
 
 
 public class DataModelImpl implements DataModel {
@@ -100,7 +100,7 @@ public class DataModelImpl implements DataModel {
         this.populateUnits();
         Dictionary<String, Object> properties = new Hashtable<>();
         properties.put("selectedMethod", selectedMethod);
-//		properties.put("selectedClassMethods", selectedClassMethods);
+        properties.put("selectedClassMethods", selectedClassMethods);
         properties.put("selectedMethodUnits", selectedMethodUnits);
         Event modelChanged = new Event(DataModel.EA_TOPIC_DATA_SELECTION, properties);
         eventAdmin.postEvent(modelChanged);
@@ -168,9 +168,11 @@ public class DataModelImpl implements DataModel {
     }
 
     @Override
-    public void setInSet(Unit unit, String name, String value) {
-        VFUnit vfUnit = getVFUnit(unit);
+    public void setInSet(String unitFqn, String name, String value) {
+        System.out.println("in-set " + name + " " + value);
+        VFUnit vfUnit = getVFUnit(unitFqn);
         if(vfUnit != null) {
+            System.out.println("Found VFUnit " + vfUnit);
             vfUnit.setInSet(value);
             fireUnitChanged(vfUnit);
         }
@@ -178,7 +180,8 @@ public class DataModelImpl implements DataModel {
 
     @Override
     public void setOutSet(Unit unit, String name, String value) {
-        VFUnit vfUnit = getVFUnit(unit);
+        System.out.println("out-set " + name + " " + value);
+        VFUnit vfUnit = getVFUnit("TODO"); // TODO
         if(vfUnit != null) {
             vfUnit.setOutSet(value);
             fireUnitChanged(vfUnit);
@@ -188,12 +191,12 @@ public class DataModelImpl implements DataModel {
     /*
      * This is a naive implementation, we might need a faster data structure for this
      */
-    private VFUnit getVFUnit(Unit unit) {
+    private VFUnit getVFUnit(String fqn) {
         VFUnit result = null;
         for (VFClass vfClass : classList) {
             for (VFMethod vfMethod : vfClass.getMethods()) {
                 for (VFUnit vfUnit : vfMethod.getUnits()) {
-                    if(vfUnit.getUnit().equals(unit)) {
+                    if(vfUnit.getFullyQualifiedName().equals(fqn)) {
                         result = vfUnit;
                     }
                 }
