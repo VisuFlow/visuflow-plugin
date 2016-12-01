@@ -14,10 +14,13 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelection;
@@ -56,14 +59,14 @@ public class WizardHandler extends Wizard implements INewWizard {
 	 * using wizard as execution context.
 	 */
 	public boolean performFinish() {
-		final String containerName = page.getContainerName().get("ProjectPath");
-		final String containerName1 = page.getContainerName().get("TargetPath");
-		System.out.println("Container name is "+containerName);
-		System.out.println("Container name is "+containerName1);
+		final String analysisProjectPath = page.getContainerName().get("ProjectPath");
+		final String targetProjectPath = page.getContainerName().get("TargetPath");
+		System.out.println("Anaysis path "+analysisProjectPath);
+		System.out.println("Target path "+targetProjectPath);
 		IRunnableWithProgress op = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException {
 				try {
-					doFinish(containerName, containerName1, monitor);
+					doFinish(analysisProjectPath, targetProjectPath, monitor);
 				} catch (CoreException e) {
 					throw new InvocationTargetException(e);
 				} catch (FileNotFoundException e) {
@@ -94,38 +97,27 @@ public class WizardHandler extends Wizard implements INewWizard {
 	 */
 
 	private void doFinish(
-		String containerName,
-		String containerName1,
+		String analysisProjectPath,
+		String targetProjectPath,
 		IProgressMonitor monitor)
 		throws CoreException, FileNotFoundException {
 		// create a sample file
-		monitor.beginTask("Creating " + containerName, 2);
+		monitor.beginTask("Creating " + analysisProjectPath, 2);
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		IResource resource = root.findMember(new Path(containerName));
-		//IResource resource1 = root.findMember(new Path(containerName1));
-		File fileDir = new File(containerName1);
-		System.out.println("file directory is "+fileDir.getName());
-		System.out.println("File directory is directory "+fileDir.isDirectory());
-		
-		if (!resource.exists() || !(resource instanceof IContainer)) {
-			throwCoreException("Container \"" + containerName + "\" does not exist.");
+		IResource resourceAnalysis = root.findMember(new Path(analysisProjectPath));
+		IResource resourceTarget = root.findMember(new Path(targetProjectPath));
+		System.out.println("Target Resource is "+resourceTarget.getProject());
+		if (!resourceAnalysis.exists() || !(resourceAnalysis instanceof IContainer)) {
+			throwCoreException("Container \"" + analysisProjectPath + "\" does not exist.");
 		}
 		
-		IContainer container = (IContainer) resource;
-		IFolder target = container.getFolder(new Path(fileDir.getName()));
-		target.create(true, true, monitor);
-		System.out.println("Target destination "+target.getFullPath().toString());
-		GlobalSettings.put("TargetFolder", target.getLocation().toOSString());
-		IResource r = root.findMember(new Path(target.getFullPath().toString()));
-		IContainer c = (IContainer) r;
-		System.out.println("Container c is "+c);
-		copyFiles(fileDir, c, monitor);		
-//		IContainer container1 = (IContainer) resource1;
-//		final IFolder folder = container.getFolder(new Path("Test"));
-//		if(!folder.exists())
-//		{
-//			folder.create(1, true, monitor);
-//		}
+		IContainer containerAnalysis = (IContainer) resourceAnalysis;
+		IJavaProject javaProject = JavaCore.create(resourceTarget.getProject());
+		String key = "TargetProject_"+containerAnalysis.getProject().getName();
+		System.out.println("Actual path "+resourceAnalysis.getProject().getLocation().toFile());
+		System.out.println("Key Value is "+key);
+		System.out.println("Value is "+root.getLocation().toFile()+javaProject.getOutputLocation().toFile().getPath());
+		GlobalSettings.put(key,root.getLocation().toFile()+javaProject.getOutputLocation().toFile().getPath());
 		monitor.worked(1);
 		monitor.setTaskName("Opening file for editing...");
 		getShell().getDisplay().asyncExec(new Runnable() {
