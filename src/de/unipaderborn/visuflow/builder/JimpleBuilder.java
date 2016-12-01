@@ -121,29 +121,4 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 		}
 		return null;
 	}
-
-	/* private boolean collect(IProject project, final IProgressMonitor monitor) throws CoreException { 
-
-    	  project.accept(new IResourceVisitor() { 
-
-    	   public boolean visit(IResource resource) throws CoreException { 
-    	    if (monitor.isCanceled()) { 
-    	     throw new OperationCanceledException(); 
-    	    } 
-    	    if (isInterrupted()) { 
-    	     return false; 
-    	    } 
-    	    if (resource instanceof IFile) { 
-    	     IFile file = (IFile) resource; 
-    	    } else if (resource instanceof IContainer) { 
-    	     if (filtered((IContainer) resource)) { 
-    	      return false; 
-    	     } 
-    	    } 
-    	    return true; 
-    	   } 
-
-    	  }); 
-    	  return false; 
-    	 } 
-	 */}
+}

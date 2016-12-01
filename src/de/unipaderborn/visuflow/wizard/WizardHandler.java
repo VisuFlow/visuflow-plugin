@@ -1,10 +1,8 @@
 package de.unipaderborn.visuflow.wizard;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IContainer;
@@ -14,7 +12,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
@@ -114,9 +111,6 @@ public class WizardHandler extends Wizard implements INewWizard {
 		IContainer containerAnalysis = (IContainer) resourceAnalysis;
 		IJavaProject javaProject = JavaCore.create(resourceTarget.getProject());
 		String key = "TargetProject_"+containerAnalysis.getProject().getName();
-		System.out.println("Actual path "+resourceAnalysis.getProject().getLocation().toFile());
-		System.out.println("Key Value is "+key);
-		System.out.println("Value is "+root.getLocation().toFile()+javaProject.getOutputLocation().toFile().getPath());
 		GlobalSettings.put(key,root.getLocation().toFile()+javaProject.getOutputLocation().toFile().getPath());
 		monitor.worked(1);
 		monitor.setTaskName("Opening file for editing...");
@@ -146,14 +140,6 @@ public class WizardHandler extends Wizard implements INewWizard {
 	        }
 	    }
 	}
-	
-	@SuppressWarnings("unused")
-	private InputStream openContentStream() {
-		String contents =
-			"This is the initial file contents for *.java file that should be word-sorted in the Preview page of the multi-page editor";
-		return new ByteArrayInputStream(contents.getBytes());
-	}
-
 	private void throwCoreException(String message) throws CoreException {
 		IStatus status =
 			new Status(IStatus.ERROR, "TestPlugIn", IStatus.OK, message, null);

@@ -353,6 +353,7 @@
     </category>
     <wizard
           class="de.unipaderborn.visuflow.wizard.WizardHandler"
+          icon="icons/monkey16.png"
           id="VisuFlow.PlugIn.Wizard.VFWizard"
           name="Target Folder">
     </wizard>
