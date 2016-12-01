@@ -100,13 +100,13 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 		IResourceDelta delta = getDelta(project.getProject());
 		if(delta == null || !delta.getAffectedChildren()[0].getProjectRelativePath().toString().equals(targetFolder)){
 			classpath = getSootCP(project);
-			String location = GlobalSettings.get("TargetFolder");
+			String location = GlobalSettings.get("TargetProject_"+project.getProject().getName());
 			IFolder folder = project.getProject().getFolder(targetFolder);
 			//at this point, no resources have been created
 			if (!folder.exists()) {
 				folder.create( IResource.BACKGROUND_REFRESH, true, null);
 			}
-			classpath = location + File.pathSeparator + classpath;
+			classpath = location +  classpath;
 			String[] sootString = new String[] { "-cp", classpath, "-exclude", "javax", "-allow-phantom-refs", "-no-bodies-for-excluded", 
 					"-process-dir", location, "-src-prec", "only-class", "-w", "-output-format", 
 					"J", "-keep-line-number" ,"-output-dir",folder.getLocation().toOSString()/*,"tag.ln","on"*/ };
