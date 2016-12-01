@@ -6,12 +6,18 @@ import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import org.json.JSONObject;
+
+import de.unipaderborn.visuflow.model.DataModel;
+import de.unipaderborn.visuflow.util.ServiceUtil;
+
 public class MonitoringServer {
 
 	private ServerSocket serverSocket;
 	private Socket clientSocket;
 	private Thread t;
 	private boolean running = true;
+	private DataModel dataModel = ServiceUtil.getService(DataModel.class);
 
 	public void start() {
 		System.out.println("Monitoring server starting");
@@ -25,7 +31,16 @@ public class MonitoringServer {
 					BufferedReader br = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 					String line;
 					while(running && (line = br.readLine()) != null) {
-						System.out.println("ANALYSIS " + line);
+						JSONObject json = new JSONObject(line);
+						String unitFqn = json.getString("unit");
+						if(json.has("in")) {
+							String in = json.getString("in");
+							dataModel.setInSet(unitFqn, "in", in);
+						}
+						if(json.has("out")) {
+							String out = json.getString("out");
+							dataModel.setOutSet(unitFqn, "out", out);
+						}
 					}
 				} catch (IOException e) {
 					e.printStackTrace();

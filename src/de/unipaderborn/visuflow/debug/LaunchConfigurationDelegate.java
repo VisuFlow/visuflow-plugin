@@ -1,5 +1,10 @@
 package de.unipaderborn.visuflow.debug;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -10,25 +15,35 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IDebugEventSetListener;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.model.RuntimeProcess;
 import org.eclipse.jdt.launching.JavaLaunchDelegate;
 
 import de.unipaderborn.visuflow.debug.monitoring.MonitoringServer;
-import de.unipaderborn.visuflow.model.DataModel;
-import de.unipaderborn.visuflow.util.ServiceUtil;
 
 public class LaunchConfigurationDelegate extends JavaLaunchDelegate {
 
-	private DataModel dataModel = ServiceUtil.getService(DataModel.class);
-
 	@Override
 	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
-		String attr = configuration.getAttribute("test.attr", "fallback");
+		ILaunchConfigurationWorkingCopy configCopy = configuration.copy("visuflow");
+		
+		String attr = configCopy.getAttribute("test.attr", "fallback");
 		System.out.println("Launching: " + attr);
 
-		Map<String, Object> launchAttrs = configuration.getAttributes();
+		Map<String, Object> launchAttrs = configCopy.getAttributes();
 		for (Entry<String, Object> entry : launchAttrs.entrySet()) {
 			System.out.println(entry.getKey() + "=" + entry.getValue());
+		}
+
+		// extract and install agent.jar
+		File agentJar;
+		try {
+			agentJar = extractAgent();
+			String vmArgs = configCopy.getAttribute("org.eclipse.jdt.launching.VM_ARGUMENTS", "");
+			vmArgs = vmArgs + " -javaagent:" + agentJar.getAbsolutePath();
+			configCopy.setAttribute("org.eclipse.jdt.launching.VM_ARGUMENTS", vmArgs);
+		} catch (IOException e) {
+			throw new RuntimeException("Couldn't install visuflow agent", e);
 		}
 
 		// launch monitoring server
@@ -48,6 +63,11 @@ public class LaunchConfigurationDelegate extends JavaLaunchDelegate {
 							// remove this debug event listener to release it for garbage collection
 							DebugPlugin.getDefault().removeDebugEventListener(this);
 							monitoringServer.stop();
+
+							// delete the agent jar
+							if (agentJar != null && agentJar.exists()) {
+								agentJar.delete();
+							}
 						}
 					}
 				}
@@ -56,6 +76,26 @@ public class LaunchConfigurationDelegate extends JavaLaunchDelegate {
 		DebugPlugin.getDefault().addDebugEventListener(shutdownListener);
 
 		// launch the program
-		super.launch(configuration, mode, launch, monitor);
+		super.launch(configCopy, mode, launch, monitor);
+	}
+
+	private File extractAgent() throws IOException {
+		InputStream in = getClass().getResourceAsStream("/lib/agent.jar");
+		OutputStream out = null;
+		File agentJar;
+		try {
+			agentJar = File.createTempFile("agent", ".jar");
+			out = new FileOutputStream(agentJar);
+			byte[] b = new byte[1024];
+			int len = -1;
+			while ((len = in.read(b)) >= 0) {
+				out.write(b, 0, len);
+			}
+		} finally {
+			if(out != null) {
+				out.close();
+			}
+		}
+		return agentJar;
 	}
 }

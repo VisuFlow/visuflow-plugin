@@ -40,7 +40,7 @@ public class LaunchConfigurationTab extends AbstractLaunchConfigurationTab {
     @Override
     public void initializeFrom(ILaunchConfiguration configuration) {
         try {
-            String consoleText = configuration.getAttribute("test.attr", "Simon says \"RUN!\"");
+            String consoleText = configuration.getAttribute("test.attr", "Alles klar!");
             text.setText(consoleText);
         } catch (CoreException e) {
             // ignore here
