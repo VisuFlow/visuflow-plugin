@@ -89,6 +89,8 @@ public class GraphManager implements Runnable, ViewerListener {
 
 	public GraphManager(String graphName, String styleSheet)
 	{
+		registerEventHandler();
+		System.out.println("GraphManager ---> registered for events");
 		System.setProperty("sun.awt.noerasebackground", "true");
 		System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
 		this.zoomInDelta = .2;
@@ -102,6 +104,39 @@ public class GraphManager implements Runnable, ViewerListener {
 
 	public Container getApplet() {
 		return applet.getRootPane();
+	}
+	
+	private void registerEventHandler()
+	{
+		EventHandler dataModelHandler = new EventHandler() {
+			@SuppressWarnings("unchecked")
+			@Override
+			public void handleEvent(Event event) {
+				System.out.println("event reeived " + event.getTopic());
+				if(event.getTopic().contentEquals(DataModel.EA_TOPIC_DATA_MODEL_CHANGED))
+				{
+					renderICFG((ICFGStructure) event.getProperty("icfg"));
+				}
+				if(event.getTopic().contentEquals(DataModel.EA_TOPIC_DATA_SELECTION))
+				{
+					VFMethod selectedMethod = (VFMethod) event.getProperty("selectedMethod");
+					try {
+						renderMethodCFG(selectedMethod.getControlFlowGraph());
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				if(event.getTopic().contentEquals(DataModel.EA_TOPIC_DATA_FILTER_GRAPH))
+				{
+					filterGraphNodes((List<VFNode>) event.getProperty("nodesToFilter"), (boolean) event.getProperty("selection"));
+				}
+			}
+		};
+		Hashtable<String, String> properties = new Hashtable<String, String>();
+		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_MODEL_CHANGED);
+		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_SELECTION);
+		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_FILTER_GRAPH);
+		ServiceUtil.registerService(EventHandler.class, dataModelHandler, properties);
 	}
 
 	void createGraph(String graphName)
@@ -648,35 +683,6 @@ public class GraphManager implements Runnable, ViewerListener {
 		ViewerPipe fromViewer = viewer.newViewerPipe();
 		fromViewer.addViewerListener(this);
 		fromViewer.addSink(graph);
-
-		EventHandler dataModelHandler = new EventHandler() {
-			@SuppressWarnings("unchecked")
-			@Override
-			public void handleEvent(Event event) {
-				if(event.getTopic().equals(DataModel.EA_TOPIC_DATA_SELECTION))
-				{
-					VFMethod selectedMethod = (VFMethod) event.getProperty("selectedMethod");
-					try {
-						renderMethodCFG(selectedMethod.getControlFlowGraph());
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-				else if(event.getTopic().equals(DataModel.EA_TOPIC_DATA_MODEL_CHANGED))
-				{
-					renderICFG((ICFGStructure) event.getProperty("icfg"));
-				}
-				else if(event.getTopic().equals(DataModel.EA_TOPIC_DATA_FILTER_GRAPH))
-				{
-					filterGraphNodes((List<VFNode>) event.getProperty("nodesToFilter"), (boolean) event.getProperty("selection"));
-				}
-			}
-		};
-		Hashtable<String, String> properties = new Hashtable<String, String>();
-		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_SELECTION);
-		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_MODEL_CHANGED);
-		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_FILTER_GRAPH);
-		ServiceUtil.registerService(EventHandler.class, dataModelHandler, properties);
 
 		// FIXME the Thread.sleep slows down the loop, so that it does not eat up the CPU
 		// but this really should be implemented differently. isn't there an event listener

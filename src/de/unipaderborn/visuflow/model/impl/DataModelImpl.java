@@ -123,6 +123,7 @@ public class DataModelImpl implements DataModel {
         properties.put("model", classList);
 		properties.put("icfg", icfg);
         Event modelChanged = new Event(DataModel.EA_TOPIC_DATA_MODEL_CHANGED, properties);
+        System.out.println("posting event " + DataModel.EA_TOPIC_DATA_MODEL_CHANGED);
         eventAdmin.postEvent(modelChanged);
     }
 
