@@ -1,5 +1,6 @@
 package de.unipaderborn.visuflow.model.graph;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,8 @@ import soot.Transform;
 import soot.Unit;
 import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.jimple.toolkits.callgraph.Targets;
+import soot.tagkit.AttributeValueException;
+import soot.tagkit.Tag;
 import soot.util.Chain;
 
 public class JimpleModelAnalysis {
@@ -80,12 +83,34 @@ public class JimpleModelAnalysis {
 						currentClass.getMethods().add(currentMethod);
 
 						for (Unit unit : body.getUnits()) {
+                            addFullyQualifiedName(unit, sootClass, sootMethod);
 							VFUnit currentUnit = new VFUnit(unit);
 							currentMethod.getUnits().add(currentUnit);
 						}
 					}
 				}
 			}
+
+            private void addFullyQualifiedName(Unit unit, SootClass sootClass, SootMethod sootMethod) {
+                unit.addTag(new Tag() {
+                    @Override
+                    public byte[] getValue() throws AttributeValueException {
+                        String fqn = sootClass.getName() + "." + sootMethod.getName() + "." + unit.toString();
+                        try {
+                            return fqn.getBytes("utf-8");
+                        } catch (UnsupportedEncodingException e) {
+                            AttributeValueException ave = new AttributeValueException();
+                            ave.initCause(e);
+                            throw ave;
+                        }
+                    }
+
+                    @Override
+                    public String getName() {
+                        return "Fully Qualified Name";
+                    }
+                });
+            }
 
 			private void traverseMethods(SootMethod source, CallGraph cg)
 			{			

@@ -63,7 +63,7 @@ public class NavigateToCFG extends AbstractHandler {
 							content.trim().substring(0, content.length() - 1), lineNumber);
 					List<VFNode> unit = new ArrayList<>();
 					unit.add(new VFNode(resultantUnit, 0));
-					ServiceUtil.getService(DataModel.class).filterGraph(unit, true);
+					//ServiceUtil.getService(DataModel.class).filterGraph(unit, true);
 				}
 			} catch (BadLocationException e) {
 				// TODO Auto-generated catch block

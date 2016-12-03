@@ -51,11 +51,12 @@ import de.unipaderborn.visuflow.model.VFEdge;
 import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.model.VFMethodEdge;
 import de.unipaderborn.visuflow.model.VFNode;
+import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.model.graph.ControlFlowGraph;
 import de.unipaderborn.visuflow.model.graph.ICFGStructure;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 
-public class GraphManager implements Runnable, ViewerListener {
+public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	Graph graph;
 	String styleSheet;
@@ -102,6 +103,19 @@ public class GraphManager implements Runnable, ViewerListener {
 
 	public Container getApplet() {
 		return applet.getRootPane();
+	}
+	
+	private void registerEventHandler()
+	{
+				Hashtable<String, String> properties = new Hashtable<String, String>();
+				properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_FILTER_GRAPH);
+				ServiceUtil.registerService(EventHandler.class, this, properties);
+				properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_SELECTION);
+				ServiceUtil.registerService(EventHandler.class, this, properties);
+				properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_MODEL_CHANGED);
+				ServiceUtil.registerService(EventHandler.class, this, properties);
+				properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_UNIT_CHANGED);
+				ServiceUtil.registerService(EventHandler.class, this, properties);
 	}
 
 	void createGraph(String graphName)
@@ -645,38 +659,12 @@ public class GraphManager implements Runnable, ViewerListener {
 
 	@Override
 	public void run() {
+		this.registerEventHandler();
+		System.out.println("GraphManager ---> registered for events");
+		
 		ViewerPipe fromViewer = viewer.newViewerPipe();
 		fromViewer.addViewerListener(this);
 		fromViewer.addSink(graph);
-
-		EventHandler dataModelHandler = new EventHandler() {
-			@SuppressWarnings("unchecked")
-			@Override
-			public void handleEvent(Event event) {
-				if(event.getTopic().equals(DataModel.EA_TOPIC_DATA_SELECTION))
-				{
-					VFMethod selectedMethod = (VFMethod) event.getProperty("selectedMethod");
-					try {
-						renderMethodCFG(selectedMethod.getControlFlowGraph());
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-				else if(event.getTopic().equals(DataModel.EA_TOPIC_DATA_MODEL_CHANGED))
-				{
-					renderICFG((ICFGStructure) event.getProperty("icfg"));
-				}
-				else if(event.getTopic().equals(DataModel.EA_TOPIC_DATA_FILTER_GRAPH))
-				{
-					filterGraphNodes((List<VFNode>) event.getProperty("nodesToFilter"), (boolean) event.getProperty("selection"));
-				}
-			}
-		};
-		Hashtable<String, String> properties = new Hashtable<String, String>();
-		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_SELECTION);
-		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_MODEL_CHANGED);
-		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_FILTER_GRAPH);
-		ServiceUtil.registerService(EventHandler.class, dataModelHandler, properties);
 
 		// FIXME the Thread.sleep slows down the loop, so that it does not eat up the CPU
 		// but this really should be implemented differently. isn't there an event listener
@@ -708,6 +696,35 @@ public class GraphManager implements Runnable, ViewerListener {
 
 	protected void setTip(JToolTip toolTip) {
 		this.tip = toolTip;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void handleEvent(Event event) {
+		if(event.getTopic().contentEquals(DataModel.EA_TOPIC_DATA_MODEL_CHANGED))
+		{
+			renderICFG((ICFGStructure) event.getProperty("icfg"));
+		}
+		if(event.getTopic().contentEquals(DataModel.EA_TOPIC_DATA_SELECTION))
+		{
+			VFMethod selectedMethod = (VFMethod) event.getProperty("selectedMethod");
+			try {
+				renderMethodCFG(selectedMethod.getControlFlowGraph());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		if(event.getTopic().contentEquals(DataModel.EA_TOPIC_DATA_FILTER_GRAPH))
+		{
+			filterGraphNodes((List<VFNode>) event.getProperty("nodesToFilter"), (boolean) event.getProperty("selection"));
+		}
+		if(event.getTopic().equals(DataModel.EA_TOPIC_DATA_UNIT_CHANGED))
+		{
+			VFUnit unit = (VFUnit) event.getProperty("unit");
+			System.out.println("GraphManager: Unit changed: " + unit.getFullyQualifiedName());
+			System.out.println("GraphManager: Unit in-set: " + unit.getInSet());
+			System.out.println("GraphManager: Unit out-set: " + unit.getOutSet());
+		}
 	}
 
 }

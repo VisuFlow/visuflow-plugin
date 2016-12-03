@@ -31,6 +31,8 @@ public class CFGView extends ViewPart {
 		GraphManager manager = new GraphManager("VisuFlow Graph", "url('file:styles/stylesheet.css')");
 		Thread t = new Thread(manager);
 		t.start();
+		
+		System.out.println("CFG view created");
 
 		Frame frame = SWT_AWT.new_Frame(composite);
 		frame.add(manager.getApplet());
