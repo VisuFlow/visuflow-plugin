@@ -93,7 +93,12 @@ public class ResultView extends ViewPart implements EventHandler {
 			if(tableItem.getChecked())
 				nodesToFilter.add(new VFNode((VFUnit) tableItem.getData(), 0));
 		}
-		ServiceUtil.getService(DataModel.class).filterGraph(nodesToFilter, selection);
+		try {
+			ServiceUtil.getService(DataModel.class).filterGraph(nodesToFilter, null, selection);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private void createViewer(Composite parent) {
