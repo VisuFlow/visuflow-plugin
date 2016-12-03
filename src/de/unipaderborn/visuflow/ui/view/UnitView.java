@@ -9,7 +9,9 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -28,8 +30,10 @@ import org.osgi.service.event.EventHandler;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
+import de.unipaderborn.visuflow.model.VFNode;
 import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.util.ServiceUtil;
+import soot.SootMethod;
 import soot.jimple.internal.JAddExpr;
 import soot.jimple.internal.JAssignStmt;
 import soot.jimple.internal.JInvokeStmt;
@@ -43,6 +47,7 @@ public class UnitView extends ViewPart implements EventHandler {
 	Button checkBox;
 	String classSelection, methodSelection;
 	private List<VFUnit> listUnits;
+	private List<VFNode> nodeList;
 	GridData gridUnitTable;
 
 	class ViewLabelProvider extends LabelProvider implements ILabelProvider {
@@ -232,6 +237,8 @@ public class UnitView extends ViewPart implements EventHandler {
 		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_MODEL_CHANGED);
 		ServiceUtil.registerService(EventHandler.class, this, properties);
 		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_SELECTION);
+		ServiceUtil.registerService(EventHandler.class, this, properties);
+		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_FILTER_GRAPH);
 		ServiceUtil.registerService(EventHandler.class, this, properties);
 	}
 
@@ -427,6 +434,47 @@ public class UnitView extends ViewPart implements EventHandler {
 						}
 					}
 					methodCombo.select(0);
+				}
+			});
+		}
+		
+		if (event.getTopic().equals(DataModel.EA_TOPIC_DATA_FILTER_GRAPH)) {
+			getDisplay().asyncExec(new Runnable() {
+				
+				@SuppressWarnings("unchecked")
+				@Override
+				public void run() {
+					nodeList = (List<VFNode>) event.getProperty("nodesToFilter");
+					VFClass selectedClass = nodeList.get(0).getVFUnit().getVfMethod().getVfClass();
+					VFMethod selectedMethod = nodeList.get(0).getVFUnit().getVfMethod();
+					int i = -1;
+					for (String classString : classCombo.getItems()) {
+						i++;
+						if(classString.equals(selectedClass.getSootClass().getName().toString()))
+						{
+							classCombo.select(i);
+							methodCombo.removeAll();
+							for (VFMethod vfmethod : dataModel.listMethods(selectedClass)) {
+								methodCombo.add(vfmethod.getSootMethod().getDeclaration());
+							}
+							break;
+						}
+					}
+					int j = -1;
+					for (String methodString : methodCombo.getItems()) {
+						j++;
+						if(methodString.equals(selectedMethod.getSootMethod().getDeclaration().toString())) {
+							methodCombo.select(j);
+							populateUnits(selectedMethod.getUnits());
+							break;
+						}
+					}
+					
+					for (TreeItem treeItem : tree.getItems()) {
+						if(treeItem.getText().equals(nodeList.get(0).getUnit().toString()));
+						treeItem.setBackground(new Color(getDisplay(), new RGB(50, 200, 50)));
+					}
+					
 				}
 			});
 		}

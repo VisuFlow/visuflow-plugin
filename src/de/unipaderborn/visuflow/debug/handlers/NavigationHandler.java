@@ -67,7 +67,12 @@ public class NavigationHandler extends AbstractHandler {
 					
 					else if (event.getCommand().getId().equals("JimpleEditor.NavigateToUnitView"))
 					{
-						
+						try {
+							ServiceUtil.getService(DataModel.class).filterGraph(unit,((VFMethod) resultantUnit.keySet().toArray()[0]).getSootMethod(), false);
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 				}
 			} catch (BadLocationException e) {

@@ -23,6 +23,11 @@ public class VFNode {
 		return this.vfUnit.getUnit();
 	}
 	
+	public VFUnit getVFUnit()
+	{
+		return this.vfUnit;
+	}
+	
 	public void setId(int id)
 	{
 		this.id=id;

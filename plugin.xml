@@ -178,7 +178,7 @@
          commandId="JimpleEditor.NavigateToCFG">
    </handler>
    <handler
-         class="de.unipaderborn.visuflow.debug.handlers.NavigateToUnitView"
+         class="de.unipaderborn.visuflow.debug.handlers.NavigationHandler"
          commandId="JimpleEditor.NavigateToUnitView">
    </handler>
 </extension>
