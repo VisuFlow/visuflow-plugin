@@ -36,6 +36,7 @@ import de.unipaderborn.visuflow.util.ServiceUtil;
 import soot.SootMethod;
 import soot.jimple.internal.JAddExpr;
 import soot.jimple.internal.JAssignStmt;
+import soot.jimple.internal.JIdentityStmt;
 import soot.jimple.internal.JInvokeStmt;
 import soot.jimple.internal.JReturnStmt;
 
@@ -260,6 +261,8 @@ public class UnitView extends ViewPart implements EventHandler {
 				stType = 3;
 			else if (unit.getUnit() instanceof JReturnStmt)
 				stType = 4;
+			else if (unit.getUnit() instanceof JIdentityStmt)
+				stType = 5;
 			switch (stType) {
 
 			case 1:
@@ -361,6 +364,28 @@ public class UnitView extends ViewPart implements EventHandler {
 
 				TreeItem treeReturnType = new TreeItem(treeUnitRetType, SWT.LEFT | SWT.BORDER);
 				treeReturnType.setText(new String[] { "Return Value : " + jretStmt.getOp().getType() });
+				break;
+				
+			case 5:
+				
+				JIdentityStmt jidenStmt = (JIdentityStmt) unit.getUnit();
+				TreeItem treeUnitIdenType = new TreeItem(treeItem, SWT.LEFT | SWT.BORDER);
+				treeUnitIdenType.setText(new String[] { "Unit Type : " + jidenStmt.getClass().toString() });
+
+				TreeItem treeIdenLeft = new TreeItem(treeUnitIdenType, SWT.LEFT | SWT.BORDER);
+				treeIdenLeft.setText(new String[] { "Left" });
+				TreeItem treeIdenLeftValue = new TreeItem(treeIdenLeft, SWT.LEFT | SWT.BORDER);
+				treeIdenLeftValue.setText(new String[] { "Value : " + jidenStmt.leftBox.getValue().toString() });
+				TreeItem treeIdenLeftClass = new TreeItem(treeIdenLeft, SWT.LEFT | SWT.BORDER);
+				treeIdenLeftClass.setText(new String[] { "Class : " + jidenStmt.leftBox.getValue().getClass().toString() });
+
+				TreeItem treeIdenRight = new TreeItem(treeUnitIdenType, SWT.LEFT | SWT.BORDER);
+				treeIdenRight.setText(new String[] { "Right" });
+				TreeItem treeIdenRightValue = new TreeItem(treeIdenRight, SWT.LEFT | SWT.BORDER);
+				treeIdenRightValue.setText(new String[] { "Value : " + jidenStmt.rightBox.getValue().toString() });
+				TreeItem treeIdenRightClass = new TreeItem(treeIdenRight, SWT.LEFT | SWT.BORDER);
+				treeIdenRightClass
+						.setText(new String[] { "Class : " + jidenStmt.rightBox.getValue().getClass().toString() });
 				break;
 
 			case 0:
@@ -465,14 +490,18 @@ public class UnitView extends ViewPart implements EventHandler {
 						j++;
 						if(methodString.equals(selectedMethod.getSootMethod().getDeclaration().toString())) {
 							methodCombo.select(j);
+							tree.removeAll();
 							populateUnits(selectedMethod.getUnits());
 							break;
 						}
 					}
 					
 					for (TreeItem treeItem : tree.getItems()) {
-						if(treeItem.getText().equals(nodeList.get(0).getUnit().toString()));
-						treeItem.setBackground(new Color(getDisplay(), new RGB(50, 200, 50)));
+						if(treeItem.getText().equals(nodeList.get(0).getUnit().toString())) {
+							treeItem.setChecked(true);
+						//treeItem.setBackground(new Color(getDisplay(), new RGB(50, 100, 300)));
+						break;
+						}
 					}
 					
 				}
