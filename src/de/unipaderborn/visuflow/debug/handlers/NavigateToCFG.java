@@ -2,6 +2,7 @@ package de.unipaderborn.visuflow.debug.handlers;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -10,14 +11,7 @@ import java.util.stream.Collectors;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.commands.IHandler;
-import org.eclipse.core.commands.IHandlerListener;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.debug.core.model.IBreakpoint;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.FindReplaceDocumentAdapter;
 import org.eclipse.jface.text.IDocument;
@@ -25,9 +19,7 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.source.IVerticalRulerInfo;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 
@@ -59,11 +51,16 @@ public class NavigateToCFG extends AbstractHandler {
 				String content = document.get(offset, length).trim();
 				if (content.trim().length() > 0) {
 					String className = file.getName().substring(0, file.getName().lastIndexOf('.'));
-					VFUnit resultantUnit = getSelectedUnit(className, document,
+					HashMap<VFMethod,VFUnit> resultantUnit = getSelectedUnit(className, document,
 							content.trim().substring(0, content.length() - 1), lineNumber);
 					List<VFNode> unit = new ArrayList<>();
-					unit.add(new VFNode(resultantUnit, 0));
-					//ServiceUtil.getService(DataModel.class).filterGraph(unit, true);
+					unit.add(new VFNode((VFUnit) resultantUnit.values().toArray()[0], 0));
+				try {
+					ServiceUtil.getService(DataModel.class).filterGraph(unit,((VFMethod) resultantUnit.keySet().toArray()[0]).getSootMethod(), true);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				}
 			} catch (BadLocationException e) {
 				// TODO Auto-generated catch block
@@ -73,7 +70,7 @@ public class NavigateToCFG extends AbstractHandler {
 		return null;
 	}
 
-	private VFUnit getSelectedUnit(String className, IDocument document, String content, int lineNumber) {
+	private HashMap<VFMethod,VFUnit> getSelectedUnit(String className, IDocument document, String content, int lineNumber) {
 		DataModel dataModel = ServiceUtil.getService(DataModel.class);
 		// VFClass
 		// vfClass=dataModel.listClasses().stream().filter(x->x.getSootClass().getName()==className).collect(Collectors.toList()).get(0);
@@ -91,14 +88,16 @@ public class NavigateToCFG extends AbstractHandler {
 						for (VFUnit unit : method.getUnits()) {
 							if (unit.getUnit().toString().trim().equals(content)) {
 								System.out.println(unit.toString());
-								return unit;
+								HashMap<VFMethod,VFUnit> map = new HashMap<VFMethod, VFUnit>();
+								map.put(method, unit);
+								return map;
 							}
 						}
 					}
 				}
 			}
 		}
-		return null;
+		return new HashMap<VFMethod,VFUnit>();
 	}
 
 	private Map<String, Integer> getMethodLineNumbers(IDocument document, List<VFMethod> vfMethods) {
@@ -118,4 +117,5 @@ public class NavigateToCFG extends AbstractHandler {
 		}
 		return MapUtil.sortByValue(result);
 	}
+	
 }
