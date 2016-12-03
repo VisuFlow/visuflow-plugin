@@ -37,17 +37,18 @@ public class BreakpointLocator {
             "getCallFlowFunction",
             "getReturnFlowFunction",
             "getCallToReturnFlowFunction",
-            "union"
+            "union",
+            "flowThrough"
     });
-    
+
     private static Map<String, int[]> methodParameterIndices = new HashMap<>();
     static {
-    	methodParameterIndices.put("getNormalFlowFunction", 	  new int[] {0, 1});
-    	methodParameterIndices.put("getCallFlowFunction", 		  new int[] {0, 1});
-    	methodParameterIndices.put("getReturnFlowFunction", 	  new int[] {0, 1});
-    	methodParameterIndices.put("getCallToReturnFlowFunction", new int[] {0, 1});
-    	methodParameterIndices.put("union", 					  new int[] {0, 1});
-    	
+        methodParameterIndices.put("getNormalFlowFunction", 	  new int[] {0, 1});
+        methodParameterIndices.put("getCallFlowFunction", 		  new int[] {0, 1});
+        methodParameterIndices.put("getReturnFlowFunction", 	  new int[] {0, 1});
+        methodParameterIndices.put("getCallToReturnFlowFunction", new int[] {0, 1});
+        methodParameterIndices.put("union", 					  new int[] {0, 1});
+
     }
     // @formatter:on
 
@@ -61,11 +62,6 @@ public class BreakpointLocator {
         List<IJavaElement> javaProjects = getJavaProjects(model);
         List<IJavaElement> sourceFolders = getSourceFolders(javaProjects);
 
-        //        List<IJavaElement> createFlowFunctionsFactory = new ArrayList<>();
-        //        for (IJavaElement sourceFolder : sourceFolders) {
-        //            findRecursive(createFlowFunctionsFactory, sourceFolder, "createFlowFunctionsFactory");
-        //        }
-        //
         List<IJavaElement> flowFunctions = new ArrayList<>();
         for (IJavaElement packageFragment : sourceFolders) { // TODO make sure to only use the target code
             for (String functionName : flowFunctionNames) {

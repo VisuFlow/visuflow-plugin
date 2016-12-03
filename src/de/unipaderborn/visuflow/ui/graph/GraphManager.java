@@ -40,6 +40,7 @@ import org.graphstream.ui.layout.springbox.implementations.SpringBox;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
 import org.graphstream.ui.view.ViewerListener;
+import org.graphstream.ui.view.ViewerPipe;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
@@ -50,11 +51,12 @@ import de.unipaderborn.visuflow.model.VFEdge;
 import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.model.VFMethodEdge;
 import de.unipaderborn.visuflow.model.VFNode;
+import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.model.graph.ControlFlowGraph;
 import de.unipaderborn.visuflow.model.graph.ICFGStructure;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 
-public class GraphManager implements Runnable, ViewerListener {
+public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	Graph graph;
 	String styleSheet;
@@ -102,6 +104,19 @@ public class GraphManager implements Runnable, ViewerListener {
 	public Container getApplet() {
 		return applet.getRootPane();
 	}
+	
+	private void registerEventHandler()
+	{
+				Hashtable<String, String> properties = new Hashtable<String, String>();
+				properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_FILTER_GRAPH);
+				ServiceUtil.registerService(EventHandler.class, this, properties);
+				properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_SELECTION);
+				ServiceUtil.registerService(EventHandler.class, this, properties);
+				properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_MODEL_CHANGED);
+				ServiceUtil.registerService(EventHandler.class, this, properties);
+				properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_UNIT_CHANGED);
+				ServiceUtil.registerService(EventHandler.class, this, properties);
+	}
 
 	void createGraph(String graphName)
 	{
@@ -117,7 +132,7 @@ public class GraphManager implements Runnable, ViewerListener {
 
 		view = viewer.addDefaultView(false);
 		view.getCamera().setAutoFitView(true);
-//		view.removeMouseMotionListener(view.getMouseMotionListeners()[0]);
+		//		view.removeMouseMotionListener(view.getMouseMotionListeners()[0]);
 	}
 
 	private void reintializeGraph() throws Exception
@@ -152,7 +167,7 @@ public class GraphManager implements Runnable, ViewerListener {
 		panRightButton = new JButton("");
 		panUpButton = new JButton("");
 		panDownButton = new JButton("");
-		
+
 		panLeftButton.setIcon(new ImageIcon(getScaledImage(imgLeft, 20, 20)));
 		panRightButton.setIcon(new ImageIcon(getScaledImage(imgRight, 20, 20)));
 		panUpButton.setIcon(new ImageIcon(getScaledImage(imgUp, 20, 20)));
@@ -184,7 +199,7 @@ public class GraphManager implements Runnable, ViewerListener {
 				view.getCamera().setViewCenter(currCenter.x, currCenter.y + 1, 0);
 			}
 		});
-		
+
 		panDownButton.addActionListener(new ActionListener() {
 
 			@Override
@@ -207,16 +222,16 @@ public class GraphManager implements Runnable, ViewerListener {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private Image getScaledImage(Image srcImg, int w, int h){
-	    BufferedImage resizedImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-	    Graphics2D g2 = resizedImg.createGraphics();
+		BufferedImage resizedImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2 = resizedImg.createGraphics();
 
-	    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-	    g2.drawImage(srcImg, 0, 0, w, h, null);
-	    g2.dispose();
+		g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		g2.drawImage(srcImg, 0, 0, w, h, null);
+		g2.dispose();
 
-	    return resizedImg;
+		return resizedImg;
 	}
 
 	private void createShowICFGButton() {
@@ -395,7 +410,7 @@ public class GraphManager implements Runnable, ViewerListener {
 		zoomInButton = new JButton();
 		zoomOutButton = new JButton();
 		viewCenterButton = new JButton("reset");
-		
+
 		zoomInButton.setIcon(new ImageIcon(getScaledImage(imgPlus, 20, 20)));
 		zoomOutButton.setIcon(new ImageIcon(getScaledImage(imgMinus, 20, 20)));
 
@@ -462,26 +477,22 @@ public class GraphManager implements Runnable, ViewerListener {
 		}
 	}
 
-	private void highlightGraphNode(VFNode node)
+	private void filterGraphNodes(List<VFNode> nodes, boolean selected)
 	{
-		System.out.println("node id in highlightGraphNode" + node.getId());
-		try {
-			graph.getNode(node.getId()).setAttribute("ui.selected");
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		Iterable<? extends Node> graphNodes = graph.getEachNode();
+		for (Node node : graphNodes) {
+			if(node.hasAttribute("ui.clicked"))
+				node.removeAttribute("ui.clicked");
+			for (VFNode vfNode : nodes) {
+				if(node.getAttribute("nodeData.unit").toString().contentEquals(vfNode.getUnit().toString()))
+				{
+					if(selected)
+						node.setAttribute("ui.clicked");
+				}
+			}
 		}
 	}
-	
-	private void filterGraphNodes(List<VFNode> nodes)
-	{
-		Iterator<VFNode> nodeIterator = nodes.iterator();
-		while(nodeIterator.hasNext())
-		{
-			this.highlightGraphNode(nodeIterator.next());
-		}
-	}
-	
+
 	private void renderICFG(ICFGStructure icfg) {
 		Iterator<VFMethodEdge> iterator = icfg.listEdges.iterator();
 		try {
@@ -648,48 +659,23 @@ public class GraphManager implements Runnable, ViewerListener {
 
 	@Override
 	public void run() {
-		/*ViewerPipe fromViewer = viewer.newViewerPipe();
+		this.registerEventHandler();
+		System.out.println("GraphManager ---> registered for events");
+		
+		ViewerPipe fromViewer = viewer.newViewerPipe();
 		fromViewer.addViewerListener(this);
-		fromViewer.addSink(graph);*/
-
-		EventHandler dataModelHandler = new EventHandler() {
-			@SuppressWarnings("unchecked")
-			@Override
-			public void handleEvent(Event event) {
-				if(event.getTopic().equals(DataModel.EA_TOPIC_DATA_SELECTION))
-				{
-					VFMethod selectedMethod = (VFMethod) event.getProperty("selectedMethod");
-					try {
-						renderMethodCFG(selectedMethod.getControlFlowGraph());
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-				else if(event.getTopic().equals(DataModel.EA_TOPIC_DATA_MODEL_CHANGED))
-				{
-					renderICFG((ICFGStructure) event.getProperty("icfg"));
-				}
-				else if(event.getTopic().equals(DataModel.EA_TOPIC_DATA_FILTER_GRAPH))
-				{
-					filterGraphNodes((List<VFNode>) event.getProperty("filteredNodes"));
-				}
-			}
-		};
-		Hashtable<String, String> properties = new Hashtable<String, String>();
-		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_SELECTION);
-		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_MODEL_CHANGED);
-		ServiceUtil.registerService(EventHandler.class, dataModelHandler, properties);
+		fromViewer.addSink(graph);
 
 		// FIXME the Thread.sleep slows down the loop, so that it does not eat up the CPU
 		// but this really should be implemented differently. isn't there an event listener
 		// or something we can use, so that we call pump() only when necessary
-		/*while(true) {
+		while(true) {
 			try {
 				Thread.sleep(1);
 			} catch (InterruptedException e) {
 			}
 			fromViewer.pump();
-		}*/
+		}
 	}
 
 	@Override
@@ -699,8 +685,8 @@ public class GraphManager implements Runnable, ViewerListener {
 
 	@Override
 	public void buttonReleased(String id) {
-		toggleNode(id);
-		experimentalLayout();
+		//		toggleNode(id);
+		//		experimentalLayout();
 	}
 
 	@Override
@@ -710,6 +696,35 @@ public class GraphManager implements Runnable, ViewerListener {
 
 	protected void setTip(JToolTip toolTip) {
 		this.tip = toolTip;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void handleEvent(Event event) {
+		if(event.getTopic().contentEquals(DataModel.EA_TOPIC_DATA_MODEL_CHANGED))
+		{
+			renderICFG((ICFGStructure) event.getProperty("icfg"));
+		}
+		if(event.getTopic().contentEquals(DataModel.EA_TOPIC_DATA_SELECTION))
+		{
+			VFMethod selectedMethod = (VFMethod) event.getProperty("selectedMethod");
+			try {
+				renderMethodCFG(selectedMethod.getControlFlowGraph());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		if(event.getTopic().contentEquals(DataModel.EA_TOPIC_DATA_FILTER_GRAPH))
+		{
+			filterGraphNodes((List<VFNode>) event.getProperty("nodesToFilter"), (boolean) event.getProperty("selection"));
+		}
+		if(event.getTopic().equals(DataModel.EA_TOPIC_DATA_UNIT_CHANGED))
+		{
+			VFUnit unit = (VFUnit) event.getProperty("unit");
+			System.out.println("GraphManager: Unit changed: " + unit.getFullyQualifiedName());
+			System.out.println("GraphManager: Unit in-set: " + unit.getInSet());
+			System.out.println("GraphManager: Unit out-set: " + unit.getOutSet());
+		}
 	}
 
 }

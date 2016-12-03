@@ -33,4 +33,6 @@ edge {
 
 node:clicked {
 	fill-color: red;
+	text-background-color: #F33;
+	text-color: #DDD;
 }

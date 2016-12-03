@@ -18,6 +18,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -28,6 +29,7 @@ import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 
 import de.unipaderborn.visuflow.model.DataModel;
+import de.unipaderborn.visuflow.model.VFNode;
 import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.ui.view.filter.ResultViewFilter;
 import de.unipaderborn.visuflow.util.ServiceUtil;
@@ -37,6 +39,7 @@ public class ResultView extends ViewPart implements EventHandler {
 	private TableViewer viewer;
 	private ResultViewFilter filter;
 	private List<VFUnit> units;
+	private Button highlightNodes;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -45,31 +48,22 @@ public class ResultView extends ViewPart implements EventHandler {
 		Label searchLabel = new Label(parent, SWT.NONE);
 		searchLabel.setText("Search: ");
 
-		Button highlightNodes = new Button(parent, SWT.CHECK);
+		highlightNodes = new Button(parent, SWT.CHECK);
 		highlightNodes.setText("Highlight selected nodes on graph");
-		
+
 		highlightNodes.addSelectionListener(new SelectionListener() {
-			
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				TableItem[] selectedNodes = viewer.getTable().getItems();
-				List<VFUnit> nodesToFilter = new ArrayList<VFUnit>();
-				for (TableItem tableItem : selectedNodes) {
-					if(tableItem.getChecked())
-					{
-						nodesToFilter.add((VFUnit) tableItem.getData());
-//						System.out.println(((VFUnit) tableItem.getData()).getUnit() + " is selected");
-					}
-				}
-				ServiceUtil.getService(DataModel.class).filterGraph(nodesToFilter);
+				highlightNodesOnGraph(highlightNodes.getSelection());
 			}
-			
+
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-//				noOp
+				//				noOp
 			}
 		});
-		
+
 		final Text searchText = new Text(parent, SWT.BORDER | SWT.SEARCH);
 		searchText.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL | GridData.HORIZONTAL_ALIGN_FILL));
 		this.units = ServiceUtil.getService(DataModel.class).getSelectedMethodUnits();
@@ -91,13 +85,38 @@ public class ResultView extends ViewPart implements EventHandler {
 		viewer.getControl().setFocus();
 	}
 
+	private void highlightNodesOnGraph(boolean selection)
+	{
+		TableItem[] selectedNodes = viewer.getTable().getItems();
+		List<VFNode> nodesToFilter = new ArrayList<VFNode>();
+		for (TableItem tableItem : selectedNodes) {
+			if(tableItem.getChecked())
+				nodesToFilter.add(new VFNode((VFUnit) tableItem.getData(), 0));
+		}
+		try {
+			ServiceUtil.getService(DataModel.class).filterGraph(nodesToFilter, null, selection);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	private void createViewer(Composite parent) {
 		viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER | SWT.CHECK | SWT.READ_ONLY | SWT.PUSH);
 		createColumns(parent, viewer);
 		final Table table = viewer.getTable();
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
-		
+
+		viewer.getTable().addListener(SWT.Selection, new Listener() {
+
+			@Override
+			public void handleEvent(org.eclipse.swt.widgets.Event event) {
+				if(highlightNodes.getSelection())
+					highlightNodesOnGraph(highlightNodes.getSelection());
+			}
+		});
+
 		viewer.setContentProvider(new ArrayContentProvider());
 		viewer.setInput(this.units);
 		getSite().setSelectionProvider(viewer);
@@ -118,7 +137,7 @@ public class ResultView extends ViewPart implements EventHandler {
 	private void createColumns(final Composite parent, final TableViewer viewer) {
 		String[] titles = { "Selection", "Unit", "Unit Type", "In-Set", "Out-Set"};
 		int[] bounds = { 100, 100, 100, 100, 100 };
-		
+
 		TableViewerColumn col = createTableViewerColumn(titles[0], bounds[0], 0);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override

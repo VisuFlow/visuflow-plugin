@@ -31,41 +31,41 @@ import de.unipaderborn.visuflow.util.ServiceUtil;
 
 public class JimpleBuilder extends IncrementalProjectBuilder {
 
-	private String classpath;
+    private String classpath;
 
-	protected String getClassFilesLocation(IJavaProject javaProject) throws JavaModelException {
-		String path = javaProject.getOutputLocation().toString();
-		IResource binFolder = ResourcesPlugin.getWorkspace().getRoot().findMember(path);
-		if (binFolder != null)
-			return binFolder.getLocation().toString();
-		throw new RuntimeException("Could not retrieve Soot classpath for project " + javaProject.getElementName());
-	}
+    protected String getClassFilesLocation(IJavaProject javaProject) throws JavaModelException {
+        String path = javaProject.getOutputLocation().toString();
+        IResource binFolder = ResourcesPlugin.getWorkspace().getRoot().findMember(path);
+        if (binFolder != null)
+            return binFolder.getLocation().toString();
+        throw new RuntimeException("Could not retrieve Soot classpath for project " + javaProject.getElementName());
+    }
 
-	private String getSootCP(IJavaProject javaProject) {
-		String sootCP = "";
-		try {
-			for (String resource : getJarFilesLocation(javaProject))
-				sootCP = sootCP + File.pathSeparator + resource;
-		} catch (JavaModelException e) {
-		}
-		sootCP = sootCP + File.pathSeparator;
-		return sootCP;
-	}
+    private String getSootCP(IJavaProject javaProject) {
+        String sootCP = "";
+        try {
+            for (String resource : getJarFilesLocation(javaProject))
+                sootCP = sootCP + File.pathSeparator + resource;
+        } catch (JavaModelException e) {
+        }
+        sootCP = sootCP + File.pathSeparator;
+        return sootCP;
+    }
 
-	protected Set<String> getJarFilesLocation(IJavaProject javaProject) throws JavaModelException {
-		Set<String> jars = new HashSet<>();
-		IClasspathEntry[] resolvedClasspath = javaProject.getResolvedClasspath(true);
-		for (IClasspathEntry classpathEntry : resolvedClasspath) {
-			String path = classpathEntry.getPath().toOSString();
-			if (path.endsWith(".jar")) {
-				IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(classpathEntry.getPath());
-				if (file != null && file.getRawLocation() != null)
-					path = file.getRawLocation().toOSString();
-				jars.add(path);
-			}
-		}
-		return jars;
-	}
+    protected Set<String> getJarFilesLocation(IJavaProject javaProject) throws JavaModelException {
+        Set<String> jars = new HashSet<>();
+        IClasspathEntry[] resolvedClasspath = javaProject.getResolvedClasspath(true);
+        for (IClasspathEntry classpathEntry : resolvedClasspath) {
+            String path = classpathEntry.getPath().toOSString();
+            if (path.endsWith(".jar")) {
+                IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(classpathEntry.getPath());
+                if (file != null && file.getRawLocation() != null)
+                    path = file.getRawLocation().toOSString();
+                jars.add(path);
+            }
+        }
+        return jars;
+    }
 
 	@SuppressWarnings("unused")
 	private String getOutputLocation(IJavaProject project) {
@@ -82,68 +82,43 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 		return outputLocation;
 	}
 
-	private void fillDataModel(ICFGStructure icfg, List<VFClass> jimpleClasses){
-		DataModel data = ServiceUtil.getService(DataModel.class);
-		data.setIcfg(icfg);
-		data.setClassList(jimpleClasses);
-		//		data.setSelectedClass(jimpleClasses.get(0));
-	}
+    private void fillDataModel(ICFGStructure icfg, List<VFClass> jimpleClasses){
+        DataModel data = ServiceUtil.getService(DataModel.class);
+        data.setIcfg(icfg);
+        data.setClassList(jimpleClasses);
+        //		data.setSelectedClass(jimpleClasses.get(0));
+    }
 
-	public static final String BUILDER_ID = "JimpleBuilder.JimpleBuilder";
+    public static final String BUILDER_ID = "JimpleBuilder.JimpleBuilder";
 
 
-	@Override
-	protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
-		System.out.println("Build Start");
+    @Override
+    protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
+        System.out.println("Build Start");
 		String targetFolder = "sootOutput";
-		IJavaProject project = JavaCore.create(getProject());
+        IJavaProject project = JavaCore.create(getProject());
 		IResourceDelta delta = getDelta(project.getProject());
 		if(delta == null || !delta.getAffectedChildren()[0].getProjectRelativePath().toString().equals(targetFolder)){
-			classpath = getSootCP(project);
+        classpath = getSootCP(project);
 			String location = GlobalSettings.get("TargetProject_"+project.getProject().getName());
 			IFolder folder = project.getProject().getFolder(targetFolder);
-			//at this point, no resources have been created
-			if (!folder.exists()) {
+        //at this point, no resources have been created
+        if (!folder.exists()) {
 				folder.create( IResource.BACKGROUND_REFRESH, true, null);
-			}
+        }
 			classpath = location +  classpath;
-			String[] sootString = new String[] { "-cp", classpath, "-exclude", "javax", "-allow-phantom-refs", "-no-bodies-for-excluded", 
-					"-process-dir", location, "-src-prec", "only-class", "-w", "-output-format", 
-					"J", "-keep-line-number" ,"-output-dir",folder.getLocation().toOSString()/*,"tag.ln","on"*/ };
-			ICFGStructure icfg = new ICFGStructure();
-			JimpleModelAnalysis analysis = new JimpleModelAnalysis();
-			analysis.setSootString(sootString);
-			List<VFClass> jimpleClasses = new ArrayList<>();
-			analysis.createICFG(icfg, jimpleClasses);
-			fillDataModel(icfg, jimpleClasses);
+        String[] sootString = new String[] { "-cp", classpath, "-exclude", "javax", "-allow-phantom-refs", "-no-bodies-for-excluded", 
+    			"-process-dir", location, "-src-prec", "only-class", "-w", "-output-format", 
+    			"J", "-keep-line-number" ,"-output-dir",folder.getLocation().toOSString()/*,"tag.ln","on"*/ };
+        ICFGStructure icfg = new ICFGStructure();
+        JimpleModelAnalysis analysis = new JimpleModelAnalysis();
+        analysis.setSootString(sootString);
+        List<VFClass> jimpleClasses = new ArrayList<>();
+        analysis.createICFG(icfg, jimpleClasses);
+        fillDataModel(icfg, jimpleClasses);
 			
 			folder.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 		}
-		return null;
-	}
-
-	/* private boolean collect(IProject project, final IProgressMonitor monitor) throws CoreException { 
-
-    	  project.accept(new IResourceVisitor() { 
-
-    	   public boolean visit(IResource resource) throws CoreException { 
-    	    if (monitor.isCanceled()) { 
-    	     throw new OperationCanceledException(); 
-    	    } 
-    	    if (isInterrupted()) { 
-    	     return false; 
-    	    } 
-    	    if (resource instanceof IFile) { 
-    	     IFile file = (IFile) resource; 
-    	    } else if (resource instanceof IContainer) { 
-    	     if (filtered((IContainer) resource)) { 
-    	      return false; 
-    	     } 
-    	    } 
-    	    return true; 
-    	   } 
-
-    	  }); 
-    	  return false; 
-    	 } 
-	 */}
+        return null;
+    }
+}
