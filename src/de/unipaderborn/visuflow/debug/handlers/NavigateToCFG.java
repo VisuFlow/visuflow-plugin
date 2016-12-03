@@ -87,7 +87,6 @@ public class NavigateToCFG extends AbstractHandler {
 					if (toBeCompared == methodLine) {
 						for (VFUnit unit : method.getUnits()) {
 							if (unit.getUnit().toString().trim().equals(content)) {
-								System.out.println(unit.toString());
 								HashMap<VFMethod,VFUnit> map = new HashMap<VFMethod, VFUnit>();
 								map.put(method, unit);
 								return map;

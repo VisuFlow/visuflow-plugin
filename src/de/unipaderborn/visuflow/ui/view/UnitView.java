@@ -30,7 +30,6 @@ import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.util.ServiceUtil;
-import polyglot.ast.Case;
 import soot.jimple.internal.JAddExpr;
 import soot.jimple.internal.JAssignStmt;
 import soot.jimple.internal.JInvokeStmt;
@@ -230,7 +229,9 @@ public class UnitView extends ViewPart implements EventHandler {
 		});
 
 		Dictionary<String, Object> properties = new Hashtable<>();
-		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA + "/*");
+		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_MODEL_CHANGED);
+		ServiceUtil.registerService(EventHandler.class, this, properties);
+		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_SELECTION);
 		ServiceUtil.registerService(EventHandler.class, this, properties);
 	}
 
