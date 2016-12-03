@@ -10,8 +10,18 @@ public class VFUnit {
 
     private Object inSet;
     private Object outSet;
+    
+    private VFMethod vfMethod;
 
-    public VFUnit(Unit wrapped) {
+    public VFMethod getVfMethod() {
+		return vfMethod;
+	}
+
+	public void setVfMethod(VFMethod vfMethod) {
+		this.vfMethod = vfMethod;
+	}
+
+	public VFUnit(Unit wrapped) {
         this.wrapped = wrapped;
         setFullyQualifiedName(wrapped);
     }
