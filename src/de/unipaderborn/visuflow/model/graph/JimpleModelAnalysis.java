@@ -77,6 +77,7 @@ public class JimpleModelAnalysis {
 
 					for (SootMethod sootMethod : sootClass.getMethods()) {
 						VFMethod currentMethod = new VFMethod(sootMethod);
+						currentMethod.setVfClass(currentClass);
 						Body body = sootMethod.retrieveActiveBody();
 						currentMethod.setBody(body);
 						currentMethod.setControlFlowGraph(new ControlFlowGraphGenerator().generateControlFlowGraph(body));
@@ -85,6 +86,7 @@ public class JimpleModelAnalysis {
 						for (Unit unit : body.getUnits()) {
                             addFullyQualifiedName(unit, sootClass, sootMethod);
 							VFUnit currentUnit = new VFUnit(unit);
+							currentUnit.setVfMethod(currentMethod);
 							currentMethod.getUnits().add(currentUnit);
 						}
 					}
