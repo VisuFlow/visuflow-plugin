@@ -123,7 +123,6 @@ public class DataModelImpl implements DataModel {
         properties.put("model", classList);
 		properties.put("icfg", icfg);
         Event modelChanged = new Event(DataModel.EA_TOPIC_DATA_MODEL_CHANGED, properties);
-        System.out.println("posting event " + DataModel.EA_TOPIC_DATA_MODEL_CHANGED);
         eventAdmin.postEvent(modelChanged);
     }
 
@@ -217,8 +216,6 @@ public class DataModelImpl implements DataModel {
 
 	@Override
 	public void filterGraph(List<VFNode> selectedNodes, SootMethod method, boolean selection) throws Exception {
-		System.out.println("size " + this.listClasses().get(0).getMethods().size());
-		method = this.listClasses().get(0).getMethods().get(1).getBody().getMethod();
 		this.selectedNodes = selectedNodes;
 		this.selection = selection;
 		if(method != null)
