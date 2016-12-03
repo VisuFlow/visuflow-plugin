@@ -99,8 +99,7 @@ public class UnitView extends ViewPart implements EventHandler {
 		gridUnitTable.widthHint = SWT.DEFAULT;
 		gridUnitTable.heightHint = SWT.DEFAULT;
 
-		tree = new Tree(parent, SWT.FILL | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BACKGROUND
-				| SWT.MULTI | SWT.BACKGROUND);
+		tree = new Tree(parent, SWT.FILL | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BACKGROUND | SWT.MULTI | SWT.BACKGROUND);
 		tree.setHeaderVisible(true);
 		tree.setLayout(layout);
 		tree.setLayoutData(gridUnitTable);
@@ -124,7 +123,6 @@ public class UnitView extends ViewPart implements EventHandler {
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
 
 			}
 		});
@@ -142,40 +140,10 @@ public class UnitView extends ViewPart implements EventHandler {
 								tree.removeAll();
 								listUnits = vfmethod.getUnits();
 								populateUnits(listUnits);
-								/*
-								 * for (VFUnit unit : listUnits) { TreeItem
-								 * treeItem= new TreeItem(tree, SWT.NONE |
-								 * SWT.BORDER);
-								 * treeItem.setText(unit.getUnit().toString());
-								 * if (unit.getUnit() instanceof JAssignStmt) {
-								 * JAssignStmt stmt =
-								 * (JAssignStmt)unit.getUnit(); TreeItem
-								 * treeLeft = new TreeItem(treeItem, SWT.LEFT |
-								 * SWT.BORDER); treeLeft.setText(new String[]
-								 * {"Left"}); TreeItem treeLeftValue= new
-								 * TreeItem(treeLeft, SWT.LEFT | SWT.BORDER);
-								 * treeLeftValue.setText(new String[]
-								 * {"Value : "+stmt.leftBox.getValue().toString(
-								 * )}); TreeItem treeLeftClass= new
-								 * TreeItem(treeLeft, SWT.LEFT | SWT.BORDER);
-								 * treeLeftClass.setText(new String[]
-								 * {"Class : "+stmt.leftBox.getValue().getClass(
-								 * ).toString()});
-								 * 
-								 * TreeItem treeRight = new TreeItem(treeItem,
-								 * SWT.LEFT | SWT.BORDER); treeRight.setText(new
-								 * String[] {"Right"}); TreeItem treeRightValue=
-								 * new TreeItem(treeRight, SWT.LEFT |
-								 * SWT.BORDER); treeRightValue.setText(new
-								 * String[]
-								 * {"Value : "+stmt.leftBox.getValue().toString(
-								 * )}); TreeItem treeRightClass= new
-								 * TreeItem(treeRight, SWT.LEFT | SWT.BORDER);
-								 * treeRightClass.setText(new String[]
-								 * {"Class : "+stmt.leftBox.getValue().getClass(
-								 * ).toString()}); } }
-								 */
+								break;
 							}
+							
+							break;
 						}
 					}
 				}
@@ -184,7 +152,6 @@ public class UnitView extends ViewPart implements EventHandler {
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
 
 			}
 		});
@@ -197,39 +164,12 @@ public class UnitView extends ViewPart implements EventHandler {
 				if (!listUnits.isEmpty()) {
 					tree.removeAll();
 					populateUnits(listUnits);
-					/*
-					 * for (VFUnit unit : listUnits) { TreeItem treeItem= new
-					 * TreeItem(tree, SWT.NONE | SWT.BORDER);
-					 * treeItem.setText(unit.getUnit().toString()); if
-					 * (unit.getUnit() instanceof JAssignStmt) { JAssignStmt
-					 * stmt = (JAssignStmt)unit.getUnit(); TreeItem treeLeft =
-					 * new TreeItem(treeItem, SWT.LEFT | SWT.BORDER);
-					 * treeLeft.setText(new String[] {"Left"}); TreeItem
-					 * treeLeftValue= new TreeItem(treeLeft, SWT.LEFT |
-					 * SWT.BORDER); treeLeftValue.setText(new String[]
-					 * {"Value : "+stmt.leftBox.getValue().toString()});
-					 * TreeItem treeLeftClass= new TreeItem(treeLeft, SWT.LEFT |
-					 * SWT.BORDER); treeLeftClass.setText(new String[]
-					 * {"Class : "+stmt.leftBox.getValue().getClass().toString()
-					 * });
-					 * 
-					 * TreeItem treeRight = new TreeItem(treeItem, SWT.LEFT |
-					 * SWT.BORDER); treeRight.setText(new String[] {"Right"});
-					 * TreeItem treeRightValue= new TreeItem(treeRight, SWT.LEFT
-					 * | SWT.BORDER); treeRightValue.setText(new String[]
-					 * {"Value : "+stmt.leftBox.getValue().toString()});
-					 * TreeItem treeRightClass= new TreeItem(treeRight, SWT.LEFT
-					 * | SWT.BORDER); treeRightClass.setText(new String[]
-					 * {"Class : "+stmt.leftBox.getValue().getClass().toString()
-					 * }); } }
-					 */
 				}
 
 			}
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
 
 			}
 		});
@@ -283,8 +223,7 @@ public class UnitView extends ViewPart implements EventHandler {
 				TreeItem treeRightValue = new TreeItem(treeRight, SWT.LEFT | SWT.BORDER);
 				treeRightValue.setText(new String[] { "Value : " + jassStmt.rightBox.getValue().toString() });
 				TreeItem treeRightClass = new TreeItem(treeRight, SWT.LEFT | SWT.BORDER);
-				treeRightClass
-						.setText(new String[] { "Class : " + jassStmt.rightBox.getValue().getClass().toString() });
+				treeRightClass.setText(new String[] { "Class : " + jassStmt.rightBox.getValue().getClass().toString() });
 				break;
 
 			case 2:
@@ -309,7 +248,7 @@ public class UnitView extends ViewPart implements EventHandler {
 				break;
 
 			case 3:
-				
+
 				JInvokeStmt jinvokestmt = (JInvokeStmt) unit.getUnit();
 				TreeItem treeUnitInvType = new TreeItem(treeItem, SWT.LEFT | SWT.BORDER);
 				treeUnitInvType.setText(new String[] { "Unit Type : " + jinvokestmt.getClass().toString() });
@@ -318,12 +257,10 @@ public class UnitView extends ViewPart implements EventHandler {
 				treeInvokeExp.setText(new String[] { "Invoke Expression : " + jinvokestmt.getInvokeExpr() });
 
 				TreeItem treeMethodClass = new TreeItem(treeInvokeExp, SWT.LEFT | SWT.BORDER);
-				treeMethodClass.setText(new String[] {
-						"Method Declaring Class : " + jinvokestmt.getInvokeExpr().getMethod().getDeclaringClass() });
+				treeMethodClass.setText(new String[] { "Method Declaring Class : " + jinvokestmt.getInvokeExpr().getMethod().getDeclaringClass() });
 
 				TreeItem treeMethodSig = new TreeItem(treeInvokeExp, SWT.LEFT | SWT.BORDER);
-				treeMethodSig.setText(new String[] {
-						"Method Signature : " + jinvokestmt.getInvokeExpr().getMethod().getDeclaration() });
+				treeMethodSig.setText(new String[] { "Method Signature : " + jinvokestmt.getInvokeExpr().getMethod().getDeclaration() });
 
 				int argCount = jinvokestmt.getInvokeExpr().getMethod().getParameterCount();
 				TreeItem treeArgcount = new TreeItem(treeInvokeExp, SWT.LEFT | SWT.BORDER);
@@ -332,8 +269,7 @@ public class UnitView extends ViewPart implements EventHandler {
 				if (argCount > 0) {
 					for (int i = 0; i < argCount; i++) {
 						TreeItem treeArg = new TreeItem(treeArgcount, SWT.LEFT | SWT.BORDER);
-						treeArg.setText(new String[] { "Parameter " + (i + 1) + " type : "
-								+ jinvokestmt.getInvokeExpr().getMethod().getParameterType(i) });
+						treeArg.setText(new String[] { "Parameter " + (i + 1) + " type : " + jinvokestmt.getInvokeExpr().getMethod().getParameterType(i) });
 					}
 				}
 
@@ -344,12 +280,11 @@ public class UnitView extends ViewPart implements EventHandler {
 					treeFieldref.setText(new String[] { "Field Reference : Null" });
 
 				TreeItem treeMethodReturnType = new TreeItem(treeInvokeExp, SWT.LEFT | SWT.BORDER);
-				treeMethodReturnType.setText(new String[] {
-						"Method return Type : " + jinvokestmt.getInvokeExpr().getMethod().getReturnType() });
+				treeMethodReturnType.setText(new String[] { "Method return Type : " + jinvokestmt.getInvokeExpr().getMethod().getReturnType() });
 				break;
 
 			case 4:
-				
+
 				JReturnStmt jretStmt = (JReturnStmt) unit.getUnit();
 				TreeItem treeUnitRetType = new TreeItem(treeItem, SWT.LEFT | SWT.BORDER);
 				treeUnitRetType.setText(new String[] { "Unit Type : " + jretStmt.getClass().toString() });
@@ -365,9 +300,9 @@ public class UnitView extends ViewPart implements EventHandler {
 				TreeItem treeReturnType = new TreeItem(treeUnitRetType, SWT.LEFT | SWT.BORDER);
 				treeReturnType.setText(new String[] { "Return Value : " + jretStmt.getOp().getType() });
 				break;
-				
+
 			case 5:
-				
+
 				JIdentityStmt jidenStmt = (JIdentityStmt) unit.getUnit();
 				TreeItem treeUnitIdenType = new TreeItem(treeItem, SWT.LEFT | SWT.BORDER);
 				treeUnitIdenType.setText(new String[] { "Unit Type : " + jidenStmt.getClass().toString() });
@@ -384,12 +319,11 @@ public class UnitView extends ViewPart implements EventHandler {
 				TreeItem treeIdenRightValue = new TreeItem(treeIdenRight, SWT.LEFT | SWT.BORDER);
 				treeIdenRightValue.setText(new String[] { "Value : " + jidenStmt.rightBox.getValue().toString() });
 				TreeItem treeIdenRightClass = new TreeItem(treeIdenRight, SWT.LEFT | SWT.BORDER);
-				treeIdenRightClass
-						.setText(new String[] { "Class : " + jidenStmt.rightBox.getValue().getClass().toString() });
+				treeIdenRightClass.setText(new String[] { "Class : " + jidenStmt.rightBox.getValue().getClass().toString() });
 				break;
 
 			case 0:
-				
+
 				break;
 			}
 		}
@@ -407,35 +341,6 @@ public class UnitView extends ViewPart implements EventHandler {
 					if (checkBox.getSelection()) {
 						tree.removeAll();
 						populateUnits(listUnits);
-						/*
-						 * for (VFUnit unit : listUnits) { TreeItem treeItem=
-						 * new TreeItem(tree, SWT.NONE | SWT.BORDER);
-						 * treeItem.setText(unit.getUnit().toString()); if
-						 * (unit.getUnit() instanceof JAssignStmt) { JAssignStmt
-						 * stmt = (JAssignStmt)unit.getUnit(); TreeItem treeLeft
-						 * = new TreeItem(treeItem, SWT.LEFT | SWT.BORDER);
-						 * treeLeft.setText(new String[] {"Left"}); TreeItem
-						 * treeLeftValue= new TreeItem(treeLeft, SWT.LEFT |
-						 * SWT.BORDER); treeLeftValue.setText(new String[]
-						 * {"Value : "+stmt.leftBox.getValue().toString()});
-						 * TreeItem treeLeftClass= new TreeItem(treeLeft,
-						 * SWT.LEFT | SWT.BORDER); treeLeftClass.setText(new
-						 * String[]
-						 * {"Class : "+stmt.leftBox.getValue().getClass().
-						 * toString()});
-						 * 
-						 * TreeItem treeRight = new TreeItem(treeItem, SWT.LEFT
-						 * | SWT.BORDER); treeRight.setText(new String[]
-						 * {"Right"}); TreeItem treeRightValue= new
-						 * TreeItem(treeRight, SWT.LEFT | SWT.BORDER);
-						 * treeRightValue.setText(new String[]
-						 * {"Value : "+stmt.leftBox.getValue().toString()});
-						 * TreeItem treeRightClass= new TreeItem(treeRight,
-						 * SWT.LEFT | SWT.BORDER); treeRightClass.setText(new
-						 * String[]
-						 * {"Class : "+stmt.leftBox.getValue().getClass().
-						 * toString()}); } }
-						 */
 					}
 				}
 			});
@@ -459,13 +364,29 @@ public class UnitView extends ViewPart implements EventHandler {
 						}
 					}
 					methodCombo.select(0);
+					String selectMethod = methodCombo.getText();
+					String selectedClass = classCombo.getText();
+					for (VFClass vfclass : dataModel.listClasses()) {
+						if (vfclass.getSootClass().getName().toString().equals(selectedClass)) {
+							for (VFMethod vfmethod : dataModel.listMethods(vfclass)) {
+								if (vfmethod.getSootMethod().getDeclaration().toString().equals(selectMethod)) {
+									tree.removeAll();
+									listUnits = vfmethod.getUnits();
+									populateUnits(listUnits);
+									break;
+								}
+								
+								break;
+							}
+						}
+					}
 				}
 			});
 		}
-		
+
 		if (event.getTopic().equals(DataModel.EA_TOPIC_DATA_FILTER_GRAPH)) {
 			getDisplay().asyncExec(new Runnable() {
-				
+
 				@SuppressWarnings("unchecked")
 				@Override
 				public void run() {
@@ -475,8 +396,7 @@ public class UnitView extends ViewPart implements EventHandler {
 					int i = -1;
 					for (String classString : classCombo.getItems()) {
 						i++;
-						if(classString.equals(selectedClass.getSootClass().getName().toString()))
-						{
+						if (classString.equals(selectedClass.getSootClass().getName().toString())) {
 							classCombo.select(i);
 							methodCombo.removeAll();
 							for (VFMethod vfmethod : dataModel.listMethods(selectedClass)) {
@@ -488,28 +408,27 @@ public class UnitView extends ViewPart implements EventHandler {
 					int j = -1;
 					for (String methodString : methodCombo.getItems()) {
 						j++;
-						if(methodString.equals(selectedMethod.getSootMethod().getDeclaration().toString())) {
+						if (methodString.equals(selectedMethod.getSootMethod().getDeclaration().toString())) {
 							methodCombo.select(j);
 							tree.removeAll();
 							populateUnits(selectedMethod.getUnits());
 							break;
 						}
 					}
-					
+
 					for (TreeItem treeItem : tree.getItems()) {
-						if(treeItem.getText().equals(nodeList.get(0).getUnit().toString())) {
-							treeItem.setChecked(true);
-						//treeItem.setBackground(new Color(getDisplay(), new RGB(50, 100, 300)));
-						break;
+						if (treeItem.getText().equals(nodeList.get(0).getUnit().toString())) {
+							tree.setSelection(treeItem);
+							break;
 						}
 					}
-					
+
 				}
 			});
 		}
 	}
-
-	// TODO move this to a utility class ?!?
+	
+	
 	public static Display getDisplay() {
 		Display display = Display.getCurrent();
 		if (display == null) {
