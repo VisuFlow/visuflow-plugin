@@ -133,6 +133,16 @@
          </visibleWhen>
       </command>
    </menuContribution>
+   <menuContribution
+         allPopups="false"
+         locationURI="popup:#AbstractTextEditorRulerContext?after=additions">
+      <command
+            commandId="JimpleEditor.NavigateToUnitView"
+            label="Navigate to Unit View"
+            style="push"
+            tooltip="Navigate to Unit View">
+      </command>
+   </menuContribution>
 </extension>
 <extension
       point="org.eclipse.ui.commands">
@@ -148,6 +158,10 @@
          id="JimpleEditor.NavigateToCFG"
          name="Navigate to CFG">
    </command>
+   <command
+         id="JimpleEditor.NavigateToUnitView"
+         name="Navigate to Unit View">
+   </command>
 </extension>
 <extension
       point="org.eclipse.ui.handlers">
@@ -160,8 +174,12 @@
          commandId="GraphStreamFeasibility.sourceCodeCommand">
    </handler>
    <handler
-         class="de.unipaderborn.visuflow.debug.handlers.NavigateToCFG"
+         class="de.unipaderborn.visuflow.debug.handlers.NavigationHandler"
          commandId="JimpleEditor.NavigateToCFG">
+   </handler>
+   <handler
+         class="de.unipaderborn.visuflow.debug.handlers.NavigateToUnitView"
+         commandId="JimpleEditor.NavigateToUnitView">
    </handler>
 </extension>
 

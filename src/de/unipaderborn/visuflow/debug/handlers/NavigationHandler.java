@@ -31,7 +31,7 @@ import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.util.MapUtil;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 
-public class NavigateToCFG extends AbstractHandler {
+public class NavigationHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -55,12 +55,20 @@ public class NavigateToCFG extends AbstractHandler {
 							content.trim().substring(0, content.length() - 1), lineNumber);
 					List<VFNode> unit = new ArrayList<>();
 					unit.add(new VFNode((VFUnit) resultantUnit.values().toArray()[0], 0));
-				try {
-					ServiceUtil.getService(DataModel.class).filterGraph(unit,((VFMethod) resultantUnit.keySet().toArray()[0]).getSootMethod(), true);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+					if (event.getCommand().getId().equals("JimpleEditor.NavigateToCFG"))
+					{
+						try {
+							ServiceUtil.getService(DataModel.class).filterGraph(unit,((VFMethod) resultantUnit.keySet().toArray()[0]).getSootMethod(), true);
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					
+					else if (event.getCommand().getId().equals("JimpleEditor.NavigateToUnitView"))
+					{
+						
+					}
 				}
 			} catch (BadLocationException e) {
 				// TODO Auto-generated catch block
