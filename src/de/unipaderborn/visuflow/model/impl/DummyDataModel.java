@@ -169,5 +169,8 @@ public class DummyDataModel implements DataModel {
 		// TODO Auto-generated method stub
 
 	}
+	@Override
+	public void HighlightJimpleUnit(VFUnit unit){
+	}
 
 }
