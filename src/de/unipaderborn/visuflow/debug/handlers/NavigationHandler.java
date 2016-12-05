@@ -58,7 +58,7 @@ public class NavigationHandler extends AbstractHandler {
 					if (event.getCommand().getId().equals("JimpleEditor.NavigateToCFG"))
 					{
 						try {
-							ServiceUtil.getService(DataModel.class).filterGraph(unit,((VFMethod) resultantUnit.keySet().toArray()[0]).getSootMethod(), true);
+							ServiceUtil.getService(DataModel.class).filterGraph(unit, true);
 						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -68,7 +68,7 @@ public class NavigationHandler extends AbstractHandler {
 					else if (event.getCommand().getId().equals("JimpleEditor.NavigateToUnitView"))
 					{
 						try {
-							ServiceUtil.getService(DataModel.class).filterGraph(unit,((VFMethod) resultantUnit.keySet().toArray()[0]).getSootMethod(), false);
+							ServiceUtil.getService(DataModel.class).filterGraph(unit, true);
 						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();

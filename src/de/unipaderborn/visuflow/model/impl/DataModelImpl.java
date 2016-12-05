@@ -214,16 +214,13 @@ public class DataModelImpl implements DataModel {
 	}
 
 	@Override
-	public void filterGraph(List<VFNode> selectedNodes, SootMethod method, boolean selection) throws Exception {
+	public void filterGraph(List<VFNode> selectedNodes, boolean selection) throws Exception {
 		this.selectedNodes = selectedNodes;
 		this.selection = selection;
-		if(method != null)
-		{
-			VFMethod selectedMethod = this.getVFMethodByName(method);
-			if(selectedMethod == null)
-				throw new Exception("Method id null");
-			this.setSelectedMethod(selectedMethod);
-		}
+		
+		if(!selectedNodes.isEmpty())
+			this.setSelectedMethod(selectedNodes.get(0).getVFUnit().getVfMethod());
+		
 		Dictionary<String, Object> properties = new Hashtable<>();
         properties.put("nodesToFilter", this.selectedNodes);
         properties.put("selection", this.selection);
