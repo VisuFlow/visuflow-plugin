@@ -39,5 +39,5 @@ public interface DataModel {
 
 	public void setInSet(String unitFqn, String name, String value);
 	public void setOutSet(String unitFqn, String name, String value);
-	public void HighlightJimpleUnit(VFUnit unit);
+	public void HighlightJimpleUnit(VFNode node);
 }

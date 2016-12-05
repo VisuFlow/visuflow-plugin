@@ -87,6 +87,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private BufferedImage imgDown;
 	private BufferedImage imgPlus;
 	private BufferedImage imgMinus;
+	private boolean CFG;
 
 	public GraphManager(String graphName, String styleSheet)
 	{
@@ -387,17 +388,17 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if(e.getButton() == MouseEvent.BUTTON3)
+				DataModel dataModel = ServiceUtil.getService(DataModel.class);
+				GraphicElement curElement = view.findNodeOrSpriteAt(e.getX(), e.getY());
+				if(curElement == null)
+					return;
+				Node curr = graph.getNode(curElement.getId());
+				if(e.getButton() == MouseEvent.BUTTON3 && !CFG)
 				{
-					GraphicElement curElement = view.findNodeOrSpriteAt(e.getX(), e.getY());
-					if(curElement == null)
-						return;
-					Node curr = graph.getNode(curElement.getId());
 					Object node = curr.getAttribute("nodeMethod");
 					if(node instanceof VFMethod)
 					{
 						VFMethod currentMethod = (VFMethod) node;
-						DataModel dataModel = ServiceUtil.getService(DataModel.class);
 						VFMethod selectedMethod = dataModel.getVFMethodByName(currentMethod.getSootMethod());
 						try {
 							if(selectedMethod.getControlFlowGraph() == null)
@@ -410,6 +411,16 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						} catch (Exception e1) {
 							e1.printStackTrace();
 						}
+					}
+				}
+				else
+				{
+					Object node = curr.getAttribute("nodeUnit");
+					if(node instanceof VFNode)
+					{
+						System.out.println("Clicked on VFNode " + node);
+						System.out.println("calling highligt jimple Unit");
+						dataModel.HighlightJimpleUnit((VFNode) node);
 					}
 				}
 			}
@@ -535,6 +546,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			createGraphMethodNode(dest);
 			createGraphMethodEdge(src, dest);
 		}
+		this.CFG = false;
 		experimentalLayout();
 	}
 
@@ -575,6 +587,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			createGraphNode(dest);
 			createGraphEdge(src,dest);
 		}
+		this.CFG = true;
 		experimentalLayout();
 	}
 
@@ -602,6 +615,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			createdNode.setAttribute("nodeData.unitType", node.getUnit().getClass());
 			createdNode.setAttribute("nodeData.inSet", "coming soon");
 			createdNode.setAttribute("nodeData.outSet", "coming soon");
+			createdNode.setAttribute("nodeUnit", node);
 		}
 	}
 

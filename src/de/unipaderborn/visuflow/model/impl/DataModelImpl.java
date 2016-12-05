@@ -157,7 +157,6 @@ public class DataModelImpl implements DataModel {
 
 	@Override
 	public VFMethod getVFMethodByName(SootMethod method) {
-		// TODO Auto-generated method stub
 		VFClass methodIncludingClass = null;
 		String className = method.getDeclaringClass().getName();
 		List<VFClass> classes = listClasses();
@@ -236,7 +235,9 @@ public class DataModelImpl implements DataModel {
 		eventAdmin.postEvent(filterGraph);
 	}
 
-	public void HighlightJimpleUnit(VFUnit unit) {
+	public void HighlightJimpleUnit(VFNode node) {
+		VFUnit unit = node.getVFUnit();
+		System.out.println("DataModel ---> unit " + unit);
 		String className = unit.getVfMethod().getVfClass().getSootClass().getName();
 		VFMethod methodName = unit.getVfMethod();
 
@@ -261,7 +262,6 @@ public class DataModelImpl implements DataModel {
 							IRegion region = findReplaceDocumentAdapter.find(methodStartLine, unit.getFullyQualifiedName(), true, true, true, false);
 							editor.selectAndReveal(region.getOffset(), unit.getFullyQualifiedName().length());
 						} catch (BadLocationException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
