@@ -27,7 +27,7 @@ node.plus {
 
 edge {
 	arrow-shape: arrow;
-	arrow-size: 8px, 8px, 10px;
+	arrow-size: 8px, 8px, 50px;
 	fill-color: blue;
 }
 

@@ -425,14 +425,14 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private void zoomIn()
 	{
 		double viewPercent = view.getCamera().getViewPercent();
-		if(viewPercent > maxZoomPercent)
+//		if(viewPercent > maxZoomPercent)
 			view.getCamera().setViewPercent(viewPercent - zoomInDelta);
 	}
 
 	private void zoomOut()
 	{
 		double viewPercent = view.getCamera().getViewPercent();
-		if(viewPercent < minZoomPercent)
+//		if(viewPercent < minZoomPercent)
 			view.getCamera().setViewPercent(viewPercent + zoomOutDelta);
 	}
 
