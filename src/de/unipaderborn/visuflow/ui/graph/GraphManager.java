@@ -405,7 +405,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 								throw new Exception("CFG Null Exception");
 							else
 							{
-								renderMethodCFG(dataModel.getVFMethodByName(currentMethod.getSootMethod()).getControlFlowGraph());
+								renderMethodCFG(selectedMethod.getControlFlowGraph());
 								dataModel.setSelectedMethod(selectedMethod);
 							}
 						} catch (Exception e1) {
