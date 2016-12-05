@@ -162,6 +162,34 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		createAppletContainer();
 	}
 
+	private void panUp()
+	{
+		Point3 currCenter = view.getCamera().getViewCenter();
+		view.getCamera().setViewCenter(currCenter.x, currCenter.y + 1, 0);
+//		System.out.println(view.getCamera().getViewCenter());
+	}
+	
+	private void panDown()
+	{
+		Point3 currCenter = view.getCamera().getViewCenter();
+		view.getCamera().setViewCenter(currCenter.x, currCenter.y - 1, 0);
+//		System.out.println(view.getCamera().getViewCenter());
+	}
+	
+	private void panLeft()
+	{
+		Point3 currCenter = view.getCamera().getViewCenter();
+		view.getCamera().setViewCenter(currCenter.x + 1, currCenter.y, 0);
+//		System.out.println(view.getCamera().getViewCenter());
+	}
+	
+	private void panRight()
+	{
+		Point3 currCenter = view.getCamera().getViewCenter();
+		view.getCamera().setViewCenter(currCenter.x - 1, currCenter.y, 0);
+//		System.out.println(view.getCamera().getViewCenter());
+	}
+	
 	private void createPanningButtons() {
 		panLeftButton = new JButton("");
 		panRightButton = new JButton("");
@@ -177,8 +205,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Point3 currCenter = view.getCamera().getViewCenter();
-				view.getCamera().setViewCenter(currCenter.x + 1, currCenter.y, 0);
+				panLeft();
 			}
 		});
 
@@ -186,8 +213,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Point3 currCenter = view.getCamera().getViewCenter();
-				view.getCamera().setViewCenter(currCenter.x - 1, currCenter.y, 0);
+				panRight();
 			}
 		});
 
@@ -195,8 +221,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Point3 currCenter = view.getCamera().getViewCenter();
-				view.getCamera().setViewCenter(currCenter.x, currCenter.y + 1, 0);
+				panUp();
 			}
 		});
 
@@ -204,8 +229,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Point3 currCenter = view.getCamera().getViewCenter();
-				view.getCamera().setViewCenter(currCenter.x, currCenter.y - 1, 0);
+				panDown();
 			}
 		});
 	}
