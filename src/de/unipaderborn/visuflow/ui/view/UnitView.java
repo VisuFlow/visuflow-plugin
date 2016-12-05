@@ -9,9 +9,7 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -33,7 +31,6 @@ import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.model.VFNode;
 import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.util.ServiceUtil;
-import soot.SootMethod;
 import soot.jimple.internal.JAddExpr;
 import soot.jimple.internal.JAssignStmt;
 import soot.jimple.internal.JIdentityStmt;
@@ -391,6 +388,8 @@ public class UnitView extends ViewPart implements EventHandler {
 				@Override
 				public void run() {
 					nodeList = (List<VFNode>) event.getProperty("nodesToFilter");
+					if(nodeList.isEmpty())
+						return;
 					VFClass selectedClass = nodeList.get(0).getVFUnit().getVfMethod().getVfClass();
 					VFMethod selectedMethod = nodeList.get(0).getVFUnit().getVfMethod();
 					int i = -1;
