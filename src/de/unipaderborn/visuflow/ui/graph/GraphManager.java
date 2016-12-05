@@ -178,14 +178,14 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private void panLeft()
 	{
 		Point3 currCenter = view.getCamera().getViewCenter();
-		view.getCamera().setViewCenter(currCenter.x + 1, currCenter.y, 0);
+		view.getCamera().setViewCenter(currCenter.x - 1, currCenter.y, 0);
 		//		System.out.println(view.getCamera().getViewCenter());
 	}
 
 	private void panRight()
 	{
 		Point3 currCenter = view.getCamera().getViewCenter();
-		view.getCamera().setViewCenter(currCenter.x - 1, currCenter.y, 0);
+		view.getCamera().setViewCenter(currCenter.x + 1, currCenter.y, 0);
 		//		System.out.println(view.getCamera().getViewCenter());
 	}
 
