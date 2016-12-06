@@ -33,7 +33,9 @@ import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 import soot.jimple.internal.JAddExpr;
 import soot.jimple.internal.JAssignStmt;
+import soot.jimple.internal.JGotoStmt;
 import soot.jimple.internal.JIdentityStmt;
+import soot.jimple.internal.JIfStmt;
 import soot.jimple.internal.JInvokeStmt;
 import soot.jimple.internal.JReturnStmt;
 
@@ -137,10 +139,7 @@ public class UnitView extends ViewPart implements EventHandler {
 								tree.removeAll();
 								listUnits = vfmethod.getUnits();
 								populateUnits(listUnits);
-								break;
 							}
-							
-							break;
 						}
 					}
 				}
@@ -200,6 +199,10 @@ public class UnitView extends ViewPart implements EventHandler {
 				stType = 4;
 			else if (unit.getUnit() instanceof JIdentityStmt)
 				stType = 5;
+			else if (unit.getUnit() instanceof JIfStmt)
+				stType = 6;
+			else if (unit.getUnit() instanceof JGotoStmt)
+				stType = 7;
 			switch (stType) {
 
 			case 1:
@@ -318,6 +321,32 @@ public class UnitView extends ViewPart implements EventHandler {
 				TreeItem treeIdenRightClass = new TreeItem(treeIdenRight, SWT.LEFT | SWT.BORDER);
 				treeIdenRightClass.setText(new String[] { "Class : " + jidenStmt.rightBox.getValue().getClass().toString() });
 				break;
+				
+			case 6:
+
+				JIfStmt jifStmt = (JIfStmt) unit.getUnit();
+				TreeItem treeUnitIfType = new TreeItem(treeItem, SWT.LEFT | SWT.BORDER);
+				treeUnitIfType.setText(new String[] { "Unit Type : " + jifStmt.getClass().toString() });
+				
+				TreeItem treeIfCond = new TreeItem(treeUnitIfType, SWT.LEFT | SWT.BORDER);
+				treeIfCond.setText(new String[] { "Condition : " + jifStmt.getCondition() });
+
+				TreeItem treeIfCondClass = new TreeItem(treeUnitIfType, SWT.LEFT | SWT.BORDER);
+				treeIfCondClass.setText(new String[] { "Condition Class : " + jifStmt.getCondition().getClass() });
+
+				TreeItem treeifCondTarget = new TreeItem(treeUnitIfType, SWT.LEFT | SWT.BORDER);
+				treeifCondTarget.setText(new String[] { "Target Unit : " + jifStmt.getTarget() });
+				break;
+				
+			case 7:
+
+				JGotoStmt jgotoStmt = (JGotoStmt) unit.getUnit();
+				TreeItem treeUnitgotoType = new TreeItem(treeItem, SWT.LEFT | SWT.BORDER);
+				treeUnitgotoType.setText(new String[] { "Unit Type : " + jgotoStmt.getClass().toString() });
+				
+				TreeItem treegotoTarget = new TreeItem(treeUnitgotoType, SWT.LEFT | SWT.BORDER);
+				treegotoTarget.setText(new String[] { "Go to target : " + jgotoStmt.getTarget() });
+				break;
 
 			case 0:
 
@@ -348,6 +377,8 @@ public class UnitView extends ViewPart implements EventHandler {
 				@Override
 				public void run() {
 					dataModel = ServiceUtil.getService(DataModel.class);
+					classCombo.removeAll();
+					methodCombo.removeAll();
 					for (VFClass vfclass : dataModel.listClasses()) {
 						classCombo.add(vfclass.getSootClass().getName());
 					}
