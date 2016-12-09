@@ -9,15 +9,15 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.ISharedImages;
@@ -33,7 +33,6 @@ import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.model.VFNode;
 import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.util.ServiceUtil;
-import soot.SootMethod;
 import soot.jimple.internal.JAddExpr;
 import soot.jimple.internal.JAssignStmt;
 import soot.jimple.internal.JGotoStmt;
@@ -356,6 +355,54 @@ public class UnitView extends ViewPart implements EventHandler {
 				break;
 			}
 		}
+		
+		Menu menu = new Menu(tree);
+		tree.setMenu(menu);
+		MenuItem menuItemJimple = new MenuItem(menu, SWT.None);
+		menuItemJimple.setText("View Jimple Code");
+		menuItemJimple.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				
+				System.out.println("Selected tree item "+tree.getSelection()[0].getText());
+				TreeItem selectedItem = tree.getSelection()[0];
+				while(selectedItem.getParentItem()!=null)
+				{
+					selectedItem = selectedItem.getParentItem();
+				}
+				System.out.println("Selected unit item "+selectedItem.getText());
+				System.out.println("Evenet Source "+e.getSource());				
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				
+			}
+		});
+		
+		MenuItem menuItemGraph = new MenuItem(menu, SWT.None);
+		menuItemGraph.setText("View in CFG");
+		menuItemGraph.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				
+				System.out.println("Selected tree item "+tree.getSelection()[0].getText());
+				TreeItem selectedItem = tree.getSelection()[0];
+				while(selectedItem.getParentItem()!=null)
+				{
+					selectedItem = selectedItem.getParentItem();
+				}
+				System.out.println("Selected unit item "+selectedItem.getText());
+				System.out.println("Evenet Source "+e.getSource());
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				
+			}
+		});
 	}
 
 	@Override
