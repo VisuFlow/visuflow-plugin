@@ -1,7 +1,9 @@
 package de.unipaderborn.visuflow.ui.view;
 
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jface.viewers.ILabelProvider;
@@ -43,9 +45,9 @@ import soot.jimple.internal.JReturnStmt;
 
 public class UnitView extends ViewPart implements EventHandler {
 
-	DataModel dataModel;
+	static DataModel dataModel;
 	static Tree tree;
-	Combo classCombo, methodCombo;
+	static Combo classCombo, methodCombo;
 	Button checkBox;
 	String classSelection, methodSelection;
 	private List<VFUnit> listUnits;
@@ -372,7 +374,11 @@ public class UnitView extends ViewPart implements EventHandler {
 					selectedItem = selectedItem.getParentItem();
 				}
 				System.out.println("Selected unit item "+selectedItem.getText());
-				System.out.println("Evenet Source "+e.getSource());				
+				System.out.println("Evenet Source "+e.getSource());
+				HashMap<String, Object> unitDetails = getUnitDetails(selectedItem.getText());
+				System.out.println("Selected Unit is " +((VFUnit)unitDetails.get("unit")).toString());
+				System.out.println("Selected method is "+((VFMethod)unitDetails.get("methodName")).getSootMethod().toString());
+				System.out.println("Selected Class is "+((VFClass)unitDetails.get("className")).getSootClass().getName());
 			}
 			
 			@Override
@@ -403,6 +409,44 @@ public class UnitView extends ViewPart implements EventHandler {
 				
 			}
 		});
+	}
+	
+	
+	public static HashMap<String, Object> getUnitDetails(String unitText)
+	{
+		String selectedClass = classCombo.getText();
+		String selectedMethod = methodCombo.getText();
+		HashMap<String, Object> unitDetails = new HashMap<>();
+		VFClass classSelected = null;
+		VFMethod methodSelected = null;
+		VFUnit unitSelected = null;
+		List<VFClass> listofClass = dataModel.listClasses();
+		for (VFClass vfClass : listofClass) {
+			if(vfClass.getSootClass().getName().toString().equals(selectedClass))
+			{
+				classSelected = vfClass;
+				break;
+			}
+		}
+		List<VFMethod> listofMethods = dataModel.listMethods(classSelected);
+		for (VFMethod vfMethod : listofMethods) {
+			if(vfMethod.getSootMethod().getDeclaration().toString().equals(selectedMethod))
+			{
+				methodSelected = vfMethod;
+				break;
+			}
+		}
+		List<VFUnit> listofUnits = dataModel.listUnits(methodSelected);
+		for (VFUnit vfUnit : listofUnits) {
+			if(vfUnit.getUnit().toString().equals(unitText))
+			{
+				unitSelected = vfUnit;
+			}
+		}
+		unitDetails.put("className", classSelected);
+		unitDetails.put("methodName", methodSelected);
+		unitDetails.put("unit", unitSelected);
+		return unitDetails;
 	}
 
 	@Override
