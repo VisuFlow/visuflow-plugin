@@ -6,6 +6,7 @@ import org.osgi.framework.BundleContext;
 public class Visuflow extends AbstractUIPlugin {
 	public static Visuflow plugin;
 	public static BundleContext context;
+	private Logger logger;
 
 	public Visuflow() {
 		// TODO Auto-generated constructor stub
@@ -17,6 +18,7 @@ public class Visuflow extends AbstractUIPlugin {
 		Visuflow.context = context;
 		System.out.println("---InStart---");
 		plugin = this;
+		logger = new Logger();
 	}
 
 	@Override
@@ -28,5 +30,9 @@ public class Visuflow extends AbstractUIPlugin {
 	public static Visuflow getDefault() {
 
 		return plugin;
+	}
+
+	public Logger getLogger() {
+		return logger;
 	}
 }
