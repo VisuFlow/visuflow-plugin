@@ -18,7 +18,6 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -239,12 +238,13 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	private void createIcons() {
 		try {
-			imgLeft = ImageIO.read(new File("icons/left.png"));
-			imgRight = ImageIO.read(new File("icons/right.png"));
-			imgUp = ImageIO.read(new File("icons/up.png"));
-			imgDown = ImageIO.read(new File("icons/down.png"));
-			imgPlus = ImageIO.read(new File("icons/plus.png"));
-			imgMinus = ImageIO.read(new File("icons/minus.png"));
+			ClassLoader loader = GraphManager.class.getClassLoader();
+			imgLeft = ImageIO.read(loader.getResource("/icons/left.png"));
+			imgRight = ImageIO.read(loader.getResource("/icons/right.png"));
+			imgUp = ImageIO.read(loader.getResource("/icons/up.png"));
+			imgDown = ImageIO.read(loader.getResource("/icons/down.png"));
+			imgPlus = ImageIO.read(loader.getResource("/icons/plus.png"));
+			imgMinus = ImageIO.read(loader.getResource("/icons/minus.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
