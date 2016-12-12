@@ -25,7 +25,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JApplet;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.JToolTip;
 
@@ -68,7 +67,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	JApplet applet;
 	JButton zoomInButton, zoomOutButton, viewCenterButton, toggleLayout, showICFGButton;
 	JToolBar settingsBar;
-	JScrollPane scrollbar;
 
 	double zoomInDelta, zoomOutDelta, maxZoomPercent, minZoomPercent;
 
@@ -105,18 +103,18 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	public Container getApplet() {
 		return applet.getRootPane();
 	}
-	
+
 	private void registerEventHandler()
 	{
-				Hashtable<String, String> properties = new Hashtable<String, String>();
-				properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_FILTER_GRAPH);
-				ServiceUtil.registerService(EventHandler.class, this, properties);
-				properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_SELECTION);
-				ServiceUtil.registerService(EventHandler.class, this, properties);
-				properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_MODEL_CHANGED);
-				ServiceUtil.registerService(EventHandler.class, this, properties);
-				properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_UNIT_CHANGED);
-				ServiceUtil.registerService(EventHandler.class, this, properties);
+		Hashtable<String, String> properties = new Hashtable<String, String>();
+		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_FILTER_GRAPH);
+		ServiceUtil.registerService(EventHandler.class, this, properties);
+		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_SELECTION);
+		ServiceUtil.registerService(EventHandler.class, this, properties);
+		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_MODEL_CHANGED);
+		ServiceUtil.registerService(EventHandler.class, this, properties);
+		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_UNIT_CHANGED);
+		ServiceUtil.registerService(EventHandler.class, this, properties);
 	}
 
 	void createGraph(String graphName)
@@ -167,30 +165,30 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	{
 		Point3 currCenter = view.getCamera().getViewCenter();
 		view.getCamera().setViewCenter(currCenter.x, currCenter.y + 1, 0);
-//		System.out.println(view.getCamera().getViewCenter());
+		//		System.out.println(view.getCamera().getViewCenter());
 	}
-	
+
 	private void panDown()
 	{
 		Point3 currCenter = view.getCamera().getViewCenter();
 		view.getCamera().setViewCenter(currCenter.x, currCenter.y - 1, 0);
-//		System.out.println(view.getCamera().getViewCenter());
+		//		System.out.println(view.getCamera().getViewCenter());
 	}
-	
+
 	private void panLeft()
 	{
 		Point3 currCenter = view.getCamera().getViewCenter();
-		view.getCamera().setViewCenter(currCenter.x + 1, currCenter.y, 0);
-//		System.out.println(view.getCamera().getViewCenter());
+		view.getCamera().setViewCenter(currCenter.x - 1, currCenter.y, 0);
+		//		System.out.println(view.getCamera().getViewCenter());
 	}
-	
+
 	private void panRight()
 	{
 		Point3 currCenter = view.getCamera().getViewCenter();
-		view.getCamera().setViewCenter(currCenter.x - 1, currCenter.y, 0);
-//		System.out.println(view.getCamera().getViewCenter());
+		view.getCamera().setViewCenter(currCenter.x + 1, currCenter.y, 0);
+		//		System.out.println(view.getCamera().getViewCenter());
 	}
-	
+
 	private void createPanningButtons() {
 		panLeftButton = new JButton("");
 		panRightButton = new JButton("");
@@ -272,10 +270,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	private void createAppletContainer() {
 		applet = new JApplet();
-
-		scrollbar = new JScrollPane(panel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS );
-		view.setAutoscrolls(true);
-		applet.add(scrollbar);
+		applet.add(panel);
 	}
 
 	private void createSettingsBar() {
@@ -430,14 +425,14 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private void zoomIn()
 	{
 		double viewPercent = view.getCamera().getViewPercent();
-		if(viewPercent > maxZoomPercent)
+//		if(viewPercent > maxZoomPercent)
 			view.getCamera().setViewPercent(viewPercent - zoomInDelta);
 	}
 
 	private void zoomOut()
 	{
 		double viewPercent = view.getCamera().getViewPercent();
-		if(viewPercent < minZoomPercent)
+//		if(viewPercent < minZoomPercent)
 			view.getCamera().setViewPercent(viewPercent + zoomOutDelta);
 	}
 
@@ -621,6 +616,12 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	private void experimentalLayout()
 	{
+		if(!CFG)
+		{
+			viewer.enableAutoLayout(new SpringBox());
+			return;
+		}
+		viewer.disableAutoLayout();
 		double spacing = 2.0;
 		double rowSpacing = 18.0;
 		double nodeCount = graph.getNodeCount() * spacing;
@@ -699,7 +700,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	public void run() {
 		this.registerEventHandler();
 		System.out.println("GraphManager ---> registered for events");
-		
+
 		ViewerPipe fromViewer = viewer.newViewerPipe();
 		fromViewer.addViewerListener(this);
 		fromViewer.addSink(graph);
