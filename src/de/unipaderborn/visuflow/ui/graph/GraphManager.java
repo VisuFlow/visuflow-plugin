@@ -1,5 +1,10 @@
 package de.unipaderborn.visuflow.ui.graph;
 
+import static de.unipaderborn.visuflow.model.DataModel.EA_TOPIC_DATA_FILTER_GRAPH;
+import static de.unipaderborn.visuflow.model.DataModel.EA_TOPIC_DATA_MODEL_CHANGED;
+import static de.unipaderborn.visuflow.model.DataModel.EA_TOPIC_DATA_SELECTION;
+import static de.unipaderborn.visuflow.model.DataModel.EA_TOPIC_DATA_UNIT_CHANGED;
+
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Graphics2D;
@@ -104,16 +109,15 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		return applet.getRootPane();
 	}
 
-	private void registerEventHandler()
-	{
-		Hashtable<String, String> properties = new Hashtable<String, String>();
-		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_FILTER_GRAPH);
-		ServiceUtil.registerService(EventHandler.class, this, properties);
-		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_SELECTION);
-		ServiceUtil.registerService(EventHandler.class, this, properties);
-		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_MODEL_CHANGED);
-		ServiceUtil.registerService(EventHandler.class, this, properties);
-		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_UNIT_CHANGED);
+	private void registerEventHandler() {
+		String [] topics = new String[] {
+				EA_TOPIC_DATA_FILTER_GRAPH,
+				EA_TOPIC_DATA_SELECTION,
+				EA_TOPIC_DATA_MODEL_CHANGED,
+				EA_TOPIC_DATA_UNIT_CHANGED
+		};
+		Hashtable<String, Object> properties = new Hashtable<>();
+		properties.put(EventConstants.EVENT_TOPIC, topics);
 		ServiceUtil.registerService(EventHandler.class, this, properties);
 	}
 
@@ -760,9 +764,21 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		if(event.getTopic().equals(DataModel.EA_TOPIC_DATA_UNIT_CHANGED))
 		{
 			VFUnit unit = (VFUnit) event.getProperty("unit");
-			System.out.println("GraphManager: Unit changed: " + unit.getFullyQualifiedName());
-			System.out.println("GraphManager: Unit in-set: " + unit.getInSet());
-			System.out.println("GraphManager: Unit out-set: " + unit.getOutSet());
+			
+			for (Edge edge : graph.getEdgeSet()) {
+				Node src = edge.getSourceNode();
+				VFNode vfNode = src.getAttribute("nodeUnit");
+				if(vfNode != null) {
+					VFUnit currentUnit = vfNode.getVFUnit();
+					if(unit.getFullyQualifiedName().equals(currentUnit.getFullyQualifiedName())) {
+						edge.setAttribute("ui.label", unit.getOutSet().toString());
+						edge.setAttribute("edgeData.outSet", unit.getOutSet().toString());
+						System.out.println("GraphManager: Unit changed: " + unit.getFullyQualifiedName());
+						System.out.println("GraphManager: Unit in-set: " + unit.getInSet());
+						System.out.println("GraphManager: Unit out-set: " + unit.getOutSet());
+					} 
+				}
+			}
 		}
 	}
 
