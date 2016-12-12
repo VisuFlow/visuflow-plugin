@@ -13,6 +13,7 @@ import org.osgi.service.event.EventAdmin;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
+import de.unipaderborn.visuflow.model.VFNode;
 import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.model.graph.ICFGStructure;
 import de.unipaderborn.visuflow.model.graph.JimpleModelAnalysis;
@@ -164,9 +165,12 @@ public class DummyDataModel implements DataModel {
 	}
 
 	@Override
-	public void filterGraph(List<VFUnit> selectedNodes) {
+	public void filterGraph(List<VFNode> selectedNodes, boolean selection) {
 		// TODO Auto-generated method stub
 
+	}
+	@Override
+	public void HighlightJimpleUnit(VFNode node){
 	}
 
 }

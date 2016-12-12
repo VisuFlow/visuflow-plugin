@@ -14,6 +14,15 @@ public class VFMethod {
     private Body body;
     private ControlFlowGraph controlFlowGraph;
 	private int id;
+	private VFClass vfClass;
+
+	public VFClass getVfClass() {
+		return vfClass;
+	}
+
+	public void setVfClass(VFClass vfClass) {
+		this.vfClass = vfClass;
+	}
 
 	public int getId() {
 		return id;

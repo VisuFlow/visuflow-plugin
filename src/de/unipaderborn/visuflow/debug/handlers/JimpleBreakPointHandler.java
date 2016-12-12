@@ -40,12 +40,6 @@ public class JimpleBreakPointHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		DataModel model = ServiceUtil.getService(DataModel.class);
-		List<VFMethod> methods = model.listMethods(null);
-		for (VFMethod vfMethod : methods) {
-			System.out.println(vfMethod.getBody());
-		}
-
 		IEditorPart part = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
 		IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindow(event);
 		IFileEditorInput input = (IFileEditorInput) part.getEditorInput();

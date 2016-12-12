@@ -18,13 +18,12 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 
 public class WizardPageHandler extends WizardPage {
-	private Text containerText,containerText1;
+	private Text containerSourceText,containerTargetText;
 
 	@SuppressWarnings("unused")
 	private Text fileText;
@@ -38,8 +37,8 @@ public class WizardPageHandler extends WizardPage {
 	 */
 	public WizardPageHandler(ISelection selection) {
 		super("wizardPage");
-		setTitle("Multi-page Editor File");
-		setDescription("This wizard creates a new file with *.java extension that can be opened by a multi-page editor.");
+		setTitle("Link Analysis and Target Project");
+		setDescription("This wizard links the Target Java project with the Analysis project");
 		this.selection = selection;
 	}
 
@@ -55,10 +54,10 @@ public class WizardPageHandler extends WizardPage {
 		Label label = new Label(container, SWT.NULL);
 		label.setText("&Container:");
 
-		containerText = new Text(container, SWT.BORDER | SWT.SINGLE);
+		containerSourceText = new Text(container, SWT.BORDER | SWT.SINGLE);
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-		containerText.setLayoutData(gd);
-		containerText.addModifyListener(new ModifyListener() {
+		containerSourceText.setLayoutData(gd);
+		containerSourceText.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				dialogChanged();
 			}
@@ -73,12 +72,12 @@ public class WizardPageHandler extends WizardPage {
 		});		
 		
 		Label labelFile = new Label(container, SWT.NULL);
-		labelFile.setText("Choose Folder:");
+		labelFile.setText("Choose Target Project:");
 
-		containerText1 = new Text(container, SWT.BORDER | SWT.SINGLE);
+		containerTargetText = new Text(container, SWT.BORDER | SWT.SINGLE);
 		gd = new GridData(GridData.FILL_HORIZONTAL);
-		containerText1.setLayoutData(gd);
-		containerText1.addModifyListener(new ModifyListener() {
+		containerTargetText.setLayoutData(gd);
+		containerTargetText.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				dialogChanged();
 			}
@@ -88,7 +87,7 @@ public class WizardPageHandler extends WizardPage {
 		buttonFile.setText("Browse...");
 		buttonFile.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				handleBrowse1();
+				handleBrowse2();
 			}
 		});
 		
@@ -114,7 +113,7 @@ public class WizardPageHandler extends WizardPage {
 					container = (IContainer) obj;
 				else
 					container = ((IResource) obj).getParent();
-				containerText.setText(container.getFullPath().toString());
+				containerSourceText.setText(container.getFullPath().toString());
 			}
 		}
 		
@@ -132,18 +131,21 @@ public class WizardPageHandler extends WizardPage {
 		if (dialog.open() == ContainerSelectionDialog.OK) {
 			Object[] result = dialog.getResult();
 			if (result.length == 1) {
-				containerText.setText(((Path) result[0]).toString());
+				containerSourceText.setText(((Path) result[0]).toString());
 			}
 		}
 	}
 	
-	
-	private void handleBrowse1() {
-		DirectoryDialog dialog = new DirectoryDialog(getShell(), SWT.OPEN);
-		dialog.setMessage("Select Folder");
-		dialog.setFilterPath("C:\\");
-		String result = dialog.open();
-		containerText1.setText(result);
+	private void handleBrowse2() {
+		ContainerSelectionDialog dialog = new ContainerSelectionDialog(
+				getShell(), ResourcesPlugin.getWorkspace().getRoot(), false,
+				"Select new file container");
+		if (dialog.open() == ContainerSelectionDialog.OK) {
+			Object[] result = dialog.getResult();
+			if (result.length == 1) {
+				containerTargetText.setText(((Path) result[0]).toString());
+			}
+		}
 	}
 
 	/**
@@ -178,8 +180,8 @@ public class WizardPageHandler extends WizardPage {
 
 	public HashMap<String, String> getContainerName() {
 		HashMap<String, String> containerMap = new HashMap<>();
-		containerMap.put("ProjectPath", containerText.getText());
-		containerMap.put("TargetPath", containerText1.getText());
+		containerMap.put("ProjectPath", containerSourceText.getText());
+		containerMap.put("TargetPath", containerTargetText.getText());
 		return containerMap;
 	}
 }

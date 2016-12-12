@@ -4,23 +4,28 @@ import soot.Unit;
 
 public class VFNode {
 	
-	Unit label;
-	int id;	
+	VFUnit vfUnit;
+	int id;
 	
-	public VFNode(Unit label, int id)
+	public VFNode(VFUnit label, int id)
 	{
-		this.label=label;
+		this.vfUnit=label;
 		this.id=id;
 	}
 
-	public void setLabel(Unit label)
+	public void setLabel(VFUnit label)
 	{
-		this.label = label;
+		this.vfUnit = label;
 	}
 	
-	public Unit getLabel()
+	public Unit getUnit()
 	{
-		return this.label;
+		return this.vfUnit.getUnit();
+	}
+	
+	public VFUnit getVFUnit()
+	{
+		return this.vfUnit;
 	}
 	
 	public void setId(int id)

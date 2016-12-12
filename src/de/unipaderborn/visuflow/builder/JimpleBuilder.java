@@ -101,14 +101,14 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 		IResourceDelta delta = getDelta(project.getProject());
 		if(delta == null || !delta.getAffectedChildren()[0].getProjectRelativePath().toString().equals(targetFolder)){
 			classpath = getSootCP(project);
-			String location = GlobalSettings.get("TargetFolder");
+			String location = GlobalSettings.get("TargetProject_"+project.getProject().getName());
 			IFolder folder = project.getProject().getFolder(targetFolder);
 			//at this point, no resources have been created
 			if (!folder.exists()) {
 				folder.create( IResource.BACKGROUND_REFRESH, true, null);
+
 			}
-			//location = "/home/henni/devel/pg/workspace-plugin/visuflow-workspace/VisuFlowSheet1/targetBin2";
-			classpath = location + File.pathSeparator + classpath;
+			classpath = location +  classpath;
 			String[] sootString = new String[] { "-cp", classpath, "-exclude", "javax", "-allow-phantom-refs", "-no-bodies-for-excluded",
 					"-process-dir", location, "-src-prec", "only-class", "-w", "-output-format",
 					"J", "-keep-line-number" ,"-output-dir",folder.getLocation().toOSString()/*,"tag.ln","on"*/ };
@@ -123,28 +123,4 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 		}
 		return null;
 	}
-
-	/* private boolean collect(IProject project, final IProgressMonitor monitor) throws CoreException {
-
-    	  project.accept(new IResourceVisitor() {
-
-    	   public boolean visit(IResource resource) throws CoreException {
-    	    if (monitor.isCanceled()) {
-    	     throw new OperationCanceledException();
-    	    }
-    	    if (isInterrupted()) {
-    	     return false;
-    	    }
-    	    if (resource instanceof IFile) {
-    	     IFile file = (IFile) resource;
-    	    } else if (resource instanceof IContainer) {
-    	     if (filtered((IContainer) resource)) {
-    	      return false;
-    	     }
-    	    }
-    	    return true;
 }
-    	  });
-    	  return false;
-    	 }
-	 */}
