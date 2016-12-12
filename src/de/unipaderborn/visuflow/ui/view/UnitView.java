@@ -1,7 +1,9 @@
 package de.unipaderborn.visuflow.ui.view;
 
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jface.viewers.ILabelProvider;
@@ -16,6 +18,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.ISharedImages;
@@ -33,15 +37,17 @@ import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 import soot.jimple.internal.JAddExpr;
 import soot.jimple.internal.JAssignStmt;
+import soot.jimple.internal.JGotoStmt;
 import soot.jimple.internal.JIdentityStmt;
+import soot.jimple.internal.JIfStmt;
 import soot.jimple.internal.JInvokeStmt;
 import soot.jimple.internal.JReturnStmt;
 
 public class UnitView extends ViewPart implements EventHandler {
 
-	DataModel dataModel;
+	static DataModel dataModel;
 	static Tree tree;
-	Combo classCombo, methodCombo;
+	static Combo classCombo, methodCombo;
 	Button checkBox;
 	String classSelection, methodSelection;
 	private List<VFUnit> listUnits;
@@ -137,10 +143,7 @@ public class UnitView extends ViewPart implements EventHandler {
 								tree.removeAll();
 								listUnits = vfmethod.getUnits();
 								populateUnits(listUnits);
-								break;
 							}
-							
-							break;
 						}
 					}
 				}
@@ -200,6 +203,10 @@ public class UnitView extends ViewPart implements EventHandler {
 				stType = 4;
 			else if (unit.getUnit() instanceof JIdentityStmt)
 				stType = 5;
+			else if (unit.getUnit() instanceof JIfStmt)
+				stType = 6;
+			else if (unit.getUnit() instanceof JGotoStmt)
+				stType = 7;
 			switch (stType) {
 
 			case 1:
@@ -318,12 +325,128 @@ public class UnitView extends ViewPart implements EventHandler {
 				TreeItem treeIdenRightClass = new TreeItem(treeIdenRight, SWT.LEFT | SWT.BORDER);
 				treeIdenRightClass.setText(new String[] { "Class : " + jidenStmt.rightBox.getValue().getClass().toString() });
 				break;
+				
+			case 6:
+
+				JIfStmt jifStmt = (JIfStmt) unit.getUnit();
+				TreeItem treeUnitIfType = new TreeItem(treeItem, SWT.LEFT | SWT.BORDER);
+				treeUnitIfType.setText(new String[] { "Unit Type : " + jifStmt.getClass().toString() });
+				
+				TreeItem treeIfCond = new TreeItem(treeUnitIfType, SWT.LEFT | SWT.BORDER);
+				treeIfCond.setText(new String[] { "Condition : " + jifStmt.getCondition() });
+
+				TreeItem treeIfCondClass = new TreeItem(treeUnitIfType, SWT.LEFT | SWT.BORDER);
+				treeIfCondClass.setText(new String[] { "Condition Class : " + jifStmt.getCondition().getClass() });
+
+				TreeItem treeifCondTarget = new TreeItem(treeUnitIfType, SWT.LEFT | SWT.BORDER);
+				treeifCondTarget.setText(new String[] { "Target Unit : " + jifStmt.getTarget() });
+				break;
+				
+			case 7:
+
+				JGotoStmt jgotoStmt = (JGotoStmt) unit.getUnit();
+				TreeItem treeUnitgotoType = new TreeItem(treeItem, SWT.LEFT | SWT.BORDER);
+				treeUnitgotoType.setText(new String[] { "Unit Type : " + jgotoStmt.getClass().toString() });
+				
+				TreeItem treegotoTarget = new TreeItem(treeUnitgotoType, SWT.LEFT | SWT.BORDER);
+				treegotoTarget.setText(new String[] { "Go to target : " + jgotoStmt.getTarget() });
+				break;
 
 			case 0:
 
 				break;
 			}
 		}
+		
+		Menu menu = new Menu(tree);
+		tree.setMenu(menu);
+		MenuItem menuItemJimple = new MenuItem(menu, SWT.None);
+		menuItemJimple.setText("View Jimple Code");
+		menuItemJimple.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				
+				System.out.println("Selected tree item "+tree.getSelection()[0].getText());
+				TreeItem selectedItem = tree.getSelection()[0];
+				while(selectedItem.getParentItem()!=null)
+				{
+					selectedItem = selectedItem.getParentItem();
+				}
+				System.out.println("Selected unit item "+selectedItem.getText());
+				System.out.println("Evenet Source "+e.getSource());
+				HashMap<String, Object> unitDetails = getUnitDetails(selectedItem.getText());
+				System.out.println("Selected Unit is " +((VFUnit)unitDetails.get("unit")).toString());
+				System.out.println("Selected method is "+((VFMethod)unitDetails.get("methodName")).getSootMethod().toString());
+				System.out.println("Selected Class is "+((VFClass)unitDetails.get("className")).getSootClass().getName());
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				
+			}
+		});
+		
+		MenuItem menuItemGraph = new MenuItem(menu, SWT.None);
+		menuItemGraph.setText("View in CFG");
+		menuItemGraph.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				
+				System.out.println("Selected tree item "+tree.getSelection()[0].getText());
+				TreeItem selectedItem = tree.getSelection()[0];
+				while(selectedItem.getParentItem()!=null)
+				{
+					selectedItem = selectedItem.getParentItem();
+				}
+				System.out.println("Selected unit item "+selectedItem.getText());
+				System.out.println("Evenet Source "+e.getSource());
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				
+			}
+		});
+	}
+	
+	
+	public static HashMap<String, Object> getUnitDetails(String unitText)
+	{
+		String selectedClass = classCombo.getText();
+		String selectedMethod = methodCombo.getText();
+		HashMap<String, Object> unitDetails = new HashMap<>();
+		VFClass classSelected = null;
+		VFMethod methodSelected = null;
+		VFUnit unitSelected = null;
+		List<VFClass> listofClass = dataModel.listClasses();
+		for (VFClass vfClass : listofClass) {
+			if(vfClass.getSootClass().getName().toString().equals(selectedClass))
+			{
+				classSelected = vfClass;
+				break;
+			}
+		}
+		List<VFMethod> listofMethods = dataModel.listMethods(classSelected);
+		for (VFMethod vfMethod : listofMethods) {
+			if(vfMethod.getSootMethod().getDeclaration().toString().equals(selectedMethod))
+			{
+				methodSelected = vfMethod;
+				break;
+			}
+		}
+		List<VFUnit> listofUnits = dataModel.listUnits(methodSelected);
+		for (VFUnit vfUnit : listofUnits) {
+			if(vfUnit.getUnit().toString().equals(unitText))
+			{
+				unitSelected = vfUnit;
+			}
+		}
+		unitDetails.put("className", classSelected);
+		unitDetails.put("methodName", methodSelected);
+		unitDetails.put("unit", unitSelected);
+		return unitDetails;
 	}
 
 	@Override
@@ -348,6 +471,8 @@ public class UnitView extends ViewPart implements EventHandler {
 				@Override
 				public void run() {
 					dataModel = ServiceUtil.getService(DataModel.class);
+					classCombo.removeAll();
+					methodCombo.removeAll();
 					for (VFClass vfclass : dataModel.listClasses()) {
 						classCombo.add(vfclass.getSootClass().getName());
 					}
