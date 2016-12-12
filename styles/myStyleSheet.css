@@ -16,7 +16,7 @@ node {
 /* 	text-background-color: #009688;	*/
 	text-padding: 4px, 4px;		 
 	text-offset: 0px, 2px;							 
-
+	text-size: 12gu;
 }
 						 
 						 
@@ -29,6 +29,7 @@ node {
 	arrow-shape: arrow;
 	arrow-size: 3px;
 	fill-color: blue;
+	text-size: 10gu;
 }
 
 node:clicked {
