@@ -425,15 +425,15 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private void zoomIn()
 	{
 		double viewPercent = view.getCamera().getViewPercent();
-//		if(viewPercent > maxZoomPercent)
-			view.getCamera().setViewPercent(viewPercent - zoomInDelta);
+		//		if(viewPercent > maxZoomPercent)
+		view.getCamera().setViewPercent(viewPercent - zoomInDelta);
 	}
 
 	private void zoomOut()
 	{
 		double viewPercent = view.getCamera().getViewPercent();
-//		if(viewPercent < minZoomPercent)
-			view.getCamera().setViewPercent(viewPercent + zoomOutDelta);
+		//		if(viewPercent < minZoomPercent)
+		view.getCamera().setViewPercent(viewPercent + zoomOutDelta);
 	}
 
 	private void createZoomControls() {
@@ -638,12 +638,13 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				Node target = outEdge.getTargetNode();
 				target.setAttribute("xyz", outEdges, nodeCount, 0.0);
 				outEdges += rowSpacing;
+				target.setAttribute("ui.class", "node.testhighlight");
+//				curr.setAttribute("ui.class", "plus");
 			}
-
 			curr.setAttribute("xyz", 0.0, nodeCount, 0.0);
 			nodeCount -= spacing;
 		}
-//		view.getCamera().resetView();
+		//		view.getCamera().resetView();
 	}
 
 	void toggleNode(String id){
@@ -719,8 +720,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	@Override
 	public void buttonReleased(String id) {
-		//		toggleNode(id);
-		//		experimentalLayout();
+//		toggleNode(id);
+//		experimentalLayout();
 	}
 
 	@Override
