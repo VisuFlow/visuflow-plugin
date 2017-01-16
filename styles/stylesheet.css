@@ -15,6 +15,7 @@ node {
 	text-background-color: #009688;
 	text-padding: 4px, 4px;
 	text-offset: 0px, 2px;
+	text-size: 12gu;
 }
 
 node.plus {
@@ -27,8 +28,9 @@ node.plus {
 
 edge {
 	arrow-shape: arrow;
-	arrow-size: 8px, 8px, 10px;
+	arrow-size: 8px, 8px, 50px;
 	fill-color: blue;
+	text-size: 10gu;
 }
 
 node:clicked {

@@ -170,7 +170,7 @@ public class DummyDataModel implements DataModel {
 
 	}
 	@Override
-	public void HighlightJimpleUnit(VFUnit unit){
+	public void HighlightJimpleUnit(VFNode node){
 	}
 
 }

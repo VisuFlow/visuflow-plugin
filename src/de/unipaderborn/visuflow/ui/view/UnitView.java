@@ -1,7 +1,9 @@
 package de.unipaderborn.visuflow.ui.view;
 
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jface.viewers.ILabelProvider;
@@ -16,6 +18,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.ISharedImages;
@@ -41,9 +45,9 @@ import soot.jimple.internal.JReturnStmt;
 
 public class UnitView extends ViewPart implements EventHandler {
 
-	DataModel dataModel;
+	static DataModel dataModel;
 	static Tree tree;
-	Combo classCombo, methodCombo;
+	static Combo classCombo, methodCombo;
 	Button checkBox;
 	String classSelection, methodSelection;
 	private List<VFUnit> listUnits;
@@ -353,6 +357,96 @@ public class UnitView extends ViewPart implements EventHandler {
 				break;
 			}
 		}
+		
+		Menu menu = new Menu(tree);
+		tree.setMenu(menu);
+		MenuItem menuItemJimple = new MenuItem(menu, SWT.None);
+		menuItemJimple.setText("View Jimple Code");
+		menuItemJimple.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				
+				System.out.println("Selected tree item "+tree.getSelection()[0].getText());
+				TreeItem selectedItem = tree.getSelection()[0];
+				while(selectedItem.getParentItem()!=null)
+				{
+					selectedItem = selectedItem.getParentItem();
+				}
+				System.out.println("Selected unit item "+selectedItem.getText());
+				System.out.println("Evenet Source "+e.getSource());
+				HashMap<String, Object> unitDetails = getUnitDetails(selectedItem.getText());
+				System.out.println("Selected Unit is " +((VFUnit)unitDetails.get("unit")).toString());
+				System.out.println("Selected method is "+((VFMethod)unitDetails.get("methodName")).getSootMethod().toString());
+				System.out.println("Selected Class is "+((VFClass)unitDetails.get("className")).getSootClass().getName());
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				
+			}
+		});
+		
+		MenuItem menuItemGraph = new MenuItem(menu, SWT.None);
+		menuItemGraph.setText("View in CFG");
+		menuItemGraph.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				
+				System.out.println("Selected tree item "+tree.getSelection()[0].getText());
+				TreeItem selectedItem = tree.getSelection()[0];
+				while(selectedItem.getParentItem()!=null)
+				{
+					selectedItem = selectedItem.getParentItem();
+				}
+				System.out.println("Selected unit item "+selectedItem.getText());
+				System.out.println("Evenet Source "+e.getSource());
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				
+			}
+		});
+	}
+	
+	
+	public static HashMap<String, Object> getUnitDetails(String unitText)
+	{
+		String selectedClass = classCombo.getText();
+		String selectedMethod = methodCombo.getText();
+		HashMap<String, Object> unitDetails = new HashMap<>();
+		VFClass classSelected = null;
+		VFMethod methodSelected = null;
+		VFUnit unitSelected = null;
+		List<VFClass> listofClass = dataModel.listClasses();
+		for (VFClass vfClass : listofClass) {
+			if(vfClass.getSootClass().getName().toString().equals(selectedClass))
+			{
+				classSelected = vfClass;
+				break;
+			}
+		}
+		List<VFMethod> listofMethods = dataModel.listMethods(classSelected);
+		for (VFMethod vfMethod : listofMethods) {
+			if(vfMethod.getSootMethod().getDeclaration().toString().equals(selectedMethod))
+			{
+				methodSelected = vfMethod;
+				break;
+			}
+		}
+		List<VFUnit> listofUnits = dataModel.listUnits(methodSelected);
+		for (VFUnit vfUnit : listofUnits) {
+			if(vfUnit.getUnit().toString().equals(unitText))
+			{
+				unitSelected = vfUnit;
+			}
+		}
+		unitDetails.put("className", classSelected);
+		unitDetails.put("methodName", methodSelected);
+		unitDetails.put("unit", unitSelected);
+		return unitDetails;
 	}
 
 	@Override
