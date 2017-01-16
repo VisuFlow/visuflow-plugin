@@ -629,11 +629,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		while(nodeIterator.hasNext())
 		{
 			Node curr = nodeIterator.next();
-			if(curr.getId().contentEquals("showICFG"))
-			{
-				curr.setAttribute("xyz", 0.0, 0.0, 0.0);
-				continue;
-			}
 
 			Iterator<Edge> leavingEdgeIterator = curr.getEdgeIterator();
 			double outEdges = 0.0;
@@ -648,7 +643,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			curr.setAttribute("xyz", 0.0, nodeCount, 0.0);
 			nodeCount -= spacing;
 		}
-		view.getCamera().resetView();
+//		view.getCamera().resetView();
 	}
 
 	void toggleNode(String id){
