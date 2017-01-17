@@ -22,12 +22,10 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -822,6 +820,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					if(unit.getFullyQualifiedName().equals(currentUnit.getFullyQualifiedName())) {
 						edge.setAttribute("ui.label", unit.getOutSet().toString());
 						edge.setAttribute("edgeData.outSet", unit.getOutSet().toString());
+						src.addAttribute("nodeData.inSet", unit.getInSet());
+						src.addAttribute("nodeData.outSet", unit.getOutSet());
 						System.out.println("GraphManager: Unit changed: " + unit.getFullyQualifiedName());
 						System.out.println("GraphManager: Unit in-set: " + unit.getInSet());
 						System.out.println("GraphManager: Unit out-set: " + unit.getOutSet());
