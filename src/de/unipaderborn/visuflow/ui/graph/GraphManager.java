@@ -651,16 +651,15 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		if(graph.getNode(node.getId() + "") == null)
 		{
 			Node createdNode = graph.addNode(node.getId() + "");
-			if(node.getUnit().toString().length() > maxLength)
-			{
+			if(node.getUnit().toString().length() > maxLength) {
 				createdNode.setAttribute("ui.label", node.getUnit().toString().substring(0, maxLength) + "...");
-			}
-			else
+			} else {
 				createdNode.setAttribute("ui.label", node.getUnit().toString());
+			}
 			createdNode.setAttribute("nodeData.unit", node.getUnit().toString());
 			createdNode.setAttribute("nodeData.unitType", node.getUnit().getClass());
-			createdNode.setAttribute("nodeData.inSet", "coming soon");
-			createdNode.setAttribute("nodeData.outSet", "coming soon");
+			createdNode.setAttribute("nodeData.inSet", "n/a");
+			createdNode.setAttribute("nodeData.outSet", "n/a");
 			createdNode.setAttribute("nodeUnit", node);
 		}
 	}
