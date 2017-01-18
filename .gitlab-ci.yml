@@ -1,3 +1,4 @@
 build:
   script: "mvn clean install -B"
-  only: master
+  only:
+    - master@henni/visuflow-plugin
