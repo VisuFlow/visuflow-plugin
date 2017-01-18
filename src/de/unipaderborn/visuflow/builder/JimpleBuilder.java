@@ -109,9 +109,9 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 
 			}
 			classpath = location +  classpath;
-			String[] sootString = new String[] { "-cp", classpath, "-exclude", "javax", "-allow-phantom-refs", "-no-bodies-for-excluded",
-					"-process-dir", location, "-src-prec", "only-class", "-w", "-output-format",
-					"J", "-keep-line-number" ,"-output-dir",folder.getLocation().toOSString()/*,"tag.ln","on"*/ };
+			String[] sootString = new String[] { "-cp", classpath, "-exclude", "javax", "-allow-phantom-refs", "-no-bodies-for-excluded", "-process-dir",
+					location, "-src-prec", "only-class", "-w", "-output-format", "J", "-keep-line-number", "-output-dir",
+					folder.getLocation().toOSString()/* ,"tag.ln","on" */ };
 			ICFGStructure icfg = new ICFGStructure();
 			JimpleModelAnalysis analysis = new JimpleModelAnalysis();
 			analysis.setSootString(sootString);

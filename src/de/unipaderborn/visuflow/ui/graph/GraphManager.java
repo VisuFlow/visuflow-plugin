@@ -116,6 +116,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		this.styleSheet = styleSheet;
 		createGraph(graphName);
 		createUI();
+
+		renderICFG(ServiceUtil.getService(DataModel.class).getIcfg());
 	}
 
 	public Container getApplet() {
@@ -575,6 +577,10 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	}
 
 	private void renderICFG(ICFGStructure icfg) {
+		if(icfg == null) {
+			return;
+		}
+		
 		Iterator<VFMethodEdge> iterator = icfg.listEdges.iterator();
 		try {
 			reintializeGraph();
@@ -651,16 +657,15 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		if(graph.getNode(node.getId() + "") == null)
 		{
 			Node createdNode = graph.addNode(node.getId() + "");
-			if(node.getUnit().toString().length() > maxLength)
-			{
+			if(node.getUnit().toString().length() > maxLength) {
 				createdNode.setAttribute("ui.label", node.getUnit().toString().substring(0, maxLength) + "...");
-			}
-			else
+			} else {
 				createdNode.setAttribute("ui.label", node.getUnit().toString());
+			}
 			createdNode.setAttribute("nodeData.unit", node.getUnit().toString());
 			createdNode.setAttribute("nodeData.unitType", node.getUnit().getClass());
-			createdNode.setAttribute("nodeData.inSet", "coming soon");
-			createdNode.setAttribute("nodeData.outSet", "coming soon");
+			createdNode.setAttribute("nodeData.inSet", "n/a");
+			createdNode.setAttribute("nodeData.outSet", "n/a");
 			createdNode.setAttribute("nodeUnit", node);
 		}
 	}
@@ -820,6 +825,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					if(unit.getFullyQualifiedName().equals(currentUnit.getFullyQualifiedName())) {
 						edge.setAttribute("ui.label", unit.getOutSet().toString());
 						edge.setAttribute("edgeData.outSet", unit.getOutSet().toString());
+						src.addAttribute("nodeData.inSet", unit.getInSet());
+						src.addAttribute("nodeData.outSet", unit.getOutSet());
 						System.out.println("GraphManager: Unit changed: " + unit.getFullyQualifiedName());
 						System.out.println("GraphManager: Unit in-set: " + unit.getInSet());
 						System.out.println("GraphManager: Unit out-set: " + unit.getOutSet());
