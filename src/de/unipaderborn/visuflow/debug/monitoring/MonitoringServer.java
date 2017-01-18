@@ -8,6 +8,8 @@ import java.net.Socket;
 
 import org.json.JSONObject;
 
+import de.unipaderborn.visuflow.Logger;
+import de.unipaderborn.visuflow.Visuflow;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 
@@ -18,9 +20,10 @@ public class MonitoringServer {
 	private Thread t;
 	private boolean running = true;
 	private DataModel dataModel = ServiceUtil.getService(DataModel.class);
-
+	private Logger logger = Visuflow.getDefault().getLogger(); 
+	
 	public void start() {
-		System.out.println("Monitoring server starting");
+		logger.info("Monitoring server starting");
 		t = new Thread() {
 			@Override
 			public void run() {
@@ -43,7 +46,7 @@ public class MonitoringServer {
 						}
 					}
 				} catch (IOException e) {
-					e.printStackTrace();
+					logger.error("Monitoring server threw an exception", e);
 				}
 			}
 		};
@@ -53,7 +56,7 @@ public class MonitoringServer {
 	}
 
 	public void stop() {
-		System.out.println("Monitoring server stopping");
+		logger.info("Monitoring server stopping");
 		running = false;
 		t.interrupt();
 
@@ -61,14 +64,14 @@ public class MonitoringServer {
 			try {
 				clientSocket.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.error("Couldn't close monitoring server connection", e);
 			}
 		}
 		if(serverSocket != null && !serverSocket.isClosed()) {
 			try {
 				serverSocket.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.error("Couldn't close monitoring server connection", e);
 			}
 		}
 	}
