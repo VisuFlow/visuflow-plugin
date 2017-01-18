@@ -828,8 +828,9 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				if(vfNode != null) {
 					VFUnit currentUnit = vfNode.getVFUnit();
 					if(unit.getFullyQualifiedName().equals(currentUnit.getFullyQualifiedName())) {
-						edge.setAttribute("ui.label", unit.getOutSet().toString());
-						edge.setAttribute("edgeData.outSet", unit.getOutSet().toString());
+						String outset = Optional.fromNullable(unit.getOutSet()).or("").toString();
+						edge.setAttribute("ui.label", outset);
+						edge.setAttribute("edgeData.outSet", outset);
 						src.addAttribute("nodeData.inSet", unit.getInSet());
 						src.addAttribute("nodeData.outSet", unit.getOutSet());
 						System.out.println("GraphManager: Unit changed: " + unit.getFullyQualifiedName());
