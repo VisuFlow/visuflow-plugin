@@ -36,7 +36,7 @@ public class ProjectListener implements IResourceChangeListener {
 			}
 		}
 	}
-	
+
 	public void triggerBuild(IProject project) throws CoreException {
 		if (isVisuflowNatureEnabled(project) && ResourcesPlugin.getWorkspace().isAutoBuilding()) {
 			WorkspaceJob fullBuild = new WorkspaceJob("Full build for " + project.getName()) {
@@ -51,7 +51,7 @@ public class ProjectListener implements IResourceChangeListener {
 	}
 
 	private boolean isVisuflowNatureEnabled(IProject project) throws CoreException {
-		return project.hasNature(VisuFlowNature.NATURE_ID) && project.isNatureEnabled(VisuFlowNature.NATURE_ID);
+		return project.isOpen() && project.hasNature(VisuFlowNature.NATURE_ID) && project.isNatureEnabled(VisuFlowNature.NATURE_ID);
 	}
 
 	private List<IProject> getProjects(IResourceDelta delta) {
