@@ -51,7 +51,7 @@ public class MonitoringServer {
 			}
 		};
 		t.setDaemon(true);
-		t.setName("");
+		t.setName("Analysis Monitoring Server");
 		t.start();
 	}
 
