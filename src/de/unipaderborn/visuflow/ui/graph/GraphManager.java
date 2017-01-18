@@ -116,6 +116,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		this.styleSheet = styleSheet;
 		createGraph(graphName);
 		createUI();
+
+		renderICFG(ServiceUtil.getService(DataModel.class).getIcfg());
 	}
 
 	public Container getApplet() {
@@ -575,6 +577,10 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	}
 
 	private void renderICFG(ICFGStructure icfg) {
+		if(icfg == null) {
+			return;
+		}
+		
 		Iterator<VFMethodEdge> iterator = icfg.listEdges.iterator();
 		try {
 			reintializeGraph();
