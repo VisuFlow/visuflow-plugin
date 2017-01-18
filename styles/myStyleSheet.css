@@ -30,6 +30,7 @@ node {
 	arrow-size: 3px;
 	fill-color: blue;
 	text-size: 10gu;
+	text-background-mode: plain;
 }
 
 node:clicked {
