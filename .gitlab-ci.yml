@@ -1,4 +1,7 @@
 build:
-  script: "mvn clean install -B"
+  script:
+    - "mvn clean install -B"
   only:
     - master@henni/visuflow-plugin
+  after_script: 
+    - "curl --request POST --form token=f76a9742040903b92c0b630e4c2078 --form ref=master https://git.cs.upb.de/api/v3/projects/1969/trigger/builds"
