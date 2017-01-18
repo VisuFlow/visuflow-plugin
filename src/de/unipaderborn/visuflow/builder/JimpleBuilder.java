@@ -92,33 +92,33 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
     public static final String BUILDER_ID = "JimpleBuilder.JimpleBuilder";
 
 
-    @Override
-    protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
-        System.out.println("Build Start");
+	@Override
+	protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
+		System.out.println("Build Start");
 		String targetFolder = "sootOutput";
-        IJavaProject project = JavaCore.create(getProject());
+		IJavaProject project = JavaCore.create(getProject());
 		IResourceDelta delta = getDelta(project.getProject());
-		if(delta == null || !delta.getAffectedChildren()[0].getProjectRelativePath().toString().equals(targetFolder)){
-        classpath = getSootCP(project);
-			String location = GlobalSettings.get("TargetProject_"+project.getProject().getName());
+		if (delta == null || !delta.getAffectedChildren()[0].getProjectRelativePath().toString().equals(targetFolder)) {
+			classpath = getSootCP(project);
+			String location = GlobalSettings.get("TargetProject_" + project.getProject().getName());
 			IFolder folder = project.getProject().getFolder(targetFolder);
-        //at this point, no resources have been created
-        if (!folder.exists()) {
-				folder.create( IResource.BACKGROUND_REFRESH, true, null);
-        }
-			classpath = location +  classpath;
-        String[] sootString = new String[] { "-cp", classpath, "-exclude", "javax", "-allow-phantom-refs", "-no-bodies-for-excluded", 
-    			"-process-dir", location, "-src-prec", "only-class", "-w", "-output-format", 
-    			"J", "-keep-line-number" ,"-output-dir",folder.getLocation().toOSString()/*,"tag.ln","on"*/ };
-        ICFGStructure icfg = new ICFGStructure();
-        JimpleModelAnalysis analysis = new JimpleModelAnalysis();
-        analysis.setSootString(sootString);
-        List<VFClass> jimpleClasses = new ArrayList<>();
-        analysis.createICFG(icfg, jimpleClasses);
-        fillDataModel(icfg, jimpleClasses);
-			
+			// at this point, no resources have been created
+			if (!folder.exists()) {
+				folder.create(IResource.BACKGROUND_REFRESH, true, null);
+			}
+			classpath = location + classpath;
+			String[] sootString = new String[] { "-cp", classpath, "-exclude", "javax", "-allow-phantom-refs", "-no-bodies-for-excluded", "-process-dir",
+					location, "-src-prec", "only-class", "-w", "-output-format", "J", "-keep-line-number", "-output-dir",
+					folder.getLocation().toOSString()/* ,"tag.ln","on" */ };
+			ICFGStructure icfg = new ICFGStructure();
+			JimpleModelAnalysis analysis = new JimpleModelAnalysis();
+			analysis.setSootString(sootString);
+			List<VFClass> jimpleClasses = new ArrayList<>();
+			analysis.createICFG(icfg, jimpleClasses);
+			fillDataModel(icfg, jimpleClasses);
+
 			folder.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 		}
-        return null;
-    }
+		return null;
+	}
 }
