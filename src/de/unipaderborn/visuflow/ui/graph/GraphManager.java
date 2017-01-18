@@ -58,6 +58,8 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 
+import com.google.common.base.Optional;
+
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFEdge;
@@ -647,8 +649,11 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		if(graph.getEdge("" + src.getId() + dest.getId()) == null)
 		{
 			Edge createdEdge = graph.addEdge(src.getId() + "" + dest.getId(), src.getId() + "", dest.getId() + "", true);
-			createdEdge.addAttribute("ui.label", "{a,b}");
-			createdEdge.addAttribute("edgeData.outSet", "{a,b}");
+			VFUnit unit = src.getVFUnit();
+			createdEdge.addAttribute("ui.label", Optional.fromNullable(unit.getOutSet()).or("").toString());
+			createdEdge.addAttribute("edgeData.outSet", Optional.fromNullable(unit.getInSet()).or("").toString());
+			//createdEdge.addAttribute("ui.label", "{a,b}");
+			//createdEdge.addAttribute("edgeData.outSet", "{a,b}");
 		}
 	}
 
@@ -664,8 +669,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			}
 			createdNode.setAttribute("nodeData.unit", node.getUnit().toString());
 			createdNode.setAttribute("nodeData.unitType", node.getUnit().getClass());
-			createdNode.setAttribute("nodeData.inSet", "n/a");
-			createdNode.setAttribute("nodeData.outSet", "n/a");
+			createdNode.setAttribute("nodeData.inSet", Optional.fromNullable(node.getVFUnit().getInSet()).or("n/a").toString());
+			createdNode.setAttribute("nodeData.outSet", Optional.fromNullable(node.getVFUnit().getInSet()).or("n/a").toString());
 			createdNode.setAttribute("nodeUnit", node);
 		}
 	}
