@@ -214,8 +214,6 @@ public class ResultView extends ViewPart implements EventHandler {
 				});
 			}
 		} else if (event.getTopic().equals(DataModel.EA_TOPIC_DATA_UNIT_CHANGED)) {
-			// VFUnit unit = (VFUnit) event.getProperty("unit");
-			// fire event!?
 			if (viewer != null && !viewer.getControl().isDisposed()) {
 				viewer.getTable().getDisplay().asyncExec(new Runnable() {
 					@Override

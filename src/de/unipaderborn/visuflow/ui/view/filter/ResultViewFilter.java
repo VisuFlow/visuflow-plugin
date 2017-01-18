@@ -27,12 +27,12 @@ public class ResultViewFilter extends ViewerFilter {
 		if (contains(unit.getUnit().getClass().getName(), searchString)) {
 			return true;
 		}
-		
+
 		String inset = Optional.fromNullable(unit.getInSet()).or("n/a").toString();
 		if(contains(inset, searchString)) {
 			return true;
 		}
-		
+
 		String outset = Optional.fromNullable(unit.getInSet()).or("n/a").toString();
 		if(contains(outset, searchString)) {
 			return true;
@@ -40,7 +40,7 @@ public class ResultViewFilter extends ViewerFilter {
 
 		return false;
 	}
-	
+
 	private boolean contains(String haystack, String needle) {
 		return haystack.toLowerCase().contains(needle.toLowerCase());
 	}
