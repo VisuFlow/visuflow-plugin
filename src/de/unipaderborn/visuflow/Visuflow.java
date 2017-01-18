@@ -25,9 +25,9 @@ public class Visuflow extends AbstractUIPlugin {
 	@Override
 	public void start(BundleContext context) {
 		Visuflow.context = context;
-		System.out.println("---InStart---");
 		plugin = this;
 		logger = new Logger();
+		logger.info("Visuflow plug-in starting...");
 		
 		// iterate over all projects in the workspace to find projects with the
 		// visuflow nature. for these projects we trigger a full build to fill
@@ -52,7 +52,7 @@ public class Visuflow extends AbstractUIPlugin {
 					}
 				});
 			} catch (CoreException e) {
-				e.printStackTrace();
+				logger.error("Error while trying to build visuflow projects", e);
 			}
 		}
 	}
