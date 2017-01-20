@@ -86,7 +86,7 @@ public class JimpleModelAnalysis {
 							currentMethod.getUnits().add(currentUnit);
 						}
 						currentMethod.setBody(body);
-						currentMethod.setControlFlowGraph(new ControlFlowGraphGenerator().generateControlFlowGraph(body));
+						currentMethod.setControlFlowGraph(new ControlFlowGraphGenerator().generateControlFlowGraph(currentMethod));
 						currentClass.getMethods().add(currentMethod);
 					}
 				}

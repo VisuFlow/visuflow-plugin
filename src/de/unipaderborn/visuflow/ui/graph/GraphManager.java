@@ -22,12 +22,10 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Set;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -59,6 +57,8 @@ import org.graphstream.ui.view.ViewerPipe;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+
+import com.google.common.base.Optional;
 
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
@@ -118,6 +118,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		this.styleSheet = styleSheet;
 		createGraph(graphName);
 		createUI();
+
+		renderICFG(ServiceUtil.getService(DataModel.class).getIcfg());
 	}
 
 	public Container getApplet() {
@@ -577,6 +579,10 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	}
 
 	private void renderICFG(ICFGStructure icfg) {
+		if(icfg == null) {
+			return;
+		}
+		
 		Iterator<VFMethodEdge> iterator = icfg.listEdges.iterator();
 		try {
 			reintializeGraph();
@@ -643,8 +649,11 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		if(graph.getEdge("" + src.getId() + dest.getId()) == null)
 		{
 			Edge createdEdge = graph.addEdge(src.getId() + "" + dest.getId(), src.getId() + "", dest.getId() + "", true);
-			createdEdge.addAttribute("ui.label", "{a,b}");
-			createdEdge.addAttribute("edgeData.outSet", "{a,b}");
+			VFUnit unit = src.getVFUnit();
+			createdEdge.addAttribute("ui.label", Optional.fromNullable(unit.getOutSet()).or("").toString());
+			createdEdge.addAttribute("edgeData.outSet", Optional.fromNullable(unit.getInSet()).or("").toString());
+			//createdEdge.addAttribute("ui.label", "{a,b}");
+			//createdEdge.addAttribute("edgeData.outSet", "{a,b}");
 		}
 	}
 
@@ -653,16 +662,15 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		if(graph.getNode(node.getId() + "") == null)
 		{
 			Node createdNode = graph.addNode(node.getId() + "");
-			if(node.getUnit().toString().length() > maxLength)
-			{
+			if(node.getUnit().toString().length() > maxLength) {
 				createdNode.setAttribute("ui.label", node.getUnit().toString().substring(0, maxLength) + "...");
-			}
-			else
+			} else {
 				createdNode.setAttribute("ui.label", node.getUnit().toString());
+			}
 			createdNode.setAttribute("nodeData.unit", node.getUnit().toString());
 			createdNode.setAttribute("nodeData.unitType", node.getUnit().getClass());
-			createdNode.setAttribute("nodeData.inSet", "coming soon");
-			createdNode.setAttribute("nodeData.outSet", "coming soon");
+			createdNode.setAttribute("nodeData.inSet", Optional.fromNullable(node.getVFUnit().getInSet()).or("n/a").toString());
+			createdNode.setAttribute("nodeData.outSet", Optional.fromNullable(node.getVFUnit().getInSet()).or("n/a").toString());
 			createdNode.setAttribute("nodeUnit", node);
 		}
 	}
@@ -820,8 +828,11 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				if(vfNode != null) {
 					VFUnit currentUnit = vfNode.getVFUnit();
 					if(unit.getFullyQualifiedName().equals(currentUnit.getFullyQualifiedName())) {
-						edge.setAttribute("ui.label", unit.getOutSet().toString());
-						edge.setAttribute("edgeData.outSet", unit.getOutSet().toString());
+						String outset = Optional.fromNullable(unit.getOutSet()).or("").toString();
+						edge.setAttribute("ui.label", outset);
+						edge.setAttribute("edgeData.outSet", outset);
+						src.addAttribute("nodeData.inSet", unit.getInSet());
+						src.addAttribute("nodeData.outSet", unit.getOutSet());
 						System.out.println("GraphManager: Unit changed: " + unit.getFullyQualifiedName());
 						System.out.println("GraphManager: Unit in-set: " + unit.getInSet());
 						System.out.println("GraphManager: Unit out-set: " + unit.getOutSet());
