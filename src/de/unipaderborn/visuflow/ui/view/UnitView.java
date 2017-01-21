@@ -1,5 +1,6 @@
 package de.unipaderborn.visuflow.ui.view;
 
+import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -28,6 +29,7 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 
+import de.unipaderborn.visuflow.debug.handlers.NavigationHandler;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
@@ -378,6 +380,10 @@ public class UnitView extends ViewPart implements EventHandler {
 				System.out.println("Evenet Source "+e.getSource());
 				HashMap<String, Object> unitDetails = getUnitDetails(selectedItem.getText());
 				System.out.println("Selected Unit is " +((VFUnit)unitDetails.get("unit")).toString());
+				ArrayList<VFUnit> al = new ArrayList<>();
+				al.add((VFUnit)unitDetails.get("unit"));
+				NavigationHandler nh = new NavigationHandler();
+				nh.HighlightJimpleLine(al);
 				System.out.println("Selected method is "+((VFMethod)unitDetails.get("methodName")).getSootMethod().toString());
 				System.out.println("Selected Class is "+((VFClass)unitDetails.get("className")).getSootClass().getName());
 			}
