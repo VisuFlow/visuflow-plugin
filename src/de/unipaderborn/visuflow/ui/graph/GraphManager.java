@@ -698,6 +698,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		if(!CFG)
 		{
 			viewer.enableAutoLayout(new SpringBox());
+			view.getCamera().resetView();
 			return;
 		}
 		viewer.disableAutoLayout();
@@ -723,7 +724,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			curr.setAttribute("xyz", 0.0, nodeCount, 0.0);
 			nodeCount -= spacing;
 		}
-		//		view.getCamera().resetView();
 	}
 
 	void toggleNode(String id){
