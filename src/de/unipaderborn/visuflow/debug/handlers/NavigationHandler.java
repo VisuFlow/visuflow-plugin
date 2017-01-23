@@ -21,6 +21,7 @@ import org.eclipse.jface.text.FindReplaceDocumentAdapter;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.source.IVerticalRulerInfo;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
@@ -148,45 +149,57 @@ public class NavigationHandler extends AbstractHandler {
 	}
 
 	public void HighlightJimpleLine(ArrayList<VFUnit> units) {
-		for (VFUnit unit : units) {
-			// Get the current page
-			String className = unit.getVfMethod().getVfClass().getSootClass().getName();
-			IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-			IWorkbenchPage page = window.getActivePage();
-			String projectName = GlobalSettings.get("AnalysisProject");
 
-			IPath path = new Path(projectName + "/sootOutput/" + className);
-			path = path.addFileExtension("jimple");
+		Display.getDefault().asyncExec(new Runnable() {
+		    @Override
+		    public void run() {
+		        IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		        for (VFUnit unit : units) {
+					// Get the current page
+					String className = unit.getVfMethod().getVfClass().getSootClass().getName();
+					//IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 
-			IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
-			// Open default editor for the file
+					
+					IWorkbenchPage page = window.getActivePage();
+					String projectName = GlobalSettings.get("AnalysisProject");
 
-			try {
-				IDE.openEditor(page, file, true);
-				IDocumentProvider provider = new TextFileDocumentProvider();
-				try {
-					provider.connect(file);
-				} catch (CoreException e) {
-					e.printStackTrace();
-				}
-				IDocument document = provider.getDocument(file);
-				Integer methodLine = getMethodLineNumbers(document, unit.getVfMethod());
-				FindReplaceDocumentAdapter findReplaceDocumentAdapter = new FindReplaceDocumentAdapter(document);
-				
-				try {
-					IRegion region = findReplaceDocumentAdapter.find(methodLine, FindReplaceDocumentAdapter.escapeForRegExPattern(unit.getUnit().toString()), true, true, false, true);
-					if (region != null) {
-						ITextEditor editor = (ITextEditor) IDE.openEditor(page, file);
-						//the 1 added is to include the semi colon
-						editor.selectAndReveal(region.getOffset(), region.getLength()+1);
+					IPath path = new Path(projectName + "/sootOutput/" + className);
+					path = path.addFileExtension("jimple");
+
+					IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
+					// Open default editor for the file
+
+					try {
+						IDE.openEditor(page, file, true);
+						IDocumentProvider provider = new TextFileDocumentProvider();
+						try {
+							provider.connect(file);
+						} catch (CoreException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						IDocument document = provider.getDocument(file);
+						Integer methodLine = getMethodLineNumbers(document, unit.getVfMethod());
+						FindReplaceDocumentAdapter findReplaceDocumentAdapter = new FindReplaceDocumentAdapter(document);
+						
+						try {
+							IRegion region = findReplaceDocumentAdapter.find(methodLine, FindReplaceDocumentAdapter.escapeForRegExPattern(unit.getUnit().toString()), true, true, false, true);
+							if (region != null) {
+								ITextEditor editor = (ITextEditor) IDE.openEditor(page, file);
+								//the 1 added is to include the semi colon
+								editor.selectAndReveal(region.getOffset(), region.getLength()+1);
+							}
+						} catch (BadLocationException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					} catch (PartInitException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
-				} catch (BadLocationException e) {
-					e.printStackTrace();
 				}
-			} catch (PartInitException e) {
-				e.printStackTrace();
 			}
-		}
+		});
+		
 	}
-
 }
