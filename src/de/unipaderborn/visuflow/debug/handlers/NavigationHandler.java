@@ -69,7 +69,6 @@ public class NavigationHandler extends AbstractHandler {
 						try {
 							ServiceUtil.getService(DataModel.class).filterGraph(unit, true);
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
@@ -78,13 +77,11 @@ public class NavigationHandler extends AbstractHandler {
 						try {
 							ServiceUtil.getService(DataModel.class).filterGraph(unit, true);
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
 				}
 			} catch (BadLocationException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -130,7 +127,6 @@ public class NavigationHandler extends AbstractHandler {
 				IRegion region = findReplaceDocumentAdapter.find(0, method.getSootMethod().getDeclaration(), true, true, false, false);
 				result.put(method.getSootMethod().getDeclaration(), document.getLineOfOffset(region.getOffset()));
 			} catch (BadLocationException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -146,7 +142,6 @@ public class NavigationHandler extends AbstractHandler {
 			IRegion region = findReplaceDocumentAdapter.find(0, method.getSootMethod().getDeclaration(), true, true, false, false);
 			return document.getLineOfOffset(region.getOffset());
 		} catch (BadLocationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return 0;
@@ -172,7 +167,6 @@ public class NavigationHandler extends AbstractHandler {
 				try {
 					provider.connect(file);
 				} catch (CoreException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				IDocument document = provider.getDocument(file);
@@ -186,11 +180,9 @@ public class NavigationHandler extends AbstractHandler {
 						editor.selectAndReveal(region.getOffset(), region.getLength());
 					}
 				} catch (BadLocationException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			} catch (PartInitException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
