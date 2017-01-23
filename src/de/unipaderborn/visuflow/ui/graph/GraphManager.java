@@ -26,7 +26,6 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JApplet;
@@ -449,15 +448,15 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private void zoomIn()
 	{
 		double viewPercent = view.getCamera().getViewPercent();
-//		if(viewPercent > maxZoomPercent)
-			view.getCamera().setViewPercent(viewPercent - zoomInDelta);
+		//		if(viewPercent > maxZoomPercent)
+		view.getCamera().setViewPercent(viewPercent - zoomInDelta);
 	}
 
 	private void zoomOut()
 	{
 		double viewPercent = view.getCamera().getViewPercent();
-//		if(viewPercent < minZoomPercent)
-			view.getCamera().setViewPercent(viewPercent + zoomOutDelta);
+		//		if(viewPercent < minZoomPercent)
+		view.getCamera().setViewPercent(viewPercent + zoomOutDelta);
 	}
 	
 
@@ -690,11 +689,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		while(nodeIterator.hasNext())
 		{
 			Node curr = nodeIterator.next();
-			if(curr.getId().contentEquals("showICFG"))
-			{
-				curr.setAttribute("xyz", 0.0, 0.0, 0.0);
-				continue;
-			}
 
 			Iterator<Edge> leavingEdgeIterator = curr.getEdgeIterator();
 			double outEdges = 0.0;
@@ -704,12 +698,13 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				Node target = outEdge.getTargetNode();
 				target.setAttribute("xyz", outEdges, nodeCount, 0.0);
 				outEdges += rowSpacing;
+				target.setAttribute("ui.class", "node.testhighlight");
+//				curr.setAttribute("ui.class", "plus");
 			}
-
 			curr.setAttribute("xyz", 0.0, nodeCount, 0.0);
 			nodeCount -= spacing;
 		}
-		view.getCamera().resetView();
+		//		view.getCamera().resetView();
 	}
 
 	void toggleNode(String id){
@@ -785,8 +780,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	@Override
 	public void buttonReleased(String id) {
-		//		toggleNode(id);
-		//		experimentalLayout();
+//		toggleNode(id);
+//		experimentalLayout();
 	}
 
 	@Override
