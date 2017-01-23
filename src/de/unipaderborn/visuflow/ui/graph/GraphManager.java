@@ -22,6 +22,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -59,6 +60,7 @@ import org.osgi.service.event.EventHandler;
 
 import com.google.common.base.Optional;
 
+import de.unipaderborn.visuflow.debug.handlers.NavigationHandler;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFEdge;
@@ -82,7 +84,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	JApplet applet;
 	JButton zoomInButton, zoomOutButton, viewCenterButton, toggleLayout, showICFGButton, btColor;
 	JToolBar settingsBar;
-	
+
 	JDialog dialog;
 	JPanel panelColor;
 	JColorChooser jcc;
@@ -179,7 +181,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		createSettingsBar();
 		createPanel();
 		createAppletContainer(); 
-//		colorNode();
+		//		colorNode();
 	}
 
 	private void panUp()
@@ -431,6 +433,17 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						}
 					}
 				}
+				else if(e.getButton() == MouseEvent.BUTTON3 && CFG)
+				{
+					Object node = curr.getAttribute("nodeUnit");
+					NavigationHandler handler = new NavigationHandler();
+					if(node instanceof VFNode)
+					{
+						ArrayList<VFUnit> units = new ArrayList<>();
+						units.add(((VFNode) node).getVFUnit());
+						handler.HighlightJimpleLine(units);
+					}
+				}
 				else
 				{
 					Object node = curr.getAttribute("nodeUnit");
@@ -458,8 +471,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		//		if(viewPercent < minZoomPercent)
 		view.getCamera().setViewPercent(viewPercent + zoomOutDelta);
 	}
-	
-
 
 	private void createZoomControls() {
 		zoomInButton = new JButton();
@@ -492,7 +503,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				view.getCamera().resetView();
 			}
 		});
-		
+
 		colorNode(); 
 	}
 
@@ -535,24 +546,24 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	}
 
 	private void colorNode(){
-		 jcc = new JColorChooser(Color.BLUE);
-		 jcc.getSelectionModel().addChangeListener(new ChangeListener() {
-			
+		jcc = new JColorChooser(Color.BLUE);
+		jcc.getSelectionModel().addChangeListener(new ChangeListener() {
+
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				Color color = jcc.getColor();
 				System.out.println("color:"+ color);
-				
+
 			}
 		});
-		 
+
 		dialog = JColorChooser.createDialog(null, "Color Chooser", true, jcc, null, null);
 		panelColor = new JPanel(new GridLayout(0, 2));       
-     
-     btColor = new JButton ("Color nodes");
-     btColor.addActionListener(new ActionListener() {
-     
-			
+
+		btColor = new JButton ("Color nodes");
+		btColor.addActionListener(new ActionListener() {
+
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				colorTheGraph();
@@ -560,7 +571,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			}
 		});
 	}
-	
+
 	private void filterGraphNodes(List<VFNode> nodes, boolean selected)
 	{
 		Iterable<? extends Node> graphNodes = graph.getEachNode();
@@ -581,7 +592,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		if(icfg == null) {
 			return;
 		}
-		
+
 		Iterator<VFMethodEdge> iterator = icfg.listEdges.iterator();
 		try {
 			reintializeGraph();
@@ -699,7 +710,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				target.setAttribute("xyz", outEdges, nodeCount, 0.0);
 				outEdges += rowSpacing;
 				target.setAttribute("ui.class", "node.testhighlight");
-//				curr.setAttribute("ui.class", "plus");
+				//				curr.setAttribute("ui.class", "plus");
 			}
 			curr.setAttribute("xyz", 0.0, nodeCount, 0.0);
 			nodeCount -= spacing;
@@ -816,7 +827,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		if(event.getTopic().equals(DataModel.EA_TOPIC_DATA_UNIT_CHANGED))
 		{
 			VFUnit unit = (VFUnit) event.getProperty("unit");
-			
+
 			for (Edge edge : graph.getEdgeSet()) {
 				Node src = edge.getSourceNode();
 				VFNode vfNode = src.getAttribute("nodeUnit");
@@ -836,14 +847,14 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			}
 		}
 	}
-	
-    private boolean inPanel( String btName, JPanel panel){
-    	boolean exist = false;
-    	
-    	for(Component c : panel.getComponents()){
-    		
-    		if (!(c.getName()== null)) {
-    			if ((c.getClass().toString().equals("class javax.swing.JButton"))) {
+
+	private boolean inPanel( String btName, JPanel panel){
+		boolean exist = false;
+
+		for(Component c : panel.getComponents()){
+
+			if (!(c.getName()== null)) {
+				if ((c.getClass().toString().equals("class javax.swing.JButton"))) {
 					JButton bt = (JButton) c;
 					System.out.println("Button's name = " + c.getName());
 					if (bt.getName().equals(btName)) {
@@ -852,100 +863,98 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						break;
 					}
 				}
-			
-				    									
+
+
 			}
-    		
-    	}
-		
+
+		}
+
 		return exist;
-    }
-	
-    public void colorTheGraph(){
+	}
+
+	public void colorTheGraph(){
 
 		panelColor.removeAll();
 
 		for(Node n: graph.getEachNode()){
 			if(!(n.getAttribute("nodeData.unitType") == null)){
 				JLabel l = new JLabel("Change the color of this unit");
-            	 JButton bt = new JButton(n.getAttribute("nodeData.unitType").toString());
-//            	 bt.setName(n.getAttribute("nodeData.methodName").toString());
-            	 bt.setName(n.getAttribute("nodeData.unitType").toString());
-            	 
-            	 bt.addActionListener(new ActionListener() {
-					
+				JButton bt = new JButton(n.getAttribute("nodeData.unitType").toString());
+				//            	 bt.setName(n.getAttribute("nodeData.methodName").toString());
+				bt.setName(n.getAttribute("nodeData.unitType").toString());
+
+				bt.addActionListener(new ActionListener() {
+
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						dialog.setVisible(true);
 						System.out.println("Button's name is : " + bt.getName());
 						System.out.println("Button's name is..." );
 						for(Node n: graph.getEachNode()){
-//							if(n.getAttribute("nodeData.methodName").toString().equals(bt.getName())){
-//							if(n.getAttribute("ui.label").toString().equals(bt.getName())){
+							//							if(n.getAttribute("nodeData.methodName").toString().equals(bt.getName())){
+							//							if(n.getAttribute("ui.label").toString().equals(bt.getName())){
 							if(n.getAttribute("nodeData.unitType").toString().equals(bt.getName())){
 								n.setAttribute("ui.color", jcc.getColor());
-//								n.setAttribute("ui.text-size", "20%");
+								//								n.setAttribute("ui.text-size", "20%");
 								System.out.println(jcc.getColor());
 							}
-							
+
 						}
-						
-							
+
+
 					}
 				});
-            	 
-            	 if(!(inPanel(bt.getName(), panelColor))){
-            		 panelColor.add(l);
-            		 panelColor.add(bt);
-	            	}
-				
+
+				if(!(inPanel(bt.getName(), panelColor))){
+					panelColor.add(l);
+					panelColor.add(bt);
+				}
+
 			}
 			if(!(n.getAttribute("nodeData.methodName")== null)){
-				 JLabel l = new JLabel("Change the color of this unit");
-            	 JButton bt = new JButton(n.getAttribute("nodeData.methodName").toString());
-//            	 bt.setName(n.getAttribute("nodeData.methodName").toString());
-            	 bt.setName(n.getAttribute("nodeData.methodName").toString());
-            	 
-            	 bt.addActionListener(new ActionListener() {
-					
+				JLabel l = new JLabel("Change the color of this unit");
+				JButton bt = new JButton(n.getAttribute("nodeData.methodName").toString());
+				//            	 bt.setName(n.getAttribute("nodeData.methodName").toString());
+				bt.setName(n.getAttribute("nodeData.methodName").toString());
+
+				bt.addActionListener(new ActionListener() {
+
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						dialog.setVisible(true);
 						System.out.println("Button's name is : " + bt.getName());
 						System.out.println("Button's name is..." );
 						for(Node n: graph.getEachNode()){
-//							if(n.getAttribute("nodeData.methodName").toString().equals(bt.getName())){
-//							if(n.getAttribute("ui.label").toString().equals(bt.getName())){
+							//							if(n.getAttribute("nodeData.methodName").toString().equals(bt.getName())){
+							//							if(n.getAttribute("ui.label").toString().equals(bt.getName())){
 							if(n.getAttribute("nodeData.methodName").toString().equals(bt.getName())){
 								n.setAttribute("ui.color", jcc.getColor());
 								System.out.println(jcc.getColor());
 							}
-							
+
 						}
-						
-							
+
+
 					}
 				});
-            	 
-            	if(!(inPanel(bt.getName(), panelColor))){
-            		panelColor.add(l);
-            		panelColor.add(bt);
-            	}
-				
+
+				if(!(inPanel(bt.getName(), panelColor))){
+					panelColor.add(l);
+					panelColor.add(bt);
+				}
+
 			}
-			 
-        	 
-        	 
-         }
-		
-		  int result = JOptionPane.showConfirmDialog(null, panelColor, "Test", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-		  if (result == JOptionPane.OK_OPTION) {
-			  
-		  }else{
-			  System.out.println("Cancelled");
-		  }
-    }
-	
-	
+
+
+
+		}
+
+		int result = JOptionPane.showConfirmDialog(null, panelColor, "Test", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+		if (result == JOptionPane.OK_OPTION) {
+
+		}else{
+			System.out.println("Cancelled");
+		}
+	}
 
 }
