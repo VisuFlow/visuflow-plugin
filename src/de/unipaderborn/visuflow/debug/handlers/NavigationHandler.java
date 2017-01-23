@@ -196,7 +196,8 @@ public class NavigationHandler extends AbstractHandler {
 					IRegion region = findReplaceDocumentAdapter.find(methodLine, FindReplaceDocumentAdapter.escapeForRegExPattern(unit.getUnit().toString()), true, true, false, true);
 					if (region != null) {
 						ITextEditor editor = (ITextEditor) IDE.openEditor(page, file);
-						editor.selectAndReveal(region.getOffset(), region.getLength());
+						//the 1 added is to include the semi colon
+						editor.selectAndReveal(region.getOffset(), region.getLength()+1);
 					}
 				} catch (BadLocationException e) {
 					// TODO Auto-generated catch block
