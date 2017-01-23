@@ -3,6 +3,7 @@ package de.unipaderborn.visuflow.debug.handlers;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -41,6 +42,12 @@ import de.unipaderborn.visuflow.model.VFNode;
 import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.util.MapUtil;
 import de.unipaderborn.visuflow.util.ServiceUtil;
+import soot.Local;
+import soot.Unit;
+import soot.Value;
+import soot.ValueBox;
+import soot.jimple.internal.JAssignStmt;
+import soot.jimple.internal.JInstanceFieldRef;
 
 public class NavigationHandler extends AbstractHandler {
 
@@ -78,6 +85,17 @@ public class NavigationHandler extends AbstractHandler {
 						try {
 							ServiceUtil.getService(DataModel.class).filterGraph(unit, true);
 						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+					else if (event.getCommand().getId().equals("JimpleEditor.VariablePath"))
+					{
+						try {
+							List<VFNode> unitList = prepareVariablePath(className, document,
+									content.trim().substring(0, content.length() - 1), lineNumber);
+							ServiceUtil.getService(DataModel.class).filterGraph(unitList, true);
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
@@ -132,6 +150,72 @@ public class NavigationHandler extends AbstractHandler {
 			}
 		}
 		return MapUtil.sortByValue(result);
+	}
+	
+	private List<VFNode> prepareVariablePath(String className, IDocument document, String content, int lineNumber){
+		DataModel dataModel = ServiceUtil.getService(DataModel.class);
+		List<VFNode> unitList = new ArrayList<VFNode>();
+		//Map<VFUnit,Value> map = new LinkedHashMap<VFUnit,Value>();
+		for (VFClass vfClass : dataModel.listClasses()) {
+			if (vfClass.getSootClass().getName().equals(className)) {
+				List<VFMethod> vfMethods = vfClass.getMethods();
+				Map<String, Integer> methodLines = getMethodLineNumbers(document, vfMethods);
+				Collection<Integer> allMethodLines = methodLines.values();
+				List<Integer> lesserThanCuurent = allMethodLines.stream().filter(x -> x.intValue() < lineNumber)
+						.collect(Collectors.toList());
+				int toBeCompared = lesserThanCuurent.get(lesserThanCuurent.size() - 1);
+				for (VFMethod method : vfMethods) {
+					int methodLine = methodLines.get(method.getSootMethod().getDeclaration());
+					if (toBeCompared == methodLine) {
+						unitList = createPointsToSet(method, content);
+					}
+				}
+			}
+		}
+		return unitList;
+	}
+	
+	private List<VFNode> createPointsToSet(VFMethod method, String content){
+		List<VFNode> unitList = new ArrayList<VFNode>();
+		List<Value> valueList = new ArrayList<Value>();
+		for (VFUnit unit : method.getUnits()) {
+			Unit u = unit.getUnit();
+			for(ValueBox db : u.getDefBoxes()){
+				for(ValueBox ub : u.getUseBoxes()){
+					if(!valueList.contains(ub.getValue())){
+						valueList.remove(db.getValue());
+					}
+				}
+			}
+			if (unit.getUnit().toString().trim().equals(content)) {
+				for(ValueBox db : u.getDefBoxes()){
+					unitList.add(new VFNode(unit, 0));
+					valueList.add(db.getValue());
+				}
+			}
+			System.out.println(unit.getUnit());
+			for(ValueBox ub : u.getUseBoxes()){
+				if(valueList.contains(ub.getValue())){
+					if(u.getDefBoxes().isEmpty()){
+						unitList.add(new VFNode(unit, 0));
+					}
+					for(ValueBox db : u.getDefBoxes()){
+						if(db.getValue() instanceof JInstanceFieldRef){
+							JInstanceFieldRef jirf = (JInstanceFieldRef) db.getValue();
+							if(!jirf.getBase().equals(ub.getValue())){
+								unitList.add(new VFNode(unit, 0));
+								valueList.add(db.getValue());
+							}
+						}
+						else {
+							unitList.add(new VFNode(unit, 0));
+							valueList.add(db.getValue());
+						}
+					}
+				}
+			}
+		}
+		return unitList;
 	}
 
 	private Integer getMethodLineNumbers(IDocument document, VFMethod method) {
