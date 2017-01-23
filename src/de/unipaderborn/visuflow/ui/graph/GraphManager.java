@@ -780,8 +780,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	@Override
 	public void buttonReleased(String id) {
-//		toggleNode(id);
-//		experimentalLayout();
+		toggleNode(id);
+		experimentalLayout();
 	}
 
 	@Override
