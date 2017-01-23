@@ -191,8 +191,9 @@ public class NavigationHandler extends AbstractHandler {
 				IDocument document = provider.getDocument(file);
 				Integer methodLine = getMethodLineNumbers(document, unit.getVfMethod());
 				FindReplaceDocumentAdapter findReplaceDocumentAdapter = new FindReplaceDocumentAdapter(document);
+				
 				try {
-					IRegion region = findReplaceDocumentAdapter.find(methodLine, unit.getUnit().toString(), true, true, true, false);
+					IRegion region = findReplaceDocumentAdapter.find(methodLine, FindReplaceDocumentAdapter.escapeForRegExPattern(unit.getUnit().toString()), true, true, false, true);
 					if (region != null) {
 						ITextEditor editor = (ITextEditor) IDE.openEditor(page, file);
 						editor.selectAndReveal(region.getOffset(), region.getLength());
