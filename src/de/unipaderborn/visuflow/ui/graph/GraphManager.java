@@ -442,6 +442,14 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						ArrayList<VFUnit> units = new ArrayList<>();
 						units.add(((VFNode) node).getVFUnit());
 						handler.HighlightJimpleLine(units);
+						
+						ArrayList<VFNode> nodes = new ArrayList<>();
+						nodes.add((VFNode) node);
+						try {
+							dataModel.filterGraph(nodes, true);
+						} catch (Exception e1) {
+							e1.printStackTrace();
+						}
 					}
 				}
 				else
