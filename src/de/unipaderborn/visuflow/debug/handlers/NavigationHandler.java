@@ -184,6 +184,7 @@ public class NavigationHandler extends AbstractHandler {
 						
 						try {
 							IRegion region = findReplaceDocumentAdapter.find(methodLine, FindReplaceDocumentAdapter.escapeForRegExPattern(unit.getUnit().toString()), true, true, false, true);
+							//IRegion region = findReplaceDocumentAdapter.find(methodLine, unit.getUnit().toString(), true, true, true, false);
 							if (region != null) {
 								ITextEditor editor = (ITextEditor) IDE.openEditor(page, file);
 								//the 1 added is to include the semi colon

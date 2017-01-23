@@ -103,8 +103,9 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 			classpath = getSootCP(project);
 			String location = GlobalSettings.get("TargetProject_"+project.getProject().getName());
 			IFolder folder = project.getProject().getFolder(targetFolder);
-			//at this point, no resources have been created
-			if (!folder.exists()) {
+			if(folder.exists()){
+				folder.delete(true, null);
+			}else {
 				folder.create( IResource.BACKGROUND_REFRESH, true, null);
 
 			}
