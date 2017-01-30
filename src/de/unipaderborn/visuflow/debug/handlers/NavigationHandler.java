@@ -3,7 +3,6 @@ package de.unipaderborn.visuflow.debug.handlers;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -31,11 +30,9 @@ import de.unipaderborn.visuflow.model.VFNode;
 import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.util.MapUtil;
 import de.unipaderborn.visuflow.util.ServiceUtil;
-import soot.Local;
 import soot.Unit;
 import soot.Value;
 import soot.ValueBox;
-import soot.jimple.internal.JAssignStmt;
 import soot.jimple.internal.JInstanceFieldRef;
 
 public class NavigationHandler extends AbstractHandler {
@@ -67,7 +64,6 @@ public class NavigationHandler extends AbstractHandler {
 						try {
 							ServiceUtil.getService(DataModel.class).filterGraph(unit, true);
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
@@ -77,7 +73,6 @@ public class NavigationHandler extends AbstractHandler {
 						try {
 							ServiceUtil.getService(DataModel.class).filterGraph(unit, true);
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
@@ -88,13 +83,11 @@ public class NavigationHandler extends AbstractHandler {
 									content.trim().substring(0, content.length() - 1), lineNumber);
 							ServiceUtil.getService(DataModel.class).filterGraph(unitList, true);
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
 				}
 			} catch (BadLocationException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -141,7 +134,6 @@ public class NavigationHandler extends AbstractHandler {
 						false, false);
 				result.put(method.getSootMethod().getDeclaration(), document.getLineOfOffset(region.getOffset()));
 			} catch (BadLocationException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
