@@ -444,7 +444,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						ArrayList<VFUnit> units = new ArrayList<>();
 						units.add(((VFNode) node).getVFUnit());
 						handler.HighlightJimpleLine(units);
-						
+
 						ArrayList<VFNode> nodes = new ArrayList<>();
 						nodes.add((VFNode) node);
 						try {
@@ -470,7 +470,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			}
 		});
 	}
-	
+
 	private void callInvokeExpr(InvokeExpr expr){
 		if(expr == null) return;
 		DataModel dataModel = ServiceUtil.getService(DataModel.class);
@@ -741,8 +741,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				Node target = outEdge.getTargetNode();
 				target.setAttribute("xyz", outEdges, nodeCount, 0.0);
 				outEdges += rowSpacing;
-				target.setAttribute("ui.class", "node.testhighlight");
-				//				curr.setAttribute("ui.class", "plus");
 			}
 			curr.setAttribute("xyz", 0.0, nodeCount, 0.0);
 			nodeCount -= spacing;
@@ -894,10 +892,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						break;
 					}
 				}
-
-
 			}
-
 		}
 
 		return exist;
