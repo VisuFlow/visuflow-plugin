@@ -116,8 +116,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
 		this.zoomInDelta = .075;
 		this.zoomOutDelta = .075;
-		this.maxZoomPercent = 1.0;
-		this.minZoomPercent = 3.0;
+		this.maxZoomPercent = 0.2;
+		this.minZoomPercent = 1.0;
 		this.styleSheet = styleSheet;
 		createGraph(graphName);
 		createUI();
@@ -492,15 +492,15 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private void zoomIn()
 	{
 		double viewPercent = view.getCamera().getViewPercent();
-		//		if(viewPercent > maxZoomPercent)
-		view.getCamera().setViewPercent(viewPercent - zoomInDelta);
+		if(viewPercent > maxZoomPercent)
+			view.getCamera().setViewPercent(viewPercent - zoomInDelta);
 	}
 
 	private void zoomOut()
 	{
 		double viewPercent = view.getCamera().getViewPercent();
-		//		if(viewPercent < minZoomPercent)
-		view.getCamera().setViewPercent(viewPercent + zoomOutDelta);
+		if(viewPercent < minZoomPercent)
+			view.getCamera().setViewPercent(viewPercent + zoomOutDelta);
 	}
 
 	private void createZoomControls() {
@@ -758,7 +758,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		viewer.disableAutoLayout();
 
 		double rowSpacing = 3.0;
-		double columnSpacing = 3.0;
+		double columnSpacing = 4.0;
 		Iterator<Node> nodeIterator = graph.getNodeIterator();
 		int totalNodeCount = graph.getNodeCount();
 		int currNodeIndex = 0;
@@ -772,7 +772,11 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				Iterator<Edge> currEdgeIterator = curr.getEdgeIterator();
 				while(currEdgeIterator.hasNext())
 				{
-					currEdgeIterator.next().getNode1().setAttribute("xyz", ((rowSpacing * currEdgeCount) - currEdgeIndex), ((totalNodeCount * columnSpacing) - currNodeIndex), 0.0);
+					Node temp = currEdgeIterator.next().getNode1();
+//					if(temp.hasAttribute("node.setLayout"))
+//						continue;
+					temp.setAttribute("xyz", ((rowSpacing * currEdgeCount) - currEdgeIndex), ((totalNodeCount * columnSpacing) - currNodeIndex), 0.0);
+//					temp.setAttribute("node.setLayout");
 					currEdgeIndex++;
 				}
 				currNodeIndex++;

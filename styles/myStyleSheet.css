@@ -4,7 +4,7 @@
 node {
 	size-mode: fit;
 	shape: rounded-box;
-/* 	size-mode: dyn-size; */
+ 	/* size-mode: normal; */
 	fill-color: #009688;
 	fill-mode: dyn-plain;							 
 	padding: 3px, 2px, 5px, 5px;					         
@@ -17,6 +17,8 @@ node {
 	text-padding: 4px, 4px;		 
 	text-offset: 0px, 2px;							 
 	text-size: 12gu;
+	z-index: 0;
+	visibility-mode: normal;
 }
 						 
 						 
@@ -27,10 +29,15 @@ node {
 }
  edge {
 	arrow-shape: arrow;
-	arrow-size: 3px;
+	arrow-size: 6px,10px;
 	fill-color: blue;
 	text-size: 10gu;
 	text-background-mode: plain;
+/* 	visibility-mode: zoom-range;
+	visibility: 0,10; */
+	visibility-mode: normal;
+	size-mode: normal;
+	z-index: 1;
 }
 
 node:clicked {
