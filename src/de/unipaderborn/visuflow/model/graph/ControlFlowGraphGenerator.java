@@ -60,7 +60,6 @@ public class ControlFlowGraphGenerator {
 				VFEdge edge = (VFEdge) edges.next();
 				if(edge.getSource().getUnit().equals(currentNode) && edge.getDestination().getUnit().equals(temp))
 				{
-					System.out.println("Here");
 					edgeconnection = true;
 					break;
 				}

@@ -3,7 +3,6 @@ package de.unipaderborn.visuflow.debug.handlers;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -42,11 +41,9 @@ import de.unipaderborn.visuflow.model.VFNode;
 import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.util.MapUtil;
 import de.unipaderborn.visuflow.util.ServiceUtil;
-import soot.Local;
 import soot.Unit;
 import soot.Value;
 import soot.ValueBox;
-import soot.jimple.internal.JAssignStmt;
 import soot.jimple.internal.JInstanceFieldRef;
 
 public class NavigationHandler extends AbstractHandler {

@@ -773,10 +773,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				while(currEdgeIterator.hasNext())
 				{
 					Node temp = currEdgeIterator.next().getNode1();
-//					if(temp.hasAttribute("node.setLayout"))
-//						continue;
 					temp.setAttribute("xyz", ((rowSpacing * currEdgeCount) - currEdgeIndex), ((totalNodeCount * columnSpacing) - currNodeIndex), 0.0);
-//					temp.setAttribute("node.setLayout");
 					currEdgeIndex++;
 				}
 				currNodeIndex++;
