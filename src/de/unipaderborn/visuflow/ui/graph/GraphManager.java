@@ -114,8 +114,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	{
 		System.setProperty("sun.awt.noerasebackground", "true");
 		System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
-		this.zoomInDelta = .2;
-		this.zoomOutDelta = .2;
+		this.zoomInDelta = .075;
+		this.zoomOutDelta = .075;
 		this.maxZoomPercent = 1.0;
 		this.minZoomPercent = 3.0;
 		this.styleSheet = styleSheet;
@@ -716,7 +716,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 	}
 
-	private void experimentalLayout()
+	/*private void experimentalLayout()
 	{
 		if(!CFG)
 		{
@@ -744,6 +744,41 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			}
 			curr.setAttribute("xyz", 0.0, nodeCount, 0.0);
 			nodeCount -= spacing;
+		}
+	}*/
+
+	private void experimentalLayout()
+	{
+		if(!CFG)
+		{
+			viewer.enableAutoLayout(new SpringBox());
+			view.getCamera().resetView();
+			return;
+		}
+		viewer.disableAutoLayout();
+
+		double rowSpacing = 3.0;
+		double columnSpacing = 3.0;
+		Iterator<Node> nodeIterator = graph.getNodeIterator();
+		int totalNodeCount = graph.getNodeCount();
+		int currNodeIndex = 0;
+		while(nodeIterator.hasNext())
+		{
+			Node curr = nodeIterator.next();
+			int currEdgeCount = curr.getEdgeSet().size();
+			int currEdgeIndex = 0;
+			if(currEdgeCount > 1)
+			{
+				Iterator<Edge> currEdgeIterator = curr.getEdgeIterator();
+				while(currEdgeIterator.hasNext())
+				{
+					currEdgeIterator.next().getNode1().setAttribute("xyz", ((rowSpacing * currEdgeCount) - currEdgeIndex), ((totalNodeCount * columnSpacing) - currNodeIndex), 0.0);
+					currEdgeIndex++;
+				}
+				currNodeIndex++;
+			}
+			curr.setAttribute("xyz", 0.0, ((totalNodeCount * rowSpacing) - currNodeIndex), 0.0);
+			currNodeIndex++;
 		}
 	}
 
