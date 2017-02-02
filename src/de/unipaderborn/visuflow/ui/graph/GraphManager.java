@@ -42,6 +42,7 @@ import javax.swing.JToolTip;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.graphstream.algorithm.Toolkit;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -53,7 +54,6 @@ import org.graphstream.ui.layout.springbox.implementations.SpringBox;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
 import org.graphstream.ui.view.ViewerListener;
-import org.graphstream.ui.view.ViewerPipe;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
@@ -78,6 +78,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	Graph graph;
 	String styleSheet;
+	int maxLength;
 	private Viewer viewer;
 	private ViewPanel view;
 	List<VFClass> analysisData;
@@ -109,7 +110,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private BufferedImage imgPlus;
 	private BufferedImage imgMinus;
 	private boolean CFG;
-
+	
 	public GraphManager(String graphName, String styleSheet)
 	{
 		System.setProperty("sun.awt.noerasebackground", "true");
@@ -118,6 +119,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		this.zoomOutDelta = .075;
 		this.maxZoomPercent = 0.2;
 		this.minZoomPercent = 1.0;
+		this.maxLength = 45;
 		this.styleSheet = styleSheet;
 		createGraph(graphName);
 		createUI();
@@ -190,28 +192,24 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	{
 		Point3 currCenter = view.getCamera().getViewCenter();
 		view.getCamera().setViewCenter(currCenter.x, currCenter.y + 1, 0);
-		//		System.out.println(view.getCamera().getViewCenter());
 	}
 
 	private void panDown()
 	{
 		Point3 currCenter = view.getCamera().getViewCenter();
 		view.getCamera().setViewCenter(currCenter.x, currCenter.y - 1, 0);
-		//		System.out.println(view.getCamera().getViewCenter());
 	}
 
 	private void panLeft()
 	{
 		Point3 currCenter = view.getCamera().getViewCenter();
 		view.getCamera().setViewCenter(currCenter.x - 1, currCenter.y, 0);
-		//		System.out.println(view.getCamera().getViewCenter());
 	}
 
 	private void panRight()
 	{
 		Point3 currCenter = view.getCamera().getViewCenter();
 		view.getCamera().setViewCenter(currCenter.x + 1, currCenter.y, 0);
-		//		System.out.println(view.getCamera().getViewCenter());
 	}
 
 	private void createPanningButtons() {
@@ -693,13 +691,10 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			VFUnit unit = src.getVFUnit();
 			createdEdge.addAttribute("ui.label", Optional.fromNullable(unit.getOutSet()).or("").toString());
 			createdEdge.addAttribute("edgeData.outSet", Optional.fromNullable(unit.getInSet()).or("").toString());
-			//createdEdge.addAttribute("ui.label", "{a,b}");
-			//createdEdge.addAttribute("edgeData.outSet", "{a,b}");
 		}
 	}
 
 	private void createGraphNode(VFNode node) {
-		int maxLength = 65;
 		if(graph.getNode(node.getId() + "") == null)
 		{
 			Node createdNode = graph.addNode(node.getId() + "");
@@ -756,7 +751,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			return;
 		}
 		viewer.disableAutoLayout();
-
+		
 		double rowSpacing = 3.0;
 		double columnSpacing = 4.0;
 		Iterator<Node> nodeIterator = graph.getNodeIterator();
@@ -781,6 +776,39 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			curr.setAttribute("xyz", 0.0, ((totalNodeCount * rowSpacing) - currNodeIndex), 0.0);
 			currNodeIndex++;
 		}
+		
+		for (Node node : graph) {
+			if(node.getInDegree() > 1)
+			{
+				double[] pos = Toolkit.nodePosition(graph, node.getId());
+				node.setAttribute("xyz", pos[0] + 2, pos[1], 0);
+			}
+		}
+		
+		/*Iterator<Node> nodeIterator = graph.getNodeIterator();
+		SpriteManager sManager = new SpriteManager(graph);
+		while(nodeIterator.hasNext())
+		{
+			Node curr = nodeIterator.next();
+			int outwardEdgeCount = curr.getOutDegree();
+			if(outwardEdgeCount > 1)
+			{
+				Iterator<Edge> currOutwardEdgeIterator = curr.getEachLeavingEdge().iterator();
+				while(currOutwardEdgeIterator.hasNext())
+				{
+					Edge temp = currOutwardEdgeIterator.next();
+					Sprite edgeSprite = sManager.addSprite("edgeSprite");
+					edgeSprite.attachToEdge(temp.getId());
+					edgeSprite.setPosition(5, 8, 0);
+					edgeSprite.detach();
+				}
+			}
+			else
+			{
+				
+			}
+		}*/
+		view.getCamera().resetView();
 	}
 
 	void toggleNode(String id){
@@ -833,20 +861,20 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		this.registerEventHandler();
 		System.out.println("GraphManager ---> registered for events");
 
-		ViewerPipe fromViewer = viewer.newViewerPipe();
-		fromViewer.addViewerListener(this);
-		fromViewer.addSink(graph);
+//		ViewerPipe fromViewer = viewer.newViewerPipe();
+//		fromViewer.addViewerListener(this);
+//		fromViewer.addSink(graph);
 
 		// FIXME the Thread.sleep slows down the loop, so that it does not eat up the CPU
 		// but this really should be implemented differently. isn't there an event listener
 		// or something we can use, so that we call pump() only when necessary
-		while(true) {
-			try {
-				Thread.sleep(1);
-			} catch (InterruptedException e) {
-			}
-			fromViewer.pump();
-		}
+//		while(true) {
+//			try {
+//				Thread.sleep(1);
+//			} catch (InterruptedException e) {
+//			}
+//			fromViewer.pump();
+//		}
 	}
 
 	@Override
