@@ -65,7 +65,7 @@ public class ControlFlowGraphGenerator {
 				}
 			}
 			if(edgeconnection)
-			continue;
+				continue;
 			Iterator<VFNode> nodesIterator = listNodes.iterator();
 			while (nodesIterator.hasNext()) {
 				VFNode node = (VFNode) nodesIterator.next();

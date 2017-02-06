@@ -110,7 +110,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private BufferedImage imgPlus;
 	private BufferedImage imgMinus;
 	private boolean CFG;
-	
+
 	public GraphManager(String graphName, String styleSheet)
 	{
 		System.setProperty("sun.awt.noerasebackground", "true");
@@ -707,6 +707,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			createdNode.setAttribute("nodeData.unitType", node.getUnit().getClass());
 			createdNode.setAttribute("nodeData.inSet", Optional.fromNullable(node.getVFUnit().getInSet()).or("n/a").toString());
 			createdNode.setAttribute("nodeData.outSet", Optional.fromNullable(node.getVFUnit().getInSet()).or("n/a").toString());
+			createdNode.setAttribute("nodeData.line", node.getUnit().getJavaSourceStartLineNumber());
+			createdNode.setAttribute("nodeData.column", node.getUnit().getJavaSourceStartColumnNumber());
 			createdNode.setAttribute("nodeUnit", node);
 		}
 	}
@@ -751,7 +753,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			return;
 		}
 		viewer.disableAutoLayout();
-		
+
 		double rowSpacing = 3.0;
 		double columnSpacing = 4.0;
 		Iterator<Node> nodeIterator = graph.getNodeIterator();
@@ -760,56 +762,77 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		while(nodeIterator.hasNext())
 		{
 			Node curr = nodeIterator.next();
-			int currEdgeCount = curr.getEdgeSet().size();
+			if(curr.hasAttribute("layout.visited"))
+			{
+				continue;
+			}
+			int currEdgeCount = curr.getOutDegree();
 			int currEdgeIndex = 0;
 			if(currEdgeCount > 1)
 			{
 				Iterator<Edge> currEdgeIterator = curr.getEdgeIterator();
+				curr.setAttribute("xyz", 0.0, ((totalNodeCount * rowSpacing) - currNodeIndex), 0.0);
+				curr.setAttribute("layout.visited");
+				currNodeIndex++;
 				while(currEdgeIterator.hasNext())
 				{
-					Node temp = currEdgeIterator.next().getNode1();
-					temp.setAttribute("xyz", ((rowSpacing * currEdgeCount) - currEdgeIndex), ((totalNodeCount * columnSpacing) - currNodeIndex), 0.0);
+					Node temp = currEdgeIterator.next().getOpposite(curr);
+					temp.setAttribute("xyz", ((columnSpacing- currEdgeIndex) * currEdgeCount), ((totalNodeCount * columnSpacing) - currNodeIndex), 0.0);
+					curr.setAttribute("layout.visited");
 					currEdgeIndex++;
 				}
 				currNodeIndex++;
 			}
 			curr.setAttribute("xyz", 0.0, ((totalNodeCount * rowSpacing) - currNodeIndex), 0.0);
+			curr.setAttribute("layout.visited");
 			currNodeIndex++;
 		}
-		
+
 		for (Node node : graph) {
-			if(node.getInDegree() > 1)
+			int inDegree = node.getInDegree();
+			int outDegree = node.getOutDegree();
+			if(inDegree == 0)
+				continue;
+			if(inDegree > outDegree)
 			{
 				double[] pos = Toolkit.nodePosition(graph, node.getId());
-				node.setAttribute("xyz", pos[0] + 2, pos[1], 0);
+				node.setAttribute("xyz", pos[0] - 5, pos[1], 0);
 			}
-		}
-		
-		/*Iterator<Node> nodeIterator = graph.getNodeIterator();
-		SpriteManager sManager = new SpriteManager(graph);
-		while(nodeIterator.hasNext())
-		{
-			Node curr = nodeIterator.next();
-			int outwardEdgeCount = curr.getOutDegree();
-			if(outwardEdgeCount > 1)
+			else if(outDegree > inDegree)
 			{
-				Iterator<Edge> currOutwardEdgeIterator = curr.getEachLeavingEdge().iterator();
-				while(currOutwardEdgeIterator.hasNext())
-				{
-					Edge temp = currOutwardEdgeIterator.next();
-					Sprite edgeSprite = sManager.addSprite("edgeSprite");
-					edgeSprite.attachToEdge(temp.getId());
-					edgeSprite.setPosition(5, 8, 0);
-					edgeSprite.detach();
-				}
+				double[] pos = Toolkit.nodePosition(graph, node.getId());
+				node.setAttribute("xyz", pos[0] + 5, pos[1], 0);
+			}
+			else if(inDegree == outDegree)
+			{
+				continue;
 			}
 			else
-			{
-				
-			}
-		}*/
+				continue;
+		}
+
 		view.getCamera().resetView();
 	}
+
+	/*private void experimentalLayout()
+	{
+		if(!CFG)
+		{
+			viewer.enableAutoLayout(new SpringBox());
+			view.getCamera().resetView();
+			return;
+		}
+		viewer.disableAutoLayout();
+		
+		viewer.enableAutoLayout(new HierarchicalLayout());
+		graph.addNode("temp");
+		viewer.disableAutoLayout();
+		view.getCamera().resetView();
+		for (Node node : graph) {
+			double[] pos = Toolkit.nodePosition(node);
+			node.setAttribute("xyz", pos[1], pos[0], pos[2]);
+		}
+	}*/
 
 	void toggleNode(String id){
 		Node n  = graph.getNode(id);
@@ -861,20 +884,20 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		this.registerEventHandler();
 		System.out.println("GraphManager ---> registered for events");
 
-//		ViewerPipe fromViewer = viewer.newViewerPipe();
-//		fromViewer.addViewerListener(this);
-//		fromViewer.addSink(graph);
+		//		ViewerPipe fromViewer = viewer.newViewerPipe();
+		//		fromViewer.addViewerListener(this);
+		//		fromViewer.addSink(graph);
 
 		// FIXME the Thread.sleep slows down the loop, so that it does not eat up the CPU
 		// but this really should be implemented differently. isn't there an event listener
 		// or something we can use, so that we call pump() only when necessary
-//		while(true) {
-//			try {
-//				Thread.sleep(1);
-//			} catch (InterruptedException e) {
-//			}
-//			fromViewer.pump();
-//		}
+		//		while(true) {
+		//			try {
+		//				Thread.sleep(1);
+		//			} catch (InterruptedException e) {
+		//			}
+		//			fromViewer.pump();
+		//		}
 	}
 
 	@Override
