@@ -26,7 +26,7 @@ public class LaunchConfigurationDelegate extends JavaLaunchDelegate {
 	@Override
 	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
 		ILaunchConfigurationWorkingCopy configCopy = configuration.copy("visuflow");
-		
+
 		String attr = configCopy.getAttribute("test.attr", "fallback");
 		System.out.println("Launching: " + attr);
 

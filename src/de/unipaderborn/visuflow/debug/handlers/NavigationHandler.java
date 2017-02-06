@@ -92,7 +92,6 @@ public class NavigationHandler extends AbstractHandler {
 									content.trim().substring(0, content.length() - 1), lineNumber);
 							ServiceUtil.getService(DataModel.class).filterGraph(unitList, true);
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
@@ -148,7 +147,6 @@ public class NavigationHandler extends AbstractHandler {
 		}
 		return MapUtil.sortByValue(result);
 	}
-	
 	private List<VFNode> prepareVariablePath(String className, IDocument document, String content, int lineNumber){
 		DataModel dataModel = ServiceUtil.getService(DataModel.class);
 		List<VFNode> unitList = new ArrayList<VFNode>();

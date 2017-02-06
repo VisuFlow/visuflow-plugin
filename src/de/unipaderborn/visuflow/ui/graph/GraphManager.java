@@ -423,8 +423,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					Object node = curr.getAttribute("nodeMethod");
 					if(node instanceof VFMethod)
 					{
-						VFMethod currentMethod = (VFMethod) node;
-						VFMethod selectedMethod = dataModel.getVFMethodByName(currentMethod.getSootMethod());
+						VFMethod selectedMethod = (VFMethod) node;
 						try {
 							if(selectedMethod.getControlFlowGraph() == null)
 								throw new Exception("CFG Null Exception");
@@ -432,6 +431,10 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 							{
 //								renderMethodCFG(selectedMethod.getControlFlowGraph());
 								dataModel.setSelectedMethod(selectedMethod);
+								List<VFMethodEdge> incEdges = selectedMethod.getIncomingEdges();
+								/*for(VFMethodEdge edge : incEdges){
+									System.out.println(edge);
+								}*/
 							}
 						} catch (Exception e1) {
 							e1.printStackTrace();
