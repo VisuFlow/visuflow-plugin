@@ -38,7 +38,7 @@ public class JimpleModelAnalysis {
 
 	public void createICFG(final ICFGStructure methodGraph, List<VFClass> vfClasses) {
 		G.reset();
-		Transform transform = new Transform("wjtp.myTransform", new SceneTransformer() {
+		Transform transform = new Transform("wjap.myTransform", new SceneTransformer() {
 			@Override
 			protected void internalTransform(String phase, Map<String, String> arg1) {
 				createJimpleHierarchyWithCfgs(vfClasses);
@@ -163,7 +163,7 @@ public class JimpleModelAnalysis {
 			}
 		});
 
-		PackManager.v().getPack("wjtp").add(transform);
+		PackManager.v().getPack("wjap").add(transform);
 		// Run Soot
 		Main.main(sootString);
 	}
