@@ -23,6 +23,7 @@ import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -39,6 +40,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.JToolTip;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -54,7 +56,9 @@ import org.graphstream.ui.layout.springbox.implementations.SpringBox;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
 import org.graphstream.ui.view.ViewerListener;
+import org.graphstream.ui.view.ViewerPipe;
 import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 
@@ -136,7 +140,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				EA_TOPIC_DATA_FILTER_GRAPH,
 				EA_TOPIC_DATA_SELECTION,
 				EA_TOPIC_DATA_MODEL_CHANGED,
-				EA_TOPIC_DATA_UNIT_CHANGED
+				EA_TOPIC_DATA_UNIT_CHANGED,
+				"GraphReady"
 		};
 		Hashtable<String, Object> properties = new Hashtable<>();
 		properties.put(EventConstants.EVENT_TOPIC, topics);
@@ -425,7 +430,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 								throw new Exception("CFG Null Exception");
 							else
 							{
-								renderMethodCFG(selectedMethod.getControlFlowGraph());
+//								renderMethodCFG(selectedMethod.getControlFlowGraph());
 								dataModel.setSelectedMethod(selectedMethod);
 							}
 						} catch (Exception e1) {
@@ -682,6 +687,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 		this.CFG = true;
 		experimentalLayout();
+		EventAdmin admin = ServiceUtil.getService(EventAdmin.class);
+		admin.postEvent(new Event("GraphReady", new HashMap<>()));
 	}
 
 	private void createGraphEdge(VFNode src, VFNode dest) {
@@ -755,7 +762,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		viewer.disableAutoLayout();
 
 		double rowSpacing = 3.0;
-		double columnSpacing = 4.0;
+		double columnSpacing = 3.0;
 		Iterator<Node> nodeIterator = graph.getNodeIterator();
 		int totalNodeCount = graph.getNodeCount();
 		int currNodeIndex = 0;
@@ -796,12 +803,12 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			if(inDegree > outDegree)
 			{
 				double[] pos = Toolkit.nodePosition(graph, node.getId());
-				node.setAttribute("xyz", pos[0] - 5, pos[1], 0);
+				node.setAttribute("xyz", pos[0] - rowSpacing, pos[1], 0);
 			}
 			else if(outDegree > inDegree)
 			{
 				double[] pos = Toolkit.nodePosition(graph, node.getId());
-				node.setAttribute("xyz", pos[0] + 5, pos[1], 0);
+				node.setAttribute("xyz", pos[0] + rowSpacing, pos[1], 0);
 			}
 			else if(inDegree == outDegree)
 			{
@@ -823,7 +830,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			return;
 		}
 		viewer.disableAutoLayout();
-		
+
 		viewer.enableAutoLayout(new HierarchicalLayout());
 		graph.addNode("temp");
 		viewer.disableAutoLayout();
@@ -883,6 +890,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	public void run() {
 		this.registerEventHandler();
 		System.out.println("GraphManager ---> registered for events");
+		
+		ViewerPipe test;
 
 		//		ViewerPipe fromViewer = viewer.newViewerPipe();
 		//		fromViewer.addViewerListener(this);
@@ -923,6 +932,43 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void handleEvent(Event event) {
+		if(event.getTopic().contentEquals("GraphReady"))
+		{
+			try {
+				Thread.sleep(800);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			int count = 0;
+			if(graph.getNodeCount() > 10)
+				count = 10;
+			for (int i = 0; i < count; i++) {
+				try {
+					Thread.sleep(40);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				SwingUtilities.invokeLater(new Runnable() {
+
+					@Override
+					public void run() {
+						GraphManager.this.zoomIn();
+					}
+				});
+			}
+			Node first = graph.getNodeIterator().next();
+			double[] pos = Toolkit.nodePosition(first);
+			double currPosition = view.getCamera().getViewCenter().y;
+			while(pos[1] > currPosition)
+			{
+				try {
+					Thread.sleep(40);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				view.getCamera().setViewCenter(pos[0], currPosition++, 0.0);
+			}
+		}
 		if(event.getTopic().contentEquals(DataModel.EA_TOPIC_DATA_MODEL_CHANGED))
 		{
 			renderICFG((ICFGStructure) event.getProperty("icfg"));
