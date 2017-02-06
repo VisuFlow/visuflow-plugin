@@ -52,6 +52,7 @@ public class BreakpointLocator {
     }
     // @formatter:on
 
+    private CoreException exception = null;
     public List<BreakpointLocation> findFlowFunctions() throws JavaModelException {
         List<BreakpointLocation> locations = new ArrayList<>();
 
@@ -101,14 +102,18 @@ public class BreakpointLocator {
                             location.length = node.getName().getLength();
                             locations.add(location);
                         } catch (CoreException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
+                            exception = e;
+                            return false;
                         }
                     }
 
                     return true;
                 }
             });
+            
+            if(exception != null) {
+            	throw new JavaModelException(exception);
+            }
         }
 
         return locations;
@@ -243,5 +248,10 @@ public class BreakpointLocator {
         public int lineNumber;
         public int offset;
         public int length;
+        
+        @Override
+        public String toString() {
+        	return className + " . " + methodName + " (" + lineNumber + ")";
+        }
     }
 }

@@ -33,6 +33,12 @@ edge {
 	text-size: 10gu;
 }
 
+node.testhighlight {
+	fill-color: blue;
+	text-background-color: #8080ff;
+	text-color: #DDD;
+}
+
 node:clicked {
 	fill-color: red;
 	text-background-color: #F33;
