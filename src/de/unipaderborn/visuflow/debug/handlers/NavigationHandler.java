@@ -148,7 +148,6 @@ public class NavigationHandler extends AbstractHandler {
 		}
 		return MapUtil.sortByValue(result);
 	}
-	
 	private List<VFNode> prepareVariablePath(String className, IDocument document, String content, int lineNumber){
 		DataModel dataModel = ServiceUtil.getService(DataModel.class);
 		List<VFNode> unitList = new ArrayList<VFNode>();
@@ -213,6 +212,7 @@ public class NavigationHandler extends AbstractHandler {
 			}
 		}
 		return unitList;
+	}
 	}
 
 	private Integer getMethodLineNumbers(IDocument document, VFMethod method) {
