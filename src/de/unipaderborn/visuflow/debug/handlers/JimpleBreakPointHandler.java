@@ -175,7 +175,7 @@ public class JimpleBreakPointHandler extends AbstractHandler {
 		int hitCount = 0; // no hit count
 		boolean register = true; // register at BreakpointManager
 		boolean entry = true; // suspend at method entry
-		boolean exit = true; // suspend at method exit
+		boolean exit = false; // suspend at method exit
 		boolean nativeOnly = false; // suspend for native methods
 		Map<String, Object> attrs = null;
 
