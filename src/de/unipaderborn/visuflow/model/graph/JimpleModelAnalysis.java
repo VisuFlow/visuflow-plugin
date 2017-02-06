@@ -1,6 +1,7 @@
 package de.unipaderborn.visuflow.model.graph;
 
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,8 @@ public class JimpleModelAnalysis {
 
 	private int methodcount = 0;
 	private int edgeCount = 0;
+	
+	private Map<SootMethod,VFMethod> methodMap = new HashMap<>();
 
 	private String[] sootString;
 
@@ -56,7 +59,13 @@ public class JimpleModelAnalysis {
 					if(entryMethod.isMain())
 					{
 						methodcount++;
-						VFMethod vfmethod = new VFMethod(entryMethod);
+						VFMethod vfmethod;
+						if(methodMap.containsKey(entryMethod)){
+							vfmethod = methodMap.get(entryMethod);
+						}else{
+							vfmethod = new VFMethod(entryMethod);
+							methodMap.put(entryMethod, vfmethod);
+						}
 						methodGraph.listMethods.add(vfmethod);
 						break;
 					}
@@ -76,7 +85,13 @@ public class JimpleModelAnalysis {
 					vfClasses.add(currentClass);
 
 					for (SootMethod sootMethod : sootClass.getMethods()) {
-						VFMethod currentMethod = new VFMethod(sootMethod);
+						VFMethod currentMethod;
+						if(methodMap.containsKey(sootMethod)){
+							currentMethod = methodMap.get(sootMethod);
+						}else{
+							currentMethod = new VFMethod(sootMethod);
+							methodMap.put(sootMethod, currentMethod);
+						}
 						currentMethod.setVfClass(currentClass);
 						Body body = sootMethod.retrieveActiveBody();
 						for (Unit unit : body.getUnits()) {
@@ -136,7 +151,14 @@ public class JimpleModelAnalysis {
 						if(!methodPresent)
 						{
 							methodcount++;
-							VFMethod method = new VFMethod(methodcount, destination);
+							VFMethod method;
+							if(methodMap.containsKey(destination)){
+								method = methodMap.get(destination);
+								method.setId(methodcount);
+							}else{
+								method = new VFMethod(methodcount,destination);
+								methodMap.put(destination, method);
+							}
 							methodGraph.listMethods.add(method);
 						}
 						VFMethod sourceMethod = null;
@@ -156,6 +178,11 @@ public class JimpleModelAnalysis {
 						}
 						edgeCount++;
 						VFMethodEdge edge = new VFMethodEdge(edgeCount, sourceMethod, destinationMethod);
+						destinationMethod.addIncomingEdge(edge);
+						System.out.println("Method "+destinationMethod+" Edge "+edge);
+						if(destinationMethod.getIncomingEdges().isEmpty()){
+							System.out.println("adding didnt work");
+						}
 						methodGraph.listEdges.add(edge);
 						traverseMethods(destination, cg);
 					}

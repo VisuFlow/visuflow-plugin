@@ -71,6 +71,8 @@ import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.model.graph.ControlFlowGraph;
 import de.unipaderborn.visuflow.model.graph.ICFGStructure;
 import de.unipaderborn.visuflow.util.ServiceUtil;
+import soot.jimple.InvokeExpr;
+import soot.jimple.Stmt;
 
 public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
@@ -418,8 +420,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					Object node = curr.getAttribute("nodeMethod");
 					if(node instanceof VFMethod)
 					{
-						VFMethod currentMethod = (VFMethod) node;
-						VFMethod selectedMethod = dataModel.getVFMethodByName(currentMethod.getSootMethod());
+						VFMethod selectedMethod = (VFMethod) node;
 						try {
 							if(selectedMethod.getControlFlowGraph() == null)
 								throw new Exception("CFG Null Exception");
@@ -427,6 +428,10 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 							{
 								renderMethodCFG(selectedMethod.getControlFlowGraph());
 								dataModel.setSelectedMethod(selectedMethod);
+								List<VFMethodEdge> incEdges = selectedMethod.getIncomingEdges();
+								/*for(VFMethodEdge edge : incEdges){
+									System.out.println(edge);
+								}*/
 							}
 						} catch (Exception e1) {
 							e1.printStackTrace();
@@ -452,10 +457,31 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						System.out.println("Clicked on VFNode " + node);
 						System.out.println("calling highligt jimple Unit");
 						dataModel.HighlightJimpleUnit((VFNode) node);
+						if(((Stmt)((VFNode) node).getUnit()).containsInvokeExpr()){
+							callInvokeExpr(((Stmt)((VFNode) node).getUnit()).getInvokeExpr());
+						}
 					}
 				}
 			}
 		});
+	}
+	
+	private void callInvokeExpr(InvokeExpr expr){
+		if(expr == null) return;
+		DataModel dataModel = ServiceUtil.getService(DataModel.class);
+		System.out.println(expr);
+		VFMethod selectedMethod = dataModel.getVFMethodByName(expr.getMethod());
+		try {
+			if(selectedMethod.getControlFlowGraph() == null)
+				throw new Exception("CFG Null Exception");
+			else
+			{
+				renderMethodCFG(selectedMethod.getControlFlowGraph());
+				dataModel.setSelectedMethod(selectedMethod);
+			}
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
 	}
 
 	private void zoomIn()
