@@ -237,7 +237,6 @@ public class DataModelImpl implements DataModel {
 
 	public void HighlightJimpleUnit(VFNode node) {
 		VFUnit unit = node.getVFUnit();
-		System.out.println("DataModel ---> unit " + unit);
 		String className = unit.getVfMethod().getVfClass().getSootClass().getName();
 		VFMethod methodName = unit.getVfMethod();
 
