@@ -40,7 +40,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.JToolTip;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -56,7 +55,6 @@ import org.graphstream.ui.layout.springbox.implementations.SpringBox;
 import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
 import org.graphstream.ui.view.ViewerListener;
-import org.graphstream.ui.view.ViewerPipe;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventConstants;
@@ -431,7 +429,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 							{
 //								renderMethodCFG(selectedMethod.getControlFlowGraph());
 								dataModel.setSelectedMethod(selectedMethod);
-								List<VFMethodEdge> incEdges = selectedMethod.getIncomingEdges();
+//								List<VFMethodEdge> incEdges = selectedMethod.getIncomingEdges();
 								/*for(VFMethodEdge edge : incEdges){
 									System.out.println(edge);
 								}*/
@@ -894,7 +892,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		this.registerEventHandler();
 		System.out.println("GraphManager ---> registered for events");
 		
-		ViewerPipe test;
 
 		//		ViewerPipe fromViewer = viewer.newViewerPipe();
 		//		fromViewer.addViewerListener(this);
@@ -935,7 +932,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void handleEvent(Event event) {
-		if(event.getTopic().contentEquals("GraphReady"))
+		/*if(event.getTopic().contentEquals("GraphReady"))
 		{
 			try {
 				Thread.sleep(800);
@@ -971,7 +968,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				}
 				view.getCamera().setViewCenter(pos[0], currPosition++, 0.0);
 			}
-		}
+		}*/
 		if(event.getTopic().contentEquals(DataModel.EA_TOPIC_DATA_MODEL_CHANGED))
 		{
 			renderICFG((ICFGStructure) event.getProperty("icfg"));
