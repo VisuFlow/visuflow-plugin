@@ -69,7 +69,7 @@
          allPopups="false"
          locationURI="popup:#AbstractTextEditorRulerContext?after=additions">
       <command
-            commandId="GraphStreamFeasibility.sourceCodeCommand"
+            commandId="JimpleEditor.sourceCodeCommand"
             label="View Java Source"
             style="push">
             <visibleWhen>
@@ -161,7 +161,7 @@
          name="Jimple Breakpoint">
    </command>
    <command
-         id="GraphStreamFeasibility.sourceCodeCommand"
+         id="JimpleEditor.sourceCodeCommand"
          name="sourceCodeCommand">
    </command>
    <command
@@ -184,10 +184,6 @@
          commandId="JimpleEditor.JimpleEditorBreakpoint">
    </handler>
    <handler
-         class="de.unipaderborn.visuflow.debug.handlers.ViewJavaSource"
-         commandId="GraphStreamFeasibility.sourceCodeCommand">
-   </handler>
-   <handler
          class="de.unipaderborn.visuflow.debug.handlers.NavigationHandler"
          commandId="JimpleEditor.NavigateToCFG">
    </handler>
@@ -198,6 +194,10 @@
    <handler
          class="de.unipaderborn.visuflow.debug.handlers.NavigationHandler"
          commandId="JimpleEditor.VariablePath">
+   </handler>
+   <handler
+         class="de.unipaderborn.visuflow.debug.handlers.NavigationHandler"
+         commandId="JimpleEditor.sourceCodeCommand">
    </handler>
 </extension>
 
