@@ -356,7 +356,9 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	}
 
 	private void createPanel() {
-		panel = new JFrame().getContentPane();
+		JFrame temp = new JFrame();
+		temp.setLayout(new BorderLayout());
+		panel = temp.getContentPane();
 		panel.add(view);
 		panel.add(settingsBar, BorderLayout.PAGE_END);
 	}
@@ -945,20 +947,23 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		System.out.println("GraphManager ---> registered for events");
 
 
-		//		ViewerPipe fromViewer = viewer.newViewerPipe();
-		//		fromViewer.addViewerListener(this);
-		//		fromViewer.addSink(graph);
+		
+//		No need to have the following code.
+		
+		/*ViewerPipe fromViewer = viewer.newViewerPipe();
+		fromViewer.addViewerListener(this);
+		fromViewer.addSink(graph);
 
 		// FIXME the Thread.sleep slows down the loop, so that it does not eat up the CPU
 		// but this really should be implemented differently. isn't there an event listener
 		// or something we can use, so that we call pump() only when necessary
-		//		while(true) {
-		//			try {
-		//				Thread.sleep(1);
-		//			} catch (InterruptedException e) {
-		//			}
-		//			fromViewer.pump();
-		//		}
+		while(true) {
+			try {
+				Thread.sleep(1);
+			} catch (InterruptedException e) {
+			}
+			fromViewer.pump();
+		}*/
 	}
 
 	@Override

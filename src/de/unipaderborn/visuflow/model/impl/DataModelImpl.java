@@ -40,6 +40,7 @@ public class DataModelImpl implements DataModel {
 
 	private List<VFMethod> selectedClassMethods;
 	private List<VFUnit> selectedMethodUnits;
+	@SuppressWarnings("unused")
 	private List<VFMethodEdge> selectedMethodincEdges;
 
 	private EventAdmin eventAdmin;
