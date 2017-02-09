@@ -72,8 +72,6 @@ import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.model.graph.ControlFlowGraph;
 import de.unipaderborn.visuflow.model.graph.ICFGStructure;
 import de.unipaderborn.visuflow.util.ServiceUtil;
-import soot.jimple.InvokeExpr;
-import soot.jimple.Stmt;
 
 public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
@@ -156,7 +154,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		graph.addAttribute("ui.quality");
 		graph.addAttribute("ui.antialias");
 
-		viewer = new Viewer(graph, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
+		viewer = new Viewer(graph, Viewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
 		viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
 
 		view = viewer.addDefaultView(false);
@@ -233,11 +231,11 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	}
 
 	private void defaultPanZoom() {
-		try {
+		/*try {
 			Thread.sleep(800);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-		}
+		}*/
 		int count = 0;
 		if(graph.getNodeCount() > 10)
 			count = 10;
@@ -458,7 +456,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				if(curElement == null)
 					return;
 				Node curr = graph.getNode(curElement.getId());
-				if(e.getButton() == MouseEvent.BUTTON1 && !CFG && (e.getModifiers() & ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK)
+				if(e.getButton() == MouseEvent.BUTTON1 && !CFG && !((e.getModifiers() & ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK))
 				{
 					Object node = curr.getAttribute("nodeMethod");
 					if(node instanceof VFMethod)
@@ -481,7 +479,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						}
 					}
 				}
-				else if(e.getButton() == MouseEvent.BUTTON3 && CFG)
+				else if(e.getButton() == MouseEvent.BUTTON1 && CFG && !((e.getModifiers() & ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK))
 				{
 					Object node = curr.getAttribute("nodeUnit");
 					NavigationHandler handler = new NavigationHandler();
@@ -500,24 +498,28 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						}
 					}
 				}
-				else
+				else if(e.getButton() == MouseEvent.BUTTON1 && CFG && (e.getModifiers() & ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK)
+				{
+					String id = curr.getId();
+					if(id != null)
+						toggleNode(id);
+				}
+				/*else
 				{
 					Object node = curr.getAttribute("nodeUnit");
 					if(node instanceof VFNode)
 					{
-						System.out.println("Clicked on VFNode " + node);
-						System.out.println("calling highligt jimple Unit");
 						dataModel.HighlightJimpleUnit((VFNode) node);
 						if(((Stmt)((VFNode) node).getUnit()).containsInvokeExpr()){
 							callInvokeExpr(((Stmt)((VFNode) node).getUnit()).getInvokeExpr());
 						}
 					}
-				}
+				}*/
 			}
 		});
 	}
 
-	private void callInvokeExpr(InvokeExpr expr){
+	/*private void callInvokeExpr(InvokeExpr expr){
 		if(expr == null) return;
 		DataModel dataModel = ServiceUtil.getService(DataModel.class);
 		System.out.println(expr);
@@ -532,7 +534,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
-	}
+	}*/
 
 	private void zoomIn()
 	{
@@ -933,6 +935,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			}
 		}
+		experimentalLayout();
+		panToNode(id);
 	}
 
 	@Override
