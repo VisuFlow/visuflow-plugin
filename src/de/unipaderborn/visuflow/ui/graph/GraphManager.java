@@ -390,32 +390,32 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				}
 
 				if(curElement != null && tip == null) {
-					Node node=graph.getNode(curElement.getId());
+					Node node = graph.getNode(curElement.getId());
 					String result = "<html><table>";
-					int maxToolTipLength=0;
-					int height=0;
+					int maxToolTipLength = 0;
+					int height = 0;
 					for(String key:node.getEachAttributeKey()) {
 						if(key.startsWith("nodeData")){
 							height++;
 							Object value = node.getAttribute(key);
-							String tempVal=key.substring(key.lastIndexOf(".")+1)+" : "+value.toString();
-							if(tempVal.length()>maxToolTipLength){
-								maxToolTipLength=tempVal.length();
+							String tempVal = key.substring(key.lastIndexOf(".") + 1) + " : " + value.toString();
+							if(tempVal.length() > maxToolTipLength){
+								maxToolTipLength = tempVal.length();
 							}
 
-							result+="<tr><td>"+key.substring(key.lastIndexOf(".")+1)+"</td>"+"<td>"+value.toString()+"</td></tr>";
+							result += "<tr><td>" + key.substring(key.lastIndexOf(".") + 1) + "</td>"+"<td>" + value.toString() + "</td></tr>";
 						}
 					}
-					result+="</table></html>";
+					result += "</table></html>";
 					tip = new JToolTip();
 					String tipText = result;
 					tip.setTipText(tipText);
-					tip.setBounds(event.getX() - tipText.length()*3 + 1, event.getY(), maxToolTipLength*6+3,height*30 );
+					tip.setBounds(event.getX() - tipText.length() * 3 + 1, event.getY(), maxToolTipLength * 6 + 3,height * 30 );
 					setTip(tip);
 					tip.setVisible(true);
 
 					if(tipText.length() > 10) {
-						tip.setLocation(event.getX()-15, event.getY());
+						tip.setLocation(event.getX() - 15, event.getY());
 					}
 
 					view.add(tip);
