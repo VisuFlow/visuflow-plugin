@@ -93,7 +93,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	JPanel panelColor;
 	JColorChooser jcc;
 
-	double zoomInDelta, zoomOutDelta, maxZoomPercent, minZoomPercent;
+	double zoomInDelta, zoomOutDelta, maxZoomPercent, minZoomPercent, panXDelta, panYDelta;
 
 	boolean autoLayoutEnabled = false;
 
@@ -116,6 +116,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	{
 		System.setProperty("sun.awt.noerasebackground", "true");
 		System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
+		this.panXDelta = 2;
+		this.panYDelta = 2;
 		this.zoomInDelta = .075;
 		this.zoomOutDelta = .075;
 		this.maxZoomPercent = 0.2;
@@ -193,25 +195,25 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private void panUp()
 	{
 		Point3 currCenter = view.getCamera().getViewCenter();
-		view.getCamera().setViewCenter(currCenter.x, currCenter.y + 1, 0);
+		view.getCamera().setViewCenter(currCenter.x, currCenter.y + panYDelta, 0);
 	}
 
 	private void panDown()
 	{
 		Point3 currCenter = view.getCamera().getViewCenter();
-		view.getCamera().setViewCenter(currCenter.x, currCenter.y - 1, 0);
+		view.getCamera().setViewCenter(currCenter.x, currCenter.y - panYDelta, 0);
 	}
 
 	private void panLeft()
 	{
 		Point3 currCenter = view.getCamera().getViewCenter();
-		view.getCamera().setViewCenter(currCenter.x - 1, currCenter.y, 0);
+		view.getCamera().setViewCenter(currCenter.x - panXDelta, currCenter.y, 0);
 	}
 
 	private void panRight()
 	{
 		Point3 currCenter = view.getCamera().getViewCenter();
-		view.getCamera().setViewCenter(currCenter.x + 1, currCenter.y, 0);
+		view.getCamera().setViewCenter(currCenter.x + panXDelta, currCenter.y, 0);
 	}
 
 	private void panToNode(String nodeId)
@@ -229,7 +231,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			view.getCamera().setViewCenter(pos[0], currPosition++, 0.0);
 		}
 	}
-	
+
 	private void defaultPanZoom() {
 		try {
 			Thread.sleep(800);
@@ -254,7 +256,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			});
 		}
 	}
-	
+
 	private void createPanningButtons() {
 		panLeftButton = new JButton("");
 		panRightButton = new JButton("");
@@ -456,7 +458,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				if(curElement == null)
 					return;
 				Node curr = graph.getNode(curElement.getId());
-				if(e.getButton() == MouseEvent.BUTTON3 && !CFG)
+				if(e.getButton() == MouseEvent.BUTTON1 && !CFG && (e.getModifiers() & ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK)
 				{
 					Object node = curr.getAttribute("nodeMethod");
 					if(node instanceof VFMethod)
@@ -467,9 +469,9 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 								throw new Exception("CFG Null Exception");
 							else
 							{
-//								renderMethodCFG(selectedMethod.getControlFlowGraph());
+								//								renderMethodCFG(selectedMethod.getControlFlowGraph());
 								dataModel.setSelectedMethod(selectedMethod, true);
-//								List<VFMethodEdge> incEdges = selectedMethod.getIncomingEdges();
+								//								List<VFMethodEdge> incEdges = selectedMethod.getIncomingEdges();
 								/*for(VFMethodEdge edge : incEdges){
 									System.out.println(edge);
 								}*/
@@ -525,7 +527,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				throw new Exception("CFG Null Exception");
 			else
 			{
-				renderMethodCFG(selectedMethod.getControlFlowGraph(), true);
 				dataModel.setSelectedMethod(selectedMethod, true);
 			}
 		} catch (Exception e1) {
@@ -731,7 +732,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 		this.CFG = true;
 		experimentalLayout();
-		
+
 		if(panToNode)
 		{
 			defaultPanZoom();
@@ -938,7 +939,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	public void run() {
 		this.registerEventHandler();
 		System.out.println("GraphManager ---> registered for events");
-		
+
 
 		//		ViewerPipe fromViewer = viewer.newViewerPipe();
 		//		fromViewer.addViewerListener(this);
