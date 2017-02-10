@@ -1,11 +1,13 @@
 package de.unipaderborn.visuflow.model.graph;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import de.unipaderborn.visuflow.Visuflow;
 import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.model.VFMethodEdge;
@@ -193,6 +195,7 @@ public class JimpleModelAnalysis {
 		PackManager.v().getPack("wjap").add(transform);
 		// Run Soot
 		Main.main(sootString);
+		Visuflow.getDefault().getLogger().info("Running internal analysis: " + Arrays.toString(sootString));
 	}
 }
 
