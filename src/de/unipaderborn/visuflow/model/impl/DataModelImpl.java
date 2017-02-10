@@ -6,6 +6,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.jface.text.BadLocationException;
@@ -59,9 +60,11 @@ public class DataModelImpl implements DataModel {
 	@Override
 	public List<VFMethod> listMethods(VFClass vfClass) {
 		List<VFMethod> methods = Collections.emptyList();
-		for (VFClass current : classList) {
-			if (current == vfClass) {
-				methods = vfClass.getMethods();
+		if(classList != null) {
+			for (VFClass current : classList) {
+				if (current == vfClass) {
+					methods = vfClass.getMethods();
+				}
 			}
 		}
 		return methods;
@@ -70,10 +73,12 @@ public class DataModelImpl implements DataModel {
 	@Override
 	public List<VFUnit> listUnits(VFMethod vfMethod) {
 		List<VFUnit> units = Collections.emptyList();
-		for (VFClass currentClass : classList) {
-			for (VFMethod currentMethod : currentClass.getMethods()) {
-				if (currentMethod == vfMethod) {
-					units = vfMethod.getUnits();
+		if(classList != null) {
+			for (VFClass currentClass : classList) {
+				for (VFMethod currentMethod : currentClass.getMethods()) {
+					if (currentMethod == vfMethod) {
+						units = vfMethod.getUnits();
+					}
 				}
 			}
 		}
@@ -201,11 +206,13 @@ public class DataModelImpl implements DataModel {
 	 */
 	private VFUnit getVFUnit(String fqn) {
 		VFUnit result = null;
-		for (VFClass vfClass : classList) {
-			for (VFMethod vfMethod : vfClass.getMethods()) {
-				for (VFUnit vfUnit : vfMethod.getUnits()) {
-					if (vfUnit.getFullyQualifiedName().equals(fqn)) {
-						result = vfUnit;
+		if(classList != null) {
+			for (VFClass vfClass : classList) {
+				for (VFMethod vfMethod : vfClass.getMethods()) {
+					for (VFUnit vfUnit : vfMethod.getUnits()) {
+						if (vfUnit.getFullyQualifiedName().equals(fqn)) {
+							result = vfUnit;
+						}
 					}
 				}
 			}
@@ -224,10 +231,10 @@ public class DataModelImpl implements DataModel {
 	public void filterGraph(List<VFNode> selectedNodes, boolean selection) throws Exception {
 		this.selectedNodes = selectedNodes;
 		this.selection = selection;
-		
+
 		if(!selectedNodes.isEmpty())
 			this.setSelectedMethod(selectedNodes.get(0).getVFUnit().getVfMethod());
-		
+
 		Dictionary<String, Object> properties = new Hashtable<>();
 		properties.put("nodesToFilter", this.selectedNodes);
 		properties.put("selection", this.selection);
@@ -235,6 +242,7 @@ public class DataModelImpl implements DataModel {
 		eventAdmin.postEvent(filterGraph);
 	}
 
+	@Override
 	public void HighlightJimpleUnit(VFNode node) {
 		VFUnit unit = node.getVFUnit();
 		String className = unit.getVfMethod().getVfClass().getSootClass().getName();
