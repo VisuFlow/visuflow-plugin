@@ -26,9 +26,9 @@ public class Visuflow extends AbstractUIPlugin {
 	public void start(BundleContext context) {
 		Visuflow.context = context;
 		plugin = this;
-		logger = new Logger();
+		logger = new Logger(getLog());
 		logger.info("Visuflow plug-in starting...");
-		
+
 		// iterate over all projects in the workspace to find projects with the
 		// visuflow nature. for these projects we trigger a full build to fill
 		// the data model directly after the launch. there is also the ProjectListener,
