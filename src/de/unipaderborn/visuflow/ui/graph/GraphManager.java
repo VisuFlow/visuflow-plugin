@@ -408,7 +408,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					tip = new JToolTip();
 					String tipText = result;
 					tip.setTipText(tipText);
-					tip.setBounds(event.getX() - tipText.length()*3 + 1, event.getY(), maxToolTipLength*6+3,height*30 );
+					tip.setBounds(event.getX() - tipText.length()*3 + 1, event.getY(), maxToolTipLength*3+3,height*30 );
 					setTip(tip);
 					tip.setVisible(true);
 
