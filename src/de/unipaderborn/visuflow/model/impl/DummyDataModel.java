@@ -64,7 +64,7 @@ public class DummyDataModel implements DataModel {
 	}
 
 	@Override
-	public void setSelectedMethod(VFMethod selectedMethod)
+	public void setSelectedMethod(VFMethod selectedMethod, boolean panToNode)
 	{
 		this.selectedMethod = selectedMethod;
 		this.populateUnits();

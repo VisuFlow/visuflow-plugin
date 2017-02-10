@@ -31,7 +31,7 @@ public interface DataModel {
 	public List<VFMethod> getSelectedClassMethods();
 	public List<VFUnit> getSelectedMethodUnits();
 	public void setSelectedClass(VFClass selectedClass);
-	public void setSelectedMethod(VFMethod selectedMethod);
+	public void setSelectedMethod(VFMethod selectedMethod, boolean panToNode);
 	public void filterGraph(List<VFNode> nodesToFilter, boolean selection) throws Exception;
 	public VFMethod getSelectedMethod();
 	public VFMethod getVFMethodByName(SootMethod method);
