@@ -22,12 +22,12 @@ public class ControlFlowGraphGenerator {
 	private List<VFNode> listNodes;
 	private List<VFEdge> listEdges;
 	private VFMethod method;
-
+	
 	public ControlFlowGraph generateControlFlowGraph(VFMethod method) {
 		this.method = method;
 		Body b = method.getBody();
-		nodeNumber = 0;
-		edgeNumber = 0;
+		nodeNumber=0;
+		edgeNumber=0;
 		listNodes = new ArrayList<>();
 		listEdges = new ArrayList<>();
 		ControlFlowGraph g = new ControlFlowGraph();
@@ -47,7 +47,7 @@ public class ControlFlowGraphGenerator {
 		g.listNodes = listNodes;
 		return g;
 	}
-
+	
 	private void traverseUnits(Unit currentNode) {
 		boolean present = false;
 		boolean edgeconnection = false;
@@ -56,50 +56,57 @@ public class ControlFlowGraphGenerator {
 		while (it.hasNext()) {
 			Unit temp = it.next();
 			Iterator<VFEdge> edges = listEdges.iterator();
-			while (edges.hasNext()) {
+			while(edges.hasNext()){
 				VFEdge edge = (VFEdge) edges.next();
-				if (edge != null && temp != null && edge.getSource() != null && edge.getDestination() != null) {
-					if (edge.getSource().getUnit().equals(currentNode) && edge.getDestination().getUnit().equals(temp)) {
+				
+				try {
+					if(edge.getSource().getUnit().equals(currentNode) && edge.getDestination().getUnit().equals(temp))
+					{
 						edgeconnection = true;
 						break;
 					}
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
-				if (edgeconnection)
-					continue;
-				Iterator<VFNode> nodesIterator = listNodes.iterator();
-				while (nodesIterator.hasNext()) {
-					VFNode node = (VFNode) nodesIterator.next();
-					if (node.getUnit().equals(temp)) {
-						present = true;
-					}
-				}
-				if (!present) {
-					nodeNumber++;
-					VFNode node = new VFNode(getVFUnit(temp), nodeNumber);
-					listNodes.add(node);
-				}
-				VFNode source = null, destination = null;
-				Iterator<VFNode> it1 = listNodes.iterator();
-				while (it1.hasNext()) {
-					VFNode node = (VFNode) it1.next();
-					if (node.getUnit().equals(currentNode)) {
-						source = node;
-					}
-					if (node.getUnit().equals(temp)) {
-						destination = node;
-					}
-				}
-				edgeNumber++;
-				VFEdge edgeEntry = new VFEdge(edgeNumber, source, destination);
-				listEdges.add(edgeEntry);
-				traverseUnits(temp);
 			}
+			if(edgeconnection)
+				continue;
+			Iterator<VFNode> nodesIterator = listNodes.iterator();
+			while (nodesIterator.hasNext()) {
+				VFNode node = (VFNode) nodesIterator.next();
+				if (node.getUnit().equals(temp)) {
+					present = true;
+				}
+			}
+			if (!present) {
+				nodeNumber++;
+				VFNode node = new VFNode(getVFUnit(temp), nodeNumber);
+				listNodes.add(node);
+			}
+			VFNode source = null, destination = null;
+			Iterator<VFNode> it1 = listNodes.iterator();
+			while (it1.hasNext()) {
+				VFNode node = (VFNode) it1.next();
+				if (node.getUnit().equals(currentNode)) {
+					source = node;
+				}
+				if (node.getUnit().equals(temp)) {
+					destination = node;
+				}
+			}
+			edgeNumber++;
+			VFEdge edgeEntry = new VFEdge(edgeNumber, source, destination);
+			listEdges.add(edgeEntry);
+			//System.out.println(edgeEntry.getSource().toString());
+			//System.out.println(edgeEntry.getDestination().toString());
+			traverseUnits(temp);
 		}
 	}
-
+	
 	private VFUnit getVFUnit(Unit unit) {
 		for (VFUnit vfUnit : method.getUnits()) {
-			if (vfUnit.getUnit() == unit) {
+			if(vfUnit.getUnit() == unit) {
 				return vfUnit;
 			}
 		}
