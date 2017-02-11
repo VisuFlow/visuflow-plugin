@@ -77,7 +77,7 @@ public class JimpleModelAnalysis {
 			private void createJimpleHierarchyWithCfgs(List<VFClass> vfClasses) {
 				Chain<SootClass> classes = Scene.v().getClasses();
 				for (SootClass sootClass : classes) {
-					if(sootClass.isJavaLibraryClass()) {
+					if(sootClass.isJavaLibraryClass() || sootClass.isLibraryClass()) {
 						continue;
 					}
 
