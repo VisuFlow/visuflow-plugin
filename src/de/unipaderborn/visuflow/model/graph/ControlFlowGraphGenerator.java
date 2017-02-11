@@ -58,11 +58,14 @@ public class ControlFlowGraphGenerator {
 			Iterator<VFEdge> edges = listEdges.iterator();
 			while(edges.hasNext()){
 				VFEdge edge = (VFEdge) edges.next();
-				if(edge.getSource().getUnit().equals(currentNode) && edge.getDestination().getUnit().equals(temp))
-				{
-					edgeconnection = true;
-					break;
+				if (edge != null && temp != null && edge.getSource() != null && edge.getDestination() != null) {
+					if(edge.getSource().getUnit().equals(currentNode) && edge.getDestination().getUnit().equals(temp))
+					{
+						edgeconnection = true;
+						break;
+					}
 				}
+				
 			}
 			if(edgeconnection)
 				continue;
