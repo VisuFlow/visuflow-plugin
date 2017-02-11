@@ -500,7 +500,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						}
 					}
 				}
-				else if(e.getButton() == MouseEvent.BUTTON1 && CFG && (e.getModifiers() & ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK)
+				else if(e.getButton() == MouseEvent.BUTTON1 && (e.getModifiers() & ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK)
 				{
 					String id = curr.getId();
 					if(id != null)
@@ -773,37 +773,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 	}
 
-	/*private void experimentalLayout()
-	{
-		if(!CFG)
-		{
-			viewer.enableAutoLayout(new SpringBox());
-			view.getCamera().resetView();
-			return;
-		}
-		viewer.disableAutoLayout();
-		double spacing = 2.0;
-		double rowSpacing = 18.0;
-		double nodeCount = graph.getNodeCount() * spacing;
-		Iterator<Node> nodeIterator = graph.getNodeIterator();
-		while(nodeIterator.hasNext())
-		{
-			Node curr = nodeIterator.next();
-
-			Iterator<Edge> leavingEdgeIterator = curr.getEdgeIterator();
-			double outEdges = 0.0;
-			while(leavingEdgeIterator.hasNext())
-			{
-				Edge outEdge = leavingEdgeIterator.next();
-				Node target = outEdge.getTargetNode();
-				target.setAttribute("xyz", outEdges, nodeCount, 0.0);
-				outEdges += rowSpacing;
-			}
-			curr.setAttribute("xyz", 0.0, nodeCount, 0.0);
-			nodeCount -= spacing;
-		}
-	}*/
-
 	private void experimentalLayout()
 	{
 		if(!CFG)
@@ -849,22 +818,24 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 
 		for (Node node : graph) {
+			double[] pos = Toolkit.nodePosition(graph, node.getId());
 			int inDegree = node.getInDegree();
 			int outDegree = node.getOutDegree();
 			if(inDegree == 0)
 				continue;
 			if(inDegree > outDegree)
 			{
-				double[] pos = Toolkit.nodePosition(graph, node.getId());
 				node.setAttribute("xyz", pos[0] - rowSpacing, pos[1], 0);
 			}
 			else if(outDegree > inDegree)
 			{
-				double[] pos = Toolkit.nodePosition(graph, node.getId());
 				node.setAttribute("xyz", pos[0] + rowSpacing, pos[1], 0);
 			}
 			else if(inDegree == outDegree)
 			{
+				/*Node parent = node.getEnteringEdgeIterator().next().getOpposite(node);
+				double[] parentPos = Toolkit.nodePosition(parent);
+				node.setAttribute("xyz", parentPos[0], pos[1], 0.0);*/
 				continue;
 			}
 			else
@@ -873,26 +844,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 		view.getCamera().resetView();
 	}
-
-	/*private void experimentalLayout()
-	{
-		if(!CFG)
-		{
-			viewer.enableAutoLayout(new SpringBox());
-			view.getCamera().resetView();
-			return;
-		}
-		viewer.disableAutoLayout();
-
-		viewer.enableAutoLayout(new HierarchicalLayout());
-		graph.addNode("temp");
-		viewer.disableAutoLayout();
-		view.getCamera().resetView();
-		for (Node node : graph) {
-			double[] pos = Toolkit.nodePosition(node);
-			node.setAttribute("xyz", pos[1], pos[0], pos[2]);
-		}
-	}*/
 
 	void toggleNode(String id){
 		Node n  = graph.getNode(id);
