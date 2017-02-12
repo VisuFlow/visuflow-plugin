@@ -1,12 +1,10 @@
 package de.unipaderborn.visuflow.debug.monitoring;
 
-import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
-
-import org.json.JSONObject;
 
 import de.unipaderborn.visuflow.Logger;
 import de.unipaderborn.visuflow.Visuflow;
@@ -20,8 +18,8 @@ public class MonitoringServer {
 	private Thread t;
 	private boolean running = true;
 	private DataModel dataModel = ServiceUtil.getService(DataModel.class);
-	private Logger logger = Visuflow.getDefault().getLogger(); 
-	
+	private Logger logger = Visuflow.getDefault().getLogger();
+
 	public void start() {
 		logger.info("Monitoring server starting");
 		t = new Thread() {
@@ -31,20 +29,16 @@ public class MonitoringServer {
 					serverSocket = new ServerSocket(6543);
 					clientSocket = serverSocket.accept();
 
-					BufferedReader br = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-					String line;
-					while(running && (line = br.readLine()) != null) {
-						JSONObject json = new JSONObject(line);
-						String unitFqn = json.getString("unit");
-						if(json.has("in")) {
-							String in = json.getString("in");
-							dataModel.setInSet(unitFqn, "in", in);
-						}
-						if(json.has("out")) {
-							String out = json.getString("out");
-							dataModel.setOutSet(unitFqn, "out", out);
-						}
+					DataInputStream in = new DataInputStream(clientSocket.getInputStream());
+					while(running) {
+						String unitFqn = in.readUTF();
+						String inSet = in.readUTF();
+						String outSet = in.readUTF();
+						dataModel.setInSet(unitFqn, "in", inSet);
+						dataModel.setOutSet(unitFqn, "out", outSet);
 					}
+				} catch (EOFException e) {
+					logger.info("No more data. The client probably closed the connection");
 				} catch (IOException e) {
 					logger.error("Monitoring server threw an exception", e);
 				}
