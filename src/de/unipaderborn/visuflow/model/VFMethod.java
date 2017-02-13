@@ -11,6 +11,7 @@ public class VFMethod {
 
     protected SootMethod wrapped;
     private List<VFUnit> units = new ArrayList<>();
+    private List<VFMethodEdge> incomingEdges = new ArrayList<>();
     private Body body;
     private ControlFlowGraph controlFlowGraph;
 	private int id;
@@ -69,6 +70,18 @@ public class VFMethod {
 	@Override
 	public String toString() {
 		return wrapped != null ? /*wrapped.getDeclaringClass().getName()+"."+*/ wrapped.getName() : super.toString();
+	}
+
+	public List<VFMethodEdge> getIncomingEdges() {
+		return incomingEdges;
+	}
+
+	public void setIncomingEdges(List<VFMethodEdge> incomingEdges) {
+		this.incomingEdges = incomingEdges;
+	}
+	
+	public void addIncomingEdge(VFMethodEdge incomingEdge){
+		incomingEdges.add(incomingEdge);
 	}
     
 }

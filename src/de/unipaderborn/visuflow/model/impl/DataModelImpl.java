@@ -26,6 +26,7 @@ import org.osgi.service.event.EventAdmin;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
+import de.unipaderborn.visuflow.model.VFMethodEdge;
 import de.unipaderborn.visuflow.model.VFNode;
 import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.model.graph.ICFGStructure;
@@ -40,6 +41,7 @@ public class DataModelImpl implements DataModel {
 
 	private List<VFMethod> selectedClassMethods;
 	private List<VFUnit> selectedMethodUnits;
+	private List<VFMethodEdge> selectedMethodincEdges;
 
 	private EventAdmin eventAdmin;
 
@@ -112,6 +114,7 @@ public class DataModelImpl implements DataModel {
 		this.selectedMethod = this.selectedClass.getMethods().get(0);
 		this.selectedClassMethods = this.selectedClass.getMethods();
 		this.populateUnits();
+		this.populateEdges();
 		this.setSelectedMethod(this.selectedClass.getMethods().get(0));
 	}
 
@@ -119,6 +122,7 @@ public class DataModelImpl implements DataModel {
 	public void setSelectedMethod(VFMethod selectedMethod) {
 		this.selectedMethod = selectedMethod;
 		this.populateUnits();
+		this.populateEdges();
 		Dictionary<String, Object> properties = new Hashtable<>();
 		properties.put("selectedMethod", selectedMethod);
 		// properties.put("selectedClassMethods", selectedClassMethods);
@@ -144,6 +148,10 @@ public class DataModelImpl implements DataModel {
 
 	private void populateUnits() {
 		this.selectedMethodUnits = this.selectedMethod.getUnits();
+	}
+	
+	private void populateEdges() {
+		this.selectedMethodincEdges = this.selectedMethod.getIncomingEdges();
 	}
 
 	public void setEventAdmin(EventAdmin eventAdmin) {

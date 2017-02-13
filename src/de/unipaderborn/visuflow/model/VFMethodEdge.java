@@ -34,4 +34,8 @@ public class VFMethodEdge {
 	public void setDestMethod(VFMethod destMethod) {
 		this.destMethod = destMethod;
 	}
+	
+	public String toString(){
+		return "Source: " + sourceMethod + " | Destination: " + destMethod;
+	}
 }
