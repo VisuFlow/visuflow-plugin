@@ -823,20 +823,26 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			int outDegree = node.getOutDegree();
 			if(inDegree == 0)
 				continue;
+			/*if(inDegree == 1 && outDegree == 1)
+			{
+				Node temp = node.getEdgeIterator().next().getOpposite(node);
+				temp.setAttribute("xyz", pos[0], pos[1] + rowSpacing, 0.0);
+			}*/
 			if(inDegree > outDegree)
 			{
-				node.setAttribute("xyz", pos[0] - rowSpacing, pos[1], 0);
+				node.setAttribute("xyz", pos[0] - rowSpacing, pos[1], 0.0);
 			}
-			else if(outDegree > inDegree)
+			if(outDegree > inDegree)
 			{
-				node.setAttribute("xyz", pos[0] + rowSpacing, pos[1], 0);
+				node.setAttribute("xyz", pos[0] + rowSpacing, pos[1], 0.0);
 			}
-			else if(inDegree == outDegree)
+			if(inDegree>1 && outDegree>1 && inDegree == outDegree)
 			{
 				/*Node parent = node.getEnteringEdgeIterator().next().getOpposite(node);
 				double[] parentPos = Toolkit.nodePosition(parent);
 				node.setAttribute("xyz", parentPos[0], pos[1], 0.0);*/
-				continue;
+				node.setAttribute("xyz", pos[0] - rowSpacing, pos[1], 0.0);
+				//continue;
 			}
 			else
 				continue;
