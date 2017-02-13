@@ -98,7 +98,6 @@ public class ResultView extends ViewPart implements EventHandler {
 		try {
 			ServiceUtil.getService(DataModel.class).filterGraph(nodesToFilter, selection);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

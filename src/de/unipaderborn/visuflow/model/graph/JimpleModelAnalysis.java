@@ -32,12 +32,12 @@ public class JimpleModelAnalysis {
 
 	private int methodcount = 0;
 	private int edgeCount = 0;
-	
-	private Map<SootMethod,VFMethod> methodMap = new HashMap<>();
+
+	private Map<SootMethod, VFMethod> methodMap = new HashMap<>();
 
 	private String[] sootString;
 
-	public void setSootString(String[] s){
+	public void setSootString(String[] s) {
 		this.sootString = s;
 	}
 
@@ -55,16 +55,14 @@ public class JimpleModelAnalysis {
 				SootMethod entryMethod = null;
 				java.util.List<SootMethod> listMethod = Scene.v().getEntryPoints();
 				Iterator<SootMethod> iterEntryMethod = listMethod.iterator();
-				while(iterEntryMethod.hasNext())
-				{
+				while (iterEntryMethod.hasNext()) {
 					entryMethod = iterEntryMethod.next();
-					if(entryMethod.isMain())
-					{
+					if (entryMethod.isMain()) {
 						methodcount++;
 						VFMethod vfmethod;
-						if(methodMap.containsKey(entryMethod)){
+						if (methodMap.containsKey(entryMethod)) {
 							vfmethod = methodMap.get(entryMethod);
-						}else{
+						} else {
 							vfmethod = new VFMethod(entryMethod);
 							methodMap.put(entryMethod, vfmethod);
 						}
@@ -79,7 +77,7 @@ public class JimpleModelAnalysis {
 			private void createJimpleHierarchyWithCfgs(List<VFClass> vfClasses) {
 				Chain<SootClass> classes = Scene.v().getClasses();
 				for (SootClass sootClass : classes) {
-					if(sootClass.isJavaLibraryClass()) {
+					if (sootClass.isJavaLibraryClass() || sootClass.isLibraryClass()) {
 						continue;
 					}
 
@@ -88,9 +86,9 @@ public class JimpleModelAnalysis {
 
 					for (SootMethod sootMethod : sootClass.getMethods()) {
 						VFMethod currentMethod;
-						if(methodMap.containsKey(sootMethod)){
+						if (methodMap.containsKey(sootMethod)) {
 							currentMethod = methodMap.get(sootMethod);
-						}else{
+						} else {
 							currentMethod = new VFMethod(sootMethod);
 							methodMap.put(sootMethod, currentMethod);
 						}
@@ -109,56 +107,50 @@ public class JimpleModelAnalysis {
 				}
 			}
 
-            private void addFullyQualifiedName(Unit unit, SootClass sootClass, SootMethod sootMethod) {
-                unit.addTag(new Tag() {
-                    @Override
-                    public byte[] getValue() throws AttributeValueException {
-                        String fqn = sootClass.getName() + "." + sootMethod.getName() + "." + unit.toString();
-                        try {
-                            return fqn.getBytes("utf-8");
-                        } catch (UnsupportedEncodingException e) {
-                            AttributeValueException ave = new AttributeValueException();
-                            ave.initCause(e);
-                            throw ave;
-                        }
-                    }
+			private void addFullyQualifiedName(Unit unit, SootClass sootClass, SootMethod sootMethod) {
+				unit.addTag(new Tag() {
+					@Override
+					public byte[] getValue() throws AttributeValueException {
+						String fqn = sootClass.getName() + "." + sootMethod.getName() + "." + unit.toString();
+						try {
+							return fqn.getBytes("utf-8");
+						} catch (UnsupportedEncodingException e) {
+							AttributeValueException ave = new AttributeValueException();
+							ave.initCause(e);
+							throw ave;
+						}
+					}
 
-                    @Override
-                    public String getName() {
-                        return "Fully Qualified Name";
-                    }
-                });
-            }
+					@Override
+					public String getName() {
+						return "Fully Qualified Name";
+					}
+				});
+			}
 
-			private void traverseMethods(SootMethod source, CallGraph cg)
-			{			
+			private void traverseMethods(SootMethod source, CallGraph cg) {
 				Targets tc = new Targets(cg.edgesOutOf(source));
-				while(tc.hasNext())
-				{
-					SootMethod destination = (SootMethod)tc.next();	
-					//					System.out.println(destination+" is java library "+destination.isJavaLibraryMethod());
-					if(!destination.isJavaLibraryMethod())
-					{						
+				while (tc.hasNext()) {
+					SootMethod destination = (SootMethod) tc.next();
+					// System.out.println(destination+" is java library "+destination.isJavaLibraryMethod());
+					if (!destination.isJavaLibraryMethod()) {
 						boolean methodPresent = false;
 						Iterator<VFMethod> iteratorMethod = methodGraph.listMethods.iterator();
-						while(iteratorMethod.hasNext())
-						{
-							if(iteratorMethod.next().getSootMethod().equals(destination))
-							{
+						while (iteratorMethod.hasNext()) {
+							if (iteratorMethod.next().getSootMethod().equals(destination)) {
 								methodPresent = true;
 								break;
 							}
 						}
 
-						if(!methodPresent)
-						{
+						if (!methodPresent) {
 							methodcount++;
 							VFMethod method;
-							if(methodMap.containsKey(destination)){
+							if (methodMap.containsKey(destination)) {
 								method = methodMap.get(destination);
 								method.setId(methodcount);
-							}else{
-								method = new VFMethod(methodcount,destination);
+							} else {
+								method = new VFMethod(methodcount, destination);
 								methodMap.put(destination, method);
 							}
 							methodGraph.listMethods.add(method);
@@ -166,23 +158,20 @@ public class JimpleModelAnalysis {
 						VFMethod sourceMethod = null;
 						VFMethod destinationMethod = null;
 						Iterator<VFMethod> iteratorMethods = methodGraph.listMethods.iterator();
-						while(iteratorMethods.hasNext())
-						{
+						while (iteratorMethods.hasNext()) {
 							VFMethod method = iteratorMethods.next();
-							if(method.getSootMethod().equals(source))
-							{
+							if (method.getSootMethod().equals(source)) {
 								sourceMethod = method;
 							}
-							if(method.getSootMethod().equals(destination))
-							{
+							if (method.getSootMethod().equals(destination)) {
 								destinationMethod = method;
 							}
 						}
 						edgeCount++;
 						VFMethodEdge edge = new VFMethodEdge(edgeCount, sourceMethod, destinationMethod);
 						destinationMethod.addIncomingEdge(edge);
-						System.out.println("Method "+destinationMethod+" Edge "+edge);
-						if(destinationMethod.getIncomingEdges().isEmpty()){
+						System.out.println("Method " + destinationMethod + " Edge " + edge);
+						if (destinationMethod.getIncomingEdges().isEmpty()) {
 							System.out.println("adding didnt work");
 						}
 						methodGraph.listEdges.add(edge);
@@ -198,4 +187,3 @@ public class JimpleModelAnalysis {
 		Visuflow.getDefault().getLogger().info("Running internal analysis: " + Arrays.toString(sootString));
 	}
 }
-

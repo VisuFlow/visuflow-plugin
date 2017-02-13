@@ -30,8 +30,8 @@ public class CFGView extends ViewPart {
 
 		Composite composite = new Composite(parent, SWT.EMBEDDED | SWT.NO_BACKGROUND);
 		ClassLoader loader = CFGView.class.getClassLoader();
-		URL stylesheetUrl = loader.getResource("/styles/myStyleSheet.css");
-		System.out.println("Loading stylesheet from " + stylesheetUrl.toExternalForm());
+		URL stylesheetUrl = loader.getResource("/styles/styleSheet.css");
+		//System.out.println("Loading stylesheet from " + stylesheetUrl.toExternalForm());
 		GraphManager manager = new GraphManager("VisuFlow Graph", "url('"+stylesheetUrl.toString()+"')");
 		Thread t = new Thread(manager);
 		t.start();

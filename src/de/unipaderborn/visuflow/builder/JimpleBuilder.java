@@ -103,15 +103,17 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 			classpath = getSootCP(project);
 			String location = GlobalSettings.get("TargetProject_"+project.getProject().getName());
 			IFolder folder = project.getProject().getFolder(targetFolder);
+
 			//at this point, no resources have been created
 			if (!folder.exists()) {
-				folder.create( IResource.BACKGROUND_REFRESH, true, null);
+				//Changed to force because of bug id vis-119 
+				folder.create( IResource.FORCE, true, null);
 
 			}
 			classpath = location +  classpath;
 			String[] sootString = new String[] { "-cp", classpath, "-exclude", "javax", "-allow-phantom-refs", "-no-bodies-for-excluded", "-process-dir",
 					location, "-src-prec", "only-class", "-w", "-output-format", "J", "-keep-line-number", "-output-dir",
-					folder.getLocation().toOSString()/* ,"tag.ln","on" */ };
+					folder.getLocation().toOSString()/*, "tag.ln","on" */};
 			ICFGStructure icfg = new ICFGStructure();
 			JimpleModelAnalysis analysis = new JimpleModelAnalysis();
 			analysis.setSootString(sootString);
