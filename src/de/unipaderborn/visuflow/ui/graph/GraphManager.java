@@ -490,6 +490,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						ArrayList<VFUnit> units = new ArrayList<>();
 						units.add(((VFNode) node).getVFUnit());
 						handler.HighlightJimpleLine(units);
+						handler.NavigateToSource(units.get(0));
 
 						ArrayList<VFNode> nodes = new ArrayList<>();
 						nodes.add((VFNode) node);
