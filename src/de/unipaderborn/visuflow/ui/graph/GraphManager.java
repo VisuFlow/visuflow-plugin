@@ -37,6 +37,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.JToolTip;
 import javax.swing.SwingUtilities;
@@ -86,6 +87,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	JApplet applet;
 	JButton zoomInButton, zoomOutButton, viewCenterButton, toggleLayout, showICFGButton, btColor;
 	JToolBar settingsBar;
+	JTextField searchText;
 
 	JDialog dialog;
 	JPanel panelColor;
@@ -184,6 +186,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		createPanningButtons();
 		createViewListeners();
 		createToggleLayoutButton();
+		createSearchText();
 		createSettingsBar();
 		createPanel();
 		createAppletContainer(); 
@@ -216,6 +219,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	private void panToNode(String nodeId)
 	{
+		view.getCamera().resetView();
 		Node panToNode = graph.getNode(nodeId);
 		double[] pos = Toolkit.nodePosition(panToNode);
 		double currPosition = view.getCamera().getViewCenter().y;
@@ -231,11 +235,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	}
 
 	private void defaultPanZoom() {
-		/*try {
-			Thread.sleep(800);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}*/
 		int count = 0;
 		if(graph.getNodeCount() > 10)
 			count = 10;
@@ -335,6 +334,45 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		});
 	}
 
+	private void createSearchText()
+	{
+		this.searchText = new JTextField("Search graph");
+		ArrayList<VFNode> vfNodes = new ArrayList<>();
+		ArrayList<VFUnit> vfUnits = new ArrayList<>();
+		searchText.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				for (Node node : graph) {
+					if(node.hasAttribute("ui.class"))
+					{
+						node.removeAttribute("ui.class");
+					}
+				}
+				String searchString = searchText.getText().toLowerCase();
+				Node last = null;
+				for (Node node : graph) {
+					if(node.getAttribute("ui.label").toString().toLowerCase().contains((searchString))){
+						node.setAttribute("ui.class", "filter");
+						last = node;
+						vfNodes.add((VFNode) node.getAttribute("nodeUnit"));
+						vfUnits.add(((VFNode) node.getAttribute("nodeUnit")).getVFUnit());
+					}
+				}
+				if(last != null)
+					panToNode(last.getId());
+				
+				try {
+					ServiceUtil.getService(DataModel.class).filterGraph(vfNodes, true, null);
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+				NavigationHandler handler = new NavigationHandler();
+				handler.HighlightJimpleLine(vfUnits);
+			}
+		});
+	}
+
 	private void createAppletContainer() {
 		applet = new JApplet();
 		applet.add(panel);
@@ -353,6 +391,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		settingsBar.add(panRightButton);
 		settingsBar.add(panUpButton);
 		settingsBar.add(panDownButton);
+		settingsBar.add(searchText);
 	}
 
 	private void createPanel() {
@@ -469,12 +508,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 								throw new Exception("CFG Null Exception");
 							else
 							{
-								//								renderMethodCFG(selectedMethod.getControlFlowGraph());
 								dataModel.setSelectedMethod(selectedMethod, true);
-								//								List<VFMethodEdge> incEdges = selectedMethod.getIncomingEdges();
-								/*for(VFMethodEdge edge : incEdges){
-									System.out.println(edge);
-								}*/
 							}
 						} catch (Exception e1) {
 							e1.printStackTrace();
@@ -495,7 +529,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						ArrayList<VFNode> nodes = new ArrayList<>();
 						nodes.add((VFNode) node);
 						try {
-							dataModel.filterGraph(nodes, true);
+							dataModel.filterGraph(nodes, true, null);
 						} catch (Exception e1) {
 							e1.printStackTrace();
 						}
@@ -653,18 +687,20 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		});
 	}
 
-	private void filterGraphNodes(List<VFNode> nodes, boolean selected)
+	private void filterGraphNodes(List<VFNode> nodes, boolean selected, String uiClassName)
 	{
 		boolean panned = false;
+		if(uiClassName == null)
+			uiClassName = "filter";
 		Iterable<? extends Node> graphNodes = graph.getEachNode();
 		for (Node node : graphNodes) {
-			if(node.hasAttribute("ui.clicked"))
-				node.removeAttribute("ui.clicked");
+			if(node.hasAttribute("ui.class"))
+				node.removeAttribute("ui.class");
 			for (VFNode vfNode : nodes) {
 				if(node.getAttribute("nodeData.unit").toString().contentEquals(vfNode.getUnit().toString()))
 				{
 					if(selected)
-						node.setAttribute("ui.clicked");
+						node.setAttribute("ui.class", uiClassName);
 					if(!panned)
 						this.panToNode(node.getId());
 				}
@@ -905,9 +941,9 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		System.out.println("GraphManager ---> registered for events");
 
 
-		
-//		No need to have the following code.
-		
+
+		//		No need to have the following code.
+
 		/*ViewerPipe fromViewer = viewer.newViewerPipe();
 		fromViewer.addViewerListener(this);
 		fromViewer.addSink(graph);
@@ -963,7 +999,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 		if(event.getTopic().contentEquals(DataModel.EA_TOPIC_DATA_FILTER_GRAPH))
 		{
-			filterGraphNodes((List<VFNode>) event.getProperty("nodesToFilter"), (boolean) event.getProperty("selection"));
+			filterGraphNodes((List<VFNode>) event.getProperty("nodesToFilter"), (boolean) event.getProperty("selection"), (String) event.getProperty("uiClassName"));
 		}
 		if(event.getTopic().equals(DataModel.EA_TOPIC_DATA_UNIT_CHANGED))
 		{
