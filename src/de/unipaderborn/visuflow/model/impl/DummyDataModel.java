@@ -165,7 +165,7 @@ public class DummyDataModel implements DataModel {
 	}
 
 	@Override
-	public void filterGraph(List<VFNode> selectedNodes, boolean selection) {
+	public void filterGraph(List<VFNode> selectedNodes, boolean selection, String ui) {
 		// TODO Auto-generated method stub
 
 	}
