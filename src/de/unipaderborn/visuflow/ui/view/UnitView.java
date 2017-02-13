@@ -50,6 +50,7 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 
+import de.unipaderborn.visuflow.debug.handlers.NavigationHandler;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
@@ -146,6 +147,18 @@ public class UnitView extends ViewPart implements EventHandler {
 					}
 				}
 				methodCombo.select(0);
+				String selectMethod = methodCombo.getText();
+				for (VFClass vfclass : dataModel.listClasses()) {
+					if (vfclass.getSootClass().getName().toString().equals(selectedClass)) {
+						for (VFMethod vfmethod : dataModel.listMethods(vfclass)) {
+							if (vfmethod.getSootMethod().getDeclaration().toString().equals(selectMethod)) {
+								tree.removeAll();
+								listUnits = vfmethod.getUnits();
+								populateUnits(listUnits);
+							}
+						}
+					}
+				}
 
 			}
 
@@ -206,6 +219,8 @@ public class UnitView extends ViewPart implements EventHandler {
 		ServiceUtil.registerService(EventHandler.class, this, properties);
 		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_FILTER_GRAPH);
 		ServiceUtil.registerService(EventHandler.class, this, properties);
+
+		reloadData();
 	}
 
 	@Override
@@ -391,18 +406,23 @@ public class UnitView extends ViewPart implements EventHandler {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-
-				System.out.println("Selected tree item " + tree.getSelection()[0].getText());
 				TreeItem selectedItem = tree.getSelection()[0];
 				while (selectedItem.getParentItem() != null) {
 					selectedItem = selectedItem.getParentItem();
 				}
-				System.out.println("Selected unit item " + selectedItem.getText());
-				System.out.println("Evenet Source " + e.getSource());
 				HashMap<String, Object> unitDetails = getUnitDetails(selectedItem.getText());
-				System.out.println("Selected Unit is " + ((VFUnit) unitDetails.get("unit")).toString());
-				System.out.println("Selected method is " + ((VFMethod) unitDetails.get("methodName")).getSootMethod().toString());
-				System.out.println("Selected Class is " + ((VFClass) unitDetails.get("className")).getSootClass().getName());
+				ArrayList<VFUnit> jimpleArrayList = new ArrayList<>();
+				jimpleArrayList.add((VFUnit)unitDetails.get("unit"));
+				NavigationHandler nh = new NavigationHandler();
+				nh.HighlightJimpleLine(jimpleArrayList);				
+				List<VFNode> cfgArrayList = new ArrayList<>();
+				cfgArrayList.add(new VFNode((VFUnit)unitDetails.get("unit"),0));
+				try {
+					ServiceUtil.getService(DataModel.class).filterGraph(cfgArrayList, true);
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 
 			@Override
@@ -418,13 +438,19 @@ public class UnitView extends ViewPart implements EventHandler {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 
-				System.out.println("Selected tree item " + tree.getSelection()[0].getText());
 				TreeItem selectedItem = tree.getSelection()[0];
 				while (selectedItem.getParentItem() != null) {
 					selectedItem = selectedItem.getParentItem();
 				}
-				System.out.println("Selected unit item " + selectedItem.getText());
-				System.out.println("Evenet Source " + e.getSource());
+				HashMap<String, Object> unitDetails = getUnitDetails(selectedItem.getText());
+				List<VFNode> al = new ArrayList<>();
+				al.add(new VFNode((VFUnit)unitDetails.get("unit"),0));
+				try {
+					ServiceUtil.getService(DataModel.class).filterGraph(al, true);
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 
 			@Override
@@ -523,46 +549,8 @@ public class UnitView extends ViewPart implements EventHandler {
 		}
 
 		if (event.getTopic().equals(DataModel.EA_TOPIC_DATA_MODEL_CHANGED)) {
-			getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					dataModel = ServiceUtil.getService(DataModel.class);
-					classCombo.removeAll();
-					methodCombo.removeAll();
-					for (VFClass vfclass : dataModel.listClasses()) {
-						classCombo.add(vfclass.getSootClass().getName());
-					}
-					classCombo.select(0);
-					classSelection = classCombo.getText().trim();
-					for (VFClass vfclass : dataModel.listClasses()) {
-						if (vfclass.getSootClass().getName().toString().equals(classSelection)) {
-							for (VFMethod vfmethod : dataModel.listMethods(vfclass)) {
-								methodCombo.add(vfmethod.getSootMethod().getDeclaration());
-							}
-						}
-					}
-					methodCombo.select(0);
-					String selectMethod = methodCombo.getText();
-					String selectedClass = classCombo.getText();
-					for (VFClass vfclass : dataModel.listClasses()) {
-						if (vfclass.getSootClass().getName().toString().equals(selectedClass)) {
-							for (VFMethod vfmethod : dataModel.listMethods(vfclass)) {
-								if (vfmethod.getSootMethod().getDeclaration().toString().equals(selectMethod)) {
-									tree.removeAll();
-									listUnits = vfmethod.getUnits();
-									populateUnits(listUnits);
-									break;
-								}
-
-								break;
-							}
-						}
-					}
-				}
-			});
-		}
-
-		if (event.getTopic().equals(DataModel.EA_TOPIC_DATA_FILTER_GRAPH)) {
+			reloadData();
+		} else if (event.getTopic().equals(DataModel.EA_TOPIC_DATA_FILTER_GRAPH)) {
 			getDisplay().asyncExec(new Runnable() {
 
 				@SuppressWarnings("unchecked")
@@ -608,6 +596,46 @@ public class UnitView extends ViewPart implements EventHandler {
 		}
 	}
 
+	private void reloadData() {
+		getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				dataModel = ServiceUtil.getService(DataModel.class);
+				classCombo.removeAll();
+				methodCombo.removeAll();
+				for (VFClass vfclass : dataModel.listClasses()) {
+					classCombo.add(vfclass.getSootClass().getName());
+				}
+				classCombo.select(0);
+				classSelection = classCombo.getText().trim();
+				for (VFClass vfclass : dataModel.listClasses()) {
+					if (vfclass.getSootClass().getName().toString().equals(classSelection)) {
+						for (VFMethod vfmethod : dataModel.listMethods(vfclass)) {
+							methodCombo.add(vfmethod.getSootMethod().getDeclaration());
+						}
+					}
+				}
+				methodCombo.select(0);
+				String selectMethod = methodCombo.getText();
+				String selectedClass = classCombo.getText();
+				for (VFClass vfclass : dataModel.listClasses()) {
+					if (vfclass.getSootClass().getName().toString().equals(selectedClass)) {
+						for (VFMethod vfmethod : dataModel.listMethods(vfclass)) {
+							if (vfmethod.getSootMethod().getDeclaration().toString().equals(selectMethod)) {
+								tree.removeAll();
+								listUnits = vfmethod.getUnits();
+								populateUnits(listUnits);
+								break;
+							}
+							
+							break;
+						}
+					}
+				}
+			}
+		});
+	}
+	
 	public static Display getDisplay() {
 		Display display = Display.getCurrent();
 		if (display == null) {

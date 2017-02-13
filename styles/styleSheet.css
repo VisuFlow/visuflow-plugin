@@ -1,0 +1,45 @@
+graph {
+	fill-color: white;
+}
+
+node {
+	size-mode: fit;
+	shape: rounded-box;
+	fill-color: #009688;
+	fill-mode: dyn-plain;
+	padding: 3px, 2px, 5px, 5px;
+	text-color: black;
+	text-style: bold;
+	text-padding: 4px, 4px;
+	text-offset: 0px, 2px;
+	text-size: 12gu;
+	z-index: 0;
+}
+
+node.filter {
+	fill-color: yellow;
+}
+
+node.plus {
+	fill-color: blue;
+	text-background-color: #F33;
+	text-color: #DDD;
+}
+
+edge {
+	/* arrow-shape: arrow; */
+	arrow-size: 6px, 10px;
+	fill-color: blue;
+	text-size: 10gu;
+	text-background-mode: plain;
+	size-mode: normal;
+	z-index: 1;
+}
+
+node:clicked {
+	fill-color: blue;
+}
+
+node:customized {
+	fill-color: red;
+}

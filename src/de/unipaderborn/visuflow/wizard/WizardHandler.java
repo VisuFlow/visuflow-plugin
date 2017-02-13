@@ -113,6 +113,9 @@ public class WizardHandler extends Wizard implements INewWizard {
 		IJavaProject javaProject = JavaCore.create(resourceTarget.getProject());
 		String key = "TargetProject_"+containerAnalysis.getProject().getName();
 		GlobalSettings.put(key,root.getLocation().toFile()+javaProject.getOutputLocation().toFile().getPath());
+		IJavaProject analysisProject = JavaCore.create(resourceAnalysis.getProject());
+		GlobalSettings.put("AnalysisProject", analysisProject.getProject().getName());
+		GlobalSettings.put("TargetProject", javaProject.getProject().getName());
 		monitor.worked(1);
 		monitor.setTaskName("Opening file for editing...");
 		getShell().getDisplay().asyncExec(new Runnable() {

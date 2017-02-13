@@ -3,8 +3,10 @@ package de.unipaderborn.visuflow.model.graph;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import de.unipaderborn.visuflow.model.VFEdge;
+import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.model.VFNode;
 import de.unipaderborn.visuflow.model.VFUnit;
 import soot.Body;
@@ -18,8 +20,11 @@ public class ControlFlowGraphGenerator {
 	private int edgeNumber;
 	private List<VFNode> listNodes;
 	private List<VFEdge> listEdges;
+	private VFMethod method;
 	
-	public ControlFlowGraph generateControlFlowGraph(Body b) {
+	public ControlFlowGraph generateControlFlowGraph(VFMethod method) {
+		this.method = method;
+		Body b = method.getBody();
 		nodeNumber=0;
 		edgeNumber=0;
 		listNodes = new ArrayList<>();
@@ -32,7 +37,7 @@ public class ControlFlowGraphGenerator {
 		while (it1.hasNext()) {
 			head = it1.next();
 			nodeNumber++;
-			VFNode node = new VFNode(new VFUnit(head), nodeNumber);
+			VFNode node = new VFNode(getVFUnit(head), nodeNumber);
 			listNodes.add(node);
 			break;
 		}
@@ -52,12 +57,14 @@ public class ControlFlowGraphGenerator {
 			Iterator<VFEdge> edges = listEdges.iterator();
 			while(edges.hasNext()){
 				VFEdge edge = (VFEdge) edges.next();
+				if (edge != null && temp != null && edge.getSource() != null && edge.getDestination() != null) {
 				if(edge.getSource().getUnit().equals(currentNode) && edge.getDestination().getUnit().equals(temp))
 				{
-					System.out.println("Here");
 					edgeconnection = true;
 					break;
 				}
+			}
+				
 			}
 			if(edgeconnection)
 			continue;
@@ -70,7 +77,7 @@ public class ControlFlowGraphGenerator {
 			}
 			if (!present) {
 				nodeNumber++;
-				VFNode node = new VFNode(new VFUnit(temp), nodeNumber);
+				VFNode node = new VFNode(getVFUnit(temp), nodeNumber);
 				listNodes.add(node);
 			}
 			VFNode source = null, destination = null;
@@ -91,6 +98,14 @@ public class ControlFlowGraphGenerator {
 			//System.out.println(edgeEntry.getDestination().toString());
 			traverseUnits(temp);
 		}
+	}
 
+	private VFUnit getVFUnit(Unit unit) {
+		for (VFUnit vfUnit : method.getUnits()) {
+			if(vfUnit.getUnit() == unit) {
+				return vfUnit;
+			}
+		}
+		throw new NoSuchElementException("VFMethod " + method.getSootMethod().getName() + " does not contain unit " + unit.toString());
 	}
 }

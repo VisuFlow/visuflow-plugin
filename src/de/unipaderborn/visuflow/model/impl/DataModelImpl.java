@@ -26,6 +26,7 @@ import org.osgi.service.event.EventAdmin;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
+import de.unipaderborn.visuflow.model.VFMethodEdge;
 import de.unipaderborn.visuflow.model.VFNode;
 import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.model.graph.ICFGStructure;
@@ -40,6 +41,8 @@ public class DataModelImpl implements DataModel {
 
 	private List<VFMethod> selectedClassMethods;
 	private List<VFUnit> selectedMethodUnits;
+	@SuppressWarnings("unused")
+	private List<VFMethodEdge> selectedMethodincEdges;
 
 	private EventAdmin eventAdmin;
 
@@ -60,9 +63,11 @@ public class DataModelImpl implements DataModel {
 	@Override
 	public List<VFMethod> listMethods(VFClass vfClass) {
 		List<VFMethod> methods = Collections.emptyList();
-		for (VFClass current : classList) {
-			if (current == vfClass) {
-				methods = vfClass.getMethods();
+		if(classList != null) {
+			for (VFClass current : classList) {
+				if (current == vfClass) {
+					methods = vfClass.getMethods();
+				}
 			}
 		}
 		return methods;
@@ -71,10 +76,12 @@ public class DataModelImpl implements DataModel {
 	@Override
 	public List<VFUnit> listUnits(VFMethod vfMethod) {
 		List<VFUnit> units = Collections.emptyList();
-		for (VFClass currentClass : classList) {
-			for (VFMethod currentMethod : currentClass.getMethods()) {
-				if (currentMethod == vfMethod) {
-					units = vfMethod.getUnits();
+		if(classList != null) {
+			for (VFClass currentClass : classList) {
+				for (VFMethod currentMethod : currentClass.getMethods()) {
+					if (currentMethod == vfMethod) {
+						units = vfMethod.getUnits();
+					}
 				}
 			}
 		}
@@ -108,15 +115,18 @@ public class DataModelImpl implements DataModel {
 		this.selectedMethod = this.selectedClass.getMethods().get(0);
 		this.selectedClassMethods = this.selectedClass.getMethods();
 		this.populateUnits();
-		this.setSelectedMethod(this.selectedClass.getMethods().get(0));
+		this.populateEdges();
+		this.setSelectedMethod(this.selectedClass.getMethods().get(0), true);
 	}
 
 	@Override
-	public void setSelectedMethod(VFMethod selectedMethod) {
+	public void setSelectedMethod(VFMethod selectedMethod, boolean panToNode) {
 		this.selectedMethod = selectedMethod;
 		this.populateUnits();
+		this.populateEdges();
 		Dictionary<String, Object> properties = new Hashtable<>();
 		properties.put("selectedMethod", selectedMethod);
+		properties.put("panToNode", panToNode);
 		// properties.put("selectedClassMethods", selectedClassMethods);
 		properties.put("selectedMethodUnits", selectedMethodUnits);
 		Event modelChanged = new Event(DataModel.EA_TOPIC_DATA_SELECTION, properties);
@@ -140,6 +150,10 @@ public class DataModelImpl implements DataModel {
 
 	private void populateUnits() {
 		this.selectedMethodUnits = this.selectedMethod.getUnits();
+	}
+	
+	private void populateEdges() {
+		this.selectedMethodincEdges = this.selectedMethod.getIncomingEdges();
 	}
 
 	public void setEventAdmin(EventAdmin eventAdmin) {
@@ -202,11 +216,13 @@ public class DataModelImpl implements DataModel {
 	 */
 	private VFUnit getVFUnit(String fqn) {
 		VFUnit result = null;
-		for (VFClass vfClass : classList) {
-			for (VFMethod vfMethod : vfClass.getMethods()) {
-				for (VFUnit vfUnit : vfMethod.getUnits()) {
-					if (vfUnit.getFullyQualifiedName().equals(fqn)) {
-						result = vfUnit;
+		if(classList != null) {
+			for (VFClass vfClass : classList) {
+				for (VFMethod vfMethod : vfClass.getMethods()) {
+					for (VFUnit vfUnit : vfMethod.getUnits()) {
+						if (vfUnit.getFullyQualifiedName().equals(fqn)) {
+							result = vfUnit;
+						}
 					}
 				}
 			}
@@ -225,10 +241,10 @@ public class DataModelImpl implements DataModel {
 	public void filterGraph(List<VFNode> selectedNodes, boolean selection) throws Exception {
 		this.selectedNodes = selectedNodes;
 		this.selection = selection;
-		
+
 		if(!selectedNodes.isEmpty())
-			this.setSelectedMethod(selectedNodes.get(0).getVFUnit().getVfMethod());
-		
+			this.setSelectedMethod(selectedNodes.get(0).getVFUnit().getVfMethod(), false);
+
 		Dictionary<String, Object> properties = new Hashtable<>();
 		properties.put("nodesToFilter", this.selectedNodes);
 		properties.put("selection", this.selection);
@@ -236,9 +252,9 @@ public class DataModelImpl implements DataModel {
 		eventAdmin.postEvent(filterGraph);
 	}
 
+	@Override
 	public void HighlightJimpleUnit(VFNode node) {
 		VFUnit unit = node.getVFUnit();
-		System.out.println("DataModel ---> unit " + unit);
 		String className = unit.getVfMethod().getVfClass().getSootClass().getName();
 		VFMethod methodName = unit.getVfMethod();
 

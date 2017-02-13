@@ -31,6 +31,8 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 
+import com.google.common.base.Optional;
+
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFNode;
 import de.unipaderborn.visuflow.model.VFUnit;
@@ -113,7 +115,6 @@ public class ResultView extends ViewPart implements EventHandler {
 		try {
 			ServiceUtil.getService(DataModel.class).filterGraph(nodesToFilter, selection);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -146,13 +147,17 @@ public class ResultView extends ViewPart implements EventHandler {
 		gridData.horizontalAlignment = GridData.FILL;
 		viewer.getControl().setLayoutData(gridData);
 
-		Hashtable<String, String> properties = new Hashtable<String, String>();
-		properties.put(EventConstants.EVENT_TOPIC, DataModel.EA_TOPIC_DATA_SELECTION);
+		Hashtable<String, Object> properties = new Hashtable<String, Object>();
+		String[] topics = new String[] {
+				DataModel.EA_TOPIC_DATA_SELECTION,
+				DataModel.EA_TOPIC_DATA_UNIT_CHANGED
+		};
+		properties.put(EventConstants.EVENT_TOPIC, topics);
 		ServiceUtil.registerService(EventHandler.class, this, properties);
 	}
 
 	private void createColumns(final Composite parent, final TableViewer viewer) {
-		String[] titles = { "Selection", "Unit", "Unit Type", "In-Set", "Out-Set", "Custumized Attr." };
+		String[] titles = { "Selection", "Unit", "Unit Type", "In-Set", "Out-Set", "Customized Attr." };
 		int[] bounds = { 100, 100, 100, 100, 100, 150 };
 
 		TableViewerColumn col = createTableViewerColumn(titles[0], bounds[0], 0);
@@ -177,7 +182,7 @@ public class ResultView extends ViewPart implements EventHandler {
 			@Override
 			public String getText(Object element) {
 				VFUnit unit = (VFUnit) element;
-				return unit.getUnit().getClass().getName();
+				return unit.getUnit().getClass().getSimpleName();
 			}
 		});
 		// In-Set
@@ -185,7 +190,8 @@ public class ResultView extends ViewPart implements EventHandler {
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				return "InSet";
+				VFUnit unit = (VFUnit) element;
+				return Optional.fromNullable(unit.getInSet()).or("n/a").toString();
 			}
 		});
 		// Out-Set
@@ -193,7 +199,8 @@ public class ResultView extends ViewPart implements EventHandler {
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				return "OutSet";
+				VFUnit unit = (VFUnit) element;
+				return Optional.fromNullable(unit.getOutSet()).or("n/a").toString();
 			}
 		});
 
@@ -230,14 +237,27 @@ public class ResultView extends ViewPart implements EventHandler {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void handleEvent(Event event) {
-		viewer.getTable().getDisplay().asyncExec(new Runnable() {
-
-			@Override
-			public void run() {
-				viewer.setInput((List<VFUnit>) event.getProperty("selectedMethodUnits"));
+		if (event.getTopic().equals(DataModel.EA_TOPIC_DATA_SELECTION)) {
+			if (viewer != null && !viewer.getControl().isDisposed()) {
+				viewer.getTable().getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						@SuppressWarnings("unchecked")
+						List<VFUnit> units = (List<VFUnit>) event.getProperty("selectedMethodUnits");
+						viewer.setInput(units);
+					}
+				});
 			}
-		});
-
+		} else if (event.getTopic().equals(DataModel.EA_TOPIC_DATA_UNIT_CHANGED)) {
+			if (viewer != null && !viewer.getControl().isDisposed()) {
+				viewer.getTable().getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						viewer.refresh();
+					}
+				});
+			}
+		}
 	}
 
 	@SuppressWarnings("rawtypes")
