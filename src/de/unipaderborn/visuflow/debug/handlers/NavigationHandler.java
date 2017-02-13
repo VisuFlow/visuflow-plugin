@@ -234,8 +234,8 @@ public class NavigationHandler extends AbstractHandler {
 		try {
 			method.getSootMethod().getBytecodeSignature();
 
-			IRegion region = findReplaceDocumentAdapter.find(0, method.getSootMethod().getDeclaration(), true, true, false, false);
-			return document.getLineOfOffset(region.getOffset());
+			IRegion region = findReplaceDocumentAdapter.find(0,FindReplaceDocumentAdapter.escapeForRegExPattern(method.getSootMethod().getDeclaration()), true, true, false, true);
+			return region.getOffset();
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
