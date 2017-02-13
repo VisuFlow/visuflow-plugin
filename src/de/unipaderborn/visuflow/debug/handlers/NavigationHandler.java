@@ -75,7 +75,7 @@ public class NavigationHandler extends AbstractHandler {
 					HashMap<VFMethod, VFUnit> resultantUnit = getSelectedUnit(className, document, content.trim().substring(0, content.length() - 1),
 							lineNumber);
 					List<VFNode> unit = new ArrayList<>();
-					if (resultantUnit.size()>0) {
+					if (resultantUnit.size() > 0) {
 						unit.add(new VFNode((VFUnit) resultantUnit.values().toArray()[0], 0));
 					}
 					if (event.getCommand().getId().equals("JimpleEditor.NavigateToCFG")) {
@@ -101,16 +101,15 @@ public class NavigationHandler extends AbstractHandler {
 							e.printStackTrace();
 						}
 					} else if (event.getCommand().getId().equals("JimpleEditor.sourceCodeCommand")) {
-						if(unit.size()>0){
-							
-							LineNumberTag ln = (LineNumberTag)unit.get(0).getUnit().getTag("LineNumberTag");
-							if(ln!=null)
-							{
+						if (unit.size() > 0) {
+
+							LineNumberTag ln = (LineNumberTag) unit.get(0).getUnit().getTag("LineNumberTag");
+							if (ln != null) {
 								HighLightSourceCode(ln.getLineNumber(), className);
-								
+
 							}
 						}
-						
+
 					}
 				}
 			} catch (BadLocationException e) {
@@ -241,6 +240,13 @@ public class NavigationHandler extends AbstractHandler {
 			e.printStackTrace();
 		}
 		return 0;
+	}
+
+	public void NavigateToSource(VFUnit unit) {
+
+		LineNumberTag ln = (LineNumberTag) unit.getUnit().getTag("LineNumberTag");
+		String className = unit.getVfMethod().getVfClass().getSootClass().getName();
+		HighLightSourceCode(ln.getLineNumber(), className);
 	}
 
 	private void HighLightSourceCode(int lineNumber, String className) {
