@@ -7,7 +7,7 @@ node {
 	shape: rounded-box;
 	/* size-mode: normal; */
 	fill-color: #009688;
-	/* fill-mode: dyn-plain; */
+	fill-mode: dyn-plain;
 	padding: 3px, 2px, 5px, 5px;
 	text-color: black;
 	text-style: bold;

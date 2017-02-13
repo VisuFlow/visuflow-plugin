@@ -139,6 +139,7 @@ public class JimpleBreakPointHandler extends AbstractHandler {
 									String requiredFqn = resultantUnit.getFullyQualifiedName();
 									System.out.println("Required in condition " + requiredFqn);
 									javaLineBreakpoint.setCondition("new String(d.getTag(\"Fully Qualified Name\").getValue()).equals(\""+requiredFqn+"\")");
+									javaLineBreakpoint.setConditionSuspendOnTrue(true);
 								} else {
 									logger.error("Couldn't set unit condition for jimple breakpoint, because it is no IJavaLineBreakpoint");
 								}
