@@ -34,3 +34,7 @@ node {
 node:clicked {
 	fill-color: blue;
 }
+
+node:customized {
+	fill-color: red;
+}

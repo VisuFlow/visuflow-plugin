@@ -26,7 +26,11 @@ public class ResultViewFilter extends ViewerFilter {
 		if (unit.getUnit().getClass().getName().matches(searchString)) {
 			return true;
 		}
-
+		//From me
+		if(unit.getHmCustAttr().toString().matches(searchString)){
+			return true;
+		}
+		
 		return false;
 	}
 }

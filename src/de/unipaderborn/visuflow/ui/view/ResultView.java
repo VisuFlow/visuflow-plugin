@@ -2,7 +2,10 @@ package de.unipaderborn.visuflow.ui.view;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -39,7 +42,7 @@ public class ResultView extends ViewPart implements EventHandler {
 	private TableViewer viewer;
 	private ResultViewFilter filter;
 	private List<VFUnit> units;
-	private Button highlightNodes;
+	private Button highlightNodes, bRefresh;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -47,6 +50,21 @@ public class ResultView extends ViewPart implements EventHandler {
 		parent.setLayout(layout);
 		Label searchLabel = new Label(parent, SWT.NONE);
 		searchLabel.setText("Search: ");
+		bRefresh = new Button(parent, SWT.COLOR_BLUE);
+		bRefresh.setText("Refresh");
+
+		bRefresh.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				viewer.refresh();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// noOp
+			}
+		});
 
 		highlightNodes = new Button(parent, SWT.CHECK);
 		highlightNodes.setText("Highlight selected nodes on graph");
@@ -60,7 +78,7 @@ public class ResultView extends ViewPart implements EventHandler {
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-				//				noOp
+				// noOp
 			}
 		});
 
@@ -85,12 +103,11 @@ public class ResultView extends ViewPart implements EventHandler {
 		viewer.getControl().setFocus();
 	}
 
-	private void highlightNodesOnGraph(boolean selection)
-	{
+	private void highlightNodesOnGraph(boolean selection) {
 		TableItem[] selectedNodes = viewer.getTable().getItems();
 		List<VFNode> nodesToFilter = new ArrayList<VFNode>();
 		for (TableItem tableItem : selectedNodes) {
-			if(tableItem.getChecked())
+			if (tableItem.getChecked())
 				nodesToFilter.add(new VFNode((VFUnit) tableItem.getData(), 0));
 		}
 		try {
@@ -112,7 +129,7 @@ public class ResultView extends ViewPart implements EventHandler {
 
 			@Override
 			public void handleEvent(org.eclipse.swt.widgets.Event event) {
-				if(highlightNodes.getSelection())
+				if (highlightNodes.getSelection())
 					highlightNodesOnGraph(highlightNodes.getSelection());
 			}
 		});
@@ -135,8 +152,8 @@ public class ResultView extends ViewPart implements EventHandler {
 	}
 
 	private void createColumns(final Composite parent, final TableViewer viewer) {
-		String[] titles = { "Selection", "Unit", "Unit Type", "In-Set", "Out-Set"};
-		int[] bounds = { 100, 100, 100, 100, 100 };
+		String[] titles = { "Selection", "Unit", "Unit Type", "In-Set", "Out-Set", "Custumized Attr." };
+		int[] bounds = { 100, 100, 100, 100, 100, 150 };
 
 		TableViewerColumn col = createTableViewerColumn(titles[0], bounds[0], 0);
 		col.setLabelProvider(new ColumnLabelProvider() {
@@ -145,7 +162,7 @@ public class ResultView extends ViewPart implements EventHandler {
 				return "";
 			}
 		});
-		//Unit
+		// Unit
 		col = createTableViewerColumn(titles[1], bounds[1], 1);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
@@ -154,7 +171,7 @@ public class ResultView extends ViewPart implements EventHandler {
 				return unit.getUnit().toString();
 			}
 		});
-		//Unit Type
+		// Unit Type
 		col = createTableViewerColumn(titles[2], bounds[2], 2);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
@@ -163,7 +180,7 @@ public class ResultView extends ViewPart implements EventHandler {
 				return unit.getUnit().getClass().getName();
 			}
 		});
-		//In-Set
+		// In-Set
 		col = createTableViewerColumn(titles[3], bounds[3], 3);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
@@ -171,7 +188,7 @@ public class ResultView extends ViewPart implements EventHandler {
 				return "InSet";
 			}
 		});
-		//Out-Set
+		// Out-Set
 		col = createTableViewerColumn(titles[4], bounds[4], 4);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
@@ -179,11 +196,29 @@ public class ResultView extends ViewPart implements EventHandler {
 				return "OutSet";
 			}
 		});
+
+		// Add custom attributes
+		col = createTableViewerColumn(titles[5], bounds[5], 5);
+
+		col.setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				VFUnit vfUnit = (VFUnit) element;
+
+				if (!(vfUnit.getHmCustAttr().isEmpty())) {
+					String attrs = costumizedAttrs(vfUnit);
+					return attrs;
+
+				} else {
+					return "is still empty";
+				}
+			}
+		});
+
 	}
 
 	private TableViewerColumn createTableViewerColumn(String title, int bound, final int colNumber) {
-		final TableViewerColumn viewerColumn = new TableViewerColumn(viewer,
-				SWT.NONE);
+		final TableViewerColumn viewerColumn = new TableViewerColumn(viewer, SWT.NONE);
 		final TableColumn column = viewerColumn.getColumn();
 		column.setText(title);
 		column.setWidth(bound);
@@ -191,7 +226,6 @@ public class ResultView extends ViewPart implements EventHandler {
 		column.setMoveable(true);
 		return viewerColumn;
 	}
-
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -205,4 +239,26 @@ public class ResultView extends ViewPart implements EventHandler {
 		});
 
 	}
+
+	@SuppressWarnings("rawtypes")
+	private String costumizedAttrs(VFUnit vfUnit) {
+		String attrs = "";
+		Set set = vfUnit.getHmCustAttr().entrySet();
+
+		// Get an iterator
+		Iterator i = set.iterator();
+
+		// Display elements
+		while (i.hasNext()) {
+			Map.Entry me = (Map.Entry) i.next();
+			attrs = attrs + me.getKey() + " = " + me.getValue() + ". \n";
+
+		}
+		if (attrs.equals("")) {
+			return "is still empty";
+		}
+
+		return attrs;
+	}
+
 }

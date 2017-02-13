@@ -14,6 +14,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.model.IBreakpoint;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.FindReplaceDocumentAdapter;
 import org.eclipse.jface.text.IDocument;
@@ -31,10 +32,8 @@ import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.model.VFUnit;
-import de.unipaderborn.visuflow.util.ServiceUtil;
 import de.unipaderborn.visuflow.util.MapUtil;
-
-import org.eclipse.jface.dialogs.*;
+import de.unipaderborn.visuflow.util.ServiceUtil;
 
 public class JimpleBreakPointHandler extends AbstractHandler {
 
