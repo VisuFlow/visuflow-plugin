@@ -216,6 +216,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	private void panToNode(String nodeId)
 	{
+		view.getCamera().resetView();
 		Node panToNode = graph.getNode(nodeId);
 		double[] pos = Toolkit.nodePosition(panToNode);
 		double currPosition = view.getCamera().getViewCenter().y;
@@ -231,11 +232,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	}
 
 	private void defaultPanZoom() {
-		/*try {
-			Thread.sleep(800);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}*/
 		int count = 0;
 		if(graph.getNodeCount() > 10)
 			count = 10;

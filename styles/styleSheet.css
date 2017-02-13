@@ -16,6 +16,10 @@ node {
 	z-index: 0;
 }
 
+node.filter {
+	fill-color: yellow;
+}
+
 node.plus {
 	fill-color: blue;
 	text-background-color: #F33;
