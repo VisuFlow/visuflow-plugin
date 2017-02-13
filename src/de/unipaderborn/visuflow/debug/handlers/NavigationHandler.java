@@ -250,39 +250,44 @@ public class NavigationHandler extends AbstractHandler {
 	}
 
 	private void HighLightSourceCode(int lineNumber, String className) {
-		IWorkspaceRoot myWorkspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-		IProject analysisProject = myWorkspaceRoot.getProject(GlobalSettings.get("TargetProject"));
-		if (analysisProject.exists()) {
-			IJavaProject javaProj = JavaCore.create(analysisProject);
-			try {
-				IType classType = javaProj.findType(className);
-				IFile classFile = ResourcesPlugin.getWorkspace().getRoot().getFile(classType.getPath());
-				IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-				IWorkbenchPage page = window.getActivePage();
-				try {
-
-					ITextEditor javaEditor = (ITextEditor) IDE.openEditor(page, classFile, true);
-					IDocument javaDocument = javaEditor.getDocumentProvider().getDocument(javaEditor.getEditorInput());
-					if (javaDocument != null) {
-						IRegion lineInfo = null;
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				IWorkspaceRoot myWorkspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+				IProject analysisProject = myWorkspaceRoot.getProject(GlobalSettings.get("TargetProject"));
+				if (analysisProject.exists()) {
+					IJavaProject javaProj = JavaCore.create(analysisProject);
+					try {
+						IType classType = javaProj.findType(className);
+						IFile classFile = ResourcesPlugin.getWorkspace().getRoot().getFile(classType.getPath());
+						IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+						IWorkbenchPage page = window.getActivePage();
 						try {
-							lineInfo = javaDocument.getLineInformation(lineNumber - 1);
-						} catch (BadLocationException e) {
-						}
-						if (lineInfo != null) {
-							javaEditor.selectAndReveal(lineInfo.getOffset(), lineInfo.getLength());
-						}
-					}
 
-				} catch (PartInitException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+							ITextEditor javaEditor = (ITextEditor) IDE.openEditor(page, classFile, true);
+							IDocument javaDocument = javaEditor.getDocumentProvider().getDocument(javaEditor.getEditorInput());
+							if (javaDocument != null) {
+								IRegion lineInfo = null;
+								try {
+									lineInfo = javaDocument.getLineInformation(lineNumber - 1);
+								} catch (BadLocationException e) {
+								}
+								if (lineInfo != null) {
+									javaEditor.selectAndReveal(lineInfo.getOffset(), lineInfo.getLength());
+								}
+							}
+
+						} catch (PartInitException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					} catch (JavaModelException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
-			} catch (JavaModelException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-		}
+		});
 	}
 
 	public void HighlightJimpleLine(ArrayList<VFUnit> units) {
