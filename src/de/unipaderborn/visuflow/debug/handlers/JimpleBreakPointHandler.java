@@ -54,8 +54,6 @@ public class JimpleBreakPointHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		IEditorPart part = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
-		//GlobalSettings.put("Hello", "World");
-		//System.out.println(GlobalSettings.get("Hello"));
 		if (part instanceof ITextEditor) {
 			IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindow(event);
 			IFileEditorInput input = (IFileEditorInput) part.getEditorInput();
