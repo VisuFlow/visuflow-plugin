@@ -105,7 +105,7 @@ public class NavigationHandler extends AbstractHandler {
 
 							LineNumberTag ln = (LineNumberTag) unit.get(0).getUnit().getTag("LineNumberTag");
 							if (ln != null) {
-								HighLightSourceCode(ln.getLineNumber(), className);
+								highLightSourceCode(ln.getLineNumber(), className);
 
 							}
 						}
@@ -246,10 +246,10 @@ public class NavigationHandler extends AbstractHandler {
 
 		LineNumberTag ln = (LineNumberTag) unit.getUnit().getTag("LineNumberTag");
 		String className = unit.getVfMethod().getVfClass().getSootClass().getName();
-		HighLightSourceCode(ln.getLineNumber(), className);
+		highLightSourceCode(ln.getLineNumber(), className);
 	}
 
-	private void HighLightSourceCode(int lineNumber, String className) {
+	private void highLightSourceCode(int lineNumber, String className) {
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -290,7 +290,7 @@ public class NavigationHandler extends AbstractHandler {
 		});
 	}
 
-	public void HighlightJimpleLine(ArrayList<VFUnit> units) {
+	public void highlightJimpleLine(List<VFUnit> units) {
 
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override

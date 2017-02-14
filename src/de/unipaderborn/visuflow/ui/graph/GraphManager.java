@@ -370,7 +370,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					e1.printStackTrace();
 				}
 				NavigationHandler handler = new NavigationHandler();
-				handler.HighlightJimpleLine(vfUnits);
+				handler.highlightJimpleLine(vfUnits);
 			}
 		});
 	}
@@ -525,7 +525,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					{
 						ArrayList<VFUnit> units = new ArrayList<>();
 						units.add(((VFNode) node).getVFUnit());
-						handler.HighlightJimpleLine(units);
+						handler.highlightJimpleLine(units);
 						handler.NavigateToSource(units.get(0));
 
 						ArrayList<VFNode> nodes = new ArrayList<>();

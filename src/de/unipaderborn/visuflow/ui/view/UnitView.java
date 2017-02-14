@@ -391,7 +391,7 @@ public class UnitView extends ViewPart implements EventHandler {
 				ArrayList<VFUnit> jimpleArrayList = new ArrayList<>();
 				jimpleArrayList.add((VFUnit)unitDetails.get("unit"));
 				NavigationHandler nh = new NavigationHandler();
-				nh.HighlightJimpleLine(jimpleArrayList);				
+				nh.highlightJimpleLine(jimpleArrayList);				
 				List<VFNode> cfgArrayList = new ArrayList<>();
 				cfgArrayList.add(new VFNode((VFUnit)unitDetails.get("unit"),0));
 				try {
