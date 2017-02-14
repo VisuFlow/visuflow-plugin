@@ -238,9 +238,11 @@ public class DataModelImpl implements DataModel {
 	}
 
 	@Override
-	public void filterGraph(List<VFNode> selectedNodes, boolean selection) throws Exception {
+	public void filterGraph(List<VFNode> selectedNodes, boolean selection, String uiClassName) throws Exception {
 		this.selectedNodes = selectedNodes;
 		this.selection = selection;
+		if(uiClassName == null)
+			uiClassName = "filter";
 
 		if(!selectedNodes.isEmpty())
 			this.setSelectedMethod(selectedNodes.get(0).getVFUnit().getVfMethod(), false);
@@ -248,6 +250,7 @@ public class DataModelImpl implements DataModel {
 		Dictionary<String, Object> properties = new Hashtable<>();
 		properties.put("nodesToFilter", this.selectedNodes);
 		properties.put("selection", this.selection);
+		properties.put("uiClassName", uiClassName);
 		Event filterGraph = new Event(DataModel.EA_TOPIC_DATA_FILTER_GRAPH, properties);
 		eventAdmin.postEvent(filterGraph);
 	}

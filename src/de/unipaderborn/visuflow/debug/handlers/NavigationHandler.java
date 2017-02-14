@@ -80,7 +80,7 @@ public class NavigationHandler extends AbstractHandler {
 					}
 					if (event.getCommand().getId().equals("JimpleEditor.NavigateToCFG")) {
 						try {
-							ServiceUtil.getService(DataModel.class).filterGraph(unit, true);
+							ServiceUtil.getService(DataModel.class).filterGraph(unit, true, null);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -88,7 +88,7 @@ public class NavigationHandler extends AbstractHandler {
 
 					else if (event.getCommand().getId().equals("JimpleEditor.NavigateToUnitView")) {
 						try {
-							ServiceUtil.getService(DataModel.class).filterGraph(unit, true);
+							ServiceUtil.getService(DataModel.class).filterGraph(unit, true, null);
 						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -96,7 +96,7 @@ public class NavigationHandler extends AbstractHandler {
 					} else if (event.getCommand().getId().equals("JimpleEditor.VariablePath")) {
 						try {
 							List<VFNode> unitList = prepareVariablePath(className, document, content.trim().substring(0, content.length() - 1), lineNumber);
-							ServiceUtil.getService(DataModel.class).filterGraph(unitList, true);
+							ServiceUtil.getService(DataModel.class).filterGraph(unitList, true, null);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
