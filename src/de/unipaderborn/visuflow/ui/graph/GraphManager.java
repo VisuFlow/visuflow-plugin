@@ -1,3 +1,4 @@
+
 package de.unipaderborn.visuflow.ui.graph;
 
 import static de.unipaderborn.visuflow.model.DataModel.EA_TOPIC_DATA_FILTER_GRAPH;
@@ -27,6 +28,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JApplet;
@@ -189,7 +191,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		createSearchText();
 		createSettingsBar();
 		createPanel();
-		createAppletContainer(); 
+		createAppletContainer();
 		//		colorNode();
 	}
 
@@ -361,7 +363,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				}
 				if(last != null)
 					panToNode(last.getId());
-				
+
 				try {
 					ServiceUtil.getService(DataModel.class).filterGraph(vfNodes, true, null);
 				} catch (Exception e1) {
@@ -619,7 +621,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			}
 		});
 
-		colorNode(); 
+		colorNode();
 	}
 
 	private void createToggleLayoutButton()
@@ -673,7 +675,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		});
 
 		dialog = JColorChooser.createDialog(null, "Color Chooser", true, jcc, null, null);
-		panelColor = new JPanel(new GridLayout(0, 2));       
+		panelColor = new JPanel(new GridLayout(0, 2));
 
 		btColor = new JButton ("Color nodes");
 		btColor.addActionListener(new ActionListener() {
@@ -1016,10 +1018,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						edge.setAttribute("edgeData.outSet", outset);
 						src.addAttribute("nodeData.inSet", unit.getInSet());
 						src.addAttribute("nodeData.outSet", unit.getOutSet());
-						System.out.println("GraphManager: Unit changed: " + unit.getFullyQualifiedName());
-						System.out.println("GraphManager: Unit in-set: " + unit.getInSet());
-						System.out.println("GraphManager: Unit out-set: " + unit.getOutSet());
-					} 
+					}
 				}
 			}
 		}
