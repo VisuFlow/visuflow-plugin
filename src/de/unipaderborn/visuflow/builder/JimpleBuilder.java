@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
+import de.unipaderborn.visuflow.Logger;
 import de.unipaderborn.visuflow.Visuflow;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
@@ -32,6 +33,7 @@ import de.unipaderborn.visuflow.util.ServiceUtil;
 
 public class JimpleBuilder extends IncrementalProjectBuilder {
 
+	private Logger logger = Visuflow.getDefault().getLogger();
 	private String classpath;
 
 	protected String getClassFilesLocation(IJavaProject javaProject) throws JavaModelException {
@@ -106,7 +108,7 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 
 			//at this point, no resources have been created
 			if (!folder.exists()) {
-				//Changed to force because of bug id vis-119 
+				//Changed to force because of bug id vis-119
 				folder.create( IResource.FORCE, true, null);
 
 			}
@@ -118,8 +120,12 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 			JimpleModelAnalysis analysis = new JimpleModelAnalysis();
 			analysis.setSootString(sootString);
 			List<VFClass> jimpleClasses = new ArrayList<>();
-			analysis.createICFG(icfg, jimpleClasses);
-			fillDataModel(icfg, jimpleClasses);
+			try {
+				analysis.createICFG(icfg, jimpleClasses);
+				fillDataModel(icfg, jimpleClasses);
+			} catch(Exception e) {
+				logger.error("Couldn't execute analysis", e);
+			}
 
 			folder.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 		}

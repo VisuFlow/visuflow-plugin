@@ -92,15 +92,15 @@
       <toolbar
             id="GraphStreamFeasibility.toolbar2">
          <command
-               commandId="GraphStreamFeasibility.sourceCodeCommand"
-               icon="icons/breakpoint.png"
-               label="Left"
+               commandId="visuflow.debug.step.resume"
+               icon="icons/media-playback-start.png"
+               label="resume"
                style="push">
          </command>
          <command
                commandId="GraphStreamFeasibility.sourceCodeCommand"
-               icon="icons/breakpoint.png"
-               label="Right"
+               icon="icons/go-jump.png"
+               label="stepover"
                style="push">
          </command>
       </toolbar>
@@ -175,6 +175,11 @@
    <command
          id="JimpleEditor.VariablePath"
          name="Highlight Variable Path">
+   </command>
+   <command
+         defaultHandler="de.unipaderborn.visuflow.debug.handlers.DebugStepResumeHandler"
+         id="visuflow.debug.step.resume"
+         name="Resume">
    </command>
 </extension>
 <extension
@@ -393,5 +398,34 @@
           id="VisuFlow.PlugIn.Wizard.VFWizard"
           name="Target Folder">
     </wizard>
+ </extension>
+ <extension
+       point="org.eclipse.ui.editors.markerAnnotationSpecification">
+    <specification
+          annotationImageProvider="de.unipaderborn.visuflow.debug.ui.JimpleUnitPointerImageProvider"
+          annotationType="visuflow.debug.instructionPointer"
+          colorPreferenceKey="jimpleIPColor"
+          colorPreferenceValue="198,219,174"
+          highlightPreferenceKey="jimpleIPHighlight"
+          highlightPreferenceValue="true"
+          icon="$nl$/icons/inst_ptr_top.png"
+          includeOnPreferencePage="true"
+          label="Jimple Unit Pointer"
+          overviewRulerPreferenceKey="jimpleIPOverviewRuler"
+          overviewRulerPreferenceValue="true"
+          presentationLayer="6"
+          textPreferenceKey="jimpleIPIndication"
+          textPreferenceValue="false"
+          textStylePreferenceKey="jimpleIPTextStyle"
+          textStylePreferenceValue="NONE"
+          verticalRulerPreferenceKey="jimpleIPVerticalRuler"
+          verticalRulerPreferenceValue="true">
+    </specification>
+ </extension>
+ <extension
+       point="org.eclipse.ui.editors.annotationTypes">
+    <type
+          name="visuflow.debug.instructionPointer">
+    </type>
  </extension>
 </plugin>

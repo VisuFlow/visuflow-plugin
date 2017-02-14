@@ -1,6 +1,7 @@
 package de.unipaderborn.visuflow.debug.handlers;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -14,11 +15,15 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IBreakpointListener;
+import org.eclipse.debug.core.IDebugEventSetListener;
 import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.jdt.debug.core.IJavaLineBreakpoint;
 import org.eclipse.jdt.debug.core.IJavaMethodBreakpoint;
+import org.eclipse.jdt.debug.core.IJavaStackFrame;
+import org.eclipse.jdt.debug.core.IJavaThread;
 import org.eclipse.jdt.debug.core.JDIDebugModel;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.BadLocationException;
@@ -36,9 +41,9 @@ import org.eclipse.ui.texteditor.ITextEditor;
 
 import de.unipaderborn.visuflow.Logger;
 import de.unipaderborn.visuflow.Visuflow;
+import de.unipaderborn.visuflow.debug.BreakpointLocator;
+import de.unipaderborn.visuflow.debug.BreakpointLocator.BreakpointLocation;
 import de.unipaderborn.visuflow.debug.JimpleBreakpoint;
-import de.unipaderborn.visuflow.debug.ui.BreakpointLocator;
-import de.unipaderborn.visuflow.debug.ui.BreakpointLocator.BreakpointLocation;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
@@ -100,6 +105,7 @@ public class JimpleBreakPointHandler extends AbstractHandler {
 							m.setAttribute(IMarker.TEXT, "Jimple Breakpoint");
 							m.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
 							m.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_INFO);
+							m.setAttribute(IBreakpoint.PERSISTED, true);
 							JimpleBreakpoint jimpleBreakpoint = new JimpleBreakpoint(m);
 							DebugPlugin.getDefault().getBreakpointManager().addBreakpoint(jimpleBreakpoint);
 							DebugPlugin.getDefault().getBreakpointManager().addBreakpointListener(new IBreakpointListener() {
@@ -133,24 +139,56 @@ public class JimpleBreakPointHandler extends AbstractHandler {
 									javaLineBreakpoint.setConditionEnabled(true);
 									String requiredFqn = resultantUnit.getFullyQualifiedName();
 									javaLineBreakpoint.setCondition("new String(d.getTag(\"Fully Qualified Name\").getValue()).equals(\""+requiredFqn+"\")");
+
+									IMarker javaBreakpointMarker = javaBreakpoint.getMarker();
+									javaBreakpointMarker.setAttribute("Jimple" + IMarker.LINE_NUMBER, actualLineNumber);
+									javaBreakpointMarker.setAttribute("Jimple" + IMarker.MESSAGE, content);
+									javaBreakpointMarker.setAttribute("Jimple" + IMarker.TEXT, "Jimple Breakpoint");
+									javaBreakpointMarker.setAttribute("Jimple" + IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
+									javaBreakpointMarker.setAttribute("Jimple" + IMarker.SEVERITY, IMarker.SEVERITY_INFO);
+									javaBreakpointMarker.setAttribute("JimpleUnitFqn", requiredFqn);
+									jimpleBreakpoint.addJavaBreakpoint(javaBreakpoint);
 								} else {
 									logger.error("Couldn't set unit condition for jimple breakpoint, because it is no IJavaLineBreakpoint");
 								}
-								IMarker javaBreakpointMarker = javaBreakpoint.getMarker();
-								jimpleBreakpoint.addJavaBreakpoint(javaBreakpoint);
-								javaBreakpointMarker.setAttribute("Jimple" + IMarker.LINE_NUMBER, actualLineNumber);
-								javaBreakpointMarker.setAttribute("Jimple" + IMarker.MESSAGE, content);
-								javaBreakpointMarker.setAttribute("Jimple" + IMarker.TEXT, "Jimple Breakpoint");
-								javaBreakpointMarker.setAttribute("Jimple" + IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
-								javaBreakpointMarker.setAttribute("Jimple" + IMarker.SEVERITY, IMarker.SEVERITY_INFO);
 							}
 
 
 						}
 
-						System.out.printf("Line Number:%d\n", (lineNumber + 1));
-						System.out.printf("The contents of the line :   %s", content);
-						System.out.println();
+						DebugPlugin.getDefault().addDebugEventListener(new IDebugEventSetListener() {
+							@Override
+							public void handleDebugEvents(DebugEvent[] events) {
+								// System.out.println("Events " + events.length);
+								for (int i = 0; i < events.length; i++) {
+									DebugEvent debugEvent = events[i];
+									if (debugEvent.getKind() == DebugEvent.SUSPEND && debugEvent.getDetail() == DebugEvent.BREAKPOINT) {
+										IJavaThread thread = (IJavaThread) debugEvent.getSource();
+										try {
+											IJavaStackFrame top = (IJavaStackFrame) thread.getTopStackFrame();
+											if(top == null) {
+												continue;
+											}
+
+											IBreakpoint[] breakpoints = thread.getBreakpoints();
+											for (IBreakpoint breakpoint : breakpoints) {
+												IJavaMethodBreakpoint methodBreakpoint = breakpoint.getAdapter(IJavaMethodBreakpoint.class);
+												String unitFqn = (String) methodBreakpoint.getMarker().getAttribute("JimpleUnitFqn");
+												DataModel model = ServiceUtil.getService(DataModel.class);
+												VFUnit unit = model.getVFUnit(unitFqn);
+												new NavigationHandler().highlightJimpleLine(Collections.singletonList(unit));
+											}
+										} catch (Exception e) {
+											// TODO Auto-generated catch block
+											e.printStackTrace();
+										}
+									} else if (debugEvent.getKind() == DebugEvent.TERMINATE) {
+										// remove this debug event listener to release it for garbage collection
+										//DebugPlugin.getDefault().removeDebugEventListener(this);
+									}
+								}
+							}
+						});
 					}
 				} else {
 					MessageDialog.openInformation(window.getShell(), "Breakpoint could not be placed", "Error in inserting breakpoint");
