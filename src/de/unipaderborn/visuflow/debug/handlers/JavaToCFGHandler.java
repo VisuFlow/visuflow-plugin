@@ -50,10 +50,10 @@ public class JavaToCFGHandler extends AbstractHandler {
 			IDocument document = provider.getDocument(editor.getEditorInput());
 			int lineNumber = ruleInfo.getLineOfLastMouseButtonActivity();
 			String className = file.getName().substring(0, file.getName().lastIndexOf('.'));
-			HashMap<VFMethod, VFUnit> resultantUnit = getSelectedUnit(className, document, lineNumber);
+			HashMap<VFUnit,VFMethod> resultantUnit = getSelectedUnit(className, document, lineNumber);
 			List<VFNode> unit = new ArrayList<>();
 			if (resultantUnit.size() > 0) {
-				for (VFUnit vfUnit : resultantUnit.values()) {
+				for (VFUnit vfUnit : resultantUnit.keySet()) {
 					unit.add(new VFNode(vfUnit, 0));
 				}
 			}
@@ -69,8 +69,9 @@ public class JavaToCFGHandler extends AbstractHandler {
 		return null;
 	}
 
-	private HashMap<VFMethod, VFUnit> getSelectedUnit(String className, IDocument document, int lineNumber) {
+	private HashMap<VFUnit, VFMethod> getSelectedUnit(String className, IDocument document, int lineNumber) {
 		DataModel dataModel = ServiceUtil.getService(DataModel.class);
+		HashMap <VFUnit,VFMethod> map = new HashMap<VFUnit,VFMethod>();
 		// VFClass
 		// vfClass=dataModel.listClasses().stream().filter(x->x.getSootClass().getName()==className).collect(Collectors.toList()).get(0);
 		for (VFClass vfClass : dataModel.listClasses()) {
@@ -86,16 +87,16 @@ public class JavaToCFGHandler extends AbstractHandler {
 						for (VFUnit unit : method.getUnits()) {
 							LineNumberTag ln = (LineNumberTag) unit.getUnit().getTag("LineNumberTag");
 							if (ln != null && ln.getLineNumber() == lineNumber + 1) {
-								HashMap<VFMethod, VFUnit> map = new HashMap<VFMethod, VFUnit>();
-								map.put(method, unit);
-								return map;
+								
+								map.put(unit, method);
+								
 							}
 						}
 					}
 				}
 			}
 		}
-		return new HashMap<VFMethod, VFUnit>();
+		return map;
 	}
 
 	private Map<String, Integer> getMethodLineNumbers(IDocument document, List<VFMethod> vfMethods) {
