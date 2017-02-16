@@ -395,9 +395,8 @@ public class UnitView extends ViewPart implements EventHandler {
 				List<VFNode> cfgArrayList = new ArrayList<>();
 				cfgArrayList.add(new VFNode((VFUnit)unitDetails.get("unit"),0));
 				try {
-					ServiceUtil.getService(DataModel.class).filterGraph(cfgArrayList, true, null);
+					ServiceUtil.getService(DataModel.class).filterGraph(cfgArrayList, false, null);
 				} catch (Exception e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
@@ -461,7 +460,6 @@ public class UnitView extends ViewPart implements EventHandler {
 			}
 		});
 	}
-	
 	
 	public static HashMap<String, Object> getUnitDetails(String unitText)
 	{
@@ -607,7 +605,6 @@ public class UnitView extends ViewPart implements EventHandler {
 			}
 		});
 	}
-	
 	
 	public static Display getDisplay() {
 		Display display = Display.getCurrent();
