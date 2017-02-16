@@ -890,7 +890,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			createdNode.setAttribute("nodeData.inSet", Optional.fromNullable(node.getVFUnit().getInSet()).or("n/a").toString());
 			createdNode.setAttribute("nodeData.outSet", Optional.fromNullable(node.getVFUnit().getInSet()).or("n/a").toString());
 			createdNode.setAttribute("nodeData.line", node.getUnit().getJavaSourceStartLineNumber());
-			createdNode.setAttribute("nodeData.column", node.getUnit().getJavaSourceStartColumnNumber());
+//			createdNode.setAttribute("nodeData.column", node.getUnit().getJavaSourceStartColumnNumber());
 			createdNode.setAttribute("nodeUnit", node);
 		}
 	}
