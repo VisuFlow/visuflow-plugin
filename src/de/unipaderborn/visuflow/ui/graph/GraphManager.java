@@ -15,6 +15,8 @@ import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -113,10 +115,10 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private BufferedImage imgDown;
 	private BufferedImage imgPlus;
 	private BufferedImage imgMinus;
-	
+
 	private int x = 0;
 	private int y = 0;
-	
+
 	private boolean CFG;
 
 	public GraphManager(String graphName, String styleSheet)
@@ -311,9 +313,9 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		JMenuItem navigateToJimple = new JMenuItem("Navigate to Jimple");
 		JMenuItem navigateToJava = new JMenuItem("Navigate to Java");
 		JMenuItem showInUnitView = new JMenuItem("Highlight on Units view");
-		
+
 		navigateToJimple.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				GraphicElement curElement = view.findNodeOrSpriteAt(x, y);
@@ -332,7 +334,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		});
 
 		navigateToJava.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				GraphicElement curElement = view.findNodeOrSpriteAt(x, y);
@@ -351,7 +353,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		});
 
 		showInUnitView.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				DataModel dataModel = ServiceUtil.getService(DataModel.class);
@@ -375,13 +377,13 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				}				
 			}
 		});
-		
+
 		popUp = new JPopupMenu("right click menu");
 		popUp.add(navigateToJimple);
 		popUp.add(navigateToJava);
 		popUp.add(showInUnitView);
 	}
-	
+
 	private void createIcons() {
 		try {
 			ClassLoader loader = GraphManager.class.getClassLoader();
@@ -434,14 +436,14 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						vfUnits.add(((VFNode) node.getAttribute("nodeUnit")).getVFUnit());
 					}
 				}
-				
+
 				try {
 					DataModel model = ServiceUtil.getService(DataModel.class);
 					model.filterGraph(vfNodes, true, null);
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
-				
+
 				NavigationHandler handler = new NavigationHandler();
 				handler.HighlightJimpleLine(vfUnits);
 			}
@@ -478,7 +480,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	}
 
 	private void createViewListeners() {
-		
+
 		view.addMouseWheelListener(new MouseWheelListener() {
 
 			@Override
@@ -490,7 +492,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					zoomOut();
 			}
 		});
-		
+
 		view.addMouseMotionListener(new MouseMotionListener() {
 
 			@Override
@@ -543,14 +545,13 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			}
 		});
-		
+
 		view.addMouseListener(new MouseListener() {
 
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				if(e.getButton() == MouseEvent.BUTTON3)
 				{
-					System.out.println("right click detected...........");
 					x = e.getX();
 					y = e.getY();
 					popUp.show(e.getComponent(), x, y);
@@ -637,6 +638,44 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			}
 		});
 
+		view.addKeyListener(new KeyListener() {
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				int keyCode = e.getKeyCode();
+				if(e.isShiftDown())
+				{
+					switch( keyCode ) { 
+					case KeyEvent.VK_UP:
+						// handle up 
+						panUp();
+						break;
+					case KeyEvent.VK_DOWN:
+						// handle down
+						panDown();
+						break;
+					case KeyEvent.VK_LEFT:
+						// handle left
+						panLeft();
+						break;
+					case KeyEvent.VK_RIGHT :
+						// handle right
+						panRight();
+						break;
+					}
+				}
+			}
+		});
 	}
 
 	/*private void callInvokeExpr(InvokeExpr expr){
@@ -656,14 +695,14 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 	}*/
 
-	private void zoomIn()
+	private void zoomOut()
 	{
 		double viewPercent = view.getCamera().getViewPercent();
 		if(viewPercent > maxZoomPercent)
 			view.getCamera().setViewPercent(viewPercent - zoomInDelta);
 	}
 
-	private void zoomOut()
+	private void zoomIn()
 	{
 		double viewPercent = view.getCamera().getViewPercent();
 		if(viewPercent < minZoomPercent)
@@ -891,7 +930,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			createdNode.setAttribute("nodeData.inSet", Optional.fromNullable(node.getVFUnit().getInSet()).or("n/a").toString());
 			createdNode.setAttribute("nodeData.outSet", Optional.fromNullable(node.getVFUnit().getInSet()).or("n/a").toString());
 			createdNode.setAttribute("nodeData.line", node.getUnit().getJavaSourceStartLineNumber());
-			createdNode.setAttribute("nodeData.column", node.getUnit().getJavaSourceStartColumnNumber());
+			//			createdNode.setAttribute("nodeData.column", node.getUnit().getJavaSourceStartColumnNumber());
 			createdNode.setAttribute("nodeUnit", node);
 		}
 	}
