@@ -194,8 +194,6 @@ public class NavigationHandler extends AbstractHandler {
 	public void RemoveJimpleHighlight(){
 		IEditorReference[] references = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getEditorReferences();
 		for (int i=0; i<references.length; i++) {
-            //List out all Exist editor
-            //compare with EmployeeEditor.Id="rcp_demo.Editor.emp";
 			IEditorPart editorpart = references[i].getEditor(false);
              if(editorpart  instanceof ITextEditor){
             	 final ITextEditor editor = (ITextEditor) editorpart;
