@@ -550,7 +550,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			public void mouseReleased(MouseEvent e) {
 				if(e.getButton() == MouseEvent.BUTTON3)
 				{
-					System.out.println("right click detected...........");
 					x = e.getX();
 					y = e.getY();
 					popUp.show(e.getComponent(), x, y);
@@ -656,14 +655,14 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 	}*/
 
-	private void zoomIn()
+	private void zoomOut()
 	{
 		double viewPercent = view.getCamera().getViewPercent();
 		if(viewPercent > maxZoomPercent)
 			view.getCamera().setViewPercent(viewPercent - zoomInDelta);
 	}
 
-	private void zoomOut()
+	private void zoomIn()
 	{
 		double viewPercent = view.getCamera().getViewPercent();
 		if(viewPercent < minZoomPercent)
