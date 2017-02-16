@@ -72,11 +72,11 @@ public class NavigationHandler extends AbstractHandler {
 				String content = document.get(offset, length).trim();
 				if (content.trim().length() > 0) {
 					String className = file.getName().substring(0, file.getName().lastIndexOf('.'));
-					HashMap<VFMethod, VFUnit> resultantUnit = getSelectedUnit(className, document, content.trim().substring(0, content.length() - 1),
+					HashMap<VFUnit, VFMethod> resultantUnit = getSelectedUnit(className, document, content.trim().substring(0, content.length() - 1),
 							lineNumber);
 					List<VFNode> unit = new ArrayList<>();
 					if (resultantUnit.size() > 0) {
-						unit.add(new VFNode((VFUnit) resultantUnit.values().toArray()[0], 0));
+						unit.add(new VFNode((VFUnit) resultantUnit.keySet().toArray()[0], 0));
 					}
 					if (event.getCommand().getId().equals("JimpleEditor.NavigateToCFG")) {
 						try {
@@ -119,10 +119,72 @@ public class NavigationHandler extends AbstractHandler {
 		return null;
 	}
 
-	private HashMap<VFMethod, VFUnit> getSelectedUnit(String className, IDocument document, String content, int lineNumber) {
+	public void HighlightJimpleLine(ArrayList<VFUnit> units) {
+
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+				for (VFUnit unit : units) {
+					// Get the current page
+					String className = unit.getVfMethod().getVfClass().getSootClass().getName();
+					// IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+
+					IWorkbenchPage page = window.getActivePage();
+					String projectName = GlobalSettings.get("AnalysisProject");
+
+					IPath path = new Path(projectName + "/sootOutput/" + className);
+					path = path.addFileExtension("jimple");
+
+					IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
+					// Open default editor for the file
+
+					try {
+						IDE.openEditor(page, file, true);
+						IDocumentProvider provider = new TextFileDocumentProvider();
+						try {
+							provider.connect(file);
+						} catch (CoreException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						IDocument document = provider.getDocument(file);
+						Integer methodLine = getMethodLineNumbers(document, unit.getVfMethod());
+						FindReplaceDocumentAdapter findReplaceDocumentAdapter = new FindReplaceDocumentAdapter(document);
+
+						try {
+							IRegion region = findReplaceDocumentAdapter.find(methodLine,
+									FindReplaceDocumentAdapter.escapeForRegExPattern(unit.getUnit().toString()), true, true, false, true);
+							// IRegion region = findReplaceDocumentAdapter.find(methodLine, unit.getUnit().toString(), true, true, true, false);
+							if (region != null) {
+								ITextEditor editor = (ITextEditor) IDE.openEditor(page, file);
+								// the 1 added is to include the semi colon
+								editor.selectAndReveal(region.getOffset(), region.getLength() + 1);
+							}
+						} catch (BadLocationException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					} catch (PartInitException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+
+	}
+
+	public void NavigateToSource(VFUnit unit) {
+
+		LineNumberTag ln = (LineNumberTag) unit.getUnit().getTag("LineNumberTag");
+		String className = unit.getVfMethod().getVfClass().getSootClass().getName();
+		HighLightSourceCode(ln.getLineNumber(), className);
+	}
+
+	private HashMap<VFUnit, VFMethod> getSelectedUnit(String className, IDocument document, String content, int lineNumber) {
 		DataModel dataModel = ServiceUtil.getService(DataModel.class);
-		// VFClass
-		// vfClass=dataModel.listClasses().stream().filter(x->x.getSootClass().getName()==className).collect(Collectors.toList()).get(0);
+		HashMap<VFUnit, VFMethod> map = new HashMap<VFUnit, VFMethod>();
 		for (VFClass vfClass : dataModel.listClasses()) {
 			if (vfClass.getSootClass().getName().equals(className)) {
 				List<VFMethod> vfMethods = vfClass.getMethods();
@@ -135,16 +197,15 @@ public class NavigationHandler extends AbstractHandler {
 					if (toBeCompared == methodLine) {
 						for (VFUnit unit : method.getUnits()) {
 							if (unit.getUnit().toString().trim().equals(content)) {
-								HashMap<VFMethod, VFUnit> map = new HashMap<VFMethod, VFUnit>();
-								map.put(method, unit);
-								return map;
+								map.put(unit, method);
+
 							}
 						}
 					}
 				}
 			}
 		}
-		return new HashMap<VFMethod, VFUnit>();
+		return map;
 	}
 
 	private Map<String, Integer> getMethodLineNumbers(IDocument document, List<VFMethod> vfMethods) {
@@ -232,19 +293,13 @@ public class NavigationHandler extends AbstractHandler {
 
 		FindReplaceDocumentAdapter findReplaceDocumentAdapter = new FindReplaceDocumentAdapter(document);
 		try {
-			IRegion region = findReplaceDocumentAdapter.find(0,FindReplaceDocumentAdapter.escapeForRegExPattern(method.getSootMethod().getDeclaration()), true, true, false, true);
+			IRegion region = findReplaceDocumentAdapter.find(0, FindReplaceDocumentAdapter.escapeForRegExPattern(method.getSootMethod().getDeclaration()), true,
+					true, false, true);
 			return region.getOffset();
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
 		return 0;
-	}
-
-	public void NavigateToSource(VFUnit unit) {
-
-		LineNumberTag ln = (LineNumberTag) unit.getUnit().getTag("LineNumberTag");
-		String className = unit.getVfMethod().getVfClass().getSootClass().getName();
-		HighLightSourceCode(ln.getLineNumber(), className);
 	}
 
 	private void HighLightSourceCode(int lineNumber, String className) {
@@ -288,59 +343,4 @@ public class NavigationHandler extends AbstractHandler {
 		});
 	}
 
-	public void HighlightJimpleLine(ArrayList<VFUnit> units) {
-
-		Display.getDefault().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-				for (VFUnit unit : units) {
-					// Get the current page
-					String className = unit.getVfMethod().getVfClass().getSootClass().getName();
-					// IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-
-					IWorkbenchPage page = window.getActivePage();
-					String projectName = GlobalSettings.get("AnalysisProject");
-
-					IPath path = new Path(projectName + "/sootOutput/" + className);
-					path = path.addFileExtension("jimple");
-
-					IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
-					// Open default editor for the file
-
-					try {
-						IDE.openEditor(page, file, true);
-						IDocumentProvider provider = new TextFileDocumentProvider();
-						try {
-							provider.connect(file);
-						} catch (CoreException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						IDocument document = provider.getDocument(file);
-						Integer methodLine = getMethodLineNumbers(document, unit.getVfMethod());
-						FindReplaceDocumentAdapter findReplaceDocumentAdapter = new FindReplaceDocumentAdapter(document);
-
-						try {
-							IRegion region = findReplaceDocumentAdapter.find(methodLine,
-									FindReplaceDocumentAdapter.escapeForRegExPattern(unit.getUnit().toString()), true, true, false, true);
-							// IRegion region = findReplaceDocumentAdapter.find(methodLine, unit.getUnit().toString(), true, true, true, false);
-							if (region != null) {
-								ITextEditor editor = (ITextEditor) IDE.openEditor(page, file);
-								// the 1 added is to include the semi colon
-								editor.selectAndReveal(region.getOffset(), region.getLength() + 1);
-							}
-						} catch (BadLocationException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					} catch (PartInitException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}
-		});
-
-	}
 }
