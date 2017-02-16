@@ -328,6 +328,7 @@ public class NavigationHandler extends AbstractHandler {
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
+				RemoveJimpleHighlight();
 				IWorkspaceRoot myWorkspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 				IProject analysisProject = myWorkspaceRoot.getProject(GlobalSettings.get("TargetProject"));
 				if (analysisProject.exists()) {
