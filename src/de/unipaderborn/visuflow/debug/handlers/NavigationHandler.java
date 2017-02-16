@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.FindReplaceDocumentAdapter;
 import org.eclipse.jface.text.IDocument;
@@ -29,12 +30,14 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.source.IVerticalRulerInfo;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
+import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
@@ -107,6 +110,10 @@ public class NavigationHandler extends AbstractHandler {
 							if (ln != null) {
 								HighLightSourceCode(ln.getLineNumber(), className);
 
+							}else{
+								IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindow(event);
+								MessageDialog.openInformation(window.getShell(), "Error",
+										"No equivalent java source line found");
 							}
 						}
 
@@ -179,7 +186,22 @@ public class NavigationHandler extends AbstractHandler {
 
 		LineNumberTag ln = (LineNumberTag) unit.getUnit().getTag("LineNumberTag");
 		String className = unit.getVfMethod().getVfClass().getSootClass().getName();
-		HighLightSourceCode(ln.getLineNumber(), className);
+		if (ln != null) {
+			HighLightSourceCode(ln.getLineNumber(), className);
+		}
+	}
+	
+	public void RemoveJimpleHighlight(){
+		IEditorReference[] references = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getEditorReferences();
+		for (int i=0; i<references.length; i++) {
+            //List out all Exist editor
+            //compare with EmployeeEditor.Id="rcp_demo.Editor.emp";
+			IEditorPart editorpart = references[i].getEditor(false);
+             if(editorpart  instanceof ITextEditor){
+            	 final ITextEditor editor = (ITextEditor) editorpart;
+            	 editor.selectAndReveal(0,0);
+             }
+		}
 	}
 
 	private HashMap<VFUnit, VFMethod> getSelectedUnit(String className, IDocument document, String content, int lineNumber) {
