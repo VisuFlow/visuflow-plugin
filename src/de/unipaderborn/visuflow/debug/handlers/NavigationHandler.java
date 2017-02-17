@@ -194,18 +194,22 @@ public class NavigationHandler extends AbstractHandler {
 	}
 
 	public void RemoveJimpleHighlight() {
-		IEditorReference[] references = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getEditorReferences();
-		for (int i = 0; i < references.length; i++) {
-			IEditorPart editorpart = references[i].getEditor(false);
-			if (editorpart instanceof ITextEditor) {
-				final ITextEditor editor = (ITextEditor) editorpart;
-				ISelection selection = editor.getSelectionProvider().getSelection();
-				if(selection!=null){
-					ITextSelection textSelection = (ITextSelection)selection;
-					editor.selectAndReveal(textSelection.getOffset(), 0);
-				}
+		try {
+			IEditorReference[] references = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getEditorReferences();
+			for (int i = 0; i < references.length; i++) {
+				IEditorPart editorpart = references[i].getEditor(false);
+				if (editorpart instanceof ITextEditor) {
+					final ITextEditor editor = (ITextEditor) editorpart;
+					ISelection selection = editor.getSelectionProvider().getSelection();
+					if(selection!=null){
+						ITextSelection textSelection = (ITextSelection)selection;
+						editor.selectAndReveal(textSelection.getOffset(), 0);
+					}
 
+				}
 			}
+		} catch (NullPointerException e) {
+			e.printStackTrace();
 		}
 	}
 
