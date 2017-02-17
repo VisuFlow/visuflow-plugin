@@ -1,4 +1,4 @@
-package de.unipaderborn.visuflow.debug.ui;
+package de.unipaderborn.visuflow.debug;
 
 import java.util.ArrayList;
 import java.util.Arrays;
