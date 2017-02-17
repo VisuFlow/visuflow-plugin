@@ -117,6 +117,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private BufferedImage imgMinus;
 	private boolean CFG;
 
+	// following 3 variables are used for graph dragging with the mouse
+	private boolean draggingGraph = false;
 	private Point mouseDraggedFrom;
 	private Point mouseDraggedTo;
 
@@ -475,6 +477,14 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			@Override
 			public void mouseDragged(MouseEvent e) {
+				if(draggingGraph) {
+					dragGraph(e);
+				} else {
+					// TODO implement multi node selection by a rectangular selection
+				}
+			}
+
+			private void dragGraph(MouseEvent e) {
 				if(mouseDraggedFrom == null) {
 					mouseDraggedFrom = e.getPoint();
 				} else {
@@ -500,14 +510,17 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				//noop
+				draggingGraph = false;
 			}
 
 			@Override
 			public void mousePressed(MouseEvent e) {
-				// reset mouse drag tracking
-				mouseDraggedFrom = null;
-				mouseDraggedTo = null;
+				if(e.isPopupTrigger()) {
+					// reset mouse drag tracking
+					mouseDraggedFrom = null;
+					mouseDraggedTo = null;
+					draggingGraph = true;
+				}
 			}
 
 			@Override
