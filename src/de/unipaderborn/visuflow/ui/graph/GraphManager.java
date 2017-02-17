@@ -269,6 +269,11 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		panRightButton = new JButton("");
 		panUpButton = new JButton("");
 		panDownButton = new JButton("");
+		
+		panLeftButton.setToolTipText("shift + arrow key left");
+		panRightButton.setToolTipText("shift + arrow key right");
+		panUpButton.setToolTipText("shift + arrow key up");
+		panDownButton.setToolTipText("shift + arrow key down");
 
 		panLeftButton.setIcon(new ImageIcon(getScaledImage(imgLeft, 20, 20)));
 		panRightButton.setIcon(new ImageIcon(getScaledImage(imgRight, 20, 20)));
