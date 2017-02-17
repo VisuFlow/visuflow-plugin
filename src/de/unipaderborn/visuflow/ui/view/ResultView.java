@@ -96,9 +96,8 @@ public class ResultView extends ViewPart implements EventHandler {
 				nodesToFilter.add(new VFNode((VFUnit) tableItem.getData(), 0));
 		}
 		try {
-			ServiceUtil.getService(DataModel.class).filterGraph(nodesToFilter, selection);
+			ServiceUtil.getService(DataModel.class).filterGraph(nodesToFilter, selection, null);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

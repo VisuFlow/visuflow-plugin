@@ -41,6 +41,7 @@ public class DataModelImpl implements DataModel {
 
 	private List<VFMethod> selectedClassMethods;
 	private List<VFUnit> selectedMethodUnits;
+	@SuppressWarnings("unused")
 	private List<VFMethodEdge> selectedMethodincEdges;
 
 	private EventAdmin eventAdmin;
@@ -115,16 +116,17 @@ public class DataModelImpl implements DataModel {
 		this.selectedClassMethods = this.selectedClass.getMethods();
 		this.populateUnits();
 		this.populateEdges();
-		this.setSelectedMethod(this.selectedClass.getMethods().get(0));
+		this.setSelectedMethod(this.selectedClass.getMethods().get(0), true);
 	}
 
 	@Override
-	public void setSelectedMethod(VFMethod selectedMethod) {
+	public void setSelectedMethod(VFMethod selectedMethod, boolean panToNode) {
 		this.selectedMethod = selectedMethod;
 		this.populateUnits();
 		this.populateEdges();
 		Dictionary<String, Object> properties = new Hashtable<>();
 		properties.put("selectedMethod", selectedMethod);
+		properties.put("panToNode", panToNode);
 		// properties.put("selectedClassMethods", selectedClassMethods);
 		properties.put("selectedMethodUnits", selectedMethodUnits);
 		Event modelChanged = new Event(DataModel.EA_TOPIC_DATA_SELECTION, properties);
@@ -149,7 +151,7 @@ public class DataModelImpl implements DataModel {
 	private void populateUnits() {
 		this.selectedMethodUnits = this.selectedMethod.getUnits();
 	}
-	
+
 	private void populateEdges() {
 		this.selectedMethodincEdges = this.selectedMethod.getIncomingEdges();
 	}
@@ -212,7 +214,7 @@ public class DataModelImpl implements DataModel {
 	/*
 	 * This is a naive implementation, we might need a faster data structure for this
 	 */
-	private VFUnit getVFUnit(String fqn) {
+	public VFUnit getVFUnit(String fqn) {
 		VFUnit result = null;
 		if(classList != null) {
 			for (VFClass vfClass : classList) {
@@ -236,16 +238,19 @@ public class DataModelImpl implements DataModel {
 	}
 
 	@Override
-	public void filterGraph(List<VFNode> selectedNodes, boolean selection) throws Exception {
+	public void filterGraph(List<VFNode> selectedNodes, boolean selection, String uiClassName) throws Exception {
 		this.selectedNodes = selectedNodes;
 		this.selection = selection;
+		if(uiClassName == null)
+			uiClassName = "filter";
 
 		if(!selectedNodes.isEmpty())
-			this.setSelectedMethod(selectedNodes.get(0).getVFUnit().getVfMethod());
+			this.setSelectedMethod(selectedNodes.get(0).getVFUnit().getVfMethod(), false);
 
 		Dictionary<String, Object> properties = new Hashtable<>();
 		properties.put("nodesToFilter", this.selectedNodes);
 		properties.put("selection", this.selection);
+		properties.put("uiClassName", uiClassName);
 		Event filterGraph = new Event(DataModel.EA_TOPIC_DATA_FILTER_GRAPH, properties);
 		eventAdmin.postEvent(filterGraph);
 	}

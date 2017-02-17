@@ -6,8 +6,8 @@ import org.eclipse.core.runtime.Status;
 public class Logger {
 	private ILog log;
 
-	public Logger() {
-		this.log = Visuflow.getDefault().getLog();
+	public Logger(ILog iLog) {
+		this.log = iLog;
 	}
 
 	public void info(String msg) {
@@ -19,7 +19,7 @@ public class Logger {
 	}
 
 	public void warn(String msg, Throwable exception) {
-		log(Status.ERROR, msg, exception);
+		log(Status.WARNING, msg, exception);
 	}
 
 	public void error(String msg) {
@@ -35,6 +35,6 @@ public class Logger {
 	}
 
 	private void log(int level, String msg, Throwable exception) {
-		log.log(new Status(Status.ERROR, Visuflow.getDefault().getBundle().getSymbolicName(), msg, exception));
+		log.log(new Status(level, Visuflow.getDefault().getBundle().getSymbolicName(), msg, exception));
 	}
 }

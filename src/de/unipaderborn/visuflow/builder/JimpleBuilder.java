@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
+import de.unipaderborn.visuflow.Logger;
 import de.unipaderborn.visuflow.Visuflow;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
@@ -32,6 +33,7 @@ import de.unipaderborn.visuflow.util.ServiceUtil;
 
 public class JimpleBuilder extends IncrementalProjectBuilder {
 
+	private Logger logger = Visuflow.getDefault().getLogger();
 	private String classpath;
 
 	protected String getClassFilesLocation(IJavaProject javaProject) throws JavaModelException {
@@ -103,21 +105,27 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 			classpath = getSootCP(project);
 			String location = GlobalSettings.get("TargetProject_"+project.getProject().getName());
 			IFolder folder = project.getProject().getFolder(targetFolder);
+
 			//at this point, no resources have been created
 			if (!folder.exists()) {
-				folder.create( IResource.BACKGROUND_REFRESH, true, null);
+				//Changed to force because of bug id vis-119
+				folder.create( IResource.FORCE, true, null);
 
 			}
 			classpath = location +  classpath;
 			String[] sootString = new String[] { "-cp", classpath, "-exclude", "javax", "-allow-phantom-refs", "-no-bodies-for-excluded", "-process-dir",
 					location, "-src-prec", "only-class", "-w", "-output-format", "J", "-keep-line-number", "-output-dir",
-					folder.getLocation().toOSString()/* ,"tag.ln","on" */ };
+					folder.getLocation().toOSString()/*, "tag.ln","on" */};
 			ICFGStructure icfg = new ICFGStructure();
 			JimpleModelAnalysis analysis = new JimpleModelAnalysis();
 			analysis.setSootString(sootString);
 			List<VFClass> jimpleClasses = new ArrayList<>();
-			analysis.createICFG(icfg, jimpleClasses);
-			fillDataModel(icfg, jimpleClasses);
+			try {
+				analysis.createICFG(icfg, jimpleClasses);
+				fillDataModel(icfg, jimpleClasses);
+			} catch(Exception e) {
+				logger.error("Couldn't execute analysis", e);
+			}
 
 			folder.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 		}
