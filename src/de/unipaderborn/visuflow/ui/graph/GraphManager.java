@@ -480,7 +480,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				if(draggingGraph) {
 					dragGraph(e);
 				} else {
-					// TODO implement multi node selection by a rectangular selection
+					defaultListener.mouseDragged(e);
 				}
 			}
 
