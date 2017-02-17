@@ -13,6 +13,7 @@ import java.awt.Container;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -78,6 +79,8 @@ import de.unipaderborn.visuflow.util.ServiceUtil;
 
 public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
+	//private static final transient Logger logger = Visuflow.getDefault().getLogger();
+
 	Graph graph;
 	String styleSheet;
 	int maxLength;
@@ -113,6 +116,9 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private BufferedImage imgPlus;
 	private BufferedImage imgMinus;
 	private boolean CFG;
+
+	private Point mouseDraggedFrom;
+	private Point mouseDraggedTo;
 
 	public GraphManager(String graphName, String styleSheet)
 	{
@@ -405,6 +411,10 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	}
 
 	private void createViewListeners() {
+		// remove the pre-installed mousemotion listener from graphstream
+		MouseMotionListener defaultListener = view.getMouseMotionListeners()[0];
+		view.removeMouseMotionListener(defaultListener);
+
 		view.addMouseWheelListener(new MouseWheelListener() {
 
 			@Override
@@ -418,7 +428,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		});
 
 		view.addMouseMotionListener(new MouseMotionListener() {
-
 			@Override
 			public void mouseMoved(MouseEvent event) {
 
@@ -466,7 +475,24 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			@Override
 			public void mouseDragged(MouseEvent e) {
+				if(mouseDraggedFrom == null) {
+					mouseDraggedFrom = e.getPoint();
+				} else {
+					if(mouseDraggedTo != null) {
+						mouseDraggedFrom = mouseDraggedTo;
+					}
+					mouseDraggedTo = e.getPoint();
 
+					Point3 from = view.getCamera().transformPxToGu(mouseDraggedFrom.x, mouseDraggedFrom.y);
+					Point3 to = view.getCamera().transformPxToGu(mouseDraggedTo.x, mouseDraggedTo.y);
+
+					double deltaX = from.x - to.x;
+					double deltaY = from.y - to.y;
+					double deltaZ = from.z - to.z;
+
+					Point3 viewCenter = view.getCamera().getViewCenter();
+					view.getCamera().setViewCenter(viewCenter.x + deltaX, viewCenter.y + deltaY, viewCenter.z + deltaZ);
+				}
 			}
 		});
 
@@ -479,7 +505,9 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			@Override
 			public void mousePressed(MouseEvent e) {
-				//noop
+				// reset mouse drag tracking
+				mouseDraggedFrom = null;
+				mouseDraggedTo = null;
 			}
 
 			@Override
