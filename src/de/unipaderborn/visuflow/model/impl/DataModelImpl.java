@@ -152,7 +152,7 @@ public class DataModelImpl implements DataModel {
 	private void populateUnits() {
 		this.selectedMethodUnits = this.selectedMethod.getUnits();
 	}
-	
+
 	private void populateEdges() {
 		this.selectedMethodincEdges = this.selectedMethod.getIncomingEdges();
 	}
@@ -215,7 +215,7 @@ public class DataModelImpl implements DataModel {
 	/*
 	 * This is a naive implementation, we might need a faster data structure for this
 	 */
-	private VFUnit getVFUnit(String fqn) {
+	public VFUnit getVFUnit(String fqn) {
 		VFUnit result = null;
 		if(classList != null) {
 			for (VFClass vfClass : classList) {

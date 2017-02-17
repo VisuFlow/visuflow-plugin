@@ -128,7 +128,7 @@ public class NavigationHandler extends AbstractHandler {
 		return null;
 	}
 
-	public void HighlightJimpleLine(ArrayList<VFUnit> units) {
+	public void HighlightJimpleLine(List<VFUnit> units) {
 
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
@@ -201,8 +201,8 @@ public class NavigationHandler extends AbstractHandler {
 				if (editorpart instanceof ITextEditor) {
 					final ITextEditor editor = (ITextEditor) editorpart;
 					ISelection selection = editor.getSelectionProvider().getSelection();
-					if(selection!=null){
-						ITextSelection textSelection = (ITextSelection)selection;
+					if (selection != null) {
+						ITextSelection textSelection = (ITextSelection) selection;
 						editor.selectAndReveal(textSelection.getOffset(), 0);
 					}
 
