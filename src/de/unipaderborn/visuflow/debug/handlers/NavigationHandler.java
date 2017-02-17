@@ -27,7 +27,10 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.FindReplaceDocumentAdapter;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.source.IVerticalRulerInfo;
+import org.eclipse.jface.text.templates.GlobalTemplateVariables.Selection;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
@@ -110,10 +113,9 @@ public class NavigationHandler extends AbstractHandler {
 							if (ln != null) {
 								HighLightSourceCode(ln.getLineNumber(), className);
 
-							}else{
+							} else {
 								IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindow(event);
-								MessageDialog.openInformation(window.getShell(), "Error",
-										"No equivalent java source line found");
+								MessageDialog.openInformation(window.getShell(), "Error", "No equivalent java source line found");
 							}
 						}
 
@@ -190,15 +192,20 @@ public class NavigationHandler extends AbstractHandler {
 			HighLightSourceCode(ln.getLineNumber(), className);
 		}
 	}
-	
-	public void RemoveJimpleHighlight(){
+
+	public void RemoveJimpleHighlight() {
 		IEditorReference[] references = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getEditorReferences();
-		for (int i=0; i<references.length; i++) {
+		for (int i = 0; i < references.length; i++) {
 			IEditorPart editorpart = references[i].getEditor(false);
-             if(editorpart  instanceof ITextEditor){
-            	 final ITextEditor editor = (ITextEditor) editorpart;
-            	 editor.selectAndReveal(0,0);
-             }
+			if (editorpart instanceof ITextEditor) {
+				final ITextEditor editor = (ITextEditor) editorpart;
+				ISelection selection = editor.getSelectionProvider().getSelection();
+				if(selection!=null){
+					ITextSelection textSelection = (ITextSelection)selection;
+					editor.selectAndReveal(textSelection.getOffset(), 0);
+				}
+
+			}
 		}
 	}
 
