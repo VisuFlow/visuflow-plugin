@@ -127,15 +127,9 @@ public class JimpleBreakPointHandler extends AbstractHandler {
 								System.out.println("Install breakpoint at " + breakpointLocation);
 								IBreakpoint javaBreakpoint = createMethodEntryBreapoint(breakpointLocation);
 								if(javaBreakpoint instanceof IJavaLineBreakpoint) {
-
-									// FIXME there seems to be an bug in eclipse, so that the following code
-									// sets a condition on a breakpoint, but that breakpoint does not work properly:
-									// https://bugs.eclipse.org/bugs/show_bug.cgi?id=413848
-
 									IJavaLineBreakpoint javaLineBreakpoint = (IJavaLineBreakpoint) javaBreakpoint;
 									javaLineBreakpoint.setConditionEnabled(true);
 									String requiredFqn = resultantUnit.getFullyQualifiedName();
-									System.out.println("Required in condition " + requiredFqn);
 									javaLineBreakpoint.setCondition("new String(d.getTag(\"Fully Qualified Name\").getValue()).equals(\""+requiredFqn+"\")");
 								} else {
 									logger.error("Couldn't set unit condition for jimple breakpoint, because it is no IJavaLineBreakpoint");
