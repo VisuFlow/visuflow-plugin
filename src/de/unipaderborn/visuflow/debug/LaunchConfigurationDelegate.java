@@ -66,7 +66,7 @@ public class LaunchConfigurationDelegate extends JavaLaunchDelegate {
 						if (debugEvent.getSource() instanceof RuntimeProcess) {
 							// remove this debug event listener to release it for garbage collection
 							DebugPlugin.getDefault().removeDebugEventListener(this);
-							//monitoringServer.stop();
+							monitoringServer.stop();
 
 							// delete the agent jar
 							if (agentJar != null && agentJar.exists()) {
