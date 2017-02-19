@@ -153,6 +153,20 @@
             tooltip="Hightlight Variable Path">
       </command>
    </menuContribution>
+   <menuContribution
+         allPopups="false"
+         locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+      <toolbar
+            id="GraphStreamFeasibility.LinkTargetToolBar">
+         <command
+               commandId="GraphStreamFeasibility.LinkTargetProject"
+               icon="icons/Link.png"
+               label="Link Target Project"
+               style="push"
+               tooltip="Link Target Project">
+         </command>
+      </toolbar>
+   </menuContribution>
 </extension>
 <extension
       point="org.eclipse.ui.commands">
@@ -176,6 +190,10 @@
          id="JimpleEditor.VariablePath"
          name="Highlight Variable Path">
    </command>
+   <command
+         id="GraphStreamFeasibility.LinkTargetProject"
+         name="Link Target Project">
+   </command>
 </extension>
 <extension
       point="org.eclipse.ui.handlers">
@@ -198,6 +216,10 @@
    <handler
          class="de.unipaderborn.visuflow.debug.handlers.NavigationHandler"
          commandId="JimpleEditor.sourceCodeCommand">
+   </handler>
+   <handler
+         class="de.unipaderborn.visuflow.debug.handlers.LinkTargetProject"
+         commandId="GraphStreamFeasibility.LinkTargetProject">
    </handler>
 </extension>
 

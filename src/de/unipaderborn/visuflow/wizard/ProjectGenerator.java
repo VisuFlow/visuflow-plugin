@@ -12,7 +12,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
-import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -79,6 +78,7 @@ public class ProjectGenerator {
 			e.printStackTrace();
 		}
 		sourceFolder.refreshLocal(1, null);
+		javaProject.open(null);
 		System.out.println(wizardInput.flowType);
 		System.out.println(wizardInput.flowType1);
 		System.out.println(wizardInput.flowtype2);
