@@ -1,16 +1,22 @@
 package de.unipaderborn.visuflow.wizard;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
@@ -28,8 +34,7 @@ public class ProjectGenerator {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IProject project = root.getProject(projectName);
 		project.create(null);
-		project.open(null);
-		
+		project.open(null);		
 		IProjectDescription description = project.getDescription();
 		description.setNatureIds(new String[] { JavaCore.NATURE_ID });
 		project.setDescription(description, null);
@@ -43,6 +48,11 @@ public class ProjectGenerator {
 		for (LibraryLocation element : locations) {
 		 entries.add(JavaCore.newLibraryEntry(element.getSystemLibraryPath(), null, null));
 		}
+		InputStream is = new BufferedInputStream(new FileInputStream("C:\\Users\\Habeeb\\Documents\\soot-trunk.jar"));
+	    IFile jarFile = project.getFile("soot-trunk.jar");
+	    jarFile.create(is, false, null);
+	    IPath path = jarFile.getFullPath();
+	    entries.add(JavaCore.newLibraryEntry(path, null, null));
 		//add libs to project class path
 		javaProject.setRawClasspath(entries.toArray(new IClasspathEntry[entries.size()]), null);
 		
