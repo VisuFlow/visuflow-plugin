@@ -132,6 +132,20 @@ public class JimpleModelAnalysis {
 					SootMethod destination = (SootMethod) tc.next();
 					// System.out.println(destination+" is java library "+destination.isJavaLibraryMethod());
 					if (!destination.isJavaLibraryMethod()) {
+						boolean edgeConnection = false;
+						Iterator<VFMethodEdge> edgeIterator = methodGraph.listEdges.iterator();
+						while(edgeIterator.hasNext())
+						{
+							VFMethodEdge vfMethodEdge = (VFMethodEdge) edgeIterator.next();
+							if(vfMethodEdge.getSourceMethod().getSootMethod().equals(source) && vfMethodEdge.getDestMethod().getSootMethod().equals(destination))
+							{
+								edgeConnection = true;
+								break;
+							}
+						}
+						
+						if(edgeConnection)
+							continue;
 						boolean methodPresent = false;
 						Iterator<VFMethod> iteratorMethod = methodGraph.listMethods.iterator();
 						while (iteratorMethod.hasNext()) {
