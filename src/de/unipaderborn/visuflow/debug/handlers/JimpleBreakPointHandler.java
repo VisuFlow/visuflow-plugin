@@ -137,7 +137,7 @@ public class JimpleBreakPointHandler extends AbstractHandler {
 									javaLineBreakpoint.setConditionEnabled(true);
 									String requiredFqn = resultantUnit.getFullyQualifiedName();
 									javaLineBreakpoint.setCondition("new String(d.getTag(\"Fully Qualified Name\").getValue()).equals(\""+requiredFqn+"\")");
-
+									javaLineBreakpoint.setConditionSuspendOnTrue(true);
 									IMarker javaBreakpointMarker = javaBreakpoint.getMarker();
 									javaBreakpointMarker.setAttribute("Jimple" + IMarker.LINE_NUMBER, actualLineNumber);
 									javaBreakpointMarker.setAttribute("Jimple" + IMarker.MESSAGE, content);
