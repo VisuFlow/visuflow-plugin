@@ -3,6 +3,7 @@ package de.unipaderborn.visuflow.wizard;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IContainer;
@@ -31,7 +32,9 @@ import de.unipaderborn.visuflow.builder.GlobalSettings;
 public class WizardHandler extends Wizard implements INewWizard {
 
 	private WizardPageHandler page;
+	private WizardHandlerPageTwo pageTwo;
 	private ISelection selection;
+	private WizardInput wizardInput;
 
 	/**
 	 * Constructor for SampleNewWizard.
@@ -48,25 +51,30 @@ public class WizardHandler extends Wizard implements INewWizard {
 	public void addPages() {
 		page = new WizardPageHandler(selection);
 		addPage(page);
+		pageTwo = new WizardHandlerPageTwo(selection);
+		addPage(pageTwo);
 	}
 
-	/**
-	 * This method is called when 'Finish' button is pressed in
-	 * the wizard. We will create an operation and run it
-	 * using wizard as execution context.
-	 */
 	public boolean performFinish() {
 		final String analysisProjectPath = page.getContainerName().get("ProjectPath");
 		final String targetProjectPath = page.getContainerName().get("TargetPath");
-		System.out.println("Anaysis path "+analysisProjectPath);
-		System.out.println("Target path "+targetProjectPath);
+		final String analysisProjectName = page.getContainerName().get("ProjectName");
+		wizardInput = new WizardInput();
+		wizardInput.setFlowType(pageTwo.getContainerName().get("FlowSet"));
+		wizardInput.setFlowType1(pageTwo.getContainerName().get("Type1"));
+		wizardInput.setFlowtype2(pageTwo.getContainerName().get("Type2"));
+		wizardInput.setClassNameFirst(pageTwo.getContainerName().get("CustomType1"));
+		wizardInput.setClassNameSecond(pageTwo.getContainerName().get("CustomType2"));
 		IRunnableWithProgress op = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException {
 				try {
-					doFinish(analysisProjectPath, targetProjectPath, monitor);
+					doFinish(analysisProjectPath, targetProjectPath, analysisProjectName, monitor);
 				} catch (CoreException e) {
 					throw new InvocationTargetException(e);
 				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} finally {
@@ -85,36 +93,31 @@ public class WizardHandler extends Wizard implements INewWizard {
 		}
 		return true;
 	}
-	
-	/**
-	 * The worker method. It will find the container, create the
-	 * file if missing or just replace its contents, and open
-	 * the editor on the newly created file.
-	 * @throws FileNotFoundException 
-	 */
 
 	private void doFinish(
 		String analysisProjectPath,
 		String targetProjectPath,
+		String analysisProjectName,
 		IProgressMonitor monitor)
-		throws CoreException, FileNotFoundException {
+		throws CoreException, IOException {
 		// create a sample file
 		monitor.beginTask("Creating " + analysisProjectPath, 2);
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		ProjectGenerator projectGen = new ProjectGenerator();
+		IJavaProject sourceProject = projectGen.createProject(analysisProjectName,wizardInput);
 		IResource resourceAnalysis = root.findMember(new Path(analysisProjectPath));
 		IResource resourceTarget = root.findMember(new Path(targetProjectPath));
-		System.out.println("Target Resource is "+resourceTarget.getProject());
 		if (!resourceAnalysis.exists() || !(resourceAnalysis instanceof IContainer)) {
 			throwCoreException("Container \"" + analysisProjectPath + "\" does not exist.");
 		}
 		
-		IContainer containerAnalysis = (IContainer) resourceAnalysis;
-		IJavaProject javaProject = JavaCore.create(resourceTarget.getProject());
-		String key = "TargetProject_"+containerAnalysis.getProject().getName();
-		GlobalSettings.put(key,resourceTarget.getLocation().toOSString()+ File.separator +  javaProject.getOutputLocation().lastSegment());
-		IJavaProject analysisProject = JavaCore.create(resourceAnalysis.getProject());
-		GlobalSettings.put("AnalysisProject", analysisProject.getProject().getName());
-		GlobalSettings.put("TargetProject", javaProject.getProject().getName());
+		//IContainer containerAnalysis = (IContainer) resourceAnalysis;
+		IJavaProject targetProject = JavaCore.create(resourceTarget.getProject());
+		String key = "TargetProject_"+sourceProject.getProject().getName();
+		GlobalSettings.put(key,resourceTarget.getLocation().toOSString()+ File.separator +  targetProject.getOutputLocation().lastSegment());
+		//IJavaProject analysisProject = JavaCore.create(resourceAnalysis.getProject());
+		GlobalSettings.put("AnalysisProject", sourceProject.getProject().getName());
+		GlobalSettings.put("TargetProject", targetProject.getProject().getName());
 		monitor.worked(1);
 		monitor.setTaskName("Opening file for editing...");
 		getShell().getDisplay().asyncExec(new Runnable() {
@@ -125,35 +128,12 @@ public class WizardHandler extends Wizard implements INewWizard {
 		monitor.worked(1);
 	}
 	
-	/**
-	 * We will initialize file contents with a sample text.
-	 * @throws CoreException 
-	 * @throws FileNotFoundException 
-	 */
-	
-	void copyFiles (File srcFolder, IContainer destFolder, IProgressMonitor monitor) throws CoreException, FileNotFoundException {
-	    for (File f: srcFolder.listFiles()) {
-	        if (f.isDirectory()) {
-	            IFolder newFolder = destFolder.getFolder(new Path(f.getName()));
-	            newFolder.create(true, true, monitor);
-	            copyFiles(f, newFolder, monitor);
-	        } else {
-	            IFile newFile = destFolder.getFile(new Path(f.getName()));
-	            newFile.create(new FileInputStream(f), true, monitor);
-	        }
-	    }
-	}
 	private void throwCoreException(String message) throws CoreException {
 		IStatus status =
 			new Status(IStatus.ERROR, "TestPlugIn", IStatus.OK, message, null);
 		throw new CoreException(status);
 	}
 
-	/**
-	 * We will accept the selection in the workbench to see if
-	 * we can initialize from it.
-	 * @see IWorkbenchWizard#init(IWorkbench, IStructuredSelection)
-	 */
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		this.selection = selection;
 	}
