@@ -1,6 +1,7 @@
 package de.unipaderborn.visuflow.ui.view;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -22,10 +23,13 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.part.ViewPart;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
@@ -34,8 +38,11 @@ import org.osgi.service.event.EventHandler;
 import com.google.common.base.Optional;
 
 import de.unipaderborn.visuflow.model.DataModel;
+import de.unipaderborn.visuflow.model.VFClass;
+import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.model.VFNode;
 import de.unipaderborn.visuflow.model.VFUnit;
+import de.unipaderborn.visuflow.ui.Attribute;
 import de.unipaderborn.visuflow.ui.view.filter.ResultViewFilter;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 
@@ -119,6 +126,21 @@ public class ResultView extends ViewPart implements EventHandler {
 		}
 	}
 
+	private List<VFUnit> getUnitsToCustomize(boolean selection) {
+		TableItem[] selectedNodes = viewer.getTable().getItems();
+		List<VFUnit> unitToCustomize = new ArrayList<VFUnit>();
+
+		for (TableItem tableItem : selectedNodes) {
+			if (tableItem.getChecked()) {
+				unitToCustomize.add((VFUnit) tableItem.getData());
+			}
+
+		}
+
+		return unitToCustomize;
+
+	}
+
 	private void createViewer(Composite parent) {
 		viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER | SWT.CHECK | SWT.READ_ONLY | SWT.PUSH);
 		createColumns(parent, viewer);
@@ -148,12 +170,10 @@ public class ResultView extends ViewPart implements EventHandler {
 		viewer.getControl().setLayoutData(gridData);
 
 		Hashtable<String, Object> properties = new Hashtable<String, Object>();
-		String[] topics = new String[] {
-				DataModel.EA_TOPIC_DATA_SELECTION,
-				DataModel.EA_TOPIC_DATA_UNIT_CHANGED
-		};
+		String[] topics = new String[] { DataModel.EA_TOPIC_DATA_SELECTION, DataModel.EA_TOPIC_DATA_UNIT_CHANGED };
 		properties.put(EventConstants.EVENT_TOPIC, topics);
 		ServiceUtil.registerService(EventHandler.class, this, properties);
+
 	}
 
 	private void createColumns(final Composite parent, final TableViewer viewer) {
@@ -222,6 +242,38 @@ public class ResultView extends ViewPart implements EventHandler {
 			}
 		});
 
+		Menu menu = new Menu(parent);
+		parent.setMenu(menu);
+
+		MenuItem menuItemCustAttr = new MenuItem(menu, SWT.None);
+		menuItemCustAttr.setText("Custom attribute");
+		menuItemCustAttr.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+
+				//Get all chosen VFUnits
+				List<VFUnit> l = getUnitsToCustomize(highlightNodes.getSelection());
+
+				// Open the dialog
+				Attribute p = new Attribute(e.display.getActiveShell());
+				p.open();
+				if (p.getAnalysis().length() > 0 && p.getAttribute().length() > 0) {
+					for (VFUnit vu : l) {
+						System.out.println(vu);
+						vu.setHmCustAttr(setCustAttr(vu, p));
+					}
+
+				}
+
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+
+			}
+		});
+
 	}
 
 	private TableViewerColumn createTableViewerColumn(String title, int bound, final int colNumber) {
@@ -279,6 +331,27 @@ public class ResultView extends ViewPart implements EventHandler {
 		}
 
 		return attrs;
+	}
+
+	@SuppressWarnings("rawtypes")
+	public static Map<String, String> setCustAttr(VFUnit vfSelected, Attribute p) {
+		Map<String, String> hmCustAttr = new HashMap<String, String>();
+
+		// Get actual customized attributes
+		Set set = vfSelected.getHmCustAttr().entrySet();
+		Iterator i = set.iterator();
+
+		// Display elements
+		while (i.hasNext()) {
+			Map.Entry me = (Map.Entry) i.next();
+			hmCustAttr.put((String) me.getKey(), (String) me.getValue());
+		}
+
+		hmCustAttr.put(p.getAnalysis(), p.getAttribute());
+		// TODO ask how to get the nod ID from VFUnit
+		// colorCostumizedNode((Node)vfSelected);
+
+		return hmCustAttr;
 	}
 
 }
