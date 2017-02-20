@@ -24,7 +24,7 @@ import soot.toolkits.scalar.ForwardFlowAnalysis;
 
 public class CodeGenerator {
 
-	public static void generateSource(File src) throws JClassAlreadyExistsException, IOException {
+	public static void generateSource(WizardInput wizardInput) throws JClassAlreadyExistsException, IOException {
 		JCodeModel codeModel = new JCodeModel();
 
 		JDefinedClass classToBeCreated = codeModel._class("de.com.visuflow.IntraproceduralAnalysis");
@@ -87,12 +87,12 @@ public class CodeGenerator {
 
 		JMethod doAnalysis = classToBeCreated.method(JMod.PROTECTED, void.class, "doAnalysis");
 		doAnalysis.body().invoke(JExpr._super(), "doAnalysis");
-		generateMain(src);
-		codeModel.build(src);
+		generateMain(wizardInput);
+		codeModel.build(wizardInput.getFile());
 
 	}
 
-	public static void generateMain(File src) throws JClassAlreadyExistsException, IOException {
+	public static void generateMain(WizardInput input) throws JClassAlreadyExistsException, IOException {
 		JCodeModel codeModel = new JCodeModel();
 
 		JDefinedClass classToBeCreated = codeModel._class("de.com.visuflow.MainClass");
@@ -127,6 +127,6 @@ public class CodeGenerator {
 		mainMethod.param(String[].class, "args");
 		JBlock mainMethodBlock = mainMethod.body();
 		mainMethodBlock.invoke("runAnalysis");
-		codeModel.build(src);
+		codeModel.build(input.getFile());
 	}
 }

@@ -167,6 +167,19 @@
          </command>
       </toolbar>
    </menuContribution>
+
+   <menuContribution
+         allPopups="false"
+         locationURI="popup:#AbstractTextEditorRulerContext?after=additions">
+      <command
+            commandId="JavaHandler.NavigateToCFG"
+            label="Navigate To CFG"
+            style="push">
+            <visibleWhen>
+   <or>
+      <with variable="selection">
+         <iterate>
+           <reference definitionId="de.unipaderborn.visuflow.javaExtension"/>
          </iterate>
       </with>
       <with variable="activeEditorInput">
@@ -176,7 +189,6 @@
 </visibleWhen>
       </command>
    </menuContribution>
-   
    
    
 </extension>
