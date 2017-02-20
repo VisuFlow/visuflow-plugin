@@ -1,6 +1,5 @@
 package de.unipaderborn.visuflow.wizard;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
@@ -11,8 +10,6 @@ import com.sun.codemodel.JClassAlreadyExistsException;
 import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JDefinedClass;
 import com.sun.codemodel.JExpr;
-import com.sun.codemodel.JExpression;
-import com.sun.codemodel.JFieldVar;
 import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
 import com.sun.codemodel.JType;
@@ -24,16 +21,16 @@ import soot.toolkits.scalar.ForwardFlowAnalysis;
 
 public class CodeGenerator {
 
-	public static void generateSource(WizardInput wizardInput) throws JClassAlreadyExistsException, IOException {
+	public static void generateSource(WizardInput input) throws JClassAlreadyExistsException, IOException {
 		JCodeModel codeModel = new JCodeModel();
 
-		JDefinedClass classToBeCreated = codeModel._class("de.com.visuflow.IntraproceduralAnalysis");
+		JDefinedClass classToBeCreated = codeModel._class(input.getPackageName() + "."+input.getAnalysisType());
 
-		JFieldVar field1 = classToBeCreated.field(JMod.PRIVATE, Integer.class, "flowThroughCount");
-		JExpr.assign(field1, JExpr.lit(0));
+		classToBeCreated.field(JMod.PRIVATE, Integer.class, "flowThroughCount").assign(JExpr.lit(0));
+		//JExpr.assign(field1, JExpr.lit(0));
 		// field1.assign(JExpr.lit(0));
 
-		JFieldVar field2 = classToBeCreated.field(JMod.PRIVATE | JMod.FINAL, soot.SootMethod.class, "method");
+		classToBeCreated.field(JMod.PRIVATE | JMod.FINAL, soot.SootMethod.class, "method");
 
 		JClass flowAbstraction = codeModel.ref(Set.class).narrow(Integer.class);
 		JClass flowAbstractionInit = codeModel.ref(HashSet.class).narrow(Integer.class);
@@ -87,15 +84,15 @@ public class CodeGenerator {
 
 		JMethod doAnalysis = classToBeCreated.method(JMod.PROTECTED, void.class, "doAnalysis");
 		doAnalysis.body().invoke(JExpr._super(), "doAnalysis");
-		generateMain(wizardInput);
-		codeModel.build(wizardInput.getFile());
+		generateMain(input);
+		codeModel.build(input.getFile());
 
 	}
 
 	public static void generateMain(WizardInput input) throws JClassAlreadyExistsException, IOException {
 		JCodeModel codeModel = new JCodeModel();
 
-		JDefinedClass classToBeCreated = codeModel._class("de.com.visuflow.MainClass");
+		JDefinedClass classToBeCreated = codeModel._class(input.getPackageName() +"."+ input.getClassName());
 		JMethod runAnalysis = classToBeCreated.method(JMod.PUBLIC | JMod.STATIC, void.class, "runAnalysis");
 		JBlock runAnalysisBody = runAnalysis.body();
 		JClass sootG = codeModel.ref(G.class);

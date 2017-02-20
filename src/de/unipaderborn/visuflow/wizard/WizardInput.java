@@ -99,7 +99,15 @@ public class WizardInput {
 		return AnalysisType;
 	}
 	public void setAnalysisType(String analysisType) {
-		AnalysisType = analysisType;
+		switch(analysisType){
+		case "Inter Procedural Analysis":
+			AnalysisType = "InterProceduralAnalysis";
+			break;
+		case "Intra Procedural Analysis":
+			AnalysisType = "IntraproceduralAnalysis";
+			break;
+		default:AnalysisType = analysisType;
+		}
 	}
 	public String getAnalysisFramework() {
 		return AnalysisFramework;
