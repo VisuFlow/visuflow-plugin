@@ -26,6 +26,8 @@ import org.eclipse.jdt.launching.LibraryLocation;
 
 import com.sun.codemodel.JClassAlreadyExistsException;
 
+import de.unipaderborn.visuflow.builder.AddRemoveVisuFlowNatureHandler;
+
 public class ProjectGenerator {
 	
 	public IJavaProject createProject(WizardInput wizardInput) throws CoreException, IOException
@@ -52,9 +54,7 @@ public class ProjectGenerator {
 	    jarFile.create(is, false, null);
 	    IPath path = jarFile.getFullPath();
 	    entries.add(JavaCore.newLibraryEntry(path, null, null));
-		//add libs to project class path
-		javaProject.setRawClasspath(entries.toArray(new IClasspathEntry[entries.size()]), null);
-		
+		javaProject.setRawClasspath(entries.toArray(new IClasspathEntry[entries.size()]), null);		
 		IFolder sourceFolder = project.getFolder("src");
 		sourceFolder.create(false, true, null);
 		IPackageFragmentRoot root1 = javaProject.getPackageFragmentRoot(sourceFolder);
@@ -63,13 +63,6 @@ public class ProjectGenerator {
 		System.arraycopy(oldEntries, 0, newEntries, 0, oldEntries.length);
 		newEntries[oldEntries.length] = JavaCore.newSourceEntry(root1.getPath());
 		javaProject.setRawClasspath(newEntries, null);
-		//IPackageFragment pack = javaProject.getPackageFragmentRoot(sourceFolder).createPackageFragment("de.com.visuflow", false, null);
-//		StringBuffer buffer = new StringBuffer();
-//		buffer.append("package " + pack.getElementName() + ";\n");
-//		buffer.append("\n");
-//		buffer.append("System.out.println(\"Sample Test\");");
-//		ICompilationUnit cu = pack.createCompilationUnit("Sample", buffer.toString(), false, null);
-//		cu.open(null);
 		String filepath = sourceFolder.getLocation().toOSString();
 		File file = new File(filepath);
 		wizardInput.setFile(file);
@@ -80,19 +73,8 @@ public class ProjectGenerator {
 		}
 		sourceFolder.refreshLocal(1, null);
 		javaProject.open(null);
-		System.out.println("Project Name "+wizardInput.getProjectName());
-		System.out.println("Package Name "+wizardInput.getPackageName());
-		System.out.println("Class Name "+wizardInput.getClassName());
-		System.out.println("Analysis Type "+wizardInput.getAnalysisType());
-		System.out.println("Analysis Framework "+wizardInput.getAnalysisFramework());
-		System.out.println("Flow type "+wizardInput.flowType);
-		System.out.println("Flow type1 "+wizardInput.flowType1);
-		System.out.println("Flow type2 "+wizardInput.flowtype2);
-		System.out.println("CustomClass First "+wizardInput.customClassFirst);
-		System.out.println("CustomClass second "+wizardInput.customClassSecond);
-		System.out.println("Analysis direction "+wizardInput.getAnalysisDirection());
-		System.out.println("File location "+wizardInput.getFile().getAbsolutePath());
-		System.out.println("Soot location "+wizardInput.getSootPath());
+		AddRemoveVisuFlowNatureHandler addNature = new AddRemoveVisuFlowNatureHandler();
+		addNature.toggleNature(project);
 		return javaProject;
 	}
 

@@ -47,7 +47,7 @@ public class AddRemoveVisuFlowNatureHandler extends AbstractHandler {
 	 * @param project
 	 *            to have sample nature added or removed
 	 */
-	private void toggleNature(IProject project) throws CoreException {
+	public void toggleNature(IProject project) throws CoreException {
 		IProjectDescription description = project.getDescription();
 		String[] natures = description.getNatureIds();
 
