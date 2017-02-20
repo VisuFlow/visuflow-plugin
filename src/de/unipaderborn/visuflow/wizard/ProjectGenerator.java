@@ -28,10 +28,10 @@ import com.sun.codemodel.JClassAlreadyExistsException;
 
 public class ProjectGenerator {
 	
-	public IJavaProject createProject(String projectName, WizardInput wizardInput) throws CoreException, IOException
+	public IJavaProject createProject(WizardInput wizardInput) throws CoreException, IOException
 	{
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		IProject project = root.getProject(projectName);
+		IProject project = root.getProject(wizardInput.getProjectName());
 		project.create(null);
 		project.open(null);		
 		IProjectDescription description = project.getDescription();
@@ -72,18 +72,27 @@ public class ProjectGenerator {
 //		cu.open(null);
 		String filepath = sourceFolder.getLocation().toOSString();
 		File file = new File(filepath);
+		wizardInput.setFile(file);
 		try {
-			CodeGenerator.generateSource(file);
+			CodeGenerator.generateSource(wizardInput);
 		} catch (JClassAlreadyExistsException e) {
 			e.printStackTrace();
 		}
 		sourceFolder.refreshLocal(1, null);
 		javaProject.open(null);
-		System.out.println(wizardInput.flowType);
-		System.out.println(wizardInput.flowType1);
-		System.out.println(wizardInput.flowtype2);
-		System.out.println(wizardInput.classNameFirst);
-		System.out.println(wizardInput.classNameSecond);
+		System.out.println("Project Name "+wizardInput.getProjectName());
+		System.out.println("Package Name "+wizardInput.getPackageName());
+		System.out.println("Class Name "+wizardInput.getClassName());
+		System.out.println("Analysis Type "+wizardInput.getAnalysisType());
+		System.out.println("Analysis Framework "+wizardInput.getAnalysisFramework());
+		System.out.println("Flow type "+wizardInput.flowType);
+		System.out.println("Flow type1 "+wizardInput.flowType1);
+		System.out.println("Flow type2 "+wizardInput.flowtype2);
+		System.out.println("CustomClass First "+wizardInput.customClassFirst);
+		System.out.println("CustomClass second "+wizardInput.customClassSecond);
+		System.out.println("Analysis direction "+wizardInput.getAnalysisDirection());
+		System.out.println("File location "+wizardInput.getFile().getAbsolutePath());
+		System.out.println("Soot location "+wizardInput.getSootPath());
 		return javaProject;
 	}
 
