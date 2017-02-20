@@ -49,6 +49,7 @@ import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.graphstream.algorithm.Toolkit;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
@@ -959,10 +960,18 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			} else {
 				createdNode.setAttribute("ui.label", node.getUnit().toString());
 			}
-			createdNode.setAttribute("nodeData.unit", node.getUnit().toString());
+			String str = node.getUnit().toString();
+			String nodename = StringEscapeUtils.escapeHtml(str);
+			createdNode.setAttribute("nodeData.unit", nodename);
+			
 			createdNode.setAttribute("nodeData.unitType", node.getUnit().getClass());
-			createdNode.setAttribute("nodeData.inSet", Optional.fromNullable(node.getVFUnit().getInSet()).or("n/a").toString());
-			createdNode.setAttribute("nodeData.outSet", Optional.fromNullable(node.getVFUnit().getInSet()).or("n/a").toString());
+			String str1 = Optional.fromNullable(node.getVFUnit().getInSet()).or("n/a").toString();
+			String nodeInSet = StringEscapeUtils.escapeHtml(str1);
+			String str2 = Optional.fromNullable(node.getVFUnit().getInSet()).or("n/a").toString();
+			String nodeOutSet = StringEscapeUtils.escapeHtml(str2);
+			
+			createdNode.setAttribute("nodeData.inSet", nodeInSet);
+			createdNode.setAttribute("nodeData.outSet", nodeOutSet);
 			createdNode.setAttribute("nodeData.line", node.getUnit().getJavaSourceStartLineNumber());
 			//			createdNode.setAttribute("nodeData.column", node.getUnit().getJavaSourceStartColumnNumber());
 			createdNode.setAttribute("nodeUnit", node);
