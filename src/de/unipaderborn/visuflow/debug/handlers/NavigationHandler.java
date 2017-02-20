@@ -153,7 +153,6 @@ public class NavigationHandler extends AbstractHandler {
 						try {
 							provider.connect(file);
 						} catch (CoreException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 						IDocument document = provider.getDocument(file);

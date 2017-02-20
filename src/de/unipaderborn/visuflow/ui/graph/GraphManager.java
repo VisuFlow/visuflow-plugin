@@ -47,7 +47,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.JToolTip;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -395,6 +394,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		});
 
 		popUp = new JPopupMenu("right click menu");
+		
 		popUp.add(navigateToJimple);
 		popUp.add(navigateToJava);
 		popUp.add(showInUnitView);
@@ -667,7 +667,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					if(id != null)
 						toggleNode(id);
 				}
-				if(e.getButton() == MouseEvent.BUTTON3)
+				if(e.getButton() == MouseEvent.BUTTON3 && CFG)
 				{
 					x = e.getX();
 					y = e.getY();
