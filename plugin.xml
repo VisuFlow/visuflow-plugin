@@ -185,6 +185,28 @@
    </menuContribution>
    
    
+    <menuContribution
+         allPopups="false"
+         locationURI="popup:#AbstractTextEditorRulerContext?after=additions">
+      <command
+            commandId="JavaHandler.NavigateToJimple"
+            label="Navigate To Jimple"
+            style="push">
+            <visibleWhen>
+   <or>
+      <with variable="selection">
+         <iterate>
+           <reference definitionId="de.unipaderborn.visuflow.javaExtension"/>
+         </iterate>
+      </with>
+      <with variable="activeEditorInput">
+        <reference definitionId="de.unipaderborn.visuflow.javaExtension"/>
+      </with>
+   </or>
+</visibleWhen>
+      </command>
+   </menuContribution>
+   
 </extension>
 <extension
       point="org.eclipse.ui.commands">
@@ -247,6 +269,10 @@
    <handler
          class="de.unipaderborn.visuflow.debug.handlers.JavaToCFGHandler"
          commandId="JavaHandler.NavigateToCFG">
+   </handler>
+      <handler
+         class="de.unipaderborn.visuflow.debug.handlers.JavaToCFGHandler"
+         commandId="JavaHandler.NavigateToJimple">
    </handler>
 </extension>
 
