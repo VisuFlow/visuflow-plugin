@@ -128,7 +128,6 @@ public class DataModelImpl implements DataModel {
 		Dictionary<String, Object> properties = new Hashtable<>();
 		properties.put("selectedMethod", selectedMethod);
 		properties.put("panToNode", panToNode);
-		// properties.put("selectedClassMethods", selectedClassMethods);
 		properties.put("selectedMethodUnits", selectedMethodUnits);
 		Event modelChanged = new Event(DataModel.EA_TOPIC_DATA_SELECTION, properties);
 		eventAdmin.postEvent(modelChanged);

@@ -47,7 +47,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.JToolTip;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -133,8 +132,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	public GraphManager(String graphName, String styleSheet)
 	{
-		System.setProperty("sun.awt.noerasebackground", "true");
-		System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
+//		System.setProperty("sun.awt.noerasebackground", "true");
+//		System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
 		this.panXDelta = 2;
 		this.panYDelta = 2;
 		this.zoomInDelta = .075;
@@ -239,7 +238,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	private void panToNode(String nodeId)
 	{
-		view.getCamera().resetView();
+//		view.getCamera().resetView();
 		Node panToNode = graph.getNode(nodeId);
 		double[] pos = Toolkit.nodePosition(panToNode);
 		double currPosition = view.getCamera().getViewCenter().y;
@@ -261,16 +260,17 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		for (int i = 0; i < count; i++) {
 			try {
 				Thread.sleep(40);
+				zoomOut();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			SwingUtilities.invokeLater(new Runnable() {
+			/*SwingUtilities.invokeLater(new Runnable() {
 
 				@Override
 				public void run() {
 					GraphManager.this.zoomIn();
 				}
-			});
+			});*/
 		}
 	}
 
@@ -394,6 +394,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		});
 
 		popUp = new JPopupMenu("right click menu");
+		
 		popUp.add(navigateToJimple);
 		popUp.add(navigateToJava);
 		popUp.add(showInUnitView);
@@ -666,6 +667,13 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					if(id != null)
 						toggleNode(id);
 				}
+				if(e.getButton() == MouseEvent.BUTTON3 && CFG)
+				{
+					x = e.getX();
+					y = e.getY();
+					if(curElement != null)
+						popUp.show(e.getComponent(), x, y);
+				}
 				/*else
 				{
 					Object node = curr.getAttribute("nodeUnit");
@@ -677,14 +685,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						}
 					}
 				}*/
-				if(e.getButton() == MouseEvent.BUTTON3)
-				{
-					x = e.getX();
-					y = e.getY();
-//					GraphicElement curElement = view.findNodeOrSpriteAt(x, y);
-					if(curElement != null)
-						popUp.show(e.getComponent(), x, y);
-				}
 			}
 		});
 
@@ -1035,11 +1035,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			int outDegree = node.getOutDegree();
 			if(inDegree == 0)
 				continue;
-			/*if(inDegree == 1 && outDegree == 1)
-			{
-				Node temp = node.getEdgeIterator().next().getOpposite(node);
-				temp.setAttribute("xyz", pos[0], pos[1] + rowSpacing, 0.0);
-			}*/
 			if(inDegree > outDegree)
 			{
 				node.setAttribute("xyz", pos[0] - rowSpacing, pos[1], 0.0);
@@ -1050,11 +1045,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			}
 			if(inDegree>1 && outDegree>1 && inDegree == outDegree)
 			{
-				/*Node parent = node.getEnteringEdgeIterator().next().getOpposite(node);
-				double[] parentPos = Toolkit.nodePosition(parent);
-				node.setAttribute("xyz", parentPos[0], pos[1], 0.0);*/
 				node.setAttribute("xyz", pos[0] - rowSpacing, pos[1], 0.0);
-				//continue;
 			}
 			else
 				continue;
