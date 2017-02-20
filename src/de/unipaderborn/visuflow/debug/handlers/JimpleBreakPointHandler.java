@@ -174,7 +174,7 @@ public class JimpleBreakPointHandler extends AbstractHandler {
 												String unitFqn = (String) methodBreakpoint.getMarker().getAttribute("JimpleUnitFqn");
 												DataModel model = ServiceUtil.getService(DataModel.class);
 												VFUnit unit = model.getVFUnit(unitFqn);
-												new NavigationHandler().HighlightJimpleLine(Collections.singletonList(unit));
+												new NavigationHandler().highlightJimpleSource(Collections.singletonList(unit));
 											}
 										} catch (Exception e) {
 											// TODO Auto-generated catch block
