@@ -1,9 +1,9 @@
 package de.unipaderborn.visuflow.wizard;
 
 import java.io.IOException;
-import java.util.HashSet;
+//import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
+//import java.util.Set;
 import com.sun.codemodel.JBlock;
 import com.sun.codemodel.JClass;
 import com.sun.codemodel.JClassAlreadyExistsException;
@@ -17,28 +17,46 @@ import com.sun.codemodel.JVar;
 
 import soot.G;
 import soot.toolkits.graph.ExceptionalUnitGraph;
-import soot.toolkits.scalar.ForwardFlowAnalysis;
+//import soot.toolkits.scalar.ForwardFlowAnalysis;
 
 public class CodeGenerator {
 
 	public static void generateSource(WizardInput input) throws JClassAlreadyExistsException, IOException {
 		JCodeModel codeModel = new JCodeModel();
 
-		JDefinedClass classToBeCreated = codeModel._class(input.getPackageName() + "."+input.getAnalysisType());
+		JDefinedClass classToBeCreated = codeModel._class(input.getPackageName() + "." + input.getAnalysisType());
 
 		classToBeCreated.field(JMod.PRIVATE, Integer.class, "flowThroughCount").assign(JExpr.lit(0));
-		//JExpr.assign(field1, JExpr.lit(0));
+		// JExpr.assign(field1, JExpr.lit(0));
 		// field1.assign(JExpr.lit(0));
 
 		classToBeCreated.field(JMod.PRIVATE | JMod.FINAL, soot.SootMethod.class, "method");
 
-		JClass flowAbstraction = codeModel.ref(Set.class).narrow(Integer.class);
-		JClass flowAbstractionInit = codeModel.ref(HashSet.class).narrow(Integer.class);
-		JClass jClassExtends = codeModel.ref(ForwardFlowAnalysis.class).narrow(soot.Unit.class).narrow(flowAbstraction);
+		JClass flowAbstraction = null;
+		try {
+			flowAbstraction = codeModel.ref(Class.forName("java.util." + input.getFlowType()));
+			if (input.getFlowtype2() != null) {
+				flowAbstraction=flowAbstraction.narrow(Class.forName("java.lang." + input.getFlowType1())).narrow(Class.forName("java.lang." + input.getFlowtype2()));
+			} else {
+				flowAbstraction=flowAbstraction.narrow(Class.forName("java.lang." + input.getFlowType1()));
+			}
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		// JClass flowAbstraction = codeModel.ref(HashSet.class).narrow(Integer.class);
+		JClass jClassExtends = null;
+		try {
+			jClassExtends = codeModel.ref(Class.forName("soot.toolkits.scalar." + input.getAnalysisDirection() + "FlowAnalysis")).narrow(soot.Unit.class)
+					.narrow(flowAbstraction);
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		classToBeCreated._extends(jClassExtends);
 		JMethod ctor = classToBeCreated.constructor(JMod.PUBLIC);
 		ctor.param(soot.Body.class, "body");
-		ctor.param(Integer.class, "reporter");
+		// ctor.param(Integer.class, "reporter");
 		JBlock ctorBlock = ctor.body();
 		JType exceptionalType = codeModel.ref(ExceptionalUnitGraph.class);
 		ctorBlock.invoke("super").arg(JExpr._new(exceptionalType).arg(JExpr.ref("body")));
@@ -57,30 +75,42 @@ public class CodeGenerator {
 		JBlock newInitialFlowBlock = newInitialFlow.body();
 		newInitialFlow.annotate(codeModel.ref(Override.class));
 		JVar newInitialFlowImpl = newInitialFlowBlock.decl(flowAbstraction, "varName");
-		newInitialFlowImpl.init(JExpr._new(flowAbstractionInit));
+		// newInitialFlowImpl.init(JExpr._new(flowAbstraction));
 		newInitialFlowBlock._return(newInitialFlowImpl);
 
 		JMethod entryInitialFlow = classToBeCreated.method(JMod.PROTECTED, flowAbstraction, "entryInitialFlow");
 		JBlock entryInitialFlowBlock = entryInitialFlow.body();
 		entryInitialFlow.annotate(codeModel.ref(Override.class));
 		JVar entryInitialFlowImpl = entryInitialFlowBlock.decl(flowAbstraction, "varName");
-		entryInitialFlowImpl.init(JExpr._new(flowAbstractionInit));
-		entryInitialFlowBlock._return(newInitialFlowImpl);
+		// entryInitialFlowImpl.init(JExpr._new(flowAbstraction));
+		entryInitialFlowBlock._return(entryInitialFlowImpl);
 
 		JMethod merge = classToBeCreated.method(JMod.PROTECTED, void.class, "merge");
 		merge.param(flowAbstraction, "in1");
 		merge.param(flowAbstraction, "in2");
 		merge.param(flowAbstraction, "out");
 		merge.annotate(codeModel.ref(Override.class));
-		merge.body().invoke(JExpr.ref("out"), "addAll").arg(JExpr.ref("in1"));
-		merge.body().invoke(JExpr.ref("out"), "addAll").arg(JExpr.ref("in2"));
+		if(input.getFlowType()!="Set"){
+			merge.body().invoke(JExpr.ref("out"), "putAll").arg(JExpr.ref("in1"));
+			merge.body().invoke(JExpr.ref("out"), "putAll").arg(JExpr.ref("in2"));
+		}else{
+			merge.body().invoke(JExpr.ref("out"), "addAll").arg(JExpr.ref("in1"));
+			merge.body().invoke(JExpr.ref("out"), "addAll").arg(JExpr.ref("in2"));
+		}
+
 
 		JMethod copy = classToBeCreated.method(JMod.PROTECTED, void.class, "copy");
 		copy.param(flowAbstraction, "source");
 		copy.param(flowAbstraction, "dest");
 		copy.annotate(codeModel.ref(Override.class));
 		copy.body().invoke(JExpr.ref("dest"), "clear");
-		copy.body().invoke(JExpr.ref("dest"), "addAll").arg(JExpr.ref("source"));
+		
+		if(input.getFlowType()!="Set"){
+			copy.body().invoke(JExpr.ref("dest"), "putAll").arg(JExpr.ref("source"));
+		}else{
+			copy.body().invoke(JExpr.ref("dest"), "addAll").arg(JExpr.ref("source"));
+		}
+		
 
 		JMethod doAnalysis = classToBeCreated.method(JMod.PROTECTED, void.class, "doAnalysis");
 		doAnalysis.body().invoke(JExpr._super(), "doAnalysis");
@@ -92,7 +122,7 @@ public class CodeGenerator {
 	public static void generateMain(WizardInput input) throws JClassAlreadyExistsException, IOException {
 		JCodeModel codeModel = new JCodeModel();
 
-		JDefinedClass classToBeCreated = codeModel._class(input.getPackageName() +"."+ input.getClassName());
+		JDefinedClass classToBeCreated = codeModel._class(input.getPackageName() + "." + input.getClassName());
 		JMethod runAnalysis = classToBeCreated.method(JMod.PUBLIC | JMod.STATIC, void.class, "runAnalysis");
 		JBlock runAnalysisBody = runAnalysis.body();
 		JClass sootG = codeModel.ref(G.class);
@@ -108,9 +138,9 @@ public class CodeGenerator {
 		internalTrasnform.param(jClassExtends, "options");
 		internalTrasnform.annotate(codeModel.ref(Override.class));
 		JBlock internalTrasnformBlock = internalTrasnform.body();
-		JClass ipa = codeModel.ref("IntraproceduralAnalysis");
+		JClass ipa = codeModel.ref(input.getAnalysisType());
 		JVar newInitialFlowImpl = internalTrasnformBlock.decl(ipa, "ipa");
-		newInitialFlowImpl.init(JExpr._new(ipa).arg(JExpr.ref("b")).arg(JExpr.lit(0)));
+		newInitialFlowImpl.init(JExpr._new(ipa).arg(JExpr.ref("b")));
 		internalTrasnformBlock.invoke(JExpr.ref("ipa"), "doAnalysis");
 		runAnalysisBody.decl(transform, "transform").init(JExpr._new(transform).arg(JExpr.lit("jtp.analysis")).arg(JExpr._new(anonymousBodyTransformer)));
 
