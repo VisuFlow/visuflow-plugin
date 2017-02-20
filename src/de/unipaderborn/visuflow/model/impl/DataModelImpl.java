@@ -23,6 +23,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 
+import de.unipaderborn.visuflow.debug.handlers.NavigationHandler;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
@@ -239,6 +240,8 @@ public class DataModelImpl implements DataModel {
 
 	@Override
 	public void filterGraph(List<VFNode> selectedNodes, boolean selection, String uiClassName) throws Exception {
+		NavigationHandler handler = new NavigationHandler();
+		handler.RemoveJimpleHighlight();
 		this.selectedNodes = selectedNodes;
 		this.selection = selection;
 		if(uiClassName == null)

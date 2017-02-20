@@ -391,13 +391,12 @@ public class UnitView extends ViewPart implements EventHandler {
 				ArrayList<VFUnit> jimpleArrayList = new ArrayList<>();
 				jimpleArrayList.add((VFUnit)unitDetails.get("unit"));
 				NavigationHandler nh = new NavigationHandler();
-				nh.highlightJimpleLine(jimpleArrayList);				
+				nh.HighlightJimpleLine(jimpleArrayList);				
 				List<VFNode> cfgArrayList = new ArrayList<>();
 				cfgArrayList.add(new VFNode((VFUnit)unitDetails.get("unit"),0));
 				try {
-					ServiceUtil.getService(DataModel.class).filterGraph(cfgArrayList, true, null);
+					ServiceUtil.getService(DataModel.class).filterGraph(cfgArrayList, false, null);
 				} catch (Exception e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
@@ -436,8 +435,31 @@ public class UnitView extends ViewPart implements EventHandler {
 				
 			}
 		});
+		
+		MenuItem menuItemJavaSource = new MenuItem(menu, SWT.None);
+		menuItemJavaSource.setText("View Java Source");
+		menuItemJavaSource.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				TreeItem selectedItem = tree.getSelection()[0];
+				while(selectedItem.getParentItem()!=null)
+				{
+					selectedItem = selectedItem.getParentItem();
+				}
+				HashMap<String, Object> unitDetails = getUnitDetails(selectedItem.getText());
+				ArrayList<VFUnit> jimpleArrayList = new ArrayList<>();
+				jimpleArrayList.add((VFUnit)unitDetails.get("unit"));
+				NavigationHandler handler = new NavigationHandler();
+				handler.NavigateToSource(jimpleArrayList.get(0));
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				
+			}
+		});
 	}
-	
 	
 	public static HashMap<String, Object> getUnitDetails(String unitText)
 	{
@@ -528,11 +550,14 @@ public class UnitView extends ViewPart implements EventHandler {
 							break;
 						}
 					}
-
-					for (TreeItem treeItem : tree.getItems()) {
-						if (treeItem.getText().equals(nodeList.get(0).getUnit().toString())) {
-							tree.setSelection(treeItem);
-							break;
+					for (VFNode vfNode : nodeList) {
+						
+						String unitString = vfNode.getUnit().toString();
+						for (TreeItem treeItem : tree.getItems()) {
+							if (treeItem.getText().equals(unitString)) {
+								tree.setSelection(treeItem);
+								break;
+							}
 						}
 					}
 
@@ -580,7 +605,6 @@ public class UnitView extends ViewPart implements EventHandler {
 			}
 		});
 	}
-	
 	
 	public static Display getDisplay() {
 		Display display = Display.getCurrent();

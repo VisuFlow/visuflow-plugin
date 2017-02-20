@@ -59,8 +59,6 @@ public class JimpleBreakPointHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		IEditorPart part = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
-		//GlobalSettings.put("Hello", "World");
-		//System.out.println(GlobalSettings.get("Hello"));
 		if (part instanceof ITextEditor) {
 			IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindow(event);
 			IFileEditorInput input = (IFileEditorInput) part.getEditorInput();
@@ -176,7 +174,7 @@ public class JimpleBreakPointHandler extends AbstractHandler {
 												String unitFqn = (String) methodBreakpoint.getMarker().getAttribute("JimpleUnitFqn");
 												DataModel model = ServiceUtil.getService(DataModel.class);
 												VFUnit unit = model.getVFUnit(unitFqn);
-												new NavigationHandler().highlightJimpleLine(Collections.singletonList(unit));
+												new NavigationHandler().HighlightJimpleLine(Collections.singletonList(unit));
 											}
 										} catch (Exception e) {
 											// TODO Auto-generated catch block

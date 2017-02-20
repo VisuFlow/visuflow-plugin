@@ -153,6 +153,32 @@
             tooltip="Hightlight Variable Path">
       </command>
    </menuContribution>
+   
+   
+   <menuContribution
+         allPopups="false"
+         locationURI="popup:#AbstractTextEditorRulerContext?after=additions">
+      <command
+            commandId="JavaHandler.NavigateToCFG"
+            label="Navigate To CFG"
+            style="push">
+            <visibleWhen>
+   <or>
+      <with variable="selection">
+         <iterate>
+           <reference definitionId="de.unipaderborn.visuflow.javaExtension"/>
+         </iterate>
+      </with>
+      <with variable="activeEditorInput">
+        <reference definitionId="de.unipaderborn.visuflow.javaExtension"/>
+      </with>
+   </or>
+</visibleWhen>
+      </command>
+   </menuContribution>
+   
+   
+   
 </extension>
 <extension
       point="org.eclipse.ui.commands">
@@ -175,6 +201,10 @@
    <command
          id="JimpleEditor.VariablePath"
          name="Highlight Variable Path">
+   </command>
+   <command
+         id="JavaHandler.NavigateToCFG"
+         name="JavaToCFG">
    </command>
    <command
          defaultHandler="de.unipaderborn.visuflow.debug.handlers.DebugStepResumeHandler"
@@ -203,6 +233,10 @@
    <handler
          class="de.unipaderborn.visuflow.debug.handlers.NavigationHandler"
          commandId="JimpleEditor.sourceCodeCommand">
+   </handler>
+   <handler
+         class="de.unipaderborn.visuflow.debug.handlers.JavaToCFGHandler"
+         commandId="JavaHandler.NavigateToCFG">
    </handler>
 </extension>
 
@@ -313,6 +347,13 @@
 	      <adapt type="org.eclipse.core.resources.IResource">
 	             <test property="org.eclipse.core.resources.extension"
 	                   value="jimple">
+	             </test>
+	      </adapt>
+	   </definition>
+	   <definition id="de.unipaderborn.visuflow.javaExtension">
+	      <adapt type="org.eclipse.core.resources.IResource">
+	             <test property="org.eclipse.core.resources.extension"
+	                   value="java">
 	             </test>
 	      </adapt>
 	   </definition>

@@ -17,6 +17,8 @@ import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -38,8 +40,10 @@ import javax.swing.JColorChooser;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.JToolTip;
@@ -109,12 +113,17 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private JButton panRightButton;
 	private JButton panUpButton;
 	private JButton panDownButton;
+	private JPopupMenu popUp;
 	private BufferedImage imgLeft;
 	private BufferedImage imgRight;
 	private BufferedImage imgUp;
 	private BufferedImage imgDown;
 	private BufferedImage imgPlus;
 	private BufferedImage imgMinus;
+
+	private int x = 0;
+	private int y = 0;
+
 	private boolean CFG;
 
 	// following 3 variables are used for graph dragging with the mouse
@@ -194,6 +203,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		createZoomControls();
 		createShowICFGButton();
 		createPanningButtons();
+		createPopUpMenu();
 		createViewListeners();
 		createToggleLayoutButton();
 		createSearchText();
@@ -269,6 +279,11 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		panRightButton = new JButton("");
 		panUpButton = new JButton("");
 		panDownButton = new JButton("");
+		
+		panLeftButton.setToolTipText("shift + arrow key left");
+		panRightButton.setToolTipText("shift + arrow key right");
+		panUpButton.setToolTipText("shift + arrow key up");
+		panDownButton.setToolTipText("shift + arrow key down");
 
 		panLeftButton.setIcon(new ImageIcon(getScaledImage(imgLeft, 20, 20)));
 		panRightButton.setIcon(new ImageIcon(getScaledImage(imgRight, 20, 20)));
@@ -306,6 +321,82 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				panDown();
 			}
 		});
+	}
+
+	private void createPopUpMenu()
+	{
+		JMenuItem navigateToJimple = new JMenuItem("Navigate to Jimple");
+		JMenuItem navigateToJava = new JMenuItem("Navigate to Java");
+		JMenuItem showInUnitView = new JMenuItem("Highlight on Units view");
+
+		navigateToJimple.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				GraphicElement curElement = view.findNodeOrSpriteAt(x, y);
+				if(curElement == null)
+					return;
+				Node curr = graph.getNode(curElement.getId());
+				Object node = curr.getAttribute("nodeUnit");
+				NavigationHandler handler = new NavigationHandler();
+				if(node instanceof VFNode)
+				{
+					ArrayList<VFUnit> units = new ArrayList<>();
+					units.add(((VFNode) node).getVFUnit());
+					handler.HighlightJimpleLine(units);
+				}
+			}
+		});
+
+		navigateToJava.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				GraphicElement curElement = view.findNodeOrSpriteAt(x, y);
+				if(curElement == null)
+					return;
+				Node curr = graph.getNode(curElement.getId());
+				Object node = curr.getAttribute("nodeUnit");
+				NavigationHandler handler = new NavigationHandler();
+				if(node instanceof VFNode)
+				{
+					ArrayList<VFUnit> units = new ArrayList<>();
+					units.add(((VFNode) node).getVFUnit());
+					handler.NavigateToSource(units.get(0));
+				}
+			}
+		});
+
+		showInUnitView.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				DataModel dataModel = ServiceUtil.getService(DataModel.class);
+				GraphicElement curElement = view.findNodeOrSpriteAt(x, y);
+				if(curElement == null)
+					return;
+				Node curr = graph.getNode(curElement.getId());
+				Object node = curr.getAttribute("nodeUnit");
+				if(node instanceof VFNode)
+				{
+					ArrayList<VFUnit> units = new ArrayList<>();
+					units.add(((VFNode) node).getVFUnit());
+
+					ArrayList<VFNode> nodes = new ArrayList<>();
+					nodes.add((VFNode) node);
+					try {
+						dataModel.filterGraph(nodes, true, null);
+					} catch (Exception e1) {
+						e1.printStackTrace();
+					}
+				}				
+			}
+		});
+
+		popUp = new JPopupMenu("right click menu");
+		popUp.add(navigateToJimple);
+		popUp.add(navigateToJava);
+		popUp.add(showInUnitView);
 	}
 
 	private void createIcons() {
@@ -347,38 +438,29 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private void createSearchText()
 	{
 		this.searchText = new JTextField("Search graph");
-		ArrayList<VFNode> vfNodes = new ArrayList<>();
-		ArrayList<VFUnit> vfUnits = new ArrayList<>();
 		searchText.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				for (Node node : graph) {
-					if(node.hasAttribute("ui.class"))
-					{
-						node.removeAttribute("ui.class");
-					}
-				}
 				String searchString = searchText.getText().toLowerCase();
-				Node last = null;
+				ArrayList<VFNode> vfNodes = new ArrayList<>();
+				ArrayList<VFUnit> vfUnits = new ArrayList<>();
 				for (Node node : graph) {
 					if(node.getAttribute("ui.label").toString().toLowerCase().contains((searchString))){
-						node.setAttribute("ui.class", "filter");
-						last = node;
 						vfNodes.add((VFNode) node.getAttribute("nodeUnit"));
 						vfUnits.add(((VFNode) node.getAttribute("nodeUnit")).getVFUnit());
 					}
 				}
-				if(last != null)
-					panToNode(last.getId());
 
 				try {
-					ServiceUtil.getService(DataModel.class).filterGraph(vfNodes, true, null);
+					DataModel model = ServiceUtil.getService(DataModel.class);
+					model.filterGraph(vfNodes, true, null);
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
+
 				NavigationHandler handler = new NavigationHandler();
-				handler.highlightJimpleLine(vfUnits);
+				handler.HighlightJimpleLine(vfUnits);
 			}
 		});
 	}
@@ -413,7 +495,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	}
 
 	private void createViewListeners() {
-		// remove the pre-installed mousemotion listener from graphstream
+
 		MouseMotionListener defaultListener = view.getMouseMotionListeners()[0];
 		view.removeMouseMotionListener(defaultListener);
 
@@ -515,7 +597,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			@Override
 			public void mousePressed(MouseEvent e) {
-				if(e.isPopupTrigger()) {
+				if(e.getButton() == MouseEvent.BUTTON3) {
 					// reset mouse drag tracking
 					mouseDraggedFrom = null;
 					mouseDraggedTo = null;
@@ -566,7 +648,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					{
 						ArrayList<VFUnit> units = new ArrayList<>();
 						units.add(((VFNode) node).getVFUnit());
-						handler.highlightJimpleLine(units);
+						handler.HighlightJimpleLine(units);
 						handler.NavigateToSource(units.get(0));
 
 						ArrayList<VFNode> nodes = new ArrayList<>();
@@ -595,6 +677,53 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						}
 					}
 				}*/
+				if(e.getButton() == MouseEvent.BUTTON3)
+				{
+					x = e.getX();
+					y = e.getY();
+//					GraphicElement curElement = view.findNodeOrSpriteAt(x, y);
+					if(curElement != null)
+						popUp.show(e.getComponent(), x, y);
+				}
+			}
+		});
+
+		view.addKeyListener(new KeyListener() {
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				int keyCode = e.getKeyCode();
+				if(e.isShiftDown())
+				{
+					switch( keyCode ) { 
+					case KeyEvent.VK_UP:
+						// handle up 
+						panUp();
+						break;
+					case KeyEvent.VK_DOWN:
+						// handle down
+						panDown();
+						break;
+					case KeyEvent.VK_LEFT:
+						// handle left
+						panLeft();
+						break;
+					case KeyEvent.VK_RIGHT :
+						// handle right
+						panRight();
+						break;
+					}
+				}
 			}
 		});
 	}
@@ -616,14 +745,14 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 	}*/
 
-	private void zoomIn()
+	private void zoomOut()
 	{
 		double viewPercent = view.getCamera().getViewPercent();
 		if(viewPercent > maxZoomPercent)
 			view.getCamera().setViewPercent(viewPercent - zoomInDelta);
 	}
 
-	private void zoomOut()
+	private void zoomIn()
 	{
 		double viewPercent = view.getCamera().getViewPercent();
 		if(viewPercent < minZoomPercent)
@@ -745,7 +874,10 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					if(selected)
 						node.setAttribute("ui.class", uiClassName);
 					if(!panned)
+					{
 						this.panToNode(node.getId());
+						panned = true;
+					}
 				}
 			}
 		}
@@ -848,7 +980,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			createdNode.setAttribute("nodeData.inSet", Optional.fromNullable(node.getVFUnit().getInSet()).or("n/a").toString());
 			createdNode.setAttribute("nodeData.outSet", Optional.fromNullable(node.getVFUnit().getInSet()).or("n/a").toString());
 			createdNode.setAttribute("nodeData.line", node.getUnit().getJavaSourceStartLineNumber());
-			createdNode.setAttribute("nodeData.column", node.getUnit().getJavaSourceStartColumnNumber());
+			//			createdNode.setAttribute("nodeData.column", node.getUnit().getJavaSourceStartColumnNumber());
 			createdNode.setAttribute("nodeUnit", node);
 		}
 	}
