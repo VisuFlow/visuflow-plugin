@@ -48,7 +48,7 @@ public class ProjectGenerator {
 		for (LibraryLocation element : locations) {
 		 entries.add(JavaCore.newLibraryEntry(element.getSystemLibraryPath(), null, null));
 		}
-		InputStream is = new BufferedInputStream(new FileInputStream("C:\\Users\\Habeeb\\Documents\\soot-trunk.jar"));
+		InputStream is = new BufferedInputStream(new FileInputStream("C:\\Users\\karth\\Downloads\\soot-trunk.jar"));
 	    IFile jarFile = project.getFile("soot-trunk.jar");
 	    jarFile.create(is, false, null);
 	    IPath path = jarFile.getFullPath();
