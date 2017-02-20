@@ -12,7 +12,7 @@ node {
 	text-style: bold;
 	text-padding: 4px, 4px;
 	text-offset: 0px, 2px;
-	text-size: 24gu;
+	text-size: 12gu;
 	z-index: 0;
 }
 
@@ -38,4 +38,8 @@ edge {
 
 node:clicked {
 	fill-color: blue;
+}
+
+node:customized {
+	fill-color: red;
 }

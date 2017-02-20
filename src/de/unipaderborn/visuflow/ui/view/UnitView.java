@@ -1,10 +1,17 @@
 package de.unipaderborn.visuflow.ui.view;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.swing.JDialog;
+import javax.swing.JPanel;
 
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -25,6 +32,7 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
+import org.graphstream.graph.Node;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
@@ -35,6 +43,7 @@ import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.model.VFNode;
 import de.unipaderborn.visuflow.model.VFUnit;
+import de.unipaderborn.visuflow.ui.Attribute;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 import soot.jimple.internal.JAddExpr;
 import soot.jimple.internal.JAssignStmt;
@@ -50,9 +59,11 @@ public class UnitView extends ViewPart implements EventHandler {
 	static Tree tree;
 	static Combo classCombo, methodCombo;
 	Button checkBox;
+	static JDialog dialog;
+	static JPanel panelColor;
 	String classSelection, methodSelection;
 	private List<VFUnit> listUnits;
-	private List<VFNode> nodeList;
+	private static List<VFNode> nodeList;
 	GridData gridUnitTable;
 
 	class ViewLabelProvider extends LabelProvider implements ILabelProvider {
@@ -176,7 +187,7 @@ public class UnitView extends ViewPart implements EventHandler {
 
 				if (!listUnits.isEmpty()) {
 					tree.removeAll();
-					
+
 					populateUnits(listUnits);
 				}
 
@@ -341,13 +352,13 @@ public class UnitView extends ViewPart implements EventHandler {
 				TreeItem treeIdenRightClass = new TreeItem(treeIdenRight, SWT.LEFT | SWT.BORDER);
 				treeIdenRightClass.setText(new String[] { "Class : " + jidenStmt.rightBox.getValue().getClass().toString() });
 				break;
-				
+
 			case 6:
 
 				JIfStmt jifStmt = (JIfStmt) unit.getUnit();
 				TreeItem treeUnitIfType = new TreeItem(treeItem, SWT.LEFT | SWT.BORDER);
 				treeUnitIfType.setText(new String[] { "Unit Type : " + jifStmt.getClass().toString() });
-				
+
 				TreeItem treeIfCond = new TreeItem(treeUnitIfType, SWT.LEFT | SWT.BORDER);
 				treeIfCond.setText(new String[] { "Condition : " + jifStmt.getCondition() });
 
@@ -357,13 +368,13 @@ public class UnitView extends ViewPart implements EventHandler {
 				TreeItem treeifCondTarget = new TreeItem(treeUnitIfType, SWT.LEFT | SWT.BORDER);
 				treeifCondTarget.setText(new String[] { "Target Unit : " + jifStmt.getTarget() });
 				break;
-				
+
 			case 7:
 
 				JGotoStmt jgotoStmt = (JGotoStmt) unit.getUnit();
 				TreeItem treeUnitgotoType = new TreeItem(treeItem, SWT.LEFT | SWT.BORDER);
 				treeUnitgotoType.setText(new String[] { "Unit Type : " + jgotoStmt.getClass().toString() });
-				
+
 				TreeItem treegotoTarget = new TreeItem(treeUnitgotoType, SWT.LEFT | SWT.BORDER);
 				treegotoTarget.setText(new String[] { "Go to target : " + jgotoStmt.getTarget() });
 				break;
@@ -373,25 +384,24 @@ public class UnitView extends ViewPart implements EventHandler {
 				break;
 			}
 		}
-		
+
 		Menu menu = new Menu(tree);
 		tree.setMenu(menu);
 		MenuItem menuItemJimple = new MenuItem(menu, SWT.None);
 		menuItemJimple.setText("View Jimple Code");
 		menuItemJimple.addSelectionListener(new SelectionListener() {
-			
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				TreeItem selectedItem = tree.getSelection()[0];
-				while(selectedItem.getParentItem()!=null)
-				{
+				while (selectedItem.getParentItem() != null) {
 					selectedItem = selectedItem.getParentItem();
 				}
 				HashMap<String, Object> unitDetails = getUnitDetails(selectedItem.getText());
 				ArrayList<VFUnit> jimpleArrayList = new ArrayList<>();
 				jimpleArrayList.add((VFUnit)unitDetails.get("unit"));
 				NavigationHandler nh = new NavigationHandler();
-				nh.highlightJimpleSource(jimpleArrayList);				
+				nh.highlightJimpleSource(jimpleArrayList);
 				List<VFNode> cfgArrayList = new ArrayList<>();
 				cfgArrayList.add(new VFNode((VFUnit)unitDetails.get("unit"),0));
 				try {
@@ -400,23 +410,22 @@ public class UnitView extends ViewPart implements EventHandler {
 					e1.printStackTrace();
 				}
 			}
-			
+
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-				
+
 			}
 		});
-		
+
 		MenuItem menuItemGraph = new MenuItem(menu, SWT.None);
 		menuItemGraph.setText("View in CFG");
 		menuItemGraph.addSelectionListener(new SelectionListener() {
-			
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				
+
 				TreeItem selectedItem = tree.getSelection()[0];
-				while(selectedItem.getParentItem()!=null)
-				{
+				while (selectedItem.getParentItem() != null) {
 					selectedItem = selectedItem.getParentItem();
 				}
 				HashMap<String, Object> unitDetails = getUnitDetails(selectedItem.getText());
@@ -429,40 +438,42 @@ public class UnitView extends ViewPart implements EventHandler {
 					e1.printStackTrace();
 				}
 			}
-			
+
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-				
+
 			}
 		});
-		
-		MenuItem menuItemJavaSource = new MenuItem(menu, SWT.None);
-		menuItemJavaSource.setText("View Java Source");
-		menuItemJavaSource.addSelectionListener(new SelectionListener() {
-			
+
+		MenuItem menuItemCustAttr = new MenuItem(menu, SWT.None);
+		menuItemCustAttr.setText("Custom attribute");
+		menuItemCustAttr.addSelectionListener(new SelectionListener() {
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				TreeItem selectedItem = tree.getSelection()[0];
-				while(selectedItem.getParentItem()!=null)
-				{
+				while (selectedItem.getParentItem() != null) {
 					selectedItem = selectedItem.getParentItem();
 				}
 				HashMap<String, Object> unitDetails = getUnitDetails(selectedItem.getText());
-				ArrayList<VFUnit> jimpleArrayList = new ArrayList<>();
-				jimpleArrayList.add((VFUnit)unitDetails.get("unit"));
-				NavigationHandler handler = new NavigationHandler();
-				handler.highlightJavaSource(jimpleArrayList.get(0));
+				VFUnit vfSelected = ((VFUnit) unitDetails.get("unit"));
+
+				// Open the dialog
+				Attribute p = new Attribute(e.display.getActiveShell());
+				p.open();
+				if (p.getAnalysis().length() > 0 && p.getAttribute().length() > 0) {
+					vfSelected.setHmCustAttr(setCustAttr(vfSelected, p));
+				}
 			}
-			
+
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-				
+
 			}
 		});
 	}
-	
-	public static HashMap<String, Object> getUnitDetails(String unitText)
-	{
+
+	public static HashMap<String, Object> getUnitDetails(String unitText) {
 		String selectedClass = classCombo.getText();
 		String selectedMethod = methodCombo.getText();
 		HashMap<String, Object> unitDetails = new HashMap<>();
@@ -471,24 +482,21 @@ public class UnitView extends ViewPart implements EventHandler {
 		VFUnit unitSelected = null;
 		List<VFClass> listofClass = dataModel.listClasses();
 		for (VFClass vfClass : listofClass) {
-			if(vfClass.getSootClass().getName().toString().equals(selectedClass))
-			{
+			if (vfClass.getSootClass().getName().toString().equals(selectedClass)) {
 				classSelected = vfClass;
 				break;
 			}
 		}
 		List<VFMethod> listofMethods = dataModel.listMethods(classSelected);
 		for (VFMethod vfMethod : listofMethods) {
-			if(vfMethod.getSootMethod().getDeclaration().toString().equals(selectedMethod))
-			{
+			if (vfMethod.getSootMethod().getDeclaration().toString().equals(selectedMethod)) {
 				methodSelected = vfMethod;
 				break;
 			}
 		}
 		List<VFUnit> listofUnits = dataModel.listUnits(methodSelected);
 		for (VFUnit vfUnit : listofUnits) {
-			if(vfUnit.getUnit().toString().equals(unitText))
-			{
+			if (vfUnit.getUnit().toString().equals(unitText)) {
 				unitSelected = vfUnit;
 			}
 		}
@@ -551,7 +559,7 @@ public class UnitView extends ViewPart implements EventHandler {
 						}
 					}
 					for (VFNode vfNode : nodeList) {
-						
+
 						String unitString = vfNode.getUnit().toString();
 						for (TreeItem treeItem : tree.getItems()) {
 							if (treeItem.getText().equals(unitString)) {
@@ -597,7 +605,7 @@ public class UnitView extends ViewPart implements EventHandler {
 								populateUnits(listUnits);
 								break;
 							}
-							
+
 							break;
 						}
 					}
@@ -605,7 +613,7 @@ public class UnitView extends ViewPart implements EventHandler {
 			}
 		});
 	}
-	
+
 	public static Display getDisplay() {
 		Display display = Display.getCurrent();
 		if (display == null) {
@@ -613,4 +621,32 @@ public class UnitView extends ViewPart implements EventHandler {
 		}
 		return display;
 	}
+
+	//
+	@SuppressWarnings("rawtypes")
+	public static Map<String, String> setCustAttr(VFUnit vfSelected, Attribute p) {
+		Map<String, String> hmCustAttr = new HashMap<>();
+
+		// Get actual customized attributes
+		Set set = vfSelected.getHmCustAttr().entrySet();
+		Iterator i = set.iterator();
+
+		// Display elements
+		while (i.hasNext()) {
+			Map.Entry me = (Map.Entry) i.next();
+			hmCustAttr.put((String) me.getKey(), (String) me.getValue());
+		}
+
+		hmCustAttr.put(p.getAnalysis(), p.getAttribute());
+		//TODO ask how to get the nod ID from VFUnit
+		//		colorCostumizedNode((Node)vfSelected);
+
+		return hmCustAttr;
+	}
+
+
+	public static void colorCostumizedNode(Node n){
+		n.setAttribute("ui.color", Color.RED);
+	}
+
 }

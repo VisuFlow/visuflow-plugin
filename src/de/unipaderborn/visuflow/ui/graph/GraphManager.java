@@ -1,4 +1,3 @@
-
 package de.unipaderborn.visuflow.ui.graph;
 
 import static de.unipaderborn.visuflow.model.DataModel.EA_TOPIC_DATA_FILTER_GRAPH;
