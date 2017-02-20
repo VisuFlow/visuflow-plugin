@@ -80,7 +80,7 @@ public class NavigationHandler extends AbstractHandler {
 					}
 					if (event.getCommand().getId().equals("JimpleEditor.NavigateToCFG")) {
 						try {
-							ServiceUtil.getService(DataModel.class).filterGraph(unit, true);
+							ServiceUtil.getService(DataModel.class).filterGraph(unit, true, null);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -88,7 +88,7 @@ public class NavigationHandler extends AbstractHandler {
 
 					else if (event.getCommand().getId().equals("JimpleEditor.NavigateToUnitView")) {
 						try {
-							ServiceUtil.getService(DataModel.class).filterGraph(unit, true);
+							ServiceUtil.getService(DataModel.class).filterGraph(unit, true, null);
 						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -96,7 +96,7 @@ public class NavigationHandler extends AbstractHandler {
 					} else if (event.getCommand().getId().equals("JimpleEditor.VariablePath")) {
 						try {
 							List<VFNode> unitList = prepareVariablePath(className, document, content.trim().substring(0, content.length() - 1), lineNumber);
-							ServiceUtil.getService(DataModel.class).filterGraph(unitList, true);
+							ServiceUtil.getService(DataModel.class).filterGraph(unitList, true, null);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -105,7 +105,7 @@ public class NavigationHandler extends AbstractHandler {
 
 							LineNumberTag ln = (LineNumberTag) unit.get(0).getUnit().getTag("LineNumberTag");
 							if (ln != null) {
-								HighLightSourceCode(ln.getLineNumber(), className);
+								highLightSourceCode(ln.getLineNumber(), className);
 
 							}
 						}
@@ -234,8 +234,8 @@ public class NavigationHandler extends AbstractHandler {
 		try {
 			method.getSootMethod().getBytecodeSignature();
 
-			IRegion region = findReplaceDocumentAdapter.find(0, method.getSootMethod().getDeclaration(), true, true, false, false);
-			return document.getLineOfOffset(region.getOffset());
+			IRegion region = findReplaceDocumentAdapter.find(0,FindReplaceDocumentAdapter.escapeForRegExPattern(method.getSootMethod().getDeclaration()), true, true, false, true);
+			return region.getOffset();
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
@@ -246,10 +246,10 @@ public class NavigationHandler extends AbstractHandler {
 
 		LineNumberTag ln = (LineNumberTag) unit.getUnit().getTag("LineNumberTag");
 		String className = unit.getVfMethod().getVfClass().getSootClass().getName();
-		HighLightSourceCode(ln.getLineNumber(), className);
+		highLightSourceCode(ln.getLineNumber(), className);
 	}
 
-	private void HighLightSourceCode(int lineNumber, String className) {
+	private void highLightSourceCode(int lineNumber, String className) {
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -290,7 +290,7 @@ public class NavigationHandler extends AbstractHandler {
 		});
 	}
 
-	public void HighlightJimpleLine(ArrayList<VFUnit> units) {
+	public void highlightJimpleLine(List<VFUnit> units) {
 
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override

@@ -19,9 +19,13 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.model.RuntimeProcess;
 import org.eclipse.jdt.launching.JavaLaunchDelegate;
 
+import de.unipaderborn.visuflow.Logger;
+import de.unipaderborn.visuflow.Visuflow;
 import de.unipaderborn.visuflow.debug.monitoring.MonitoringServer;
 
 public class LaunchConfigurationDelegate extends JavaLaunchDelegate {
+
+	private static final transient Logger logger = Visuflow.getDefault().getLogger();
 
 	@Override
 	public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
@@ -75,8 +79,18 @@ public class LaunchConfigurationDelegate extends JavaLaunchDelegate {
 		};
 		DebugPlugin.getDefault().addDebugEventListener(shutdownListener);
 
-		// launch the program
-		super.launch(configCopy, mode, launch, monitor);
+
+		try {
+			logger.info("Waiting for monitoring server before launch");
+			if(monitoringServer.waitForServer(5000)) {
+				// launch the program
+				logger.info("Launching the user analysis");
+				super.launch(configCopy, mode, launch, monitor);
+			}
+		} catch (Exception e) {
+			logger.error("Couldn't launch user analysis", e);
+		}
+
 	}
 
 	private File extractAgent() throws IOException {
