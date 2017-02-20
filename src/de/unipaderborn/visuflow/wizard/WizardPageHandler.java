@@ -23,8 +23,12 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 
+import soot.jimple.toolkits.annotation.nullcheck.NullCheckEliminator.AnalysisFactory;
+
 public class WizardPageHandler extends WizardPage {
-	private Text containerSourceText,containerTargetText,containerProjectName,containerPackageName;
+	private Text containerSourceText,containerTargetText,containerProjectName,containerPackageName,containerClassName;
+	private Combo analysisType;
+	private Button[] analysisFramework = new Button[2];
 
 	@SuppressWarnings("unused")
 	private Text fileText;
@@ -76,6 +80,18 @@ public class WizardPageHandler extends WizardPage {
 		gd = new GridData(GridData.FILL_HORIZONTAL);
 		gd.horizontalSpan = 1;
 		new Label(container, SWT.NONE).setLayoutData(gd);
+		
+		Label labelClass = new Label(container, SWT.NULL);
+		labelClass.setText("Class Name: ");
+
+		containerClassName = new Text(container, SWT.BORDER | SWT.SINGLE);
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = 3;
+		containerClassName.setLayoutData(gd);
+		
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = 1;
+		new Label(container, SWT.NONE).setLayoutData(gd);
 	
 		Label label = new Label(container, SWT.NULL);
 		label.setText("Choose Folder: ");
@@ -100,28 +116,27 @@ public class WizardPageHandler extends WizardPage {
 		gd = new GridData(GridData.FILL_HORIZONTAL);
 		gd.horizontalSpan = 3;
 		containerTargetText.setLayoutData(gd);
-		containerTargetText.addModifyListener(new ModifyListener() {
-			public void modifyText(ModifyEvent e) {
-				dialogChanged();
-			}
-		});
+//		containerTargetText.addModifyListener(new ModifyListener() {
+//			public void modifyText(ModifyEvent e) {
+//				dialogChanged();
+//			}
+//		});
 
 		Button buttonFile = new Button(container, SWT.PUSH);
 		buttonFile.setText("Browse...");
 		buttonFile.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				handleProjectBrowse();
+				dialogChanged();
 			}
 		});
 		
 		Label labelAnalysis = new Label(container, SWT.NULL);
 		labelAnalysis.setText("Analysis Type/Framework: ");
 		
-		Combo analysisType = new Combo(container, SWT.DROP_DOWN);
+		analysisType = new Combo(container, SWT.DROP_DOWN);
 		analysisType.setItems(new String[]{"Select","Inter Procedural Analysis","Intra Procedural Analysis"});
 		analysisType.select(0);
-		
-		Button[] analysisFramework = new Button[2];
 		
 		analysisFramework[0] = new Button(container, SWT.RADIO);
 		analysisFramework[0].setSelection(true);
@@ -136,7 +151,7 @@ public class WizardPageHandler extends WizardPage {
 		gd.horizontalSpan = 1;
 		new Label(container, SWT.NONE).setLayoutData(gd);
 		
-		initialize();
+		//initialize();
 		//dialogChanged();
 		setControl(container);
 	}
@@ -221,6 +236,17 @@ public class WizardPageHandler extends WizardPage {
 		containerMap.put("ProjectPath", containerSourceText.getText());
 		containerMap.put("TargetPath", containerTargetText.getText());
 		containerMap.put("ProjectName", containerProjectName.getText());
+		containerMap.put("PackageName", containerPackageName.getText());
+		containerMap.put("ClassName", containerClassName.getText());
+		containerMap.put("AnalysisType", analysisType.getText());
+		if(analysisFramework[0].getSelection())
+		{
+			containerMap.put("AnalysisFramework", analysisFramework[0].getText());
+		}
+		if(analysisFramework[1].getSelection())
+		{
+			containerMap.put("AnalysisFramework", analysisFramework[0].getText());
+		}
 		return containerMap;
 	}
 }

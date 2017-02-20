@@ -1,14 +1,11 @@
 package de.unipaderborn.visuflow.wizard;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -23,10 +20,10 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchWizard;
 import de.unipaderborn.visuflow.builder.GlobalSettings;
 
 public class WizardHandler extends Wizard implements INewWizard {
@@ -54,17 +51,36 @@ public class WizardHandler extends Wizard implements INewWizard {
 		pageTwo = new WizardHandlerPageTwo(selection);
 		addPage(pageTwo);
 	}
+	
+	@Override
+	public boolean canFinish() {
+		if(getContainer().getCurrentPage() == page)
+			return false;
+			else 
+			return true;
+	}
 
 	public boolean performFinish() {
 		final String analysisProjectPath = page.getContainerName().get("ProjectPath");
 		final String targetProjectPath = page.getContainerName().get("TargetPath");
 		final String analysisProjectName = page.getContainerName().get("ProjectName");
 		wizardInput = new WizardInput();
+		wizardInput.setProjectPath(analysisProjectPath);
+		wizardInput.setTargetPath(targetProjectPath);
+		wizardInput.setProjectName(analysisProjectName);
+		wizardInput.setPackageName(page.getContainerName().get("PackageName"));
+		wizardInput.setClassName(page.getContainerName().get("ClassName"));
+		wizardInput.setAnalysisType(page.getContainerName().get("AnalysisType"));
+		wizardInput.setAnalysisFramework(page.getContainerName().get("AnalysisFramework"));
+		wizardInput.setAnalysisDirection(pageTwo.getContainerName().get("AnalysisDirection"));
 		wizardInput.setFlowType(pageTwo.getContainerName().get("FlowSet"));
 		wizardInput.setFlowType1(pageTwo.getContainerName().get("Type1"));
 		wizardInput.setFlowtype2(pageTwo.getContainerName().get("Type2"));
-		wizardInput.setClassNameFirst(pageTwo.getContainerName().get("CustomType1"));
-		wizardInput.setClassNameSecond(pageTwo.getContainerName().get("CustomType2"));
+		wizardInput.setCustomClassFirst(pageTwo.getContainerName().get("CustomType1"));
+		wizardInput.setCustomClassSecond(pageTwo.getContainerName().get("CustomType2"));
+		String sootLocation = pageTwo.getContainerName().get("sootLocation");
+		Path sootPath = new Path(sootLocation);
+		wizardInput.setSootPath(sootPath);
 		IRunnableWithProgress op = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException {
 				try {
@@ -72,10 +88,10 @@ public class WizardHandler extends Wizard implements INewWizard {
 				} catch (CoreException e) {
 					throw new InvocationTargetException(e);
 				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
+					
 					e.printStackTrace();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
+					
 					e.printStackTrace();
 				} finally {
 					monitor.done();
@@ -89,6 +105,8 @@ public class WizardHandler extends Wizard implements INewWizard {
 		} catch (InvocationTargetException e) {
 			Throwable realException = e.getTargetException();
 			MessageDialog.openError(getShell(), "Error", realException.getMessage());
+			//System.out.println(realException.getMessage().toString());
+			System.out.println(realException.getStackTrace().toString());
 			return false;
 		}
 		return true;
@@ -100,18 +118,18 @@ public class WizardHandler extends Wizard implements INewWizard {
 		String analysisProjectName,
 		IProgressMonitor monitor)
 		throws CoreException, IOException {
-		// create a sample file
+		//create a sample file
 		monitor.beginTask("Creating " + analysisProjectPath, 2);
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		ProjectGenerator projectGen = new ProjectGenerator();
-		IJavaProject sourceProject = projectGen.createProject(analysisProjectName,wizardInput);
-		IResource resourceAnalysis = root.findMember(new Path(analysisProjectPath));
+		IJavaProject sourceProject = projectGen.createProject(wizardInput);
+//--		IResource resourceAnalysis = root.findMember(new Path(analysisProjectPath));
 		IResource resourceTarget = root.findMember(new Path(targetProjectPath));
-		if (!resourceAnalysis.exists() || !(resourceAnalysis instanceof IContainer)) {
-			throwCoreException("Container \"" + analysisProjectPath + "\" does not exist.");
-		}
+//--		if (!resourceAnalysis.exists() || !(resourceAnalysis instanceof IContainer)) {
+//--			throwCoreException("Container \"" + analysisProjectPath + "\" does not exist.");
+//--		}
 		
-		//IContainer containerAnalysis = (IContainer) resourceAnalysis;
+//--		IContainer containerAnalysis = (IContainer) resourceAnalysis;
 		IJavaProject targetProject = JavaCore.create(resourceTarget.getProject());
 		String key = "TargetProject_"+sourceProject.getProject().getName();
 		GlobalSettings.put(key,resourceTarget.getLocation().toOSString()+ File.separator +  targetProject.getOutputLocation().lastSegment());
