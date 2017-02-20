@@ -391,7 +391,7 @@ public class UnitView extends ViewPart implements EventHandler {
 				ArrayList<VFUnit> jimpleArrayList = new ArrayList<>();
 				jimpleArrayList.add((VFUnit)unitDetails.get("unit"));
 				NavigationHandler nh = new NavigationHandler();
-				nh.HighlightJimpleLine(jimpleArrayList);				
+				nh.highlightJimpleSource(jimpleArrayList);				
 				List<VFNode> cfgArrayList = new ArrayList<>();
 				cfgArrayList.add(new VFNode((VFUnit)unitDetails.get("unit"),0));
 				try {
@@ -451,7 +451,7 @@ public class UnitView extends ViewPart implements EventHandler {
 				ArrayList<VFUnit> jimpleArrayList = new ArrayList<>();
 				jimpleArrayList.add((VFUnit)unitDetails.get("unit"));
 				NavigationHandler handler = new NavigationHandler();
-				handler.NavigateToSource(jimpleArrayList.get(0));
+				handler.highlightJavaSource(jimpleArrayList.get(0));
 			}
 			
 			@Override

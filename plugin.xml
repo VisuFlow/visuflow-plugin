@@ -97,12 +97,6 @@
                label="resume"
                style="push">
          </command>
-         <command
-               commandId="GraphStreamFeasibility.sourceCodeCommand"
-               icon="icons/go-jump.png"
-               label="stepover"
-               style="push">
-         </command>
       </toolbar>
    </menuContribution>
    <menuContribution

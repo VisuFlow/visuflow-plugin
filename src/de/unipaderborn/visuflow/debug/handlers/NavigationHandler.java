@@ -110,7 +110,7 @@ public class NavigationHandler extends AbstractHandler {
 
 							LineNumberTag ln = (LineNumberTag) unit.get(0).getUnit().getTag("LineNumberTag");
 							if (ln != null) {
-								HighLightSourceCode(ln.getLineNumber(), className);
+								highLightJavaSourceCode(ln.getLineNumber(), className);
 
 							} else {
 								IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindow(event);
@@ -127,7 +127,7 @@ public class NavigationHandler extends AbstractHandler {
 		return null;
 	}
 
-	public void HighlightJimpleLine(List<VFUnit> units) {
+	public void highlightJimpleSource(List<VFUnit> units) {
 
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
@@ -169,11 +169,9 @@ public class NavigationHandler extends AbstractHandler {
 								editor.selectAndReveal(region.getOffset(), region.getLength() + 1);
 							}
 						} catch (BadLocationException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					} catch (PartInitException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -182,16 +180,20 @@ public class NavigationHandler extends AbstractHandler {
 
 	}
 
-	public void NavigateToSource(VFUnit unit) {
-
+	public void highlightJavaSource(VFUnit unit) {
+		try {
+			ServiceUtil.getService(DataModel.class).filterGraph(new ArrayList<VFNode>(), false, null);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		LineNumberTag ln = (LineNumberTag) unit.getUnit().getTag("LineNumberTag");
 		String className = unit.getVfMethod().getVfClass().getSootClass().getName();
 		if (ln != null) {
-			HighLightSourceCode(ln.getLineNumber(), className);
+			highLightJavaSourceCode(ln.getLineNumber(), className);
 		}
 	}
 
-	public void RemoveJimpleHighlight() {
+	public void removeJimpleHighlight() {
 		try {
 			IEditorReference[] references = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getEditorReferences();
 			for (int i = 0; i < references.length; i++) {
@@ -331,11 +333,11 @@ public class NavigationHandler extends AbstractHandler {
 		return 0;
 	}
 
-	private void HighLightSourceCode(int lineNumber, String className) {
+	private void highLightJavaSourceCode(int lineNumber, String className) {
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				RemoveJimpleHighlight();
+				removeJimpleHighlight();
 				IWorkspaceRoot myWorkspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 				IProject analysisProject = myWorkspaceRoot.getProject(GlobalSettings.get("TargetProject"));
 				if (analysisProject.exists()) {

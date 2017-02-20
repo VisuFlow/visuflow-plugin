@@ -240,7 +240,7 @@ public class DataModelImpl implements DataModel {
 	@Override
 	public void filterGraph(List<VFNode> selectedNodes, boolean selection, String uiClassName) throws Exception {
 		NavigationHandler handler = new NavigationHandler();
-		handler.RemoveJimpleHighlight();
+		handler.removeJimpleHighlight();
 		this.selectedNodes = selectedNodes;
 		this.selection = selection;
 		if(uiClassName == null)
