@@ -414,11 +414,11 @@ public class UnitView extends ViewPart implements EventHandler {
 				ArrayList<VFUnit> jimpleArrayList = new ArrayList<>();
 				jimpleArrayList.add((VFUnit)unitDetails.get("unit"));
 				NavigationHandler nh = new NavigationHandler();
-				nh.HighlightJimpleLine(jimpleArrayList);				
+				nh.highlightJimpleLine(jimpleArrayList);				
 				List<VFNode> cfgArrayList = new ArrayList<>();
 				cfgArrayList.add(new VFNode((VFUnit)unitDetails.get("unit"),0));
 				try {
-					ServiceUtil.getService(DataModel.class).filterGraph(cfgArrayList, true);
+					ServiceUtil.getService(DataModel.class).filterGraph(cfgArrayList, true, null);
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -446,7 +446,7 @@ public class UnitView extends ViewPart implements EventHandler {
 				List<VFNode> al = new ArrayList<>();
 				al.add(new VFNode((VFUnit)unitDetails.get("unit"),0));
 				try {
-					ServiceUtil.getService(DataModel.class).filterGraph(al, true);
+					ServiceUtil.getService(DataModel.class).filterGraph(al, true, null);
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();

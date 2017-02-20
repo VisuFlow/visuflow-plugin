@@ -12,6 +12,7 @@ import java.awt.Container;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -37,6 +38,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.JToolTip;
 import javax.swing.SwingUtilities;
@@ -75,6 +77,8 @@ import de.unipaderborn.visuflow.util.ServiceUtil;
 
 public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
+	//private static final transient Logger logger = Visuflow.getDefault().getLogger();
+
 	Graph graph;
 	String styleSheet;
 	int maxLength;
@@ -86,6 +90,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	JApplet applet;
 	JButton zoomInButton, zoomOutButton, viewCenterButton, toggleLayout, showICFGButton, btColor;
 	JToolBar settingsBar;
+	JTextField searchText;
 	
 	JDialog dialog;
 	JPanel panelColor;
@@ -109,6 +114,11 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private BufferedImage imgPlus;
 	private BufferedImage imgMinus;
 	private boolean CFG;
+
+	// following 3 variables are used for graph dragging with the mouse
+	private boolean draggingGraph = false;
+	private Point mouseDraggedFrom;
+	private Point mouseDraggedTo;
 
 	public GraphManager(String graphName, String styleSheet)
 	{
@@ -184,6 +194,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		createPanningButtons();
 		createViewListeners();
 		createToggleLayoutButton();
+		createSearchText();
 		createSettingsBar();
 		createPanel();
 		createAppletContainer(); 
@@ -331,6 +342,45 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		});
 	}
 
+	private void createSearchText()
+	{
+		this.searchText = new JTextField("Search graph");
+		ArrayList<VFNode> vfNodes = new ArrayList<>();
+		ArrayList<VFUnit> vfUnits = new ArrayList<>();
+		searchText.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				for (Node node : graph) {
+					if(node.hasAttribute("ui.class"))
+					{
+						node.removeAttribute("ui.class");
+					}
+				}
+				String searchString = searchText.getText().toLowerCase();
+				Node last = null;
+				for (Node node : graph) {
+					if(node.getAttribute("ui.label").toString().toLowerCase().contains((searchString))){
+						node.setAttribute("ui.class", "filter");
+						last = node;
+						vfNodes.add((VFNode) node.getAttribute("nodeUnit"));
+						vfUnits.add(((VFNode) node.getAttribute("nodeUnit")).getVFUnit());
+					}
+				}
+				if(last != null)
+					panToNode(last.getId());
+
+				try {
+					ServiceUtil.getService(DataModel.class).filterGraph(vfNodes, true, null);
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+				NavigationHandler handler = new NavigationHandler();
+				handler.highlightJimpleLine(vfUnits);
+			}
+		});
+	}
+
 	private void createAppletContainer() {
 		applet = new JApplet();
 		applet.add(panel);
@@ -349,6 +399,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		settingsBar.add(panRightButton);
 		settingsBar.add(panUpButton);
 		settingsBar.add(panDownButton);
+		settingsBar.add(searchText);
 	}
 
 	private void createPanel() {
@@ -360,6 +411,10 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	}
 
 	private void createViewListeners() {
+		// remove the pre-installed mousemotion listener from graphstream
+		MouseMotionListener defaultListener = view.getMouseMotionListeners()[0];
+		view.removeMouseMotionListener(defaultListener);
+
 		view.addMouseWheelListener(new MouseWheelListener() {
 
 			@Override
@@ -421,7 +476,32 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			@Override
 			public void mouseDragged(MouseEvent e) {
+				if(draggingGraph) {
+					dragGraph(e);
+				} else {
+					defaultListener.mouseDragged(e);
+				}
+			}
 
+			private void dragGraph(MouseEvent e) {
+				if(mouseDraggedFrom == null) {
+					mouseDraggedFrom = e.getPoint();
+				} else {
+					if(mouseDraggedTo != null) {
+						mouseDraggedFrom = mouseDraggedTo;
+					}
+					mouseDraggedTo = e.getPoint();
+
+					Point3 from = view.getCamera().transformPxToGu(mouseDraggedFrom.x, mouseDraggedFrom.y);
+					Point3 to = view.getCamera().transformPxToGu(mouseDraggedTo.x, mouseDraggedTo.y);
+
+					double deltaX = from.x - to.x;
+					double deltaY = from.y - to.y;
+					double deltaZ = from.z - to.z;
+
+					Point3 viewCenter = view.getCamera().getViewCenter();
+					view.getCamera().setViewCenter(viewCenter.x + deltaX, viewCenter.y + deltaY, viewCenter.z + deltaZ);
+				}
 			}
 		});
 
@@ -429,12 +509,17 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				//noop
+				draggingGraph = false;
 			}
 
 			@Override
 			public void mousePressed(MouseEvent e) {
-				//noop
+				if(e.isPopupTrigger()) {
+					// reset mouse drag tracking
+					mouseDraggedFrom = null;
+					mouseDraggedTo = null;
+					draggingGraph = true;
+				}
 			}
 
 			@Override
@@ -465,12 +550,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 								throw new Exception("CFG Null Exception");
 							else
 							{
-								//								renderMethodCFG(selectedMethod.getControlFlowGraph());
 								dataModel.setSelectedMethod(selectedMethod, true);
-								//								List<VFMethodEdge> incEdges = selectedMethod.getIncomingEdges();
-								/*for(VFMethodEdge edge : incEdges){
-									System.out.println(edge);
-								}*/
 							}
 						} catch (Exception e1) {
 							e1.printStackTrace();
@@ -485,13 +565,13 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					{
 						ArrayList<VFUnit> units = new ArrayList<>();
 						units.add(((VFNode) node).getVFUnit());
-						handler.HighlightJimpleLine(units);
+						handler.highlightJimpleLine(units);
 						handler.NavigateToSource(units.get(0));
 
 						ArrayList<VFNode> nodes = new ArrayList<>();
 						nodes.add((VFNode) node);
 						try {
-							dataModel.filterGraph(nodes, true);
+							dataModel.filterGraph(nodes, true, null);
 						} catch (Exception e1) {
 							e1.printStackTrace();
 						}
@@ -651,18 +731,20 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		});
 	}
 	
-	private void filterGraphNodes(List<VFNode> nodes, boolean selected)
+	private void filterGraphNodes(List<VFNode> nodes, boolean selected, String uiClassName)
 	{
 		boolean panned = false;
+		if(uiClassName == null)
+			uiClassName = "filter";
 		Iterable<? extends Node> graphNodes = graph.getEachNode();
 		for (Node node : graphNodes) {
-			if(node.hasAttribute("ui.clicked"))
-				node.removeAttribute("ui.clicked");
+			if(node.hasAttribute("ui.class"))
+				node.removeAttribute("ui.class");
 			for (VFNode vfNode : nodes) {
 				if(node.getAttribute("nodeData.unit").toString().contentEquals(vfNode.getUnit().toString()))
 				{
 					if(selected)
-						node.setAttribute("ui.clicked");
+						node.setAttribute("ui.class", uiClassName);
 					if(!panned)
 						this.panToNode(node.getId());
 				}
@@ -961,7 +1043,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 		if(event.getTopic().contentEquals(DataModel.EA_TOPIC_DATA_FILTER_GRAPH))
 		{
-			filterGraphNodes((List<VFNode>) event.getProperty("nodesToFilter"), (boolean) event.getProperty("selection"));
+			filterGraphNodes((List<VFNode>) event.getProperty("nodesToFilter"), (boolean) event.getProperty("selection"), (String) event.getProperty("uiClassName"));
 		}
 		if(event.getTopic().equals(DataModel.EA_TOPIC_DATA_UNIT_CHANGED))
 		{
@@ -978,9 +1060,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						edge.setAttribute("edgeData.outSet", outset);
 						src.addAttribute("nodeData.inSet", unit.getInSet());
 						src.addAttribute("nodeData.outSet", unit.getOutSet());
-						System.out.println("GraphManager: Unit changed: " + unit.getFullyQualifiedName());
-						System.out.println("GraphManager: Unit in-set: " + unit.getInSet());
-						System.out.println("GraphManager: Unit out-set: " + unit.getOutSet());
 					} 
 				}
 			}
