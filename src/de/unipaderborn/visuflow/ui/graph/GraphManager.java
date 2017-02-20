@@ -133,8 +133,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	public GraphManager(String graphName, String styleSheet)
 	{
-		System.setProperty("sun.awt.noerasebackground", "true");
-		System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
+//		System.setProperty("sun.awt.noerasebackground", "true");
+//		System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
 		this.panXDelta = 2;
 		this.panYDelta = 2;
 		this.zoomInDelta = .075;
@@ -239,7 +239,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	private void panToNode(String nodeId)
 	{
-		view.getCamera().resetView();
+//		view.getCamera().resetView();
 		Node panToNode = graph.getNode(nodeId);
 		double[] pos = Toolkit.nodePosition(panToNode);
 		double currPosition = view.getCamera().getViewCenter().y;
@@ -261,16 +261,17 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		for (int i = 0; i < count; i++) {
 			try {
 				Thread.sleep(40);
+				zoomOut();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			SwingUtilities.invokeLater(new Runnable() {
+			/*SwingUtilities.invokeLater(new Runnable() {
 
 				@Override
 				public void run() {
 					GraphManager.this.zoomIn();
 				}
-			});
+			});*/
 		}
 	}
 
@@ -500,6 +501,9 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		MouseMotionListener defaultListener = view.getMouseMotionListeners()[0];
 		view.removeMouseMotionListener(defaultListener);
 
+		MouseMotionListener defaultListener = view.getMouseMotionListeners()[0];
+		view.removeMouseMotionListener(defaultListener);
+
 		view.addMouseWheelListener(new MouseWheelListener() {
 
 			@Override
@@ -594,16 +598,11 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				draggingGraph = false;
-				{
-					x = e.getX();
-					y = e.getY();
-					popUp.show(e.getComponent(), x, y);
-				}
 			}
 
 			@Override
 			public void mousePressed(MouseEvent e) {
-				if(e.isPopupTrigger()) {
+				if(e.getButton() == MouseEvent.BUTTON3) {
 					// reset mouse drag tracking
 					mouseDraggedFrom = null;
 					mouseDraggedTo = null;
@@ -671,6 +670,13 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					String id = curr.getId();
 					if(id != null)
 						toggleNode(id);
+				}
+				if(e.getButton() == MouseEvent.BUTTON3)
+				{
+					x = e.getX();
+					y = e.getY();
+					if(curElement != null)
+						popUp.show(e.getComponent(), x, y);
 				}
 				/*else
 				{
@@ -1033,272 +1039,4 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			int outDegree = node.getOutDegree();
 			if(inDegree == 0)
 				continue;
-			/*if(inDegree == 1 && outDegree == 1)
-			{
-				Node temp = node.getEdgeIterator().next().getOpposite(node);
-				temp.setAttribute("xyz", pos[0], pos[1] + rowSpacing, 0.0);
-			}*/
-			if(inDegree > outDegree)
-			{
-				node.setAttribute("xyz", pos[0] - rowSpacing, pos[1], 0.0);
-			}
-			if(outDegree > inDegree)
-			{
-				node.setAttribute("xyz", pos[0] + rowSpacing, pos[1], 0.0);
-			}
-			if(inDegree>1 && outDegree>1 && inDegree == outDegree)
-			{
-				/*Node parent = node.getEnteringEdgeIterator().next().getOpposite(node);
-				double[] parentPos = Toolkit.nodePosition(parent);
-				node.setAttribute("xyz", parentPos[0], pos[1], 0.0);*/
-				node.setAttribute("xyz", pos[0] - rowSpacing, pos[1], 0.0);
-				//continue;
-			}
-			else
-				continue;
-		}
-
-		view.getCamera().resetView();
-	}
-
-	void toggleNode(String id){
-		Node n  = graph.getNode(id);
-		Object[] pos = n.getAttribute("xyz");
-		Iterator<Node> it = n.getBreadthFirstIterator(true);
-		if(n.hasAttribute("collapsed")){
-			n.removeAttribute("collapsed");
-			while(it.hasNext()){
-				Node m  =  it.next();
-
-				for(Edge e : m.getLeavingEdgeSet()) {
-					e.removeAttribute("ui.hide");
-				}
-				m.removeAttribute("layout.frozen");
-				m.setAttribute("x",((double)pos[0])+Math.random()*0.0001);
-				m.setAttribute("y",((double)pos[1])+Math.random()*0.0001);
-
-				m.removeAttribute("ui.hide");
-
-			}
-			n.removeAttribute("ui.class");
-
-		} else {
-			n.setAttribute("ui.class", "plus");
-			n.setAttribute("collapsed");
-
-			while(it.hasNext()){
-				Node m  =  it.next();
-
-				for(Edge e : m.getLeavingEdgeSet()) {
-					e.setAttribute("ui.hide");
-				}
-				if(n != m) {
-					m.setAttribute("layout.frozen");
-					//					m.setAttribute("x", ((double) pos[0]) + Math.random() * 0.0001);
-					//					m.setAttribute("y", ((double) pos[1]) + Math.random() * 0.0001);
-
-					m.setAttribute("xyz", ((double) pos[0]) + Math.random() * 0.0001, ((double) pos[1]) + Math.random() * 0.0001, 0.0);
-
-					m.setAttribute("ui.hide");
-				}
-
-			}
-		}
-		experimentalLayout();
-		panToNode(id);
-	}
-
-	@Override
-	public void run() {
-		this.registerEventHandler();
-		System.out.println("GraphManager ---> registered for events");
-
-
-
-		//		No need to have the following code.
-
-		/*ViewerPipe fromViewer = viewer.newViewerPipe();
-		fromViewer.addViewerListener(this);
-		fromViewer.addSink(graph);
-
-		// FIXME the Thread.sleep slows down the loop, so that it does not eat up the CPU
-		// but this really should be implemented differently. isn't there an event listener
-		// or something we can use, so that we call pump() only when necessary
-		while(true) {
-			try {
-				Thread.sleep(1);
-			} catch (InterruptedException e) {
-			}
-			fromViewer.pump();
-		}*/
-	}
-
-	@Override
-	public void buttonPushed(String id) {
-		//noop
-	}
-
-	@Override
-	public void buttonReleased(String id) {
-		toggleNode(id);
-		experimentalLayout();
-	}
-
-	@Override
-	public void viewClosed(String id) {
-		//noop
-	}
-
-	protected void setTip(JToolTip toolTip) {
-		this.tip = toolTip;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public void handleEvent(Event event) {
-		if(event.getTopic().contentEquals(DataModel.EA_TOPIC_DATA_MODEL_CHANGED))
-		{
-			renderICFG((ICFGStructure) event.getProperty("icfg"));
-		}
-		if(event.getTopic().contentEquals(DataModel.EA_TOPIC_DATA_SELECTION))
-		{
-			VFMethod selectedMethod = (VFMethod) event.getProperty("selectedMethod");
-			boolean panToNode = (boolean) event.getProperty("panToNode");
-			try {
-				renderMethodCFG(selectedMethod.getControlFlowGraph(), panToNode);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		if(event.getTopic().contentEquals(DataModel.EA_TOPIC_DATA_FILTER_GRAPH))
-		{
-			filterGraphNodes((List<VFNode>) event.getProperty("nodesToFilter"), (boolean) event.getProperty("selection"), (String) event.getProperty("uiClassName"));
-		}
-		if(event.getTopic().equals(DataModel.EA_TOPIC_DATA_UNIT_CHANGED))
-		{
-			VFUnit unit = (VFUnit) event.getProperty("unit");
-
-			for (Edge edge : graph.getEdgeSet()) {
-				Node src = edge.getSourceNode();
-				VFNode vfNode = src.getAttribute("nodeUnit");
-				if(vfNode != null) {
-					VFUnit currentUnit = vfNode.getVFUnit();
-					if(unit.getFullyQualifiedName().equals(currentUnit.getFullyQualifiedName())) {
-						String outset = Optional.fromNullable(unit.getOutSet()).or("").toString();
-						edge.setAttribute("ui.label", outset);
-						edge.setAttribute("edgeData.outSet", outset);
-						src.addAttribute("nodeData.inSet", unit.getInSet());
-						src.addAttribute("nodeData.outSet", unit.getOutSet());
-					}
-				}
-			}
-		}
-	}
-
-	private boolean inPanel( String btName, JPanel panel){
-		boolean exist = false;
-
-		for(Component c : panel.getComponents()){
-
-			if (!(c.getName()== null)) {
-				if ((c.getClass().toString().equals("class javax.swing.JButton"))) {
-					JButton bt = (JButton) c;
-					System.out.println("Button's name = " + c.getName());
-					if (bt.getName().equals(btName)) {
-						System.out.println("btName = " + btName + " , component name = " + bt.getName());
-						exist = true;
-						break;
-					}
-				}
-			}
-		}
-
-		return exist;
-	}
-
-	public void colorTheGraph(){
-
-		panelColor.removeAll();
-
-		for(Node n: graph.getEachNode()){
-			if(!(n.getAttribute("nodeData.unitType") == null)){
-				JLabel l = new JLabel("Change the color of this unit");
-				JButton bt = new JButton(n.getAttribute("nodeData.unitType").toString());
-				//            	 bt.setName(n.getAttribute("nodeData.methodName").toString());
-				bt.setName(n.getAttribute("nodeData.unitType").toString());
-
-				bt.addActionListener(new ActionListener() {
-
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						dialog.setVisible(true);
-						System.out.println("Button's name is : " + bt.getName());
-						System.out.println("Button's name is..." );
-						for(Node n: graph.getEachNode()){
-							//							if(n.getAttribute("nodeData.methodName").toString().equals(bt.getName())){
-							//							if(n.getAttribute("ui.label").toString().equals(bt.getName())){
-							if(n.getAttribute("nodeData.unitType").toString().equals(bt.getName())){
-								n.setAttribute("ui.color", jcc.getColor());
-								//								n.setAttribute("ui.text-size", "20%");
-								System.out.println(jcc.getColor());
-							}
-
-						}
-
-
-					}
-				});
-
-				if(!(inPanel(bt.getName(), panelColor))){
-					panelColor.add(l);
-					panelColor.add(bt);
-				}
-
-			}
-			if(!(n.getAttribute("nodeData.methodName")== null)){
-				JLabel l = new JLabel("Change the color of this unit");
-				JButton bt = new JButton(n.getAttribute("nodeData.methodName").toString());
-				//            	 bt.setName(n.getAttribute("nodeData.methodName").toString());
-				bt.setName(n.getAttribute("nodeData.methodName").toString());
-
-				bt.addActionListener(new ActionListener() {
-
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						dialog.setVisible(true);
-						System.out.println("Button's name is : " + bt.getName());
-						System.out.println("Button's name is..." );
-						for(Node n: graph.getEachNode()){
-							//							if(n.getAttribute("nodeData.methodName").toString().equals(bt.getName())){
-							//							if(n.getAttribute("ui.label").toString().equals(bt.getName())){
-							if(n.getAttribute("nodeData.methodName").toString().equals(bt.getName())){
-								n.setAttribute("ui.color", jcc.getColor());
-								System.out.println(jcc.getColor());
-							}
-
-						}
-
-
-					}
-				});
-
-				if(!(inPanel(bt.getName(), panelColor))){
-					panelColor.add(l);
-					panelColor.add(bt);
-				}
-
-			}
-
-
-
-		}
-
-		int result = JOptionPane.showConfirmDialog(null, panelColor, "Test", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-		if (result == JOptionPane.OK_OPTION) {
-
-		}else{
-			System.out.println("Cancelled");
-		}
-	}
-
 }
