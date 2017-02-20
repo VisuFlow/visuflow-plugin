@@ -114,7 +114,7 @@ public class ResultView extends ViewPart implements EventHandler {
 
 	private void highlightNodesOnGraph(boolean selection) {
 		TableItem[] selectedNodes = viewer.getTable().getItems();
-		List<VFNode> nodesToFilter = new ArrayList<VFNode>();
+		List<VFNode> nodesToFilter = new ArrayList<VFNode>(); 
 		for (TableItem tableItem : selectedNodes) {
 			if (tableItem.getChecked())
 				nodesToFilter.add(new VFNode((VFUnit) tableItem.getData(), 0));
@@ -129,13 +129,17 @@ public class ResultView extends ViewPart implements EventHandler {
 	private List<VFUnit> getUnitsToCustomize(boolean selection) {
 		TableItem[] selectedNodes = viewer.getTable().getItems();
 		List<VFUnit> unitToCustomize = new ArrayList<VFUnit>();
-
+		List<VFNode> nodesToFilter = new ArrayList<VFNode>();
+		
 		for (TableItem tableItem : selectedNodes) {
 			if (tableItem.getChecked()) {
 				unitToCustomize.add((VFUnit) tableItem.getData());
+				nodesToFilter.add(new VFNode((VFUnit) tableItem.getData(), 0));
 			}
 
 		}
+		
+		highlightNodesOnGraph(highlightNodes.getSelection());
 
 		return unitToCustomize;
 
@@ -254,7 +258,8 @@ public class ResultView extends ViewPart implements EventHandler {
 
 				//Get all chosen VFUnits
 				List<VFUnit> l = getUnitsToCustomize(highlightNodes.getSelection());
-
+				List<VFNode> nodesToFilter = new ArrayList<VFNode>();
+				
 				// Open the dialog
 				Attribute p = new Attribute(e.display.getActiveShell());
 				p.open();
@@ -262,6 +267,8 @@ public class ResultView extends ViewPart implements EventHandler {
 					for (VFUnit vu : l) {
 						System.out.println(vu);
 						vu.setHmCustAttr(setCustAttr(vu, p));
+						
+						
 					}
 
 				}
