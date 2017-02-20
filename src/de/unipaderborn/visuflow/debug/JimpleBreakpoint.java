@@ -44,6 +44,6 @@ public class JimpleBreakpoint extends Breakpoint {
 		for (IBreakpoint javaBreakpoint : javaBreakpoints) {
 			javaBreakpoint.delete();
 		}
-		super.delete();
+		//super.delete();
 	}
 }
