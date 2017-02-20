@@ -48,6 +48,8 @@ import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
 import org.graphstream.algorithm.Toolkit;
 import org.graphstream.graph.Edge;
@@ -78,6 +80,11 @@ import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.model.graph.ControlFlowGraph;
 import de.unipaderborn.visuflow.model.graph.ICFGStructure;
 import de.unipaderborn.visuflow.util.ServiceUtil;
+
+import soot.jimple.Stmt;
+import soot.jimple.InvokeExpr;
+import soot.jimple.ReturnStmt;
+import soot.jimple.ReturnVoidStmt;
 
 public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
@@ -328,7 +335,11 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		JMenuItem navigateToJimple = new JMenuItem("Navigate to Jimple");
 		JMenuItem navigateToJava = new JMenuItem("Navigate to Java");
 		JMenuItem showInUnitView = new JMenuItem("Highlight on Units view");
-
+		JMenuItem followCall = new JMenuItem("Follow the Call");
+		JMenuItem followReturn = new JMenuItem("Follow the Return");
+		followCall.setVisible(false);
+		followReturn.setVisible(false);
+		
 		navigateToJimple.addActionListener(new ActionListener() {
 
 			@Override
@@ -393,11 +404,85 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			}
 		});
 
+		followCall.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				GraphicElement curElement = view.findNodeOrSpriteAt(x, y);
+				if(curElement == null)
+					return;
+				Node curr = graph.getNode(curElement.getId());
+				Object node = curr.getAttribute("nodeUnit");
+				if(node instanceof VFNode)
+				{
+					if(((Stmt)((VFNode) node).getUnit()).containsInvokeExpr()){
+						callInvokeExpr(((Stmt)((VFNode) node).getUnit()).getInvokeExpr());
+					}
+				}
+			}
+		});
+		
+		followReturn.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				GraphicElement curElement = view.findNodeOrSpriteAt(x, y);
+				if(curElement == null)
+					return;
+				Node curr = graph.getNode(curElement.getId());
+				Object node = curr.getAttribute("nodeUnit");
+				if(node instanceof VFNode)
+				{
+					if(((VFNode) node).getUnit() instanceof ReturnStmt || ((VFNode) node).getUnit() instanceof ReturnVoidStmt){
+						System.out.println("Return ahoy");
+					}
+				}
+			}
+		});
+
 		popUp = new JPopupMenu("right click menu");
 		
 		popUp.add(navigateToJimple);
 		popUp.add(navigateToJava);
 		popUp.add(showInUnitView);
+		popUp.add(followCall);
+		popUp.add(followReturn);
+		
+		popUp.addPopupMenuListener(new PopupMenuListener(){
+			
+			public void popupMenuWillBecomeVisible(PopupMenuEvent arg0) {
+				GraphicElement curElement = view.findNodeOrSpriteAt(x, y);
+				if(curElement == null)
+					return;
+				Node curr = graph.getNode(curElement.getId());
+				Object node = curr.getAttribute("nodeUnit");
+				if(node instanceof VFNode)
+				{
+					if(((Stmt)((VFNode) node).getUnit()).containsInvokeExpr()){
+						followCall.setVisible(true);
+						followReturn.setVisible(false);
+					}
+					else if(((VFNode) node).getUnit() instanceof ReturnStmt || ((VFNode) node).getUnit() instanceof ReturnVoidStmt){
+						followCall.setVisible(false);
+						followReturn.setVisible(true);
+					}
+					else{
+						followCall.setVisible(false);
+						followReturn.setVisible(false);
+						
+					}
+				}
+			}
+
+			public void popupMenuCanceled(PopupMenuEvent arg0) {
+				followCall.setVisible(false);
+				followReturn.setVisible(false);
+			}
+
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0) {
+				followCall.setVisible(false);
+				followReturn.setVisible(false);
+			}
+			
+		});
 	}
 
 	private void createIcons() {
@@ -712,7 +797,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		});
 	}
 
-	/*private void callInvokeExpr(InvokeExpr expr){
+	private void callInvokeExpr(InvokeExpr expr){
 		if(expr == null) return;
 		DataModel dataModel = ServiceUtil.getService(DataModel.class);
 		System.out.println(expr);
@@ -727,7 +812,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
-	}*/
+	}
 
 	private void zoomOut()
 	{
