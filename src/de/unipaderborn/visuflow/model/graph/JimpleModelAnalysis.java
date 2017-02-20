@@ -93,16 +93,21 @@ public class JimpleModelAnalysis {
 							methodMap.put(sootMethod, currentMethod);
 						}
 						currentMethod.setVfClass(currentClass);
-						Body body = sootMethod.retrieveActiveBody();
-						for (Unit unit : body.getUnits()) {
-							addFullyQualifiedName(unit, sootClass, sootMethod);
-							VFUnit currentUnit = new VFUnit(unit);
-							currentUnit.setVfMethod(currentMethod);
-							currentMethod.getUnits().add(currentUnit);
+						Body body;
+						try {
+							body = sootMethod.retrieveActiveBody();
+							for (Unit unit : body.getUnits()) {
+								addFullyQualifiedName(unit, sootClass, sootMethod);
+								VFUnit currentUnit = new VFUnit(unit);
+								currentUnit.setVfMethod(currentMethod);
+								currentMethod.getUnits().add(currentUnit);
+							}
+							currentMethod.setBody(body);
+							currentMethod.setControlFlowGraph(new ControlFlowGraphGenerator().generateControlFlowGraph(currentMethod));
+							currentClass.getMethods().add(currentMethod);
+						} catch (RuntimeException e) {
+							System.err.println("No body for " + sootMethod.getName() + " available");
 						}
-						currentMethod.setBody(body);
-						currentMethod.setControlFlowGraph(new ControlFlowGraphGenerator().generateControlFlowGraph(currentMethod));
-						currentClass.getMethods().add(currentMethod);
 					}
 				}
 			}

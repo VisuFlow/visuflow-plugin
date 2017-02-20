@@ -46,8 +46,6 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
-import javax.swing.JToolTip;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -108,7 +106,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	Layout graphLayout = new SpringBox();
 
-	private JToolTip tip;
 	private JButton panLeftButton;
 	private JButton panRightButton;
 	private JButton panUpButton;
@@ -147,6 +144,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		createUI();
 
 		renderICFG(ServiceUtil.getService(DataModel.class).getIcfg());
+		
+		view.setToolTipText("Tooltip Test");
 	}
 
 	public Container getApplet() {
@@ -344,7 +343,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				{
 					ArrayList<VFUnit> units = new ArrayList<>();
 					units.add(((VFNode) node).getVFUnit());
-					handler.HighlightJimpleLine(units);
+					handler.highlightJimpleSource(units);
 				}
 			}
 		});
@@ -363,7 +362,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				{
 					ArrayList<VFUnit> units = new ArrayList<>();
 					units.add(((VFNode) node).getVFUnit());
-					handler.NavigateToSource(units.get(0));
+					handler.highlightJavaSource(units.get(0));
 				}
 			}
 		});
@@ -395,6 +394,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		});
 
 		popUp = new JPopupMenu("right click menu");
+		
 		popUp.add(navigateToJimple);
 		popUp.add(navigateToJava);
 		popUp.add(showInUnitView);
@@ -461,7 +461,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				}
 
 				NavigationHandler handler = new NavigationHandler();
-				handler.HighlightJimpleLine(vfUnits);
+				handler.highlightJimpleSource(vfUnits);
 			}
 		});
 	}
@@ -518,20 +518,16 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 				GraphicElement curElement = view.findNodeOrSpriteAt(event.getX(), event.getY());
 
-				if(curElement == null && tip != null) {
-					tip.setVisible(false);
-					setTip(null);
-					view.repaint();
+				if(curElement == null) {
+					view.setToolTipText(null);
 				}
 
-				if(curElement != null && tip == null) {
+				if(curElement != null) {
 					Node node = graph.getNode(curElement.getId());
 					String result = "<html><table>";
 					int maxToolTipLength = 0;
-					int height = 0;
 					for(String key:node.getEachAttributeKey()) {
 						if(key.startsWith("nodeData")){
-							height++;
 							Object value = node.getAttribute(key);
 							String tempVal = key.substring(key.lastIndexOf(".") + 1) + " : " + value.toString();
 							if(tempVal.length() > maxToolTipLength){
@@ -542,19 +538,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						}
 					}
 					result += "</table></html>";
-					tip = new JToolTip();
-					String tipText = result;
-					tip.setTipText(tipText);
-					tip.setBounds(event.getX() - tipText.length()*3 + 1, event.getY(), maxToolTipLength*3+3,height*30 );
-					setTip(tip);
-					tip.setVisible(true);
-
-					if(tipText.length() > 10) {
-						tip.setLocation(event.getX() - 15, event.getY());
-					}
-
-					view.add(tip);
-					tip.repaint();
+					view.setToolTipText(result);
 				}
 			}
 
@@ -649,8 +633,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					{
 						ArrayList<VFUnit> units = new ArrayList<>();
 						units.add(((VFNode) node).getVFUnit());
-						handler.HighlightJimpleLine(units);
-						handler.NavigateToSource(units.get(0));
+						handler.highlightJimpleSource(units);
+						handler.highlightJavaSource(units.get(0));
 
 						ArrayList<VFNode> nodes = new ArrayList<>();
 						nodes.add((VFNode) node);
@@ -667,7 +651,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					if(id != null)
 						toggleNode(id);
 				}
-				if(e.getButton() == MouseEvent.BUTTON3)
+				if(e.getButton() == MouseEvent.BUTTON3 && CFG)
 				{
 					x = e.getX();
 					y = e.getY();
@@ -1140,10 +1124,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	@Override
 	public void viewClosed(String id) {
 		//noop
-	}
-
-	protected void setTip(JToolTip toolTip) {
-		this.tip = toolTip;
 	}
 
 	@SuppressWarnings("unchecked")
