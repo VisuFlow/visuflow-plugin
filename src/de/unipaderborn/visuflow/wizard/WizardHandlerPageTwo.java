@@ -154,11 +154,11 @@ public class WizardHandlerPageTwo extends WizardPage {
 		classSecond.setEnabled(false);
 		
 		Label label = new Label(container, SWT.NULL);
-		label.setText("Choose Folder: ");
+		label.setText("Choose Soot jar : ");
 
 		containerSootLocation = new Text(container, SWT.BORDER | SWT.SINGLE);
 		gd = new GridData(GridData.FILL_HORIZONTAL);
-		gd.horizontalSpan = 3;
+		gd.horizontalSpan = 2;
 		containerSootLocation.setLayoutData(gd);		
 
 		Button button = new Button(container, SWT.PUSH);
