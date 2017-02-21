@@ -24,6 +24,7 @@ import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
+
 import de.unipaderborn.visuflow.builder.GlobalSettings;
 
 public class WizardHandler extends Wizard implements INewWizard {

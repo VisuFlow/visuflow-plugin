@@ -1,8 +1,12 @@
 package de.unipaderborn.visuflow.ui.view;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -19,6 +23,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -33,6 +39,7 @@ import com.google.common.base.Optional;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFNode;
 import de.unipaderborn.visuflow.model.VFUnit;
+import de.unipaderborn.visuflow.ui.Attribute;
 import de.unipaderborn.visuflow.ui.view.filter.ResultViewFilter;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 
@@ -41,7 +48,7 @@ public class ResultView extends ViewPart implements EventHandler {
 	private TableViewer viewer;
 	private ResultViewFilter filter;
 	private List<VFUnit> units;
-	private Button highlightNodes;
+	private Button highlightNodes, bRefresh;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -49,6 +56,21 @@ public class ResultView extends ViewPart implements EventHandler {
 		parent.setLayout(layout);
 		Label searchLabel = new Label(parent, SWT.NONE);
 		searchLabel.setText("Search: ");
+		bRefresh = new Button(parent, SWT.COLOR_BLUE);
+		bRefresh.setText("Refresh");
+
+		bRefresh.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				viewer.refresh();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// noOp
+			}
+		});
 
 		highlightNodes = new Button(parent, SWT.CHECK);
 		highlightNodes.setText("Highlight selected nodes on graph");
@@ -62,7 +84,7 @@ public class ResultView extends ViewPart implements EventHandler {
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-				//				noOp
+				// noOp
 			}
 		});
 
@@ -72,6 +94,7 @@ public class ResultView extends ViewPart implements EventHandler {
 		createViewer(parent);
 
 		searchText.addKeyListener(new KeyAdapter() {
+			@Override
 			public void keyReleased(KeyEvent ke) {
 				filter.setSearchText(searchText.getText());
 				viewer.refresh();
@@ -87,12 +110,11 @@ public class ResultView extends ViewPart implements EventHandler {
 		viewer.getControl().setFocus();
 	}
 
-	private void highlightNodesOnGraph(boolean selection)
-	{
+	private void highlightNodesOnGraph(boolean selection) {
 		TableItem[] selectedNodes = viewer.getTable().getItems();
-		List<VFNode> nodesToFilter = new ArrayList<VFNode>();
+		List<VFNode> nodesToFilter = new ArrayList<>();
 		for (TableItem tableItem : selectedNodes) {
-			if(tableItem.getChecked())
+			if (tableItem.getChecked())
 				nodesToFilter.add(new VFNode((VFUnit) tableItem.getData(), 0));
 		}
 		try {
@@ -100,6 +122,25 @@ public class ResultView extends ViewPart implements EventHandler {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private List<VFUnit> getUnitsToCustomize(boolean selection) {
+		TableItem[] selectedNodes = viewer.getTable().getItems();
+		List<VFUnit> unitToCustomize = new ArrayList<>();
+		List<VFNode> nodesToFilter = new ArrayList<>();
+
+		for (TableItem tableItem : selectedNodes) {
+			if (tableItem.getChecked()) {
+				unitToCustomize.add((VFUnit) tableItem.getData());
+				nodesToFilter.add(new VFNode((VFUnit) tableItem.getData(), 0));
+			}
+
+		}
+
+		highlightNodesOnGraph(highlightNodes.getSelection());
+
+		return unitToCustomize;
+
 	}
 
 	private void createViewer(Composite parent) {
@@ -113,7 +154,7 @@ public class ResultView extends ViewPart implements EventHandler {
 
 			@Override
 			public void handleEvent(org.eclipse.swt.widgets.Event event) {
-				if(highlightNodes.getSelection())
+				if (highlightNodes.getSelection())
 					highlightNodesOnGraph(highlightNodes.getSelection());
 			}
 		});
@@ -130,18 +171,16 @@ public class ResultView extends ViewPart implements EventHandler {
 		gridData.horizontalAlignment = GridData.FILL;
 		viewer.getControl().setLayoutData(gridData);
 
-		Hashtable<String, Object> properties = new Hashtable<String, Object>();
-		String[] topics = new String[] {
-				DataModel.EA_TOPIC_DATA_SELECTION,
-				DataModel.EA_TOPIC_DATA_UNIT_CHANGED
-		};
+		Hashtable<String, Object> properties = new Hashtable<>();
+		String[] topics = new String[] { DataModel.EA_TOPIC_DATA_SELECTION, DataModel.EA_TOPIC_DATA_UNIT_CHANGED };
 		properties.put(EventConstants.EVENT_TOPIC, topics);
 		ServiceUtil.registerService(EventHandler.class, this, properties);
+
 	}
 
 	private void createColumns(final Composite parent, final TableViewer viewer) {
-		String[] titles = { "Selection", "Unit", "Unit Type", "In-Set", "Out-Set"};
-		int[] bounds = { 60, 600, 120, 200, 200 };
+		String[] titles = { "Selection", "Unit", "Unit Type", "In-Set", "Out-Set", "Customized Attr." };
+		int[] bounds = { 100, 100, 100, 100, 100, 150 };
 
 		TableViewerColumn col = createTableViewerColumn(titles[0], bounds[0], 0);
 		col.setLabelProvider(new ColumnLabelProvider() {
@@ -150,7 +189,7 @@ public class ResultView extends ViewPart implements EventHandler {
 				return "";
 			}
 		});
-		//Unit
+		// Unit
 		col = createTableViewerColumn(titles[1], bounds[1], 1);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
@@ -159,7 +198,7 @@ public class ResultView extends ViewPart implements EventHandler {
 				return unit.getUnit().toString();
 			}
 		});
-		//Unit Type
+		// Unit Type
 		col = createTableViewerColumn(titles[2], bounds[2], 2);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
@@ -168,7 +207,7 @@ public class ResultView extends ViewPart implements EventHandler {
 				return unit.getUnit().getClass().getSimpleName();
 			}
 		});
-		//In-Set
+		// In-Set
 		col = createTableViewerColumn(titles[3], bounds[3], 3);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
@@ -177,7 +216,7 @@ public class ResultView extends ViewPart implements EventHandler {
 				return Optional.fromNullable(unit.getInSet()).or("n/a").toString();
 			}
 		});
-		//Out-Set
+		// Out-Set
 		col = createTableViewerColumn(titles[4], bounds[4], 4);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
@@ -186,6 +225,53 @@ public class ResultView extends ViewPart implements EventHandler {
 				return Optional.fromNullable(unit.getOutSet()).or("n/a").toString();
 			}
 		});
+
+		// Add custom attributes
+		col = createTableViewerColumn(titles[5], bounds[5], 5);
+
+		col.setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				VFUnit vfUnit = (VFUnit) element;
+
+				if (!(vfUnit.getHmCustAttr().isEmpty())) {
+					String attrs = costumizedAttrs(vfUnit);
+					return attrs;
+
+				} else {
+					return "is still empty";
+				}
+			}
+		});
+
+		Menu menu = new Menu(parent);
+		parent.setMenu(menu);
+
+		MenuItem menuItemCustAttr = new MenuItem(menu, SWT.None);
+		menuItemCustAttr.setText("Custom attribute");
+		menuItemCustAttr.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				//Get all chosen VFUnits
+				List<VFUnit> l = getUnitsToCustomize(highlightNodes.getSelection());
+
+				// Open the dialog
+				Attribute p = new Attribute(e.display.getActiveShell());
+				p.open();
+				if (p.getAnalysis().length() > 0 && p.getAttribute().length() > 0) {
+					for (VFUnit vu : l) {
+						vu.setHmCustAttr(setCustAttr(vu, p));
+					}
+				}
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+
+			}
+		});
+
 	}
 
 	private TableViewerColumn createTableViewerColumn(String title, int bound, final int colNumber) {
@@ -197,7 +283,6 @@ public class ResultView extends ViewPart implements EventHandler {
 		column.setMoveable(true);
 		return viewerColumn;
 	}
-
 
 	@Override
 	public void handleEvent(Event event) {
@@ -223,4 +308,47 @@ public class ResultView extends ViewPart implements EventHandler {
 			}
 		}
 	}
+
+	@SuppressWarnings("rawtypes")
+	private String costumizedAttrs(VFUnit vfUnit) {
+		String attrs = "";
+		Set set = vfUnit.getHmCustAttr().entrySet();
+
+		// Get an iterator
+		Iterator i = set.iterator();
+
+		// Display elements
+		while (i.hasNext()) {
+			Map.Entry me = (Map.Entry) i.next();
+			attrs = attrs + me.getKey() + " = " + me.getValue() + ". \n";
+
+		}
+		if (attrs.equals("")) {
+			return "is still empty";
+		}
+
+		return attrs;
+	}
+
+	@SuppressWarnings("rawtypes")
+	public static Map<String, String> setCustAttr(VFUnit vfSelected, Attribute p) {
+		Map<String, String> hmCustAttr = new HashMap<>();
+
+		// Get actual customized attributes
+		Set set = vfSelected.getHmCustAttr().entrySet();
+		Iterator i = set.iterator();
+
+		// Display elements
+		while (i.hasNext()) {
+			Map.Entry me = (Map.Entry) i.next();
+			hmCustAttr.put((String) me.getKey(), (String) me.getValue());
+		}
+
+		hmCustAttr.put(p.getAnalysis(), p.getAttribute());
+		// TODO ask how to get the nod ID from VFUnit
+		// colorCostumizedNode((Node)vfSelected);
+
+		return hmCustAttr;
+	}
+
 }

@@ -9,7 +9,6 @@ import de.unipaderborn.visuflow.model.VFEdge;
 import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.model.VFNode;
 import de.unipaderborn.visuflow.model.VFUnit;
-import de.unipaderborn.visuflow.model.graph.ControlFlowGraph;
 import soot.Body;
 import soot.Unit;
 import soot.toolkits.graph.ExceptionalUnitGraph;
@@ -59,16 +58,16 @@ public class ControlFlowGraphGenerator {
 			while(edges.hasNext()){
 				VFEdge edge = (VFEdge) edges.next();
 				if (edge != null && temp != null && edge.getSource() != null && edge.getDestination() != null) {
-					if(edge.getSource().getUnit().equals(currentNode) && edge.getDestination().getUnit().equals(temp))
-					{
-						edgeconnection = true;
-						break;
-					}
+				if(edge.getSource().getUnit().equals(currentNode) && edge.getDestination().getUnit().equals(temp))
+				{
+					edgeconnection = true;
+					break;
 				}
+			}
 				
 			}
 			if(edgeconnection)
-				continue;
+			continue;
 			Iterator<VFNode> nodesIterator = listNodes.iterator();
 			while (nodesIterator.hasNext()) {
 				VFNode node = (VFNode) nodesIterator.next();
@@ -100,7 +99,7 @@ public class ControlFlowGraphGenerator {
 			traverseUnits(temp);
 		}
 	}
-	
+
 	private VFUnit getVFUnit(Unit unit) {
 		for (VFUnit vfUnit : method.getUnits()) {
 			if(vfUnit.getUnit() == unit) {
