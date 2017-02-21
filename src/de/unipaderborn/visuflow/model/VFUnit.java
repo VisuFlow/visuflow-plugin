@@ -67,6 +67,10 @@ public class VFUnit {
         result = prime * result + ((fullyQualifiedName == null) ? 0 : fullyQualifiedName.hashCode());
         return result;
     }
+    
+    public String toString(){
+    	return getFullyQualifiedName();
+    }
 
     @Override
     public boolean equals(Object obj) {

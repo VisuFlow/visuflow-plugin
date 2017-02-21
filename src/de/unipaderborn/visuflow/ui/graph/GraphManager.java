@@ -5,6 +5,7 @@ import static de.unipaderborn.visuflow.model.DataModel.EA_TOPIC_DATA_FILTER_GRAP
 import static de.unipaderborn.visuflow.model.DataModel.EA_TOPIC_DATA_MODEL_CHANGED;
 import static de.unipaderborn.visuflow.model.DataModel.EA_TOPIC_DATA_SELECTION;
 import static de.unipaderborn.visuflow.model.DataModel.EA_TOPIC_DATA_UNIT_CHANGED;
+import de.unipaderborn.visuflow.ui.view.filter.ReturnPathFilter;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -51,6 +52,8 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.graphstream.algorithm.Toolkit;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
@@ -433,6 +436,23 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				{
 					if(((VFNode) node).getUnit() instanceof ReturnStmt || ((VFNode) node).getUnit() instanceof ReturnVoidStmt){
 						System.out.println("Return ahoy");
+						List<VFUnit> list = new ArrayList<>();
+						for(VFUnit edge : ((VFNode) node).getVFUnit().getVfMethod().getIncomingEdges()){
+							list.add(edge);
+						}
+						Display.getDefault().syncExec(new Runnable() {
+						    public void run() {
+						    	Shell shell = new Shell();
+								ReturnPathFilter returnFilter = new ReturnPathFilter(shell);
+								returnFilter.setPaths(list);
+								returnFilter.setInitialPattern("?");
+								returnFilter.open();
+								if(returnFilter.getFirstResult() != null){
+									returnToCaller((VFUnit) returnFilter.getFirstResult());
+								}
+								shell.close();
+						    }
+						});
 					}
 				}
 			}
@@ -743,17 +763,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					if(curElement != null)
 						popUp.show(e.getComponent(), x, y);
 				}
-				/*else
-				{
-					Object node = curr.getAttribute("nodeUnit");
-					if(node instanceof VFNode)
-					{
-						dataModel.HighlightJimpleUnit((VFNode) node);
-						if(((Stmt)((VFNode) node).getUnit()).containsInvokeExpr()){
-							callInvokeExpr(((Stmt)((VFNode) node).getUnit()).getInvokeExpr());
-						}
-					}
-				}*/
 			}
 		});
 
@@ -796,11 +805,25 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			}
 		});
 	}
+	
+	private void returnToCaller(VFUnit unit){
+		if(unit == null) return;
+		DataModel dataModel = ServiceUtil.getService(DataModel.class);
+		try {
+			if(unit.getVfMethod().getControlFlowGraph() == null)
+				throw new Exception("CFG Null Exception");
+			else
+			{
+				dataModel.setSelectedMethod(unit.getVfMethod(), true);
+			}
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+	}
 
 	private void callInvokeExpr(InvokeExpr expr){
 		if(expr == null) return;
 		DataModel dataModel = ServiceUtil.getService(DataModel.class);
-		System.out.println(expr);
 		VFMethod selectedMethod = dataModel.getVFMethodByName(expr.getMethod());
 		try {
 			if(selectedMethod.getControlFlowGraph() == null)

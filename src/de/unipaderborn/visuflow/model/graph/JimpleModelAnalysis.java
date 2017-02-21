@@ -22,6 +22,8 @@ import soot.SootClass;
 import soot.SootMethod;
 import soot.Transform;
 import soot.Unit;
+import soot.jimple.InvokeExpr;
+import soot.jimple.Stmt;
 import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.jimple.toolkits.callgraph.Targets;
 import soot.tagkit.AttributeValueException;
@@ -132,6 +134,20 @@ public class JimpleModelAnalysis {
 					}
 				});
 			}
+			
+			private void addReturnPoint(VFMethodEdge edge){
+            	List<VFUnit> unitList = edge.getSourceMethod().getUnits();
+            	for (VFUnit unit : unitList){
+            		if(((Stmt)unit.getUnit()).containsInvokeExpr()){
+            			InvokeExpr ivE = ((Stmt)unit.getUnit()).getInvokeExpr();
+            			if(ivE.getMethod().equals(edge.getDestMethod().getSootMethod())){
+            				if(edge.getDestMethod().addIncomingEdge(unit)){
+            					return;
+            				}
+            			}
+            		}
+            	}
+            }
 
 			private void traverseMethods(SootMethod source, CallGraph cg) {
 				Targets tc = new Targets(cg.edgesOutOf(source));
@@ -174,7 +190,7 @@ public class JimpleModelAnalysis {
 						}
 						edgeCount++;
 						VFMethodEdge edge = new VFMethodEdge(edgeCount, sourceMethod, destinationMethod);
-						destinationMethod.addIncomingEdge(edge);
+						addReturnPoint(edge);
 						System.out.println("Method " + destinationMethod + " Edge " + edge);
 						if (destinationMethod.getIncomingEdges().isEmpty()) {
 							System.out.println("adding didnt work");
