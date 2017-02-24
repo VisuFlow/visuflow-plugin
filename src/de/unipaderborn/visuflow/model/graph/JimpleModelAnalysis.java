@@ -51,22 +51,22 @@ public class JimpleModelAnalysis {
 			protected void internalTransform(String phase, Map<String, String> arg1) {
 				
 				String callGraphPref = GlobalSettings.get("CallGraphOption");
-				if(callGraphPref.equalsIgnoreCase("Spark"))
-				{
-				HashMap<String, String> opt = new HashMap<>();
-			    opt.put("verbose", "true");
-			    opt.put("propagator", "worklist");
-			    opt.put("simple-edges-bidirectional", "false");
-			    opt.put("on-fly-cg", "false");
-			    opt.put("set-impl", "double");
-			    opt.put("double-set-old", "hybrid");
-			    opt.put("double-set-new", "hybrid");
-			    opt.put("enabled", "true");
-				SparkTransformer.v().transform("",opt);
+				if(callGraphPref.equalsIgnoreCase("CHA"))
+				{				
+					Options.v().setPhaseOption("cg.cha", "on");
 				}
 				else
 				{
-				Options.v().setPhaseOption("cg.cha", "on");
+					HashMap<String, String> opt = new HashMap<>();
+				    opt.put("verbose", "true");
+				    opt.put("propagator", "worklist");
+				    opt.put("simple-edges-bidirectional", "false");
+				    opt.put("on-fly-cg", "false");
+				    opt.put("set-impl", "double");
+				    opt.put("double-set-old", "hybrid");
+				    opt.put("double-set-new", "hybrid");
+				    opt.put("enabled", "true");
+					SparkTransformer.v().transform("",opt);
 				}
 				createJimpleHierarchyWithCfgs(vfClasses);
 				createICFG();
