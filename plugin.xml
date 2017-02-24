@@ -90,11 +90,17 @@
          allPopups="false"
          locationURI="toolbar:org.eclipse.ui.main.toolbar">
       <toolbar
-            id="GraphStreamFeasibility.toolbar2">
+            id="GraphStreamFeasibility.unitStepControls">
          <command
                commandId="visuflow.debug.step.resume"
                icon="icons/media-playback-start.png"
-               label="resume"
+               label="Resume"
+               style="push">
+         </command>
+         <command
+               commandId="visuflow.debug.step.over"
+               icon="icons/go-jump.png"
+               label="Step over"
                style="push">
          </command>
       </toolbar>
@@ -204,6 +210,11 @@
          defaultHandler="de.unipaderborn.visuflow.debug.handlers.DebugStepResumeHandler"
          id="visuflow.debug.step.resume"
          name="Resume">
+   </command>
+   <command
+         defaultHandler="de.unipaderborn.visuflow.debug.handlers.DebugStepOverHandler"
+         id="visuflow.debug.step.over"
+         name="Step over">
    </command>
 </extension>
 <extension
@@ -435,6 +446,14 @@
     </wizard>
  </extension>
  <extension
+		id="visuflow.debug.instructionPointer.marker"
+	    name="Instruction Pointer Marker"
+	    point="org.eclipse.core.resources.markers">
+	  	<super
+	    	type="org.eclipse.core.resources.textmarker">
+	  	</super>
+	</extension>
+ <extension
        point="org.eclipse.ui.editors.markerAnnotationSpecification">
     <specification
           annotationImageProvider="de.unipaderborn.visuflow.debug.ui.JimpleUnitPointerImageProvider"
@@ -448,11 +467,11 @@
           label="Jimple Unit Pointer"
           overviewRulerPreferenceKey="jimpleIPOverviewRuler"
           overviewRulerPreferenceValue="true"
-          presentationLayer="6"
+          presentationLayer="0"
           textPreferenceKey="jimpleIPIndication"
           textPreferenceValue="false"
           textStylePreferenceKey="jimpleIPTextStyle"
-          textStylePreferenceValue="NONE"
+          textStylePreferenceValue="BOX"
           verticalRulerPreferenceKey="jimpleIPVerticalRuler"
           verticalRulerPreferenceValue="true">
     </specification>
@@ -460,7 +479,8 @@
  <extension
        point="org.eclipse.ui.editors.annotationTypes">
     <type
-          name="visuflow.debug.instructionPointer">
+          name="visuflow.debug.instructionPointer"
+          markerType="visuflow.debug.instructionPointer.marker">
     </type>
  </extension>
 </plugin>

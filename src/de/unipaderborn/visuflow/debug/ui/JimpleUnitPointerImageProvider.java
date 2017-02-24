@@ -5,8 +5,6 @@ import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.texteditor.IAnnotationImageProvider;
 
-import de.unipaderborn.visuflow.debug.handlers.DebugStepResumeHandler.JimpleInstructionPointerAnnotation;
-
 
 public class JimpleUnitPointerImageProvider implements IAnnotationImageProvider {
 
