@@ -77,15 +77,19 @@ public class UnitDebugStepTracker implements IDebugEventSetListener, EventHandle
 		for (int i = 0; i < events.length; i++) {
 			DebugEvent debugEvent = events[i];
 			try {
-				if (debugEvent.getKind() == DebugEvent.SUSPEND && debugEvent.getDetail() == DebugEvent.BREAKPOINT) {
-					if (!isEventRelatedToThisUnit(debugEvent)) {
+				if (isSupendedAtBreakpoint(debugEvent)) {
+					if(debugEvent.getSource() instanceof IJavaThread) {
+						thread = (IJavaThread) debugEvent.getSource();
+					} else {
 						continue;
 					}
 
-					revealLocationInFile();
-					revealUnitInGraph();
-					highlightLine();
-				} else if (debugEvent.getKind() == DebugEvent.RESUME && debugEvent.getDetail() == DebugEvent.CLIENT_REQUEST) {
+					if (isEventRelatedToThisUnit()) {
+						revealLocationInFile();
+						revealUnitInGraph();
+						highlightLine();
+					}
+				} else if (isResumeByClientRequest(debugEvent)) {
 					removeLineHighlight();
 				} else if (debugEvent.getKind() == DebugEvent.TERMINATE) {
 					// remove this debug event listener to release it for garbage collection
@@ -126,59 +130,66 @@ public class UnitDebugStepTracker implements IDebugEventSetListener, EventHandle
 
 	private void revealLocationInFile() {
 		Display.getDefault().syncExec(() -> {
-			IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-			IWorkbenchPage page = window.getActivePage();
 			try {
-				IEditorPart editor = IDE.openEditor(page, file, true);
-				ITextEditor textEditor = editor.getAdapter(ITextEditor.class);
-				if(textEditor != null) {
-					textEditor.selectAndReveal(charStart, 0);
-					textEditor.resetHighlightRange();
-				}
+				ITextEditor textEditor = openFileInEditor(file);
+				scrollToPosition(textEditor, charStart);
 			} catch (PartInitException e) {
 				logger.error("Couldn't open jimple file", e);
 			}
 		});
 	}
 
-	private boolean isEventRelatedToThisUnit(DebugEvent debugEvent) throws CoreException {
-		if(debugEvent.getSource() instanceof IJavaThread) {
-			thread = (IJavaThread) debugEvent.getSource();
-			if(!thread.hasStackFrames()) {
-				return false;
-			}
+	private ITextEditor openFileInEditor(IFile file) throws PartInitException {
+		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		IWorkbenchPage page = window.getActivePage();
+		IEditorPart editor = IDE.openEditor(page, file, true);
+		ITextEditor textEditor = editor.getAdapter(ITextEditor.class);
+		return textEditor;
+	}
 
-			IStackFrame top = thread.getTopStackFrame();
-			if(top.getVariables().length > 0) {
-				for (IVariable var : top.getVariables()) {
-					try {
-						IValue value = var.getValue();
-						if(value instanceof IJavaValue) {
-							IJavaObject javaValue = (IJavaObject) value;
-							IJavaDebugTarget debugTarget = thread.getDebugTarget().getAdapter(IJavaDebugTarget.class);
-							IJavaValue arg = debugTarget.newValue("Fully Qualified Name");
-							// the signature (2nd argument) can be retrieved with javap. Unit extends soot.tagkit.Host for the tag support
-							// -> javap -cp soot-trunk.jar -s soot.tagkit.Host
-							// the signature is in the output under "descriptor"
-							IJavaType type = javaValue.getJavaType();
-							if(isTagHost(type)) { // check, if this is a unit, which contains Tags
-								IJavaValue fqnTag = javaValue.sendMessage("getTag", "(Ljava/lang/String;)Lsoot/tagkit/Tag;", new IJavaValue[] {arg}, thread, false);
-								IJavaValue tagValue = ((IJavaObject)fqnTag).sendMessage("getValue", "()[B", new IJavaValue[0], thread, false);
-								IJavaArray byteArray = (IJavaArray) tagValue;
-								byte[] b = new byte[byteArray.getLength()];
-								for (int i = 0; i < b.length; i++) {
-									IJavaPrimitiveValue byteValue = (IJavaPrimitiveValue) byteArray.getValue(i);
-									b[i] = byteValue.getByteValue();
-								}
-								String currentUnitFqn = new String(b);
-								if(currentUnitFqn.equals(unitFqn)) {
-									return true;
-								}
+	private void scrollToPosition(ITextEditor textEditor, int position) {
+		if(textEditor != null) {
+			textEditor.selectAndReveal(charStart, 0);
+			textEditor.resetHighlightRange();
+		}
+	}
+
+	private boolean topStackFrameHasUnit(String fqn) throws CoreException {
+		if (!thread.hasStackFrames()) {
+			return false;
+		}
+
+		IStackFrame top = thread.getTopStackFrame();
+		if (top.getVariables().length > 0) {
+			for (IVariable var : top.getVariables()) {
+				try {
+					IValue value = var.getValue();
+					if (value instanceof IJavaValue) {
+						IJavaObject javaValue = (IJavaObject) value;
+						IJavaDebugTarget debugTarget = thread.getDebugTarget().getAdapter(IJavaDebugTarget.class);
+						IJavaValue arg = debugTarget.newValue("Fully Qualified Name");
+						// the signature (2nd argument) can be retrieved with javap. Unit extends soot.tagkit.Host for the tag support
+						// -> javap -cp soot-trunk.jar -s soot.tagkit.Host
+						// the signature is in the output under "descriptor"
+						IJavaType type = javaValue.getJavaType();
+						if (isTagHost(type)) { // check, if this is a unit, which contains Tags
+							IJavaValue fqnTag = javaValue.sendMessage("getTag", "(Ljava/lang/String;)Lsoot/tagkit/Tag;", new IJavaValue[] { arg }, thread,
+									false);
+							IJavaValue tagValue = ((IJavaObject) fqnTag).sendMessage("getValue", "()[B", new IJavaValue[0], thread, false);
+							IJavaArray byteArray = (IJavaArray) tagValue;
+							byte[] b = new byte[byteArray.getLength()];
+							for (int i = 0; i < b.length; i++) {
+								IJavaPrimitiveValue byteValue = (IJavaPrimitiveValue) byteArray.getValue(i);
+								b[i] = byteValue.getByteValue();
+							}
+							String currentUnitFqn = new String(b);
+							if (currentUnitFqn.equals(unitFqn)) {
+								return true;
 							}
 						}
-					} catch(Exception e) {
-						logger.error("Couldn't retrieve variable "+var.getName()+" from top stack frame", e);
 					}
+				} catch (Exception e) {
+					logger.error("Couldn't retrieve variable " + var.getName() + " from top stack frame", e);
 				}
 			}
 		}
@@ -196,25 +207,45 @@ public class UnitDebugStepTracker implements IDebugEventSetListener, EventHandle
 		}
 	}
 
+	private boolean isEventRelatedToThisUnit() throws CoreException {
+		return topStackFrameHasUnit(unitFqn);
+	}
+
+	private boolean isResumeByClientRequest(DebugEvent debugEvent) {
+		return debugEvent.getKind() == DebugEvent.RESUME && debugEvent.getDetail() == DebugEvent.CLIENT_REQUEST;
+	}
+
+	private boolean isSupendedAtBreakpoint(DebugEvent debugEvent) {
+		return debugEvent.getKind() == DebugEvent.SUSPEND && debugEvent.getDetail() == DebugEvent.BREAKPOINT;
+	}
+
 	@Override
 	public void handleEvent(Event event) {
 		if(event.getTopic().equals("de/unipaderborn/visuflow/debug/resume")) {
-			if(thread != null && thread.isSuspended() && thread.canResume()) {
-				try {
-					thread.resume();
-				} catch (DebugException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
+			handleResumeEvent();
 		} else if(event.getTopic().equals("de/unipaderborn/visuflow/debug/stepOver")) {
-			if(thread != null && thread.isSuspended() && thread.canStepOver()) {
-				try {
-					thread.stepOver();
-				} catch (DebugException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			handleStepOverEvent();
+		}
+	}
+
+	private void handleResumeEvent() {
+		if(thread != null && thread.isSuspended() && thread.canResume()) {
+			try {
+				thread.resume();
+			} catch (DebugException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private void handleStepOverEvent() {
+		if(thread != null && thread.isSuspended() && thread.canStepOver()) {
+			try {
+				thread.stepOver();
+			} catch (DebugException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 	}
