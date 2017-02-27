@@ -53,6 +53,9 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.graphstream.algorithm.Toolkit;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
@@ -72,7 +75,6 @@ import org.osgi.service.event.EventHandler;
 import com.google.common.base.Optional;
 
 import de.unipaderborn.visuflow.builder.GlobalSettings;
-import de.unipaderborn.visuflow.builder.JimpleBuilder;
 import de.unipaderborn.visuflow.debug.handlers.NavigationHandler;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
@@ -151,7 +153,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private JMenuItem followReturn;
 	private JMenu callGraphOption;
 	private JMenuItem cha;
-	private JMenuItem rta;
 	private JMenuItem spark;
 
 	public GraphManager(String graphName, String styleSheet)
@@ -469,20 +470,27 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				GlobalSettings.put("CallGraphOption", "CHA");
-				JimpleBuilder builder = new JimpleBuilder();
+				try {
+					ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+				} catch (CoreException e1) {
+					e1.printStackTrace();
+				}
+				/*JimpleBuilder builder = new JimpleBuilder();
 				builder.forgetLastBuiltState();
-				builder.needRebuild();
+				builder.needRebuild();*/
 			}
 		});
 		
-		rta.addActionListener(new ActionListener() {
+		spark.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				GlobalSettings.put("CallGraphOption", "SPARK");
-				JimpleBuilder builder = new JimpleBuilder();
-				builder.forgetLastBuiltState();
-				builder.needRebuild();
+				try {
+					ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+				} catch (CoreException e1) {
+					e1.printStackTrace();
+				}
 			}
 		});
 		
