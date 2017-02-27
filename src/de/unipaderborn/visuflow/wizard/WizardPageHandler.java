@@ -1,17 +1,13 @@
 package de.unipaderborn.visuflow.wizard;
 
 import java.util.HashMap;
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.IDialogPage;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -24,8 +20,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 
-import soot.jimple.toolkits.annotation.nullcheck.NullCheckEliminator.AnalysisFactory;
-
 public class WizardPageHandler extends WizardPage {
 	private Text containerSourceText,containerTargetText,containerProjectName,containerPackageName,containerClassName;
 	private Combo analysisType;
@@ -34,6 +28,7 @@ public class WizardPageHandler extends WizardPage {
 	@SuppressWarnings("unused")
 	private Text fileText;
 
+	@SuppressWarnings("unused")
 	private ISelection selection;
 
 	/**
@@ -155,29 +150,6 @@ public class WizardPageHandler extends WizardPage {
 		//initialize();
 		//dialogChanged();
 		setControl(container);
-	}
-
-	/**
-	 * Tests if the current workbench selection is a suitable container to use.
-	 */
-
-	private void initialize() {
-		if (selection != null && selection.isEmpty() == false
-				&& selection instanceof IStructuredSelection) {
-			IStructuredSelection ssel = (IStructuredSelection) selection;
-			if (ssel.size() > 1)
-				return;
-			Object obj = ssel.getFirstElement();
-			if (obj instanceof IResource) {
-				IContainer container;
-				if (obj instanceof IContainer)
-					container = (IContainer) obj;
-				else
-					container = ((IResource) obj).getParent();
-				containerSourceText.setText(container.getFullPath().toString());
-			}
-		}
-		
 	}
 
 	/**

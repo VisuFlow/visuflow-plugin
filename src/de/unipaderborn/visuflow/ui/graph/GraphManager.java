@@ -53,9 +53,6 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
 import org.graphstream.algorithm.Toolkit;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
@@ -155,6 +152,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private JMenu callGraphOption;
 	private JMenuItem cha;
 	private JMenuItem rta;
+	private JMenuItem spark;
 
 	public GraphManager(String graphName, String styleSheet)
 	{
@@ -360,10 +358,10 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 		callGraphOption = new JMenu("Call Graph Option");
 		cha = new JMenuItem("CHA");
-		rta = new JMenuItem("RTA");
+		spark = new JMenuItem("SPARK");
 
 		callGraphOption.add(cha);
-		callGraphOption.add(rta);
+		callGraphOption.add(spark);
 
 		followCall.setVisible(false);
 		followReturn.setVisible(false);
@@ -471,7 +469,9 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				GlobalSettings.put("CallGraphOption", "CHA");
-//				IProject project = 
+				JimpleBuilder builder = new JimpleBuilder();
+				builder.forgetLastBuiltState();
+				builder.needRebuild();
 			}
 		});
 		
@@ -479,7 +479,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				GlobalSettings.put("CallGraphOption", "RTA");
+				GlobalSettings.put("CallGraphOption", "SPARK");
 				JimpleBuilder builder = new JimpleBuilder();
 				builder.forgetLastBuiltState();
 				builder.needRebuild();
@@ -1266,6 +1266,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		experimentalLayoutOld();
 	}
 
+	@SuppressWarnings("unused")
 	private void insertFakeNodes(Iterator<Node> nodeIterator)
 	{
 		if(!nodeIterator.hasNext())

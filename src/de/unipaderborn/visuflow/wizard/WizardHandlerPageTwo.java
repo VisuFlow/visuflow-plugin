@@ -12,7 +12,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -26,6 +25,7 @@ public class WizardHandlerPageTwo extends WizardPage {
 	@SuppressWarnings("unused")
 	private Text fileText;
 
+	@SuppressWarnings("unused")
 	private ISelection selection;
 
 	/**

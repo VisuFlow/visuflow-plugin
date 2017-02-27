@@ -95,7 +95,6 @@ public class NavigationHandler extends AbstractHandler {
 						try {
 							ServiceUtil.getService(DataModel.class).filterGraph(unit, true, null);
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					} else if (event.getCommand().getId().equals("JimpleEditor.VariablePath")) {
