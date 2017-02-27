@@ -51,7 +51,7 @@ public class JimpleModelAnalysis {
 			protected void internalTransform(String phase, Map<String, String> arg1) {
 				
 				String callGraphPref = GlobalSettings.get("CallGraphOption");
-				if(callGraphPref.equalsIgnoreCase("CHA"))
+				if("CHA".equalsIgnoreCase(callGraphPref))
 				{				
 					Options.v().setPhaseOption("cg.cha", "on");
 				}
