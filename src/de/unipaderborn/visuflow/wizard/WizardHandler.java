@@ -127,8 +127,8 @@ public class WizardHandler extends Wizard implements INewWizard {
 		
 //--		IContainer containerAnalysis = (IContainer) resourceAnalysis;
 		IJavaProject targetProject = JavaCore.create(resourceTarget.getProject());
-		String key = "TargetProject_"+sourceProject.getProject().getName();
-		GlobalSettings.put(key,resourceTarget.getLocation().toOSString()+ File.separator +  targetProject.getOutputLocation().lastSegment());
+		//String key = "TargetProject_"+sourceProject.getProject().getName();
+		GlobalSettings.put("Target_Path",resourceTarget.getLocation().toOSString()+ File.separator +  targetProject.getOutputLocation().lastSegment());
 		//IJavaProject analysisProject = JavaCore.create(resourceAnalysis.getProject());
 		GlobalSettings.put("AnalysisProject", sourceProject.getProject().getName());
 		GlobalSettings.put("TargetProject", targetProject.getProject().getName());
