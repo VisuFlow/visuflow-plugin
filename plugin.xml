@@ -206,6 +206,20 @@
 </visibleWhen>
       </command>
    </menuContribution>
+    <menuContribution
+          allPopups="false"
+          locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+       <toolbar
+             id="GraphStreamFeasibility.RunBuilder">
+          <command
+                commandId="GraphStreamFeasibility.RunBuilder"
+                icon="icons/Run.jpg"
+                label="Run Builder"
+                style="push"
+                tooltip="Run Builder">
+          </command>
+       </toolbar>
+    </menuContribution>
    
 </extension>
 <extension
@@ -238,6 +252,10 @@
          defaultHandler="de.unipaderborn.visuflow.debug.handlers.DebugStepResumeHandler"
          id="visuflow.debug.step.resume"
          name="Resume">
+   </command>
+   <command
+         id="GraphStreamFeasibility.RunBuilder"
+         name="Run Builder">
    </command>
 </extension>
 <extension
@@ -274,6 +292,10 @@
          class="de.unipaderborn.visuflow.debug.handlers.JavaToCFGHandler"
          commandId="JavaHandler.NavigateToJimple">
    </handler>
+      <handler
+            class="de.unipaderborn.visuflow.debug.handlers.RunBuilder"
+            commandId="GraphStreamFeasibility.RunBuilder">
+      </handler>
 </extension>
 
 <extension
@@ -467,13 +489,13 @@
        point="org.eclipse.ui.newWizards">
     <category
           id="VisuFlow.PlugIn.Wizard.VFCategory"
-          name="Taget Project">
+          name="New Analysis Project">
     </category>
     <wizard
           class="de.unipaderborn.visuflow.wizard.WizardHandler"
           icon="icons/monkey16.png"
           id="VisuFlow.PlugIn.Wizard.VFWizard"
-          name="Target Folder">
+          name="New Analysis Project">
     </wizard>
  </extension>
  <extension
