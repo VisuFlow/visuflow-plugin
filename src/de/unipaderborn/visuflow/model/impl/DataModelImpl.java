@@ -306,7 +306,6 @@ public class DataModelImpl implements DataModel {
 			IRegion region = findReplaceDocumentAdapter.find(0, method.getSootMethod().getDeclaration(), true, true, false, false);
 			return document.getLineOfOffset(region.getOffset());
 		} catch (BadLocationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return -1;

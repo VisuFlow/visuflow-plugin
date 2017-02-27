@@ -101,10 +101,10 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private ViewPanel view;
 	List<VFClass> analysisData;
 
-	static Node start = null;
-	static Node end, previous = null;
-	static Map<Node, Node> map = new HashMap<>();
-	static HashSet<Node> setOfNode = new HashSet<Node>();
+	private Node start = null;
+	private Node previous = null;
+	private Map<Node, Node> map = new HashMap<>();
+	private HashSet<Node> setOfNode = new HashSet<Node>();
 
 	Container panel;
 	JApplet applet;
@@ -463,23 +463,23 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		});
 
 		cha.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				GlobalSettings.put("CallGraphOption", "CHA");
 				ServiceUtil.getService(DataModel.class).triggerProjectRebuild();
 			}
 		});
-		
+
 		spark.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				GlobalSettings.put("CallGraphOption", "SPARK");
 				ServiceUtil.getService(DataModel.class).triggerProjectRebuild();
 			}
 		});
-		
+
 		popUp = new JPopupMenu("right click menu");
 
 		popUp.addPopupMenuListener(new PopupMenuListener(){
@@ -741,7 +741,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					if(curElement != null)
 					{
 						popUp = new JPopupMenu("right click menu");
-						
+
 						popUp.add(navigateToJimple);
 						popUp.add(navigateToJava);
 						popUp.add(showInUnitView);
@@ -1059,6 +1059,11 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			createGraphNode(dest);
 			createGraphEdge(src,dest);
 		}
+		if(interGraph.listEdges.size() == 1)
+		{
+			VFNode node = interGraph.listNodes.get(0);
+			createGraphNode(node);
+		}
 		this.CFG = true;
 		experimentalLayout();
 
@@ -1107,7 +1112,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 	}
 
-	static void nodeIterator(Node n)
+	private void getNodesToCollapse(Node n)
 	{
 		boolean present = false;
 		scala.collection.Iterator<Node> setIterator = setOfNode.iterator();
@@ -1141,7 +1146,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 				map.put(start, previous);
 				setOfNode.add(n);
-				nodeIterator(k);
+				getNodesToCollapse(k);
 
 			}
 		}
