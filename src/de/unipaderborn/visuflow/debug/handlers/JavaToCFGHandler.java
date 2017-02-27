@@ -50,18 +50,26 @@ public class JavaToCFGHandler extends AbstractHandler {
 			IDocument document = provider.getDocument(editor.getEditorInput());
 			int lineNumber = ruleInfo.getLineOfLastMouseButtonActivity();
 			String className = file.getName().substring(0, file.getName().lastIndexOf('.'));
-			HashMap<VFUnit,VFMethod> resultantUnit = getSelectedUnit(className, document, lineNumber);
+			HashMap<VFUnit, VFMethod> resultantUnit = getSelectedUnit(className, document, lineNumber);
 			List<VFNode> unit = new ArrayList<>();
 			if (resultantUnit.size() > 0) {
-				for (VFUnit vfUnit : resultantUnit.keySet()) {
-					unit.add(new VFNode(vfUnit, 0));
+				if (event.getCommand().getId().equals("JavaHandler.NavigateToJimple")) {
+					NavigationHandler handler = new NavigationHandler();
+					handler.highlightJimpleSource(new ArrayList<>(resultantUnit.keySet()));
+				} else {
+					for (VFUnit vfUnit : resultantUnit.keySet()) {
+						unit.add(new VFNode(vfUnit, 0));
+					}
+					try {
+						ServiceUtil.getService(DataModel.class).filterGraph(unit, true, null);
+
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
+
 			}
-			try {
-				ServiceUtil.getService(DataModel.class).filterGraph(unit, true, null);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+
 			// call graph highlighting code here
 		} else {
 			logger.error("Editor not a  Text Editor");
@@ -71,7 +79,7 @@ public class JavaToCFGHandler extends AbstractHandler {
 
 	private HashMap<VFUnit, VFMethod> getSelectedUnit(String className, IDocument document, int lineNumber) {
 		DataModel dataModel = ServiceUtil.getService(DataModel.class);
-		HashMap <VFUnit,VFMethod> map = new HashMap<VFUnit,VFMethod>();
+		HashMap<VFUnit, VFMethod> map = new HashMap<VFUnit, VFMethod>();
 		// VFClass
 		// vfClass=dataModel.listClasses().stream().filter(x->x.getSootClass().getName()==className).collect(Collectors.toList()).get(0);
 		for (VFClass vfClass : dataModel.listClasses()) {
@@ -87,9 +95,9 @@ public class JavaToCFGHandler extends AbstractHandler {
 						for (VFUnit unit : method.getUnits()) {
 							LineNumberTag ln = (LineNumberTag) unit.getUnit().getTag("LineNumberTag");
 							if (ln != null && ln.getLineNumber() == lineNumber + 1) {
-								
+
 								map.put(unit, method);
-								
+
 							}
 						}
 					}

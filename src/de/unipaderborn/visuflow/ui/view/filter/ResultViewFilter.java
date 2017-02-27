@@ -37,7 +37,11 @@ public class ResultViewFilter extends ViewerFilter {
 		if(contains(outset, searchString)) {
 			return true;
 		}
-
+		//From me
+		if(unit.getHmCustAttr().toString().matches(searchString)){
+			return true;
+		}
+		
 		return false;
 	}
 

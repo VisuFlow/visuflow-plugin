@@ -1,11 +1,11 @@
 package de.unipaderborn.visuflow.wizard;
 
 import java.util.HashMap;
-
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.dialogs.IDialogPage;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.WizardPage;
@@ -17,13 +17,19 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 
+import soot.jimple.toolkits.annotation.nullcheck.NullCheckEliminator.AnalysisFactory;
+
 public class WizardPageHandler extends WizardPage {
-	private Text containerSourceText,containerTargetText;
+	private Text containerSourceText,containerTargetText,containerProjectName,containerPackageName,containerClassName;
+	private Combo analysisType;
+	private Button[] analysisFramework = new Button[2];
 
 	@SuppressWarnings("unused")
 	private Text fileText;
@@ -49,25 +55,58 @@ public class WizardPageHandler extends WizardPage {
 		Composite container = new Composite(parent, SWT.NULL);
 		GridLayout layout = new GridLayout();
 		container.setLayout(layout);
-		layout.numColumns = 3;
-		layout.verticalSpacing = 9;
+		layout.numColumns = 5;
+		layout.verticalSpacing = 15;
+		
+		Label labelProject = new Label(container, SWT.NULL);
+		labelProject.setText("Name of the Project: ");
+
+		containerProjectName = new Text(container, SWT.BORDER | SWT.SINGLE);
+		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = 3;
+		containerProjectName.setLayoutData(gd);
+		
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = 1;
+		new Label(container, SWT.NONE).setLayoutData(gd);
+		
+		Label labelPackage = new Label(container, SWT.NULL);
+		labelPackage.setText("Package: ");
+
+		containerPackageName = new Text(container, SWT.BORDER | SWT.SINGLE);
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = 3;
+		containerPackageName.setLayoutData(gd);
+		
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = 1;
+		new Label(container, SWT.NONE).setLayoutData(gd);
+		
+		Label labelClass = new Label(container, SWT.NULL);
+		labelClass.setText("Class Name: ");
+
+		containerClassName = new Text(container, SWT.BORDER | SWT.SINGLE);
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = 3;
+		containerClassName.setLayoutData(gd);
+		
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = 1;
+		new Label(container, SWT.NONE).setLayoutData(gd);
+	
 		Label label = new Label(container, SWT.NULL);
-		label.setText("&Container:");
+		label.setText("Choose Folder: ");
 
 		containerSourceText = new Text(container, SWT.BORDER | SWT.SINGLE);
-		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-		containerSourceText.setLayoutData(gd);
-		containerSourceText.addModifyListener(new ModifyListener() {
-			public void modifyText(ModifyEvent e) {
-				dialogChanged();
-			}
-		});
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = 3;
+		containerSourceText.setLayoutData(gd);		
 
 		Button button = new Button(container, SWT.PUSH);
 		button.setText("Browse...");
 		button.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				handleBrowse();
+				handleFolderBrowse();
 			}
 		});		
 		
@@ -76,23 +115,45 @@ public class WizardPageHandler extends WizardPage {
 
 		containerTargetText = new Text(container, SWT.BORDER | SWT.SINGLE);
 		gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = 3;
 		containerTargetText.setLayoutData(gd);
-		containerTargetText.addModifyListener(new ModifyListener() {
-			public void modifyText(ModifyEvent e) {
-				dialogChanged();
-			}
-		});
+//		containerTargetText.addModifyListener(new ModifyListener() {
+//			public void modifyText(ModifyEvent e) {
+//				dialogChanged();
+//			}
+//		});
 
 		Button buttonFile = new Button(container, SWT.PUSH);
 		buttonFile.setText("Browse...");
 		buttonFile.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				handleBrowse2();
+				handleProjectBrowse();
+				dialogChanged();
 			}
 		});
 		
-		initialize();
-		dialogChanged();
+		Label labelAnalysis = new Label(container, SWT.NULL);
+		labelAnalysis.setText("Analysis Type/Framework: ");
+		
+		analysisType = new Combo(container, SWT.DROP_DOWN);
+		analysisType.setItems(new String[]{"Select","Inter Procedural Analysis","Intra Procedural Analysis"});
+		analysisType.select(0);
+		
+		analysisFramework[0] = new Button(container, SWT.RADIO);
+		analysisFramework[0].setSelection(true);
+		analysisFramework[0].setText("Soot");
+		//analysisType[0].setBounds(10, 5, 75, 30);
+		
+		analysisFramework[1] = new Button(container, SWT.RADIO);
+		analysisFramework[1].setSelection(false);
+		analysisFramework[1].setText("IFDS/IDE");
+		//analysisType[1].setBounds(10, 50, 75, 30);
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = 1;
+		new Label(container, SWT.NONE).setLayoutData(gd);
+		
+		//initialize();
+		//dialogChanged();
 		setControl(container);
 	}
 
@@ -123,20 +184,8 @@ public class WizardPageHandler extends WizardPage {
 	 * Uses the standard container selection dialog to choose the new value for
 	 * the container field.
 	 */
-
-	private void handleBrowse() {
-		ContainerSelectionDialog dialog = new ContainerSelectionDialog(
-				getShell(), ResourcesPlugin.getWorkspace().getRoot(), false,
-				"Select new file container");
-		if (dialog.open() == ContainerSelectionDialog.OK) {
-			Object[] result = dialog.getResult();
-			if (result.length == 1) {
-				containerSourceText.setText(((Path) result[0]).toString());
-			}
-		}
-	}
 	
-	private void handleBrowse2() {
+	private void handleProjectBrowse() {
 		ContainerSelectionDialog dialog = new ContainerSelectionDialog(
 				getShell(), ResourcesPlugin.getWorkspace().getRoot(), false,
 				"Select new file container");
@@ -147,6 +196,11 @@ public class WizardPageHandler extends WizardPage {
 			}
 		}
 	}
+	
+	private void handleFolderBrowse() {
+		DirectoryDialog dialog = new DirectoryDialog(getShell());
+		 containerSourceText.setText(dialog.open());
+	}
 
 	/**
 	 * Ensures that both text fields are set.
@@ -154,10 +208,10 @@ public class WizardPageHandler extends WizardPage {
 
 	private void dialogChanged() {
 		IResource container = ResourcesPlugin.getWorkspace().getRoot()
-				.findMember(new Path(getContainerName().get("ProjectPath")));
+				.findMember(new Path(getContainerName().get("TargetPath")));
 		
 
-		if (getContainerName().get("ProjectPath").length() == 0) {
+		if (getContainerName().get("TargetPath").length() == 0) {
 			updateStatus("File container must be specified");
 			return;
 		}
@@ -182,6 +236,18 @@ public class WizardPageHandler extends WizardPage {
 		HashMap<String, String> containerMap = new HashMap<>();
 		containerMap.put("ProjectPath", containerSourceText.getText());
 		containerMap.put("TargetPath", containerTargetText.getText());
+		containerMap.put("ProjectName", containerProjectName.getText());
+		containerMap.put("PackageName", containerPackageName.getText());
+		containerMap.put("ClassName", containerClassName.getText());
+		containerMap.put("AnalysisType", analysisType.getText());
+		if(analysisFramework[0].getSelection())
+		{
+			containerMap.put("AnalysisFramework", analysisFramework[0].getText());
+		}
+		if(analysisFramework[1].getSelection())
+		{
+			containerMap.put("AnalysisFramework", analysisFramework[0].getText());
+		}
 		return containerMap;
 	}
 }

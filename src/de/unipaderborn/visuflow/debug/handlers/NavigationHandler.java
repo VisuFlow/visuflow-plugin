@@ -194,28 +194,30 @@ public class NavigationHandler extends AbstractHandler {
 	}
 
 	public void removeJimpleHighlight() {
-		try {
-			IEditorReference[] references = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getEditorReferences();
-			for (int i = 0; i < references.length; i++) {
-				IEditorPart editorpart = references[i].getEditor(false);
-				if (editorpart instanceof ITextEditor) {
-					final ITextEditor editor = (ITextEditor) editorpart;
-					ISelection selection = editor.getSelectionProvider().getSelection();
-					if (selection != null) {
-						ITextSelection textSelection = (ITextSelection) selection;
-						editor.selectAndReveal(textSelection.getOffset(), 0);
-					}
+		Display.getDefault().asyncExec(() -> {
+			try {
+				IEditorReference[] references = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getEditorReferences();
+				for (int i = 0; i < references.length; i++) {
+					IEditorPart editorpart = references[i].getEditor(false);
+					if (editorpart instanceof ITextEditor) {
+						final ITextEditor editor = (ITextEditor) editorpart;
+						ISelection selection = editor.getSelectionProvider().getSelection();
+						if (selection != null) {
+							ITextSelection textSelection = (ITextSelection) selection;
+							editor.selectAndReveal(textSelection.getOffset(), 0);
+						}
 
+					}
 				}
+			} catch (NullPointerException e) {
+				e.printStackTrace();
 			}
-		} catch (NullPointerException e) {
-			e.printStackTrace();
-		}
+		});
 	}
 
 	private HashMap<VFUnit, VFMethod> getSelectedUnit(String className, IDocument document, String content, int lineNumber) {
 		DataModel dataModel = ServiceUtil.getService(DataModel.class);
-		HashMap<VFUnit, VFMethod> map = new HashMap<VFUnit, VFMethod>();
+		HashMap<VFUnit, VFMethod> map = new HashMap<>();
 		for (VFClass vfClass : dataModel.listClasses()) {
 			if (vfClass.getSootClass().getName().equals(className)) {
 				List<VFMethod> vfMethods = vfClass.getMethods();
@@ -242,7 +244,7 @@ public class NavigationHandler extends AbstractHandler {
 	private Map<String, Integer> getMethodLineNumbers(IDocument document, List<VFMethod> vfMethods) {
 
 		FindReplaceDocumentAdapter findReplaceDocumentAdapter = new FindReplaceDocumentAdapter(document);
-		TreeMap<String, Integer> result = new TreeMap<String, Integer>();
+		TreeMap<String, Integer> result = new TreeMap<>();
 		for (VFMethod method : vfMethods) {
 			try {
 				method.getSootMethod().getBytecodeSignature();
@@ -258,7 +260,7 @@ public class NavigationHandler extends AbstractHandler {
 
 	private List<VFNode> prepareVariablePath(String className, IDocument document, String content, int lineNumber) {
 		DataModel dataModel = ServiceUtil.getService(DataModel.class);
-		List<VFNode> unitList = new ArrayList<VFNode>();
+		List<VFNode> unitList = new ArrayList<>();
 		// Map<VFUnit,Value> map = new LinkedHashMap<VFUnit,Value>();
 		for (VFClass vfClass : dataModel.listClasses()) {
 			if (vfClass.getSootClass().getName().equals(className)) {
@@ -279,8 +281,8 @@ public class NavigationHandler extends AbstractHandler {
 	}
 
 	private List<VFNode> createPointsToSet(VFMethod method, String content) {
-		List<VFNode> unitList = new ArrayList<VFNode>();
-		List<Value> valueList = new ArrayList<Value>();
+		List<VFNode> unitList = new ArrayList<>();
+		List<Value> valueList = new ArrayList<>();
 		for (VFUnit unit : method.getUnits()) {
 			Unit u = unit.getUnit();
 			for (ValueBox db : u.getDefBoxes()) {

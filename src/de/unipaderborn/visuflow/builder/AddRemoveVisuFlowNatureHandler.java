@@ -1,7 +1,10 @@
 package de.unipaderborn.visuflow.builder;
 
 import java.util.Iterator;
-import org.eclipse.core.commands.*;
+
+import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.runtime.CoreException;
@@ -47,7 +50,7 @@ public class AddRemoveVisuFlowNatureHandler extends AbstractHandler {
 	 * @param project
 	 *            to have sample nature added or removed
 	 */
-	private void toggleNature(IProject project) throws CoreException {
+	public void toggleNature(IProject project) throws CoreException {
 		IProjectDescription description = project.getDescription();
 		String[] natures = description.getNatureIds();
 
