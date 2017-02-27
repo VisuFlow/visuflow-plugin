@@ -26,11 +26,12 @@ import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-
+import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JApplet;
@@ -83,6 +84,7 @@ import de.unipaderborn.visuflow.util.ServiceUtil;
 
 import soot.jimple.Stmt;
 import soot.jimple.InvokeExpr;
+import scala.collection.mutable.HashSet;
 import soot.jimple.ReturnStmt;
 import soot.jimple.ReturnVoidStmt;
 
@@ -96,6 +98,11 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private Viewer viewer;
 	private ViewPanel view;
 	List<VFClass> analysisData;
+	
+	static Node start = null;
+	static Node end, previous = null;
+	static Map<Node, Node> map = new HashMap<>();
+	static HashSet<Node> setOfNode = new HashSet<Node>();
 
 	Container panel;
 	JApplet applet;
@@ -1058,6 +1065,46 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			createdNode.setAttribute("nodeData.line", node.getUnit().getJavaSourceStartLineNumber());
 			//			createdNode.setAttribute("nodeData.column", node.getUnit().getJavaSourceStartColumnNumber());
 			createdNode.setAttribute("nodeUnit", node);
+		}
+	}
+	
+	static void nodeIterator(Node n)
+	{
+		boolean present = false;
+		scala.collection.Iterator<Node> setIterator = setOfNode.iterator();
+		while(setIterator.hasNext())
+		{
+			if(setIterator.next().equals(n))
+			{
+				present = true;
+				break;
+			}
+		}
+		if(!present)
+		{
+			Iterator<Edge> edgeIterator = n.getLeavingEdgeIterator();
+			while(edgeIterator.hasNext()) {
+				Edge edge = edgeIterator.next();
+				start = edge.getNode1();
+				Node k = start;
+				while(true)
+				{
+					if(k.getOutDegree() == 1 && k.getInDegree() == 1)
+					{
+						previous = k;
+						k = k.getEachLeavingEdge().iterator().next().getNode1();
+					}
+					else
+					{
+						break;
+					}
+				}
+
+				map.put(start, previous);
+				setOfNode.add(n);
+				nodeIterator(k);
+
+			}
 		}
 	}
 
