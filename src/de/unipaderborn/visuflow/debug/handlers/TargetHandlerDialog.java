@@ -225,9 +225,9 @@ package de.unipaderborn.visuflow.debug.handlers;
 	    		IResource resourceTarget = root.findMember(new Path(containerTargetText.getText()));	    		
 	    		//IContainer containerAnalysis = (IContainer) resourceAnalysis;
 	    		IJavaProject targetProject = JavaCore.create(resourceTarget.getProject());
-	    		String key = "TargetProject_"+resourceAnalysis.getProject().getName();
+	    		//String key = "TargetProject_"+resourceAnalysis.getProject().getName();
 	    		try {
-					GlobalSettings.put(key,resourceTarget.getLocation().toOSString()+ File.separator +  targetProject.getOutputLocation().lastSegment());
+					GlobalSettings.put("Target_Path",resourceTarget.getLocation().toOSString()+ File.separator +  targetProject.getOutputLocation().lastSegment());
 				} catch (JavaModelException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

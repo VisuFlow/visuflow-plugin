@@ -51,6 +51,7 @@ public class WizardPageHandler extends WizardPage {
 		
 		Label labelProject = new Label(container, SWT.NULL);
 		labelProject.setText("Name of the Project: ");
+		labelProject.setToolTipText("Specify the analysis project name");
 
 		containerProjectName = new Text(container, SWT.BORDER | SWT.SINGLE);
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
@@ -75,7 +76,7 @@ public class WizardPageHandler extends WizardPage {
 		
 		Label labelClass = new Label(container, SWT.NULL);
 		labelClass.setText("Class Name: ");
-		labelClass.setToolTipText("This class contains main method that  ");
+		labelClass.setToolTipText("Name of the class containing main method");
 
 		containerClassName = new Text(container, SWT.BORDER | SWT.SINGLE);
 		gd = new GridData(GridData.FILL_HORIZONTAL);
@@ -104,6 +105,7 @@ public class WizardPageHandler extends WizardPage {
 		
 		Label labelFile = new Label(container, SWT.NULL);
 		labelFile.setText("Choose Target Project:");
+		labelFile.setToolTipText("Select target project on which you would like to run the analysis");
 
 		containerTargetText = new Text(container, SWT.BORDER | SWT.SINGLE);
 		gd = new GridData(GridData.FILL_HORIZONTAL);

@@ -17,7 +17,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 public class WizardHandlerPageTwo extends WizardPage {
-//	private Text containerSourceText,containerTargetText,containerProjectName,containerPackageName;
+
 	private Text classFirst, classSecond, containerSootLocation;
 	private Combo flowSet,flowSetType1,flowSetType2;
 	private Button[] analysisDirection = new Button[2];
@@ -26,8 +26,6 @@ public class WizardHandlerPageTwo extends WizardPage {
 	private Text fileText;
 
 	@SuppressWarnings("unused")
-	private ISelection selection;
-
 	/**
 	 * Constructor for SampleNewWizardPage.
 	 * 
@@ -35,9 +33,8 @@ public class WizardHandlerPageTwo extends WizardPage {
 	 */
 	public WizardHandlerPageTwo(ISelection selection) {
 		super("wizardPage");
-		setTitle("Link Analysis and Target Project");
-		setDescription("This wizard links the Target Java project with the Analysis project");
-		this.selection = selection;
+		setTitle("Create New Analysis Project");
+		setDescription("This wizard creates new analysis project based on user-inputs");
 	}
 
 	/**
@@ -79,14 +76,14 @@ public class WizardHandlerPageTwo extends WizardPage {
 		gd = new GridData(GridData.FILL_HORIZONTAL);
 		gd.horizontalSpan = 1;
 		flowSet = new Combo(container, SWT.DROP_DOWN);
-		flowSet.setItems(new String[]{"Select","Set", "Map", "HashMap"});
+		flowSet.setItems(new String[]{"Select","Set", "Map", "HashMap", "ArrayList"});
 		flowSet.select(0);
 		flowSet.setLayoutData(gd);		
 		
 		gd = new GridData(GridData.FILL_HORIZONTAL);
 		gd.horizontalSpan = 1;
 		flowSetType1 = new Combo(container, SWT.DROP_DOWN);
-		flowSetType1.setItems(new String[]{"Select","Integer", "Long", "Float", "Double", "Boolean", "Char", "Custom"});
+		flowSetType1.setItems(new String[]{"Select","Integer", "Long", "Float", "Double", "Boolean", "Char", "String", "Custom"});
 		flowSetType1.select(0);
 		flowSetType1.setLayoutData(gd);
 		flowSetType1.addSelectionListener(new SelectionListener() {
@@ -111,7 +108,7 @@ public class WizardHandlerPageTwo extends WizardPage {
 		gd = new GridData(GridData.FILL_HORIZONTAL);
 		gd.horizontalSpan = 1;
 		flowSetType2 = new Combo(container, SWT.DROP_DOWN);
-		flowSetType2.setItems(new String[]{"Select","Integer", "Long", "Float", "Double", "Boolean", "Char", "Custom"});
+		flowSetType2.setItems(new String[]{"Select","Integer", "Long", "Float", "Double", "Boolean", "Char", "String", "Custom"});
 		flowSetType2.select(0);
 		flowSetType2.setLayoutData(gd);
 		flowSetType2.addSelectionListener(new SelectionListener() {
@@ -194,8 +191,6 @@ public class WizardHandlerPageTwo extends WizardPage {
 			}
 		});
 		
-		initialize();
-		//dialogChanged();
 		setControl(container);
 	}
 
@@ -207,25 +202,6 @@ public class WizardHandlerPageTwo extends WizardPage {
 		FileDialog fileDialog = new FileDialog(getShell(),SWT.OPEN);
 		fileDialog.setFilterExtensions(new String[]{"*.jar"});
 		 containerSootLocation.setText(fileDialog.open());
-	}
-	
-	private void initialize() {
-//		if (selection != null && selection.isEmpty() == false
-//				&& selection instanceof IStructuredSelection) {
-//			IStructuredSelection ssel = (IStructuredSelection) selection;
-//			if (ssel.size() > 1)
-//				return;
-//			Object obj = ssel.getFirstElement();
-//			if (obj instanceof IResource) {
-//				IContainer container;
-//				if (obj instanceof IContainer)
-//					container = (IContainer) obj;
-//				else
-//					container = ((IResource) obj).getParent();
-//				containerSourceText.setText(container.getFullPath().toString());
-//			}
-//		}
-		
 	}
 
 	public HashMap<String, String> getContainerName() {

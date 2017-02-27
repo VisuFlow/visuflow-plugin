@@ -109,8 +109,9 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	Container panel;
 	JApplet applet;
 	JButton zoomInButton, zoomOutButton, viewCenterButton, toggleLayout, showICFGButton, btColor;
-	JToolBar settingsBar;
+	JToolBar headerBar, settingsBar;
 	JTextField searchText;
+	JLabel header;
 
 	JDialog dialog;
 	JPanel panelColor;
@@ -229,6 +230,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		createViewListeners();
 		createToggleLayoutButton();
 		createSearchText();
+		createHeaderBar();
 		createSettingsBar();
 		createPanel();
 		createAppletContainer();
@@ -468,6 +470,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			public void actionPerformed(ActionEvent e) {
 				GlobalSettings.put("CallGraphOption", "CHA");
 				ServiceUtil.getService(DataModel.class).triggerProjectRebuild();
+				header.setText(header.getText() + " ------> CHA");
 			}
 		});
 
@@ -477,6 +480,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			public void actionPerformed(ActionEvent e) {
 				GlobalSettings.put("CallGraphOption", "SPARK");
 				ServiceUtil.getService(DataModel.class).triggerProjectRebuild();
+				header.setText(header.getText() + " ------> SPARK");
 			}
 		});
 
@@ -608,10 +612,19 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		settingsBar.add(searchText);
 	}
 
+	private void createHeaderBar()
+	{
+		this.headerBar = new JToolBar("Header");
+		this.headerBar.setFloatable(false);
+		this.header = new JLabel("ICFG");
+		this.headerBar.add(header);
+	}
+	
 	private void createPanel() {
 		JFrame temp = new JFrame();
 		temp.setLayout(new BorderLayout());
 		panel = temp.getContentPane();
+		panel.add(headerBar,BorderLayout.PAGE_START);
 		panel.add(view);
 		panel.add(settingsBar, BorderLayout.PAGE_END);
 	}
@@ -1019,6 +1032,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			createGraphMethodEdge(src, dest);
 		}
 		this.CFG = false;
+		this.header.setText("ICFG");
 		experimentalLayout();
 	}
 
@@ -1072,6 +1086,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			defaultPanZoom();
 			panToNode(graph.getNodeIterator().next().getId());
 		}
+		this.header.setText("Method CFG ----> " + ServiceUtil.getService(DataModel.class).getSelectedMethod().toString());
 	}
 
 	private void createGraphEdge(VFNode src, VFNode dest) {
@@ -1112,6 +1127,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private void getNodesToCollapse(Node n)
 	{
 		boolean present = false;

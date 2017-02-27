@@ -102,7 +102,7 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 		IResourceDelta delta = getDelta(project.getProject());
 		if (delta == null || !delta.getAffectedChildren()[0].getProjectRelativePath().toString().equals(targetFolder)) {
 			classpath = getSootCP(project);
-			String location = GlobalSettings.get("TargetProject_" + project.getProject().getName());
+			String location = GlobalSettings.get("Target_Path");
 			IFolder folder = project.getProject().getFolder(targetFolder);
 
 			// at this point, no resources have been created
