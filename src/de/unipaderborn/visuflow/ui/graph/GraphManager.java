@@ -26,11 +26,12 @@ import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-
+import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JApplet;
@@ -39,6 +40,7 @@ import javax.swing.JColorChooser;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -51,6 +53,9 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.graphstream.algorithm.Toolkit;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
@@ -69,6 +74,8 @@ import org.osgi.service.event.EventHandler;
 
 import com.google.common.base.Optional;
 
+import de.unipaderborn.visuflow.builder.GlobalSettings;
+import de.unipaderborn.visuflow.builder.JimpleBuilder;
 import de.unipaderborn.visuflow.debug.handlers.NavigationHandler;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
@@ -80,10 +87,12 @@ import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.model.graph.ControlFlowGraph;
 import de.unipaderborn.visuflow.model.graph.ICFGStructure;
 import de.unipaderborn.visuflow.util.ServiceUtil;
+
+import soot.jimple.Stmt;
 import soot.jimple.InvokeExpr;
+import scala.collection.mutable.HashSet;
 import soot.jimple.ReturnStmt;
 import soot.jimple.ReturnVoidStmt;
-import soot.jimple.Stmt;
 
 public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
@@ -95,6 +104,11 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private Viewer viewer;
 	private ViewPanel view;
 	List<VFClass> analysisData;
+
+	static Node start = null;
+	static Node end, previous = null;
+	static Map<Node, Node> map = new HashMap<>();
+	static HashSet<Node> setOfNode = new HashSet<Node>();
 
 	Container panel;
 	JApplet applet;
@@ -133,6 +147,14 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private boolean draggingGraph = false;
 	private Point mouseDraggedFrom;
 	private Point mouseDraggedTo;
+	private JMenuItem navigateToJimple;
+	private JMenuItem navigateToJava;
+	private JMenuItem showInUnitView;
+	private JMenuItem followCall;
+	private JMenuItem followReturn;
+	private JMenu callGraphOption;
+	private JMenuItem cha;
+	private JMenuItem rta;
 
 	public GraphManager(String graphName, String styleSheet)
 	{
@@ -185,7 +207,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 		view = viewer.addDefaultView(false);
 		view.getCamera().setAutoFitView(true);
-		//		view.removeMouseMotionListener(view.getMouseMotionListeners()[0]);
 	}
 
 	private void reintializeGraph() throws Exception
@@ -331,11 +352,19 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	private void createPopUpMenu()
 	{
-		JMenuItem navigateToJimple = new JMenuItem("Navigate to Jimple");
-		JMenuItem navigateToJava = new JMenuItem("Navigate to Java");
-		JMenuItem showInUnitView = new JMenuItem("Highlight on Units view");
-		JMenuItem followCall = new JMenuItem("Follow the Call");
-		JMenuItem followReturn = new JMenuItem("Follow the Return");
+		navigateToJimple = new JMenuItem("Navigate to Jimple");
+		navigateToJava = new JMenuItem("Navigate to Java");
+		showInUnitView = new JMenuItem("Highlight on Units view");
+		followCall = new JMenuItem("Follow the Call");
+		followReturn = new JMenuItem("Follow the Return");
+
+		callGraphOption = new JMenu("Call Graph Option");
+		cha = new JMenuItem("CHA");
+		rta = new JMenuItem("RTA");
+
+		callGraphOption.add(cha);
+		callGraphOption.add(rta);
+
 		followCall.setVisible(false);
 		followReturn.setVisible(false);
 
@@ -405,7 +434,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 		followCall.addActionListener(new ActionListener() {
 
-			@Override
 			public void actionPerformed(ActionEvent e) {
 				GraphicElement curElement = view.findNodeOrSpriteAt(x, y);
 				if(curElement == null)
@@ -423,7 +451,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 		followReturn.addActionListener(new ActionListener() {
 
-			@Override
 			public void actionPerformed(ActionEvent e) {
 				GraphicElement curElement = view.findNodeOrSpriteAt(x, y);
 				if(curElement == null)
@@ -439,17 +466,30 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			}
 		});
 
+		cha.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				GlobalSettings.put("CallGraphOption", "CHA");
+//				IProject project = 
+			}
+		});
+		
+		rta.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				GlobalSettings.put("CallGraphOption", "RTA");
+				JimpleBuilder builder = new JimpleBuilder();
+				builder.forgetLastBuiltState();
+				builder.needRebuild();
+			}
+		});
+		
 		popUp = new JPopupMenu("right click menu");
-
-		popUp.add(navigateToJimple);
-		popUp.add(navigateToJava);
-		popUp.add(showInUnitView);
-		popUp.add(followCall);
-		popUp.add(followReturn);
 
 		popUp.addPopupMenuListener(new PopupMenuListener(){
 
-			@Override
 			public void popupMenuWillBecomeVisible(PopupMenuEvent arg0) {
 				GraphicElement curElement = view.findNodeOrSpriteAt(x, y);
 				if(curElement == null)
@@ -474,13 +514,11 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				}
 			}
 
-			@Override
 			public void popupMenuCanceled(PopupMenuEvent arg0) {
 				followCall.setVisible(false);
 				followReturn.setVisible(false);
 			}
 
-			@Override
 			public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0) {
 				followCall.setVisible(false);
 				followReturn.setVisible(false);
@@ -528,33 +566,23 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private void createSearchText()
 	{
 		this.searchText = new JTextField("Search graph");
-		ArrayList<VFNode> vfNodes = new ArrayList<>();
-		ArrayList<VFUnit> vfUnits = new ArrayList<>();
 		searchText.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				for (Node node : graph) {
-					if(node.hasAttribute("ui.class"))
-					{
-						node.removeAttribute("ui.class");
-					}
-				}
 				String searchString = searchText.getText().toLowerCase();
-				Node last = null;
+				ArrayList<VFNode> vfNodes = new ArrayList<>();
+				ArrayList<VFUnit> vfUnits = new ArrayList<>();
 				for (Node node : graph) {
 					if(node.getAttribute("ui.label").toString().toLowerCase().contains((searchString))){
-						node.setAttribute("ui.class", "filter");
-						last = node;
 						vfNodes.add((VFNode) node.getAttribute("nodeUnit"));
 						vfUnits.add(((VFNode) node.getAttribute("nodeUnit")).getVFUnit());
 					}
 				}
-				if(last != null)
-					panToNode(last.getId());
 
 				try {
-					ServiceUtil.getService(DataModel.class).filterGraph(vfNodes, true, null);
+					DataModel model = ServiceUtil.getService(DataModel.class);
+					model.filterGraph(vfNodes, true, null);
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
@@ -703,6 +731,32 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			public void mouseClicked(MouseEvent e) {
 				DataModel dataModel = ServiceUtil.getService(DataModel.class);
 				GraphicElement curElement = view.findNodeOrSpriteAt(e.getX(), e.getY());
+				if(e.getButton() == MouseEvent.BUTTON3 && !CFG)
+				{
+					x = e.getX();
+					y = e.getY();
+					popUp = new JPopupMenu("right click menu");
+					popUp.add(callGraphOption);
+					popUp.show(e.getComponent(), x, y);
+				}
+				if(e.getButton() == MouseEvent.BUTTON3 && CFG)
+				{
+					x = e.getX();
+					y = e.getY();
+
+					if(curElement != null)
+					{
+						popUp = new JPopupMenu("right click menu");
+						
+						popUp.add(navigateToJimple);
+						popUp.add(navigateToJava);
+						popUp.add(showInUnitView);
+						popUp.add(followCall);
+						popUp.add(followReturn);
+
+						popUp.show(e.getComponent(), x, y);
+					}
+				}
 				if(curElement == null)
 					return;
 				Node curr = graph.getNode(curElement.getId());
@@ -750,25 +804,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					if(id != null)
 						toggleNode(id);
 				}
-				if(e.getButton() == MouseEvent.BUTTON3 && CFG)
-				{
-					x = e.getX();
-					y = e.getY();
-					if(curElement != null)
-						popUp.show(e.getComponent(), x, y);
-				}
-				/*else
-				{
-					Object node = curr.getAttribute("nodeUnit");
-					if(node instanceof VFNode)
-					{
-						dataModel.HighlightJimpleUnit((VFNode) node);
-						if(((Stmt)((VFNode) node).getUnit()).containsInvokeExpr()){
-							callInvokeExpr(((Stmt)((VFNode) node).getUnit()).getInvokeExpr());
-						}
 					}
-				}*/
-			}
 		});
 
 		view.addKeyListener(new KeyListener() {
@@ -952,7 +988,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			if(node.hasAttribute("ui.class"))
 				node.removeAttribute("ui.class");
 			for (VFNode vfNode : nodes) {
-				if(node.getAttribute("nodeData.unit").toString().contentEquals(vfNode.getUnit().toString()))
+				if(node.getAttribute("unit").toString().contentEquals(vfNode.getUnit().toString()))
 				{
 					if(selected)
 						node.setAttribute("ui.class", uiClassName);
@@ -1059,8 +1095,9 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				createdNode.setAttribute("ui.label", node.getUnit().toString());
 			}
 			String str = node.getUnit().toString();
-			String nodename = StringEscapeUtils.escapeHtml(str);
-			createdNode.setAttribute("nodeData.unit", nodename);
+			String escapedNodename = StringEscapeUtils.escapeHtml(str);
+			createdNode.setAttribute("unit", str);
+			createdNode.setAttribute("nodeData.unit", escapedNodename);
 
 			createdNode.setAttribute("nodeData.unitType", node.getUnit().getClass());
 			String str1 = Optional.fromNullable(node.getVFUnit().getInSet()).or("n/a").toString();
@@ -1076,7 +1113,47 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 	}
 
-	private void experimentalLayout()
+	static void nodeIterator(Node n)
+	{
+		boolean present = false;
+		scala.collection.Iterator<Node> setIterator = setOfNode.iterator();
+		while(setIterator.hasNext())
+		{
+			if(setIterator.next().equals(n))
+			{
+				present = true;
+				break;
+			}
+		}
+		if(!present)
+		{
+			Iterator<Edge> edgeIterator = n.getLeavingEdgeIterator();
+			while(edgeIterator.hasNext()) {
+				Edge edge = edgeIterator.next();
+				start = edge.getNode1();
+				Node k = start;
+				while(true)
+				{
+					if(k.getOutDegree() == 1 && k.getInDegree() == 1)
+					{
+						previous = k;
+						k = k.getEachLeavingEdge().iterator().next().getNode1();
+					}
+					else
+					{
+						break;
+					}
+				}
+
+				map.put(start, previous);
+				setOfNode.add(n);
+				nodeIterator(k);
+
+			}
+		}
+	}
+
+	private void experimentalLayoutOld()
 	{
 		if(!CFG)
 		{
@@ -1143,6 +1220,117 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 
 		view.getCamera().resetView();
+	}
+
+	private void experimentalLayout()
+	{
+		if(!CFG)
+		{
+			viewer.enableAutoLayout(new SpringBox());
+			view.getCamera().resetView();
+			return;
+		}
+		viewer.disableAutoLayout();
+
+		int nodeCount = graph.getNodeCount();
+		Iterator<Node> nodeIterator = graph.getNodeIterator();
+		Node first = nodeIterator.next();
+
+		//step 1 ---> assign layers to nodes
+		first.setAttribute("layoutLayer", 0);
+		assignLayers(nodeIterator, 1);
+
+		ArrayList<ArrayList<Node>> nodeLayers = new ArrayList<>();
+		for (int i = 0; i < nodeCount; i++) {
+			nodeLayers.add(new ArrayList<>());
+		}
+		System.out.println("Total layers " + nodeLayers.size());
+		for (Node node : graph) {
+			int layer = node.getAttribute("layoutLayer");
+			nodeLayers.get(layer).add(node);
+		}
+		int iterationCount = nodeCount-1;
+		while(nodeLayers.get(iterationCount).isEmpty())
+			nodeLayers.remove(iterationCount--);
+		System.out.println("final layer count " + nodeLayers.size());
+
+		//step 2 ---> insert fake nodes
+		/*nodeIterator = graph.getNodeIterator();
+		insertFakeNodes(nodeIterator);*/
+
+		for (Node node : graph) {
+			int layer = node.getAttribute("layoutLayer");
+			//			System.out.println("node " + node.getId() + " ----> " + node.getAttribute("ui.label") + " ----> layer " + layer);
+			node.setAttribute("xyz", 2.0, (nodeCount - (layer * 3.0)), 0.0);
+		}
+		experimentalLayoutOld();
+	}
+
+	private void insertFakeNodes(Iterator<Node> nodeIterator)
+	{
+		if(!nodeIterator.hasNext())
+			return;
+
+		Node curr = nodeIterator.next();
+		int inDegree = curr.getInDegree();
+		if(inDegree > 1)
+		{
+			Iterable<Edge> edges = curr.getEachEnteringEdge();
+			int childLayer = curr.getAttribute("layoutLayer");
+			for(Edge edge : edges)
+			{
+				Node tempParent = edge.getOpposite(curr);
+				int parentLayer = tempParent.getAttribute("layoutLayer");
+				if(parentLayer == childLayer)
+					continue;
+				else
+				{
+					int diff = parentLayer - childLayer;
+					for(int i = 1; i < diff; i++)
+					{
+						int nodeId = diff + parentLayer;
+						graph.addNode("" + nodeId);
+						graph.addEdge(tempParent.getId(), "" + nodeId, tempParent.getId() + nodeId);
+					}
+				}
+			}
+		}
+	}
+
+	private void assignLayers(Iterator<Node> nodeIterator, int layer)
+	{
+		if(!nodeIterator.hasNext())
+			return;
+
+		Node curr = nodeIterator.next();
+		int inDegree = curr.getInDegree();
+		if(inDegree == 1)
+		{
+			Iterable<Edge> edges = curr.getEachEnteringEdge();
+			for (Edge edge : edges) {
+				layer = edge.getOpposite(curr).getAttribute("layoutLayer");
+				layer++;
+			}
+		}
+		if(inDegree > 1)
+		{
+			Iterable<Edge> edges = curr.getEachEnteringEdge();
+			int parentLayer = layer;
+			for (Edge edge : edges) {
+				Node parent = edge.getOpposite(curr);
+				if(curr.hasAttribute("layoutLayer"))
+				{
+					int currLayer = parent.getAttribute("layoutLayer");
+					if(currLayer > parentLayer)
+						parentLayer = currLayer;
+				}
+			}
+			layer = parentLayer++;
+		}
+		curr.setAttribute("layoutLayer", layer);
+		System.out.println("node " + curr.getAttribute("ui.label"));
+		assignLayers(nodeIterator, layer);
+		return;
 	}
 
 	void toggleNode(String id){
