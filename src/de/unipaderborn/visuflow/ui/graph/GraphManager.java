@@ -130,8 +130,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	public GraphManager(String graphName, String styleSheet)
 	{
-//		System.setProperty("sun.awt.noerasebackground", "true");
-//		System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
+		//		System.setProperty("sun.awt.noerasebackground", "true");
+		//		System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
 		this.panXDelta = 2;
 		this.panYDelta = 2;
 		this.zoomInDelta = .075;
@@ -144,7 +144,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		createUI();
 
 		renderICFG(ServiceUtil.getService(DataModel.class).getIcfg());
-		
+
 		view.setToolTipText("Tooltip Test");
 	}
 
@@ -179,7 +179,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 		view = viewer.addDefaultView(false);
 		view.getCamera().setAutoFitView(true);
-		//		view.removeMouseMotionListener(view.getMouseMotionListeners()[0]);
 	}
 
 	private void reintializeGraph() throws Exception
@@ -238,7 +237,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	private void panToNode(String nodeId)
 	{
-//		view.getCamera().resetView();
+		//		view.getCamera().resetView();
 		Node panToNode = graph.getNode(nodeId);
 		double[] pos = Toolkit.nodePosition(panToNode);
 		double currPosition = view.getCamera().getViewCenter().y;
@@ -279,7 +278,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		panRightButton = new JButton("");
 		panUpButton = new JButton("");
 		panDownButton = new JButton("");
-		
+
 		panLeftButton.setToolTipText("shift + arrow key left");
 		panRightButton.setToolTipText("shift + arrow key right");
 		panUpButton.setToolTipText("shift + arrow key up");
@@ -394,7 +393,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		});
 
 		popUp = new JPopupMenu("right click menu");
-		
+
 		popUp.add(navigateToJimple);
 		popUp.add(navigateToJava);
 		popUp.add(showInUnitView);
@@ -969,7 +968,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 	}
 
-	private void experimentalLayout()
+	private void experimentalLayoutOld()
 	{
 		if(!CFG)
 		{
@@ -1036,6 +1035,117 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 
 		view.getCamera().resetView();
+	}
+
+	private void experimentalLayout()
+	{
+		if(!CFG)
+		{
+			viewer.enableAutoLayout(new SpringBox());
+			view.getCamera().resetView();
+			return;
+		}
+		viewer.disableAutoLayout();
+
+		int nodeCount = graph.getNodeCount();
+		Iterator<Node> nodeIterator = graph.getNodeIterator();
+		Node first = nodeIterator.next();
+
+		//step 1 ---> assign layers to nodes
+		first.setAttribute("layoutLayer", 0);
+		assignLayers(nodeIterator, 1);
+		
+		ArrayList<ArrayList<Node>> nodeLayers = new ArrayList<>();
+		for (int i = 0; i < nodeCount; i++) {
+			nodeLayers.add(new ArrayList<>());
+		}
+		System.out.println("Total layers " + nodeLayers.size());
+		for (Node node : graph) {
+			int layer = node.getAttribute("layoutLayer");
+			nodeLayers.get(layer).add(node);
+		}
+		int iterationCount = nodeCount-1;
+		while(nodeLayers.get(iterationCount).isEmpty())
+			nodeLayers.remove(iterationCount--);
+		System.out.println("final layer count " + nodeLayers.size());
+
+		//step 2 ---> insert fake nodes
+		/*nodeIterator = graph.getNodeIterator();
+		insertFakeNodes(nodeIterator);*/
+
+		for (Node node : graph) {
+			int layer = node.getAttribute("layoutLayer");
+//			System.out.println("node " + node.getId() + " ----> " + node.getAttribute("ui.label") + " ----> layer " + layer);
+			node.setAttribute("xyz", 2.0, (nodeCount - (layer * 3.0)), 0.0);
+		}
+		experimentalLayoutOld();
+	}
+
+	private void insertFakeNodes(Iterator<Node> nodeIterator)
+	{
+		if(!nodeIterator.hasNext())
+			return;
+
+		Node curr = nodeIterator.next();
+		int inDegree = curr.getInDegree();
+		if(inDegree > 1)
+		{
+			Iterable<Edge> edges = curr.getEachEnteringEdge();
+			int childLayer = curr.getAttribute("layoutLayer");
+			for(Edge edge : edges)
+			{
+				Node tempParent = edge.getOpposite(curr);
+				int parentLayer = tempParent.getAttribute("layoutLayer");
+				if(parentLayer == childLayer)
+					continue;
+				else
+				{
+					int diff = parentLayer - childLayer;
+					for(int i = 1; i < diff; i++)
+					{
+						int nodeId = diff + parentLayer;
+						graph.addNode("" + nodeId);
+						graph.addEdge(tempParent.getId(), "" + nodeId, tempParent.getId() + nodeId);
+					}
+				}
+			}
+		}
+	}
+
+	private void assignLayers(Iterator<Node> nodeIterator, int layer)
+	{
+		if(!nodeIterator.hasNext())
+			return;
+
+		Node curr = nodeIterator.next();
+		int inDegree = curr.getInDegree();
+		if(inDegree == 1)
+		{
+			Iterable<Edge> edges = curr.getEachEnteringEdge();
+			for (Edge edge : edges) {
+				layer = edge.getOpposite(curr).getAttribute("layoutLayer");
+				layer++;
+			}
+		}
+		if(inDegree > 1)
+		{
+			Iterable<Edge> edges = curr.getEachEnteringEdge();
+			int parentLayer = layer;
+			for (Edge edge : edges) {
+				Node parent = edge.getOpposite(curr);
+				if(curr.hasAttribute("layoutLayer"))
+				{
+					int currLayer = parent.getAttribute("layoutLayer");
+					if(currLayer > parentLayer)
+						parentLayer = currLayer;
+				}
+			}
+			layer = parentLayer++;
+		}
+		curr.setAttribute("layoutLayer", layer);
+		System.out.println("node " + curr.getAttribute("ui.label"));
+		assignLayers(nodeIterator, layer);
+		return;
 	}
 
 	void toggleNode(String id){
