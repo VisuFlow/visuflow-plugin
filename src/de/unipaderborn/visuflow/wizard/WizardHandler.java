@@ -58,11 +58,11 @@ public class WizardHandler extends Wizard implements INewWizard {
 	}
 
 	public boolean performFinish() {
-		final String analysisProjectPath = page.getContainerName().get("ProjectPath");
+		//final String analysisProjectPath = page.getContainerName().get("ProjectPath");
 		final String targetProjectPath = page.getContainerName().get("TargetPath");
 		final String analysisProjectName = page.getContainerName().get("ProjectName");
 		wizardInput = new WizardInput();
-		wizardInput.setProjectPath(analysisProjectPath);
+		//wizardInput.setProjectPath(analysisProjectPath);
 		wizardInput.setTargetPath(targetProjectPath);
 		wizardInput.setProjectName(analysisProjectName);
 		wizardInput.setPackageName(page.getContainerName().get("PackageName"));
@@ -81,7 +81,7 @@ public class WizardHandler extends Wizard implements INewWizard {
 		IRunnableWithProgress op = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) throws InvocationTargetException {
 				try {
-					doFinish(analysisProjectPath, targetProjectPath, analysisProjectName, monitor);
+					doFinish(targetProjectPath, analysisProjectName, monitor);
 				} catch (CoreException e) {
 					throw new InvocationTargetException(e);
 				} catch (FileNotFoundException e) {
@@ -110,13 +110,12 @@ public class WizardHandler extends Wizard implements INewWizard {
 	}
 
 	private void doFinish(
-		String analysisProjectPath,
 		String targetProjectPath,
 		String analysisProjectName,
 		IProgressMonitor monitor)
 		throws CoreException, IOException {
 		//create a sample file
-		monitor.beginTask("Creating " + analysisProjectPath, 2);
+		monitor.beginTask("Creating " +analysisProjectName, 2);
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		ProjectGenerator projectGen = new ProjectGenerator();
 		IJavaProject sourceProject = projectGen.createProject(wizardInput);

@@ -15,13 +15,12 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 
 public class WizardPageHandler extends WizardPage {
-	private Text containerSourceText,containerTargetText,containerProjectName,containerPackageName,containerClassName;
+	private Text containerTargetText,containerProjectName,containerPackageName,containerClassName;
 	private Combo analysisType;
 	private Button[] analysisFramework = new Button[2];
 
@@ -37,8 +36,8 @@ public class WizardPageHandler extends WizardPage {
 	 */
 	public WizardPageHandler(ISelection selection) {
 		super("wizardPage");
-		setTitle("Link Analysis and Target Project");
-		setDescription("This wizard links the Target Java project with the Analysis project");
+		setTitle("Create New Analysis Project");
+		setDescription("This wizard creates new analysis project based on user-inputs");
 		//this.selection = selection;
 	}
 
@@ -78,6 +77,7 @@ public class WizardPageHandler extends WizardPage {
 		
 		Label labelClass = new Label(container, SWT.NULL);
 		labelClass.setText("Class Name: ");
+		labelClass.setToolTipText("This class contains main method that  ");
 
 		containerClassName = new Text(container, SWT.BORDER | SWT.SINGLE);
 		gd = new GridData(GridData.FILL_HORIZONTAL);
@@ -88,21 +88,21 @@ public class WizardPageHandler extends WizardPage {
 		gd.horizontalSpan = 1;
 		new Label(container, SWT.NONE).setLayoutData(gd);
 	
-		Label label = new Label(container, SWT.NULL);
-		label.setText("Choose Folder: ");
-
-		containerSourceText = new Text(container, SWT.BORDER | SWT.SINGLE);
-		gd = new GridData(GridData.FILL_HORIZONTAL);
-		gd.horizontalSpan = 3;
-		containerSourceText.setLayoutData(gd);		
-
-		Button button = new Button(container, SWT.PUSH);
-		button.setText("Browse...");
-		button.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				handleFolderBrowse();
-			}
-		});		
+//		Label label = new Label(container, SWT.NULL);
+//		label.setText("Choose Folder: ");
+//
+//		containerSourceText = new Text(container, SWT.BORDER | SWT.SINGLE);
+//		gd = new GridData(GridData.FILL_HORIZONTAL);
+//		gd.horizontalSpan = 3;
+//		containerSourceText.setLayoutData(gd);		
+//
+//		Button button = new Button(container, SWT.PUSH);
+//		button.setText("Browse...");
+//		button.addSelectionListener(new SelectionAdapter() {
+//			public void widgetSelected(SelectionEvent e) {
+//				handleFolderBrowse();
+//			}
+//		});		
 		
 		Label labelFile = new Label(container, SWT.NULL);
 		labelFile.setText("Choose Target Project:");
@@ -164,10 +164,10 @@ public class WizardPageHandler extends WizardPage {
 		}
 	}
 	
-	private void handleFolderBrowse() {
-		DirectoryDialog dialog = new DirectoryDialog(getShell());
-		 containerSourceText.setText(dialog.open());
-	}
+//	private void handleFolderBrowse() {
+//		DirectoryDialog dialog = new DirectoryDialog(getShell());
+//		 containerSourceText.setText(dialog.open());
+//	}
 
 	/**
 	 * Ensures that both text fields are set.
@@ -201,7 +201,7 @@ public class WizardPageHandler extends WizardPage {
 
 	public HashMap<String, String> getContainerName() {
 		HashMap<String, String> containerMap = new HashMap<>();
-		containerMap.put("ProjectPath", containerSourceText.getText());
+		//containerMap.put("ProjectPath", containerSourceText.getText());
 		containerMap.put("TargetPath", containerTargetText.getText());
 		containerMap.put("ProjectName", containerProjectName.getText());
 		containerMap.put("PackageName", containerPackageName.getText());
