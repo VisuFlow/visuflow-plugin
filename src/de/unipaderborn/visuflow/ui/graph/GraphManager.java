@@ -40,6 +40,7 @@ import javax.swing.JColorChooser;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -52,6 +53,9 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.graphstream.algorithm.Toolkit;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
@@ -70,6 +74,8 @@ import org.osgi.service.event.EventHandler;
 
 import com.google.common.base.Optional;
 
+import de.unipaderborn.visuflow.builder.GlobalSettings;
+import de.unipaderborn.visuflow.builder.JimpleBuilder;
 import de.unipaderborn.visuflow.debug.handlers.NavigationHandler;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
@@ -98,7 +104,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private Viewer viewer;
 	private ViewPanel view;
 	List<VFClass> analysisData;
-	
+
 	static Node start = null;
 	static Node end, previous = null;
 	static Map<Node, Node> map = new HashMap<>();
@@ -141,11 +147,19 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private boolean draggingGraph = false;
 	private Point mouseDraggedFrom;
 	private Point mouseDraggedTo;
+	private JMenuItem navigateToJimple;
+	private JMenuItem navigateToJava;
+	private JMenuItem showInUnitView;
+	private JMenuItem followCall;
+	private JMenuItem followReturn;
+	private JMenu callGraphOption;
+	private JMenuItem cha;
+	private JMenuItem rta;
 
 	public GraphManager(String graphName, String styleSheet)
 	{
-//		System.setProperty("sun.awt.noerasebackground", "true");
-//		System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
+		//		System.setProperty("sun.awt.noerasebackground", "true");
+		//		System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
 		this.panXDelta = 2;
 		this.panYDelta = 2;
 		this.zoomInDelta = .075;
@@ -158,7 +172,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		createUI();
 
 		renderICFG(ServiceUtil.getService(DataModel.class).getIcfg());
-		
+
 		view.setToolTipText("Tooltip Test");
 	}
 
@@ -251,7 +265,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	private void panToNode(String nodeId)
 	{
-//		view.getCamera().resetView();
+		//		view.getCamera().resetView();
 		Node panToNode = graph.getNode(nodeId);
 		double[] pos = Toolkit.nodePosition(panToNode);
 		double currPosition = view.getCamera().getViewCenter().y;
@@ -292,7 +306,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		panRightButton = new JButton("");
 		panUpButton = new JButton("");
 		panDownButton = new JButton("");
-		
+
 		panLeftButton.setToolTipText("shift + arrow key left");
 		panRightButton.setToolTipText("shift + arrow key right");
 		panUpButton.setToolTipText("shift + arrow key up");
@@ -338,14 +352,22 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	private void createPopUpMenu()
 	{
-		JMenuItem navigateToJimple = new JMenuItem("Navigate to Jimple");
-		JMenuItem navigateToJava = new JMenuItem("Navigate to Java");
-		JMenuItem showInUnitView = new JMenuItem("Highlight on Units view");
-		JMenuItem followCall = new JMenuItem("Follow the Call");
-		JMenuItem followReturn = new JMenuItem("Follow the Return");
+		navigateToJimple = new JMenuItem("Navigate to Jimple");
+		navigateToJava = new JMenuItem("Navigate to Java");
+		showInUnitView = new JMenuItem("Highlight on Units view");
+		followCall = new JMenuItem("Follow the Call");
+		followReturn = new JMenuItem("Follow the Return");
+
+		callGraphOption = new JMenu("Call Graph Option");
+		cha = new JMenuItem("CHA");
+		rta = new JMenuItem("RTA");
+
+		callGraphOption.add(cha);
+		callGraphOption.add(rta);
+
 		followCall.setVisible(false);
 		followReturn.setVisible(false);
-		
+
 		navigateToJimple.addActionListener(new ActionListener() {
 
 			@Override
@@ -426,7 +448,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				}
 			}
 		});
-		
+
 		followReturn.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
@@ -444,16 +466,30 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			}
 		});
 
-		popUp = new JPopupMenu("right click menu");
-		
-		popUp.add(navigateToJimple);
-		popUp.add(navigateToJava);
-		popUp.add(showInUnitView);
-		popUp.add(followCall);
-		popUp.add(followReturn);
-		
-		popUp.addPopupMenuListener(new PopupMenuListener(){
+		cha.addActionListener(new ActionListener() {
 			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				GlobalSettings.put("CallGraphOption", "CHA");
+//				IProject project = 
+			}
+		});
+		
+		rta.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				GlobalSettings.put("CallGraphOption", "RTA");
+				JimpleBuilder builder = new JimpleBuilder();
+				builder.forgetLastBuiltState();
+				builder.needRebuild();
+			}
+		});
+		
+		popUp = new JPopupMenu("right click menu");
+
+		popUp.addPopupMenuListener(new PopupMenuListener(){
+
 			public void popupMenuWillBecomeVisible(PopupMenuEvent arg0) {
 				GraphicElement curElement = view.findNodeOrSpriteAt(x, y);
 				if(curElement == null)
@@ -473,7 +509,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					else{
 						followCall.setVisible(false);
 						followReturn.setVisible(false);
-						
+
 					}
 				}
 			}
@@ -487,7 +523,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				followCall.setVisible(false);
 				followReturn.setVisible(false);
 			}
-			
+
 		});
 	}
 
@@ -695,6 +731,32 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			public void mouseClicked(MouseEvent e) {
 				DataModel dataModel = ServiceUtil.getService(DataModel.class);
 				GraphicElement curElement = view.findNodeOrSpriteAt(e.getX(), e.getY());
+				if(e.getButton() == MouseEvent.BUTTON3 && !CFG)
+				{
+					x = e.getX();
+					y = e.getY();
+					popUp = new JPopupMenu("right click menu");
+					popUp.add(callGraphOption);
+					popUp.show(e.getComponent(), x, y);
+				}
+				if(e.getButton() == MouseEvent.BUTTON3 && CFG)
+				{
+					x = e.getX();
+					y = e.getY();
+
+					if(curElement != null)
+					{
+						popUp = new JPopupMenu("right click menu");
+						
+						popUp.add(navigateToJimple);
+						popUp.add(navigateToJava);
+						popUp.add(showInUnitView);
+						popUp.add(followCall);
+						popUp.add(followReturn);
+
+						popUp.show(e.getComponent(), x, y);
+					}
+				}
 				if(curElement == null)
 					return;
 				Node curr = graph.getNode(curElement.getId());
@@ -742,24 +804,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					if(id != null)
 						toggleNode(id);
 				}
-				if(e.getButton() == MouseEvent.BUTTON3 && CFG)
-				{
-					x = e.getX();
-					y = e.getY();
-					if(curElement != null)
-						popUp.show(e.getComponent(), x, y);
-				}
-				/*else
-				{
-					Object node = curr.getAttribute("nodeUnit");
-					if(node instanceof VFNode)
-					{
-						dataModel.HighlightJimpleUnit((VFNode) node);
-						if(((Stmt)((VFNode) node).getUnit()).containsInvokeExpr()){
-							callInvokeExpr(((Stmt)((VFNode) node).getUnit()).getInvokeExpr());
-						}
-					}
-				}*/
 			}
 		});
 
@@ -944,7 +988,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			if(node.hasAttribute("ui.class"))
 				node.removeAttribute("ui.class");
 			for (VFNode vfNode : nodes) {
-				if(node.getAttribute("nodeData.unit").toString().contentEquals(vfNode.getUnit().toString()))
+				if(node.getAttribute("unit").toString().contentEquals(vfNode.getUnit().toString()))
 				{
 					if(selected)
 						node.setAttribute("ui.class", uiClassName);
@@ -1051,15 +1095,16 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				createdNode.setAttribute("ui.label", node.getUnit().toString());
 			}
 			String str = node.getUnit().toString();
-			String nodename = StringEscapeUtils.escapeHtml(str);
-			createdNode.setAttribute("nodeData.unit", nodename);
-			
+			String escapedNodename = StringEscapeUtils.escapeHtml(str);
+			createdNode.setAttribute("unit", str);
+			createdNode.setAttribute("nodeData.unit", escapedNodename);
+
 			createdNode.setAttribute("nodeData.unitType", node.getUnit().getClass());
 			String str1 = Optional.fromNullable(node.getVFUnit().getInSet()).or("n/a").toString();
 			String nodeInSet = StringEscapeUtils.escapeHtml(str1);
 			String str2 = Optional.fromNullable(node.getVFUnit().getInSet()).or("n/a").toString();
 			String nodeOutSet = StringEscapeUtils.escapeHtml(str2);
-			
+
 			createdNode.setAttribute("nodeData.inSet", nodeInSet);
 			createdNode.setAttribute("nodeData.outSet", nodeOutSet);
 			createdNode.setAttribute("nodeData.line", node.getUnit().getJavaSourceStartLineNumber());
@@ -1067,7 +1112,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			createdNode.setAttribute("nodeUnit", node);
 		}
 	}
-	
+
 	static void nodeIterator(Node n)
 	{
 		boolean present = false;
@@ -1194,7 +1239,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		//step 1 ---> assign layers to nodes
 		first.setAttribute("layoutLayer", 0);
 		assignLayers(nodeIterator, 1);
-		
+
 		ArrayList<ArrayList<Node>> nodeLayers = new ArrayList<>();
 		for (int i = 0; i < nodeCount; i++) {
 			nodeLayers.add(new ArrayList<>());
@@ -1215,7 +1260,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 		for (Node node : graph) {
 			int layer = node.getAttribute("layoutLayer");
-//			System.out.println("node " + node.getId() + " ----> " + node.getAttribute("ui.label") + " ----> layer " + layer);
+			//			System.out.println("node " + node.getId() + " ----> " + node.getAttribute("ui.label") + " ----> layer " + layer);
 			node.setAttribute("xyz", 2.0, (nodeCount - (layer * 3.0)), 0.0);
 		}
 		experimentalLayoutOld();
