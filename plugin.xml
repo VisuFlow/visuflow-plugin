@@ -397,7 +397,7 @@
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            class="de.unipaderborn.visuflow.debug.handlers.JimpleEditor"
+            class="de.unipaderborn.visuflow.ui.JimpleEditor"
             default="false"
             extensions="jimple"
             icon="icons/sample.gif"
