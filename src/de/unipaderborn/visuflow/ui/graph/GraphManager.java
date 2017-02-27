@@ -1047,6 +1047,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			createdNode.setAttribute("ui.label", methodName);
 			createdNode.setAttribute("nodeData.methodName", escapedMethodName);
 			createdNode.setAttribute("nodeData.methodSignature", escapedMethodSignature);
+			createdNode.setAttribute("nodeData.unescapedMethodName", methodName);
 			createdNode.setAttribute("nodeMethod", src);
 		}
 	}
@@ -1528,12 +1529,10 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				}
 
 			}
-			if(!(n.getAttribute("nodeData.methodName")== null)){
+			if(!(n.getAttribute("nodeData.unescapedMethodName")== null)){
 				JLabel l = new JLabel("Change the color of this unit");
-				JButton bt = new JButton(n.getAttribute("nodeData.methodName").toString());
-				//            	 bt.setName(n.getAttribute("nodeData.methodName").toString());
-				bt.setName(n.getAttribute("nodeData.methodName").toString());
-
+				JButton bt = new JButton(n.getAttribute("nodeData.unescapedMethodName").toString());
+				bt.setName(n.getAttribute("nodeData.unescapedMethodName").toString());
 				bt.addActionListener(new ActionListener() {
 
 					@Override
@@ -1544,7 +1543,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						for(Node n: graph.getEachNode()){
 							//							if(n.getAttribute("nodeData.methodName").toString().equals(bt.getName())){
 							//							if(n.getAttribute("ui.label").toString().equals(bt.getName())){
-							if(n.getAttribute("nodeData.methodName").toString().equals(bt.getName())){
+							if(n.getAttribute("nodeData.unescapedMethodName").toString().equals(bt.getName())){
 								n.setAttribute("ui.color", jcc.getColor());
 								System.out.println(jcc.getColor());
 							}
