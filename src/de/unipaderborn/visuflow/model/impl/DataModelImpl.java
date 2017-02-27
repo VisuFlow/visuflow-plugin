@@ -9,6 +9,9 @@ import java.util.List;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.FindReplaceDocumentAdapter;
 import org.eclipse.jface.text.IDocument;
@@ -308,5 +311,14 @@ public class DataModelImpl implements DataModel {
 		}
 		return -1;
 
+	}
+
+	@Override
+	public void triggerProjectRebuild() {
+		try {
+			ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		} catch (CoreException e1) {
+			e1.printStackTrace();
+		}
 	}
 }

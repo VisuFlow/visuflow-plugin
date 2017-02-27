@@ -53,9 +53,6 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.eclipse.core.resources.IncrementalProjectBuilder;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.graphstream.algorithm.Toolkit;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
@@ -470,14 +467,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				GlobalSettings.put("CallGraphOption", "CHA");
-				try {
-					ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
-				} catch (CoreException e1) {
-					e1.printStackTrace();
-				}
-				/*JimpleBuilder builder = new JimpleBuilder();
-				builder.forgetLastBuiltState();
-				builder.needRebuild();*/
+				ServiceUtil.getService(DataModel.class).triggerProjectRebuild();
 			}
 		});
 		
@@ -486,11 +476,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				GlobalSettings.put("CallGraphOption", "SPARK");
-				try {
-					ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
-				} catch (CoreException e1) {
-					e1.printStackTrace();
-				}
+				ServiceUtil.getService(DataModel.class).triggerProjectRebuild();
 			}
 		});
 		
