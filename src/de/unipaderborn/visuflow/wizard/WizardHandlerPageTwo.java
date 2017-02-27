@@ -12,21 +12,18 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 public class WizardHandlerPageTwo extends WizardPage {
-//	private Text containerSourceText,containerTargetText,containerProjectName,containerPackageName;
+
 	private Text classFirst, classSecond, containerSootLocation;
 	private Combo flowSet,flowSetType1,flowSetType2;
 	private Button[] analysisDirection = new Button[2];
 
 	@SuppressWarnings("unused")
 	private Text fileText;
-
-	private ISelection selection;
 
 	/**
 	 * Constructor for SampleNewWizardPage.
@@ -35,9 +32,8 @@ public class WizardHandlerPageTwo extends WizardPage {
 	 */
 	public WizardHandlerPageTwo(ISelection selection) {
 		super("wizardPage");
-		setTitle("Link Analysis and Target Project");
-		setDescription("This wizard links the Target Java project with the Analysis project");
-		this.selection = selection;
+		setTitle("Create New Analysis Project");
+		setDescription("This wizard creates new analysis project based on user-inputs");
 	}
 
 	/**
