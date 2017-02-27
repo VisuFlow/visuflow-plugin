@@ -1332,9 +1332,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					ArrayList<VFUnit> units = new ArrayList<>();
 					units.add(selectedVF);
 
-					NavigationHandler handler = new NavigationHandler();
-					handler.highlightJimpleSource(units);
-
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
