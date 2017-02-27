@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JApplet;
@@ -53,9 +54,6 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
 import org.graphstream.algorithm.Toolkit;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
@@ -87,12 +85,11 @@ import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.model.graph.ControlFlowGraph;
 import de.unipaderborn.visuflow.model.graph.ICFGStructure;
 import de.unipaderborn.visuflow.util.ServiceUtil;
-
-import soot.jimple.Stmt;
-import soot.jimple.InvokeExpr;
 import scala.collection.mutable.HashSet;
+import soot.jimple.InvokeExpr;
 import soot.jimple.ReturnStmt;
 import soot.jimple.ReturnVoidStmt;
+import soot.jimple.Stmt;
 
 public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
@@ -108,7 +105,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	static Node start = null;
 	static Node end, previous = null;
 	static Map<Node, Node> map = new HashMap<>();
-	static HashSet<Node> setOfNode = new HashSet<Node>();
+	static HashSet<Node> setOfNode = new HashSet<>();
 
 	Container panel;
 	JApplet applet;
@@ -434,6 +431,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 		followCall.addActionListener(new ActionListener() {
 
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				GraphicElement curElement = view.findNodeOrSpriteAt(x, y);
 				if(curElement == null)
@@ -451,6 +449,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 		followReturn.addActionListener(new ActionListener() {
 
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				GraphicElement curElement = view.findNodeOrSpriteAt(x, y);
 				if(curElement == null)
@@ -467,16 +466,16 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		});
 
 		cha.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				GlobalSettings.put("CallGraphOption", "CHA");
-//				IProject project = 
+				//				IProject project =
 			}
 		});
-		
+
 		rta.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				GlobalSettings.put("CallGraphOption", "RTA");
@@ -485,11 +484,12 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				builder.needRebuild();
 			}
 		});
-		
+
 		popUp = new JPopupMenu("right click menu");
 
 		popUp.addPopupMenuListener(new PopupMenuListener(){
 
+			@Override
 			public void popupMenuWillBecomeVisible(PopupMenuEvent arg0) {
 				GraphicElement curElement = view.findNodeOrSpriteAt(x, y);
 				if(curElement == null)
@@ -514,11 +514,13 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				}
 			}
 
+			@Override
 			public void popupMenuCanceled(PopupMenuEvent arg0) {
 				followCall.setVisible(false);
 				followReturn.setVisible(false);
 			}
 
+			@Override
 			public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0) {
 				followCall.setVisible(false);
 				followReturn.setVisible(false);
@@ -747,7 +749,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					if(curElement != null)
 					{
 						popUp = new JPopupMenu("right click menu");
-						
+
 						popUp.add(navigateToJimple);
 						popUp.add(navigateToJava);
 						popUp.add(showInUnitView);
@@ -804,7 +806,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					if(id != null)
 						toggleNode(id);
 				}
-					}
+			}
 		});
 
 		view.addKeyListener(new KeyListener() {
@@ -1039,9 +1041,12 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		if(graph.getNode(src.getId() + "") == null)
 		{
 			Node createdNode = graph.addNode(src.getId() + "");
-			createdNode.setAttribute("ui.label", src.getSootMethod().getName().toString());
-			createdNode.setAttribute("nodeData.methodName", src.getSootMethod().getName());
-			createdNode.setAttribute("nodeData.methodSignature", src.getSootMethod().getSignature());
+			String methodName = src.getSootMethod().getName();
+			String escapedMethodName = StringEscapeUtils.escapeHtml(methodName);
+			String escapedMethodSignature = StringEscapeUtils.escapeHtml(src.getSootMethod().getSignature());
+			createdNode.setAttribute("ui.label", methodName);
+			createdNode.setAttribute("nodeData.methodName", escapedMethodName);
+			createdNode.setAttribute("nodeData.methodSignature", escapedMethodSignature);
 			createdNode.setAttribute("nodeMethod", src);
 		}
 	}
