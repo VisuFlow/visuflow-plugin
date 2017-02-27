@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.unipaderborn.visuflow.Visuflow;
+import de.unipaderborn.visuflow.builder.GlobalSettings;
 import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.model.VFMethodEdge;
@@ -22,8 +23,10 @@ import soot.SootClass;
 import soot.SootMethod;
 import soot.Transform;
 import soot.Unit;
+import soot.jimple.spark.SparkTransformer;
 import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.jimple.toolkits.callgraph.Targets;
+import soot.options.Options;
 import soot.tagkit.AttributeValueException;
 import soot.tagkit.Tag;
 import soot.util.Chain;
@@ -46,6 +49,25 @@ public class JimpleModelAnalysis {
 		Transform transform = new Transform("wjap.myTransform", new SceneTransformer() {
 			@Override
 			protected void internalTransform(String phase, Map<String, String> arg1) {
+				
+				String callGraphPref = GlobalSettings.get("CallGraphOption");
+				if(callGraphPref.equalsIgnoreCase("CHA"))
+				{				
+					Options.v().setPhaseOption("cg.cha", "on");
+				}
+				else
+				{
+					HashMap<String, String> opt = new HashMap<>();
+				    opt.put("verbose", "true");
+				    opt.put("propagator", "worklist");
+				    opt.put("simple-edges-bidirectional", "false");
+				    opt.put("on-fly-cg", "false");
+				    opt.put("set-impl", "double");
+				    opt.put("double-set-old", "hybrid");
+				    opt.put("double-set-new", "hybrid");
+				    opt.put("enabled", "true");
+					SparkTransformer.v().transform("",opt);
+				}
 				createJimpleHierarchyWithCfgs(vfClasses);
 				createICFG();
 			}
@@ -139,6 +161,20 @@ public class JimpleModelAnalysis {
 					SootMethod destination = (SootMethod) tc.next();
 					// System.out.println(destination+" is java library "+destination.isJavaLibraryMethod());
 					if (!destination.isJavaLibraryMethod()) {
+						boolean edgeConnection = false;
+						Iterator<VFMethodEdge> edgeIterator = methodGraph.listEdges.iterator();
+						while(edgeIterator.hasNext())
+						{
+							VFMethodEdge vfMethodEdge = (VFMethodEdge) edgeIterator.next();
+							if(vfMethodEdge.getSourceMethod().getSootMethod().equals(source) && vfMethodEdge.getDestMethod().getSootMethod().equals(destination))
+							{
+								edgeConnection = true;
+								break;
+							}
+						}
+						
+						if(edgeConnection)
+							continue;
 						boolean methodPresent = false;
 						Iterator<VFMethod> iteratorMethod = methodGraph.listMethods.iterator();
 						while (iteratorMethod.hasNext()) {

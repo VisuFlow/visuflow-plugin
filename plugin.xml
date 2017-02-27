@@ -153,8 +153,21 @@
             tooltip="Hightlight Variable Path">
       </command>
    </menuContribution>
-   
-   
+   <menuContribution
+         allPopups="false"
+         locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+      <toolbar
+            id="GraphStreamFeasibility.LinkTargetToolBar">
+         <command
+               commandId="GraphStreamFeasibility.LinkTargetProject"
+               icon="icons/Link.png"
+               label="Link Target Project"
+               style="push"
+               tooltip="Link Target Project">
+         </command>
+      </toolbar>
+   </menuContribution>
+
    <menuContribution
          allPopups="false"
          locationURI="popup:#AbstractTextEditorRulerContext?after=additions">
@@ -178,6 +191,27 @@
    </menuContribution>
    
    
+    <menuContribution
+         allPopups="false"
+         locationURI="popup:#AbstractTextEditorRulerContext?after=additions">
+      <command
+            commandId="JavaHandler.NavigateToJimple"
+            label="Navigate To Jimple"
+            style="push">
+            <visibleWhen>
+   <or>
+      <with variable="selection">
+         <iterate>
+           <reference definitionId="de.unipaderborn.visuflow.javaExtension"/>
+         </iterate>
+      </with>
+      <with variable="activeEditorInput">
+        <reference definitionId="de.unipaderborn.visuflow.javaExtension"/>
+      </with>
+   </or>
+</visibleWhen>
+      </command>
+   </menuContribution>
    
 </extension>
 <extension
@@ -203,8 +237,8 @@
          name="Highlight Variable Path">
    </command>
    <command
-         id="JavaHandler.NavigateToCFG"
-         name="JavaToCFG">
+         id="GraphStreamFeasibility.LinkTargetProject"
+         name="Link Target Project">
    </command>
    <command
          defaultHandler="de.unipaderborn.visuflow.debug.handlers.DebugStepResumeHandler"
@@ -240,8 +274,16 @@
          commandId="JimpleEditor.sourceCodeCommand">
    </handler>
    <handler
+         class="de.unipaderborn.visuflow.debug.handlers.LinkTargetProject"
+         commandId="GraphStreamFeasibility.LinkTargetProject">
+   </handler>
+   <handler
          class="de.unipaderborn.visuflow.debug.handlers.JavaToCFGHandler"
          commandId="JavaHandler.NavigateToCFG">
+   </handler>
+      <handler
+         class="de.unipaderborn.visuflow.debug.handlers.JavaToCFGHandler"
+         commandId="JavaHandler.NavigateToJimple">
    </handler>
 </extension>
 

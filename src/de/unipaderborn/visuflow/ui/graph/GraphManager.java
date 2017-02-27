@@ -528,27 +528,33 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private void createSearchText()
 	{
 		this.searchText = new JTextField("Search graph");
+		ArrayList<VFNode> vfNodes = new ArrayList<>();
+		ArrayList<VFUnit> vfUnits = new ArrayList<>();
 		searchText.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				for (Node node : graph) {
+					if(node.hasAttribute("ui.class"))
+					{
+						node.removeAttribute("ui.class");
+					}
+				}
 				String searchString = searchText.getText().toLowerCase();
-				ArrayList<VFNode> vfNodes = new ArrayList<>();
-				ArrayList<VFUnit> vfUnits = new ArrayList<>();
+				Node last = null;
 				for (Node node : graph) {
 					if(node.getAttribute("ui.label").toString().toLowerCase().contains((searchString))){
 						node.setAttribute("ui.class", "filter");
-						if(node.getAttribute("nodeUnit") == null) {
-							System.out.println(node.getAttribute("ui.label") + " has no nodeUnit");
-						}
+						last = node;
 						vfNodes.add((VFNode) node.getAttribute("nodeUnit"));
 						vfUnits.add(((VFNode) node.getAttribute("nodeUnit")).getVFUnit());
 					}
 				}
+				if(last != null)
+					panToNode(last.getId());
 
 				try {
-					DataModel model = ServiceUtil.getService(DataModel.class);
-					model.filterGraph(vfNodes, true, null);
+					ServiceUtil.getService(DataModel.class).filterGraph(vfNodes, true, null);
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
