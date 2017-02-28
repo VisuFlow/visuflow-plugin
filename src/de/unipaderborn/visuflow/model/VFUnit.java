@@ -81,6 +81,10 @@ public class VFUnit {
 		return result;
 	}
 
+    public String toString(){
+    	return getFullyQualifiedName();
+    }
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
