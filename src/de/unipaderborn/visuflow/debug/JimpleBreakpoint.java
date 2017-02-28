@@ -5,19 +5,23 @@ import java.util.List;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.debug.core.model.Breakpoint;
 import org.eclipse.debug.core.model.IBreakpoint;
+import org.eclipse.debug.core.model.LineBreakpoint;
 
-public class JimpleBreakpoint extends Breakpoint {
+public class JimpleBreakpoint extends LineBreakpoint {
 
-	private List<IBreakpoint> javaBreakpoints = new ArrayList<IBreakpoint>();
+	private List<IBreakpoint> javaBreakpoints = new ArrayList<>();
+
+	public JimpleBreakpoint() {
+		super();
+	}
 
 	public JimpleBreakpoint(IMarker marker) throws CoreException {
 		super();
 		setMarker(marker);
 		setAttribute(ENABLED, true);
 	}
-	
+
 	@Override
 	public String getModelIdentifier() {
 		return "JimpleModel";
@@ -38,7 +42,7 @@ public class JimpleBreakpoint extends Breakpoint {
 			javaBreakpoint.setEnabled(enabled);
 		}
 	}
-	
+
 	@Override
 	public void delete() throws CoreException {
 		for (IBreakpoint javaBreakpoint : javaBreakpoints) {
