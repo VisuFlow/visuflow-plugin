@@ -376,17 +376,6 @@
          </command>
       </menuContribution>
    </extension>
-   <extension
-         id="xmlProblem"
-         name="XML Problem"
-         point="org.eclipse.core.resources.markers">
-      <super
-            type="org.eclipse.core.resources.problemmarker">
-      </super>
-      <persistent
-            value="true">
-      </persistent>
-   </extension>
    <extension point="org.eclipse.core.expressions.definitions">
 	   <definition id="de.unipaderborn.visuflow.jimpleextension">
 	      <adapt type="org.eclipse.core.resources.IResource">
@@ -494,6 +483,17 @@
 	  	</super>
 	</extension>
  <extension
+       id="visuflow.debug.breakpoint.marker"
+       name="Jimple Breakpoint Marker"
+       point="org.eclipse.core.resources.markers">
+    <super
+          type="org.eclipse.debug.core.lineBreakpointMarker">
+    </super>
+    <persistent
+          value="true">
+    </persistent>
+ </extension>
+ <extension
        point="org.eclipse.ui.editors.markerAnnotationSpecification">
     <specification
           annotationImageProvider="de.unipaderborn.visuflow.debug.ui.JimpleUnitPointerImageProvider"
@@ -531,17 +531,6 @@
           markerType="visuflow.debug.breakpoint.marker"
           name="Jimple Breakpoint">
     </breakpoint>
- </extension>
- <extension
-       id="visuflow.debug.breakpoint.marker"
-       name="Jimple Breakpoint Marker"
-       point="org.eclipse.core.resources.markers">
-    <super
-          type="org.eclipse.debug.core.lineBreakpointMarker">
-    </super>
-    <persistent
-          value="true">
-    </persistent>
  </extension>
  <extension
        point="org.eclipse.debug.ui.toggleBreakpointsTargetFactories">

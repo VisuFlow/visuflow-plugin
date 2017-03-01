@@ -50,4 +50,8 @@ public class JimpleBreakpoint extends LineBreakpoint {
 		}
 		//super.delete();
 	}
+
+	public boolean isTemporary() {
+		return getMarker().getAttribute("Jimple.temporary", false);
+	}
 }

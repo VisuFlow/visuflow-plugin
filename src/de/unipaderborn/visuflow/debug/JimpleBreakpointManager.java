@@ -1,9 +1,11 @@
 package de.unipaderborn.visuflow.debug;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -23,7 +25,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IBreakpointListener;
 import org.eclipse.debug.core.model.IBreakpoint;
@@ -40,6 +41,8 @@ import de.unipaderborn.visuflow.Logger;
 import de.unipaderborn.visuflow.Visuflow;
 import de.unipaderborn.visuflow.VisuflowConstants;
 import de.unipaderborn.visuflow.debug.BreakpointLocator.BreakpointLocation;
+import de.unipaderborn.visuflow.model.DataModel;
+import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 
 public class JimpleBreakpointManager implements VisuflowConstants, IResourceChangeListener, EventHandler {
@@ -127,7 +130,7 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 				if (breakpoint instanceof JimpleBreakpoint) {
 					try {
 						breakpoint.delete();
-						// DebugPlugin.getDefault().removeDebugEventListener(stepTracker);
+						DebugPlugin.getDefault().getBreakpointManager().removeBreakpointListener(this);
 					} catch (CoreException e) {
 						// TODO
 						e.printStackTrace();
@@ -328,17 +331,72 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 
 	private void handleResumeEvent() {
 		try {
+			removeTemporaryBreakpoints();
 			suspendedThread.resume();
-		} catch (DebugException e) {
+		} catch (Exception e) {
 			logger.error("Couldn't resume suspended thread", e);
 		}
 	}
 
 	private void handleStepOverEvent() {
+		IMarker marker = suspendedAtBreakpoint.getMarker();
 		try {
-			suspendedThread.stepOver();
-		} catch (DebugException e) {
+			// find the next unit to stop at
+			String unitFqn = marker.getAttribute("Jimple.unit.fqn").toString();
+			VFUnit nextUnitToStopAt = findNextUnit(unitFqn);
+			System.out.println("Stop at: " + nextUnitToStopAt.getFullyQualifiedName());
+
+			// TODO disable the currently active unit breakpoint by disabling all of its' conditional java breakpoints
+
+			// create a new JimpleBreakpoint for the found unit
+			IMarker newMarker = createBreakpointMarkerForNextUnit(nextUnitToStopAt, marker);
+
+			// remove previous set temporary breakpoints
+			removeTemporaryBreakpoints();
+
+			// create a new temporary breakpoint
+			JimpleBreakpoint jimpleBreakpoint = createBreakpoint(newMarker);
+			addBreakpoint(jimpleBreakpoint);
+
+			// now resume the thread so that it can reach the new breakpoints
+			suspendedThread.resume();
+		} catch (Exception e) {
 			logger.error("Couldn't execute \"step over\" in suspended thread", e);
 		}
+	}
+
+	private void removeTemporaryBreakpoints() throws CoreException {
+		for (Iterator<JimpleBreakpoint> iterator = breakpoints.iterator(); iterator.hasNext();) {
+			JimpleBreakpoint jimpleBreakpoint = iterator.next();
+			if(jimpleBreakpoint.isTemporary()) {
+				DebugPlugin.getDefault().getBreakpointManager().removeBreakpoint(jimpleBreakpoint, true);
+				iterator.remove();
+			}
+		}
+	}
+
+	private IMarker createBreakpointMarkerForNextUnit(VFUnit nextUnitToStopAt, IMarker marker) throws CoreException, IOException {
+		UnitLocation location = UnitLocator.locateUnit(nextUnitToStopAt);
+		// FIXME for now we use the same resource, but to support stepping beyond the end of a method, the actual resource
+		// has to be determined
+		IFile file = location.project.getFile(location.jimpleFile);
+
+		IMarker m = file.createMarker(marker.getType());
+		m.setAttribute(IMarker.LINE_NUMBER, location.line);
+		m.setAttribute("Jimple.file", file.getProjectRelativePath().toString());
+		m.setAttribute("Jimple.project", marker.getAttribute("Jimple.project"));
+		m.setAttribute("Jimple.unit.charStart", location.charStart);
+		m.setAttribute("Jimple.unit.charEnd", location.charEnd);
+		m.setAttribute("Jimple.unit.fqn", nextUnitToStopAt.getFullyQualifiedName());
+		m.setAttribute("Jimple.temporary", true);
+		return m;
+	}
+
+	private VFUnit findNextUnit(String unitFqn) {
+		DataModel dataModel = ServiceUtil.getService(DataModel.class);
+		VFUnit unit = dataModel.getVFUnit(unitFqn);
+		VFUnit unitAfter = unit.getVfMethod().getUnitAfter(unit);
+		// FIXME handle end of method (at the moment a NoSuchElementException is thrown)
+		return unitAfter;
 	}
 }

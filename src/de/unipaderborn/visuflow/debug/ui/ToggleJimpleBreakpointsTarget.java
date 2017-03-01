@@ -57,6 +57,7 @@ public class ToggleJimpleBreakpointsTarget implements IToggleBreakpointsTarget {
 				VFUnit resultantUnit = getSelectedUnit(className, document,
 						content.trim().substring(0, content.length() - 1), lineNumber);
 				if (resultantUnit == null) {
+					logger.error("Unit not found for " + file + ":" + actualLineNumber);
 					MessageDialog.openInformation(Display.getCurrent().getActiveShell(), "Breakpoint could not be placed",
 							"Error in inserting breakpoint");
 				} else {
