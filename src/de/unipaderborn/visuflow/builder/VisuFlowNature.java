@@ -8,11 +8,6 @@ import org.eclipse.core.runtime.CoreException;
 
 public class VisuFlowNature implements IProjectNature {
 
-	/**
-	 * ID of this project nature
-	 */
-	public static final String NATURE_ID = "JimpleBuilder.VisuFlowNature";
-
 	private IProject project;
 
 	@Override
