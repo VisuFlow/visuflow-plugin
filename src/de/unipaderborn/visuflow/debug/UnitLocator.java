@@ -20,37 +20,51 @@ import de.unipaderborn.visuflow.model.VFUnit;
 public class UnitLocator implements VisuflowConstants {
 
 	public static UnitLocation locateUnit(VFUnit unit) throws CoreException, IOException {
-		//List<IProject> analysisProjects = getAnalysisProjects();
 		VFClass vfClass = unit.getVfMethod().getVfClass();
 		String className = vfClass.getSootClass().getName();
-
 		String projectName = GlobalSettings.get("AnalysisProject");
 		IPath path = new Path("/sootOutput/" + className + ".jimple");
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
 		File file = project.getFile(path).getLocation().toFile();
+		List<String> lines = Files.readAllLines(file.toPath());
+
+		// determine method offset
+		int[] methodPosition = find(lines, unit.getVfMethod().getSootMethod().getDeclaration(), 0);
+
+		String toFind = unit.getUnit().toString() + ";";
+		int[] position = find(lines, toFind, methodPosition[1]);
 
 		UnitLocation location = new UnitLocation();
+		location.jimpleFile = path;
+		location.charStart = position[0];
+		location.charEnd = position[1];
+		location.line = position[2];
+		location.project = project;
+		location.vfUnit = unit;
+		return location;
+	}
+
+	private static int[] find(List<String> hayStack, String needle, int offset) {
+		int[] charStartAndEnd = new int[3];
 		int lineNumber = 1;
 		int accumulatedCharacters = 0;
-		List<String> lines = Files.readAllLines(file.toPath());
-		for (String line : lines) {
+		for (String line : hayStack) {
 			if(!line.trim().isEmpty()) {
-				String preparedLine = line.replace(";", "").trim();
-				if(!preparedLine.isEmpty() && unit.getUnit().toString().equals(preparedLine)) {
-					int charStart = line.indexOf(preparedLine);
-					location.jimpleFile = path;
-					location.line = lineNumber;
-					location.charStart = accumulatedCharacters + charStart;
-					location.charEnd = location.charStart + preparedLine.length();
-					location.project = project;
-					location.vfUnit = unit;
-					return location;
+				String preparedLine = line.trim();
+				if(!preparedLine.isEmpty() && needle.equals(preparedLine) && accumulatedCharacters >= offset) {
+					int startInLine = line.indexOf(preparedLine);
+					int charStart = accumulatedCharacters + startInLine;
+					int charEnd = charStart + preparedLine.length();
+					charStartAndEnd[0] = charStart;
+					charStartAndEnd[1] = charEnd;
+					charStartAndEnd[2] = lineNumber;
+					return charStartAndEnd;
 				}
 			}
 			lineNumber++;
 			accumulatedCharacters += line.length() + 1; // length + linebreak; TODO check, if the linebreak is different on different platforms
 		}
 
-		throw new NoSuchElementException("Unit not found: " + unit.getFullyQualifiedName());
+		throw new NoSuchElementException("String " + needle + " not found");
 	}
 }
