@@ -41,6 +41,13 @@ public class TerminationListener implements IDebugEventSetListener, VisuflowCons
 					// remove this debug event listener to release it for garbage collection
 					DebugPlugin.getDefault().removeDebugEventListener(this);
 
+					// remove temporary jimple breakpoints
+					try {
+						JimpleBreakpointManager.getInstance().removeTemporaryBreakpoints();
+					} catch (CoreException e) {
+						logger.error("Couldn't delete temporary jimple breakpoints after termination", e);
+					}
+
 					// stop the monitoring server
 					monitoringServer.stop();
 

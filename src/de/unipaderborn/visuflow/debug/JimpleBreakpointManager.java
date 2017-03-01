@@ -344,7 +344,6 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 			// find the next unit to stop at
 			String unitFqn = marker.getAttribute("Jimple.unit.fqn").toString();
 			VFUnit nextUnitToStopAt = findNextUnit(unitFqn);
-			System.out.println("Stop at: " + nextUnitToStopAt.getFullyQualifiedName());
 
 			// TODO disable the currently active unit breakpoint by disabling all of its' conditional java breakpoints
 
@@ -365,12 +364,13 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 		}
 	}
 
-	private void removeTemporaryBreakpoints() throws CoreException {
+	public void removeTemporaryBreakpoints() throws CoreException {
 		for (Iterator<JimpleBreakpoint> iterator = breakpoints.iterator(); iterator.hasNext();) {
 			JimpleBreakpoint jimpleBreakpoint = iterator.next();
 			if(jimpleBreakpoint.isTemporary()) {
 				DebugPlugin.getDefault().getBreakpointManager().removeBreakpoint(jimpleBreakpoint, true);
 				iterator.remove();
+				jimpleBreakpoint.getMarker().delete();
 			}
 		}
 	}
