@@ -3,6 +3,7 @@ package de.unipaderborn.visuflow.debug;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -22,21 +23,26 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IBreakpointListener;
 import org.eclipse.debug.core.model.IBreakpoint;
-import org.eclipse.debug.ui.DebugUITools;
-import org.eclipse.debug.ui.actions.IToggleBreakpointsTargetManager;
+import org.eclipse.jdt.debug.core.IJavaBreakpoint;
 import org.eclipse.jdt.debug.core.IJavaLineBreakpoint;
 import org.eclipse.jdt.debug.core.IJavaMethodBreakpoint;
+import org.eclipse.jdt.debug.core.IJavaThread;
 import org.eclipse.jdt.debug.core.JDIDebugModel;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 
 import de.unipaderborn.visuflow.Logger;
 import de.unipaderborn.visuflow.Visuflow;
 import de.unipaderborn.visuflow.VisuflowConstants;
 import de.unipaderborn.visuflow.debug.BreakpointLocator.BreakpointLocation;
+import de.unipaderborn.visuflow.util.ServiceUtil;
 
-public class JimpleBreakpointManager implements VisuflowConstants, IResourceChangeListener {
+public class JimpleBreakpointManager implements VisuflowConstants, IResourceChangeListener, EventHandler {
 
 	private static JimpleBreakpointManager instance = new JimpleBreakpointManager();
 
@@ -45,10 +51,20 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 	private List<JimpleBreakpoint> breakpoints;
 	private BreakpointLocator breakpointLocator = new BreakpointLocator();
 
+	private IJavaThread suspendedThread;
+	private IJavaBreakpoint suspendedAtBreakpoint;
+
 	// private constructor, this is a singleton
 	private JimpleBreakpointManager() {
 		breakpoints = Collections.synchronizedList(new ArrayList<>());
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
+		registerAtEventHandler();
+	}
+
+	private void registerAtEventHandler() {
+		Hashtable<String, Object> properties = new Hashtable<>();
+		properties.put(EventConstants.EVENT_TOPIC, EA_TOPIC_DEBUGGING_ACTION_ALL);
+		ServiceUtil.registerService(EventHandler.class, this, properties);
 	}
 
 	public static JimpleBreakpointManager getInstance() {
@@ -62,20 +78,20 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 	}
 
 	private JimpleBreakpoint createBreakpointWithoutJavaBreakpoints(IMarker m) throws CoreException {
-		int lineNumber = m.getAttribute(IMarker.LINE_NUMBER, -1);
-		String project = m.getAttribute("Jimple.project", "");
-		String filePath = m.getAttribute("Jimple.file", "");
-		IFile file = getFile(project, filePath); //(IFile) m.getResource();
-		int charStart = m.getAttribute("Jimple.unit.charStart", -1);
-		int charEnd = m.getAttribute("Jimple.unit.charEnd", -1);
-		String unitFqn = m.getAttribute("Jimple.unit.fqn", "fqn.not.available");
+		//		int lineNumber = m.getAttribute(IMarker.LINE_NUMBER, -1);
+		//		String project = m.getAttribute("Jimple.project", "");
+		//		String filePath = m.getAttribute("Jimple.file", "");
+		//		IFile file = getFile(project, filePath); //(IFile) m.getResource();
+		//		int charStart = m.getAttribute("Jimple.unit.charStart", -1);
+		//		int charEnd = m.getAttribute("Jimple.unit.charEnd", -1);
+		//		String unitFqn = m.getAttribute("Jimple.unit.fqn", "fqn.not.available");
 
 		// this makes sure, that the jimple editor highlights the line, when an unit breakpoint is hit
-		UnitDebugStepTracker stepTracker = new UnitDebugStepTracker(file, lineNumber, charStart, charEnd, unitFqn);
-		DebugPlugin.getDefault().addDebugEventListener(stepTracker);
+		//UnitDebugStepTracker stepTracker = new UnitDebugStepTracker(file, lineNumber, charStart, charEnd, unitFqn);
+		//DebugPlugin.getDefault().addDebugEventListener(stepTracker);
 
 		JimpleBreakpoint jimpleBreakpoint = new JimpleBreakpoint(m);
-		registerBreakpoint(jimpleBreakpoint, stepTracker);
+		registerBreakpoint(jimpleBreakpoint);
 
 		return jimpleBreakpoint;
 	}
@@ -99,18 +115,19 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 			javaBreakpointMarker.setAttribute("Jimple.project", m.getAttribute("Jimple.project", ""));
 			javaBreakpointMarker.setAttribute("Jimple.file", m.getAttribute("Jimple.file", ""));
 			jimpleBreakpoint.addJavaBreakpoint(javaBreakpoint);
+			javaBreakpoint.addBreakpointListener(JAVA_BREAKPOINT_LISTENER);
 		}
 	}
 
-	private void registerBreakpoint(JimpleBreakpoint jimpleBreakpoint, UnitDebugStepTracker stepTracker) throws CoreException {
+	private void registerBreakpoint(JimpleBreakpoint jimpleBreakpoint) throws CoreException {
 		DebugPlugin.getDefault().getBreakpointManager().addBreakpoint(jimpleBreakpoint);
 		DebugPlugin.getDefault().getBreakpointManager().addBreakpointListener(new IBreakpointListener() {
 			@Override
 			public void breakpointRemoved(IBreakpoint breakpoint, IMarkerDelta delta) {
-				if(breakpoint instanceof JimpleBreakpoint) {
+				if (breakpoint instanceof JimpleBreakpoint) {
 					try {
 						breakpoint.delete();
-						DebugPlugin.getDefault().removeDebugEventListener(stepTracker);
+						// DebugPlugin.getDefault().removeDebugEventListener(stepTracker);
 					} catch (CoreException e) {
 						// TODO
 						e.printStackTrace();
@@ -154,9 +171,6 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 	}
 
 	private void loadBreakpoints(IResource project) {
-		IToggleBreakpointsTargetManager mangr = DebugUITools.getToggleBreakpointsTargetManager();
-		System.out.println(mangr.toString());
-
 		try {
 			IMarker[] markers = project.findMarkers(IBreakpoint.BREAKPOINT_MARKER, true, IResource.DEPTH_INFINITE);
 			List<IMarker> methodBreakpoints = filterJavaMethodBreakpoints(markers);
@@ -205,7 +219,7 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 			jimpleMarker = jimpleFile.createMarker(IBreakpoint.BREAKPOINT_MARKER);
 		}
 
-		jimpleMarker.setAttribute(IMarker.LINE_NUMBER, marker.getAttribute(IMarker.LINE_NUMBER));
+		jimpleMarker.setAttribute(IMarker.LINE_NUMBER, marker.getAttribute("Jimple." + IMarker.LINE_NUMBER));
 		jimpleMarker.setAttribute("Jimple.unit.charStart", marker.getAttribute("Jimple.unit.charStart"));
 		jimpleMarker.setAttribute("Jimple.unit.charEnd", marker.getAttribute("Jimple.unit.charEnd"));
 		jimpleMarker.setAttribute("Jimple.unit.fqn", marker.getAttribute("Jimple.unit.fqn"));
@@ -252,6 +266,11 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 		return null;
 	}
 
+	void breakpointHit(IJavaThread thread, IJavaBreakpoint breakpoint) {
+		suspendedThread = thread;
+		suspendedAtBreakpoint = breakpoint;
+	}
+
 	@Override
 	public void resourceChanged(IResourceChangeEvent event) {
 		IResourceDelta delta= event.getDelta();
@@ -294,6 +313,32 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 				return;
 			}
 			loadBreakpoints(project);
+		}
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		String topic = event.getTopic();
+		if(topic.equals(EA_TOPIC_DEBUGGING_ACTION_RESUME)) {
+			handleResumeEvent();
+		} else if(topic.equals(EA_TOPIC_DEBUGGING_ACTION_STEP_OVER)) {
+			handleStepOverEvent();
+		}
+	}
+
+	private void handleResumeEvent() {
+		try {
+			suspendedThread.resume();
+		} catch (DebugException e) {
+			logger.error("Couldn't resume suspended thread", e);
+		}
+	}
+
+	private void handleStepOverEvent() {
+		try {
+			suspendedThread.stepOver();
+		} catch (DebugException e) {
+			logger.error("Couldn't execute \"step over\" in suspended thread", e);
 		}
 	}
 }

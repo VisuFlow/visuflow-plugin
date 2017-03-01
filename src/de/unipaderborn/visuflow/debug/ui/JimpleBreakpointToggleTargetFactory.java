@@ -1,4 +1,4 @@
-package de.unipaderborn.visuflow.debug;
+package de.unipaderborn.visuflow.debug.ui;
 
 import java.util.Collections;
 import java.util.Set;

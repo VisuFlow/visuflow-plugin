@@ -546,7 +546,7 @@
  <extension
        point="org.eclipse.debug.ui.toggleBreakpointsTargetFactories">
     <toggleTargetFactory
-          class="de.unipaderborn.visuflow.debug.JimpleBreakpointToggleTargetFactory"
+          class="de.unipaderborn.visuflow.debug.ui.JimpleBreakpointToggleTargetFactory"
           id="visuflow.debug.toggleBreakpointsTargetFactory">
           <enablement>
          	<instanceof value="de.unipaderborn.visuflow.ui.JimpleEditor"/>
@@ -565,4 +565,11 @@
          </action>
       </editorContribution>
    </extension>
+ <extension
+       point="org.eclipse.jdt.debug.breakpointListeners">
+    <breakpointListener
+          class="de.unipaderborn.visuflow.debug.JavaBreakpointListener"
+          id="visuflow.javabreakpoint.listener">
+    </breakpointListener>
+ </extension>
 </plugin>

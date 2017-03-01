@@ -1,4 +1,4 @@
-package de.unipaderborn.visuflow.debug;
+package de.unipaderborn.visuflow.debug.ui;
 
 import java.util.Collection;
 import java.util.List;
@@ -26,6 +26,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
 
 import de.unipaderborn.visuflow.Logger;
 import de.unipaderborn.visuflow.Visuflow;
+import de.unipaderborn.visuflow.debug.JimpleBreakpointManager;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
