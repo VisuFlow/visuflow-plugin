@@ -619,7 +619,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		this.header = new JLabel("ICFG");
 		this.headerBar.add(header);
 	}
-	
+
 	private void createPanel() {
 		JFrame temp = new JFrame();
 		temp.setLayout(new BorderLayout());
@@ -1168,7 +1168,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 	}
 
-	private void experimentalLayoutOld()
+	/*private void experimentalLayoutOld()
 	{
 		if(!CFG)
 		{
@@ -1235,7 +1235,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 
 		view.getCamera().resetView();
-	}
+	}*/
 
 	private void experimentalLayout()
 	{
@@ -1253,7 +1253,42 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 		//step 1 ---> assign layers to nodes
 		first.setAttribute("layoutLayer", 0);
-		assignLayers(nodeIterator, 1);
+//		assignLayers(nodeIterator, 1);
+		Iterator<Node> depthFirstIterator = first.getDepthFirstIterator();
+		
+		while(depthFirstIterator.hasNext())
+		{
+			Node curr = depthFirstIterator.next();
+			int inDegree = curr.getInDegree();
+			int layer = 1;
+			if(inDegree == 1)
+			{
+				Iterable<Edge> edges = curr.getEachEnteringEdge();
+				for (Edge edge : edges) {
+					layer = edge.getOpposite(curr).getAttribute("layoutLayer");
+					layer++;
+				}
+			}
+			if(inDegree > 1)
+			{
+				Iterable<Edge> edges = curr.getEachEnteringEdge();
+				int parentLayer = layer;
+				for (Edge edge : edges) {
+					Node parent = edge.getOpposite(curr);
+					if(curr.hasAttribute("layoutLayer"))
+					{
+						int currLayer = parent.getAttribute("layoutLayer");
+						if(currLayer > parentLayer)
+							parentLayer = currLayer;
+					}
+				}
+				layer = parentLayer++;
+			}
+			if(curr.hasAttribute("layoutLayer"))
+				curr.removeAttribute("layoutLayer");
+			curr.setAttribute("layoutLayer", layer);
+			assignLayers(nodeIterator, layer);
+		}
 
 		ArrayList<ArrayList<Node>> nodeLayers = new ArrayList<>();
 		for (int i = 0; i < nodeCount; i++) {
@@ -1269,20 +1304,108 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			nodeLayers.remove(iterationCount--);
 		System.out.println("final layer count " + nodeLayers.size());
 
+		/*Iterator<Node> breadthFirstIterator = first.getBreadthFirstIterator();
+		while(breadthFirstIterator.hasNext())
+		{
+			Node temp = breadthFirstIterator.next();
+			System.out.println(temp.getAttribute("ui.label") + " ---------> " + temp.getAttribute("layoutLayer"));
+		}*/
+		
 		//step 2 ---> insert fake nodes
 		/*nodeIterator = graph.getNodeIterator();
 		insertFakeNodes(nodeIterator);*/
 
-		for (Node node : graph) {
+		/*for (Node node : graph) {
 			int layer = node.getAttribute("layoutLayer");
 			//			System.out.println("node " + node.getId() + " ----> " + node.getAttribute("ui.label") + " ----> layer " + layer);
 			node.setAttribute("xyz", 2.0, (nodeCount - (layer * 3.0)), 0.0);
+		}*/
+		
+		for (Node node : graph) {
+			Iterator<Edge> leavingEdgeIterator = node.getLeavingEdgeIterator();
+			double childIndex = 0.0;
+			if(node.getOutDegree() == 0)
+				node.setAttribute("childIndex", 0.0);
+			while(leavingEdgeIterator.hasNext())
+			{
+				leavingEdgeIterator.next().getOpposite(node).setAttribute("childIndex", childIndex++);
+			}
 		}
-		experimentalLayoutOld();
+		
+		for (Node node : graph) {
+			if(node.getAttribute("childIndex") == null)
+				node.setAttribute("childIndex", 0.0);
+			System.out.println("childIndex of node " + node.getAttribute("ui.label") + node.getAttribute("childIndex"));
+		}
+
+		first.setAttribute("xyz", 4 * 5.0, nodeCount, 0.0);
+		/*nodeIterator = graph.getNodeIterator();
+		nodeIterator.next();
+		assignPosition(nodeIterator);*/
+		for (ArrayList<Node> layer : nodeLayers) {
+			double spacingX = 6.0;
+			double spacingY = 3.0;
+			int nodeCountInLayer = layer.size();
+			int directionResolver = nodeCountInLayer/2;
+			int layerIterator = nodeCountInLayer;
+			for (Node nodeInLayer : layer) {
+				if(nodeInLayer.getInDegree() == 0)
+					continue;
+				
+				Iterator<Edge> parentIterator = nodeInLayer.getEnteringEdgeIterator();
+				Node parent = parentIterator.next().getOpposite(nodeInLayer);
+				while(parentIterator.hasNext())
+				{
+					Node temp = parentIterator.next().getOpposite(nodeInLayer);
+					if(Integer.parseInt(temp.getAttribute("layoutLayer").toString()) > Integer.parseInt(parent.getAttribute("layoutLayer").toString()))
+					{
+						parent = temp;
+					}
+				}
+				
+				parent = nodeInLayer.getEachEnteringEdge().iterator().next().getOpposite(nodeInLayer);
+				double[] parentPosition = Toolkit.nodePosition(parent);
+//				int inDegreeOfParent = parent.getInDegree();
+				int outDegreeOfParent = parent.getOutDegree();
+				if(nodeCountInLayer > 1)
+				{
+					/*if(nodeInLayer.hasAttribute("childIndex"))
+						layerIterator = nodeInLayer.getAttribute("childIndex");
+					else
+						layerIterator = 0;*/
+					if(outDegreeOfParent == 1)
+					{
+						nodeInLayer.setAttribute("xyz", parentPosition[0], (parentPosition[1] - spacingY), 0.0);
+					}
+					else
+					{
+						if((nodeCountInLayer % 2) == 0)
+						{
+							if(layerIterator <= directionResolver)
+								nodeInLayer.setAttribute("xyz", parentPosition[0] - (spacingX * layerIterator), (parentPosition[1] - spacingY), 0.0);
+							else
+								nodeInLayer.setAttribute("xyz", parentPosition[0] + (spacingX * layerIterator), (parentPosition[1] - spacingY), 0.0);
+						}
+						else if((nodeCountInLayer % 2) != 0)
+						{
+							if(nodeCountInLayer >= directionResolver)
+								nodeInLayer.setAttribute("xyz", parentPosition[0] - (spacingX * layerIterator), (parentPosition[1] - spacingY), 0.0);
+							else if(nodeCountInLayer < directionResolver)
+								nodeInLayer.setAttribute("xyz", parentPosition[0] + (spacingX * layerIterator), (parentPosition[1] - spacingY), 0.0);
+						}
+					}
+					layerIterator--;
+				}
+				else
+					nodeInLayer.setAttribute("xyz", parentPosition[0], (parentPosition[1] - spacingY), 0.0);
+				parentPosition = null;
+			}
+		}
+
+		//		experimentalLayoutOld();
 	}
 
-	@SuppressWarnings("unused")
-	private void insertFakeNodes(Iterator<Node> nodeIterator)
+	/*private void insertFakeNodes(Iterator<Node> nodeIterator)
 	{
 		if(!nodeIterator.hasNext())
 			return;
@@ -1311,7 +1434,29 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				}
 			}
 		}
-	}
+	}*/
+
+	/*private void assignPosition(Iterator<Node> nodeIterator) {
+		double spacingX = 6.0;
+		double spacingY = 3.0;
+		Node curr = nodeIterator.next();
+		Node parent = curr.getEachEnteringEdge().iterator().next().getOpposite(curr);
+		double[] parentPosition = Toolkit.nodePosition(parent);
+//		int inDegreeOfParent = parent.getInDegree();
+		int outDegreeOfParent = parent.getOutDegree();
+		
+		if(!nodeIterator.hasNext())
+			return;
+		
+		if(outDegreeOfParent == 1)
+			curr.setAttribute("xyz", parentPosition[0], (parentPosition[1] - spacingY), 0.0);
+		if(outDegreeOfParent > 1)
+		{
+			curr.setAttribute("xyz", parentPosition[0] + (spacingX * (double) curr.getAttribute("childIndex")), (parentPosition[1] - spacingY), 0.0);
+		}
+		else
+			curr.setAttribute("xyz", parentPosition[0], (parentPosition[1] - spacingY), 0.0);
+	}*/
 
 	private void assignLayers(Iterator<Node> nodeIterator, int layer)
 	{
