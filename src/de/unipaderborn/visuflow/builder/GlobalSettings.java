@@ -15,7 +15,6 @@ public final class GlobalSettings {
 	String filename = path.append(fileName).toOSString();
 
 	protected GlobalSettings() {
-		// TODO Auto-generated constructor stub
 		System.out.println("Settings filename is" + filename);
 	}
 
@@ -26,14 +25,12 @@ public final class GlobalSettings {
 		try {
 			settings.load(filename);
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		settings.put(key, value);
 		try {
 			settings.save(filename);
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 	}
@@ -44,7 +41,6 @@ public final class GlobalSettings {
 		try {
 			settings.load(filename);
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		return settings.get(key);

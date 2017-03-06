@@ -1,17 +1,13 @@
 package de.unipaderborn.visuflow.wizard;
 
 import java.util.HashMap;
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.IDialogPage;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -19,22 +15,17 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 
-import soot.jimple.toolkits.annotation.nullcheck.NullCheckEliminator.AnalysisFactory;
-
 public class WizardPageHandler extends WizardPage {
-	private Text containerSourceText,containerTargetText,containerProjectName,containerPackageName,containerClassName;
+	private Text containerTargetText,containerProjectName,containerPackageName,containerClassName;
 	private Combo analysisType;
 	private Button[] analysisFramework = new Button[2];
 
 	@SuppressWarnings("unused")
 	private Text fileText;
-
-	private ISelection selection;
 
 	/**
 	 * Constructor for SampleNewWizardPage.
@@ -43,9 +34,9 @@ public class WizardPageHandler extends WizardPage {
 	 */
 	public WizardPageHandler(ISelection selection) {
 		super("wizardPage");
-		setTitle("Link Analysis and Target Project");
-		setDescription("This wizard links the Target Java project with the Analysis project");
-		this.selection = selection;
+		setTitle("Create New Analysis Project");
+		setDescription("This wizard creates new analysis project based on user-inputs");
+		//this.selection = selection;
 	}
 
 	/**
@@ -60,6 +51,7 @@ public class WizardPageHandler extends WizardPage {
 		
 		Label labelProject = new Label(container, SWT.NULL);
 		labelProject.setText("Name of the Project: ");
+		labelProject.setToolTipText("Specify the analysis project name");
 
 		containerProjectName = new Text(container, SWT.BORDER | SWT.SINGLE);
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
@@ -84,6 +76,7 @@ public class WizardPageHandler extends WizardPage {
 		
 		Label labelClass = new Label(container, SWT.NULL);
 		labelClass.setText("Class Name: ");
+		labelClass.setToolTipText("Name of the class containing main method");
 
 		containerClassName = new Text(container, SWT.BORDER | SWT.SINGLE);
 		gd = new GridData(GridData.FILL_HORIZONTAL);
@@ -94,24 +87,25 @@ public class WizardPageHandler extends WizardPage {
 		gd.horizontalSpan = 1;
 		new Label(container, SWT.NONE).setLayoutData(gd);
 	
-		Label label = new Label(container, SWT.NULL);
-		label.setText("Choose Folder: ");
-
-		containerSourceText = new Text(container, SWT.BORDER | SWT.SINGLE);
-		gd = new GridData(GridData.FILL_HORIZONTAL);
-		gd.horizontalSpan = 3;
-		containerSourceText.setLayoutData(gd);		
-
-		Button button = new Button(container, SWT.PUSH);
-		button.setText("Browse...");
-		button.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				handleFolderBrowse();
-			}
-		});		
+//		Label label = new Label(container, SWT.NULL);
+//		label.setText("Choose Folder: ");
+//
+//		containerSourceText = new Text(container, SWT.BORDER | SWT.SINGLE);
+//		gd = new GridData(GridData.FILL_HORIZONTAL);
+//		gd.horizontalSpan = 3;
+//		containerSourceText.setLayoutData(gd);		
+//
+//		Button button = new Button(container, SWT.PUSH);
+//		button.setText("Browse...");
+//		button.addSelectionListener(new SelectionAdapter() {
+//			public void widgetSelected(SelectionEvent e) {
+//				handleFolderBrowse();
+//			}
+//		});		
 		
 		Label labelFile = new Label(container, SWT.NULL);
 		labelFile.setText("Choose Target Project:");
+		labelFile.setToolTipText("Select target project on which you would like to run the analysis");
 
 		containerTargetText = new Text(container, SWT.BORDER | SWT.SINGLE);
 		gd = new GridData(GridData.FILL_HORIZONTAL);
@@ -157,33 +151,6 @@ public class WizardPageHandler extends WizardPage {
 		setControl(container);
 	}
 
-	/**
-	 * Tests if the current workbench selection is a suitable container to use.
-	 */
-
-	private void initialize() {
-		if (selection != null && selection.isEmpty() == false
-				&& selection instanceof IStructuredSelection) {
-			IStructuredSelection ssel = (IStructuredSelection) selection;
-			if (ssel.size() > 1)
-				return;
-			Object obj = ssel.getFirstElement();
-			if (obj instanceof IResource) {
-				IContainer container;
-				if (obj instanceof IContainer)
-					container = (IContainer) obj;
-				else
-					container = ((IResource) obj).getParent();
-				containerSourceText.setText(container.getFullPath().toString());
-			}
-		}
-		
-	}
-
-	/**
-	 * Uses the standard container selection dialog to choose the new value for
-	 * the container field.
-	 */
 	
 	private void handleProjectBrowse() {
 		ContainerSelectionDialog dialog = new ContainerSelectionDialog(
@@ -197,10 +164,10 @@ public class WizardPageHandler extends WizardPage {
 		}
 	}
 	
-	private void handleFolderBrowse() {
-		DirectoryDialog dialog = new DirectoryDialog(getShell());
-		 containerSourceText.setText(dialog.open());
-	}
+//	private void handleFolderBrowse() {
+//		DirectoryDialog dialog = new DirectoryDialog(getShell());
+//		 containerSourceText.setText(dialog.open());
+//	}
 
 	/**
 	 * Ensures that both text fields are set.
@@ -234,7 +201,7 @@ public class WizardPageHandler extends WizardPage {
 
 	public HashMap<String, String> getContainerName() {
 		HashMap<String, String> containerMap = new HashMap<>();
-		containerMap.put("ProjectPath", containerSourceText.getText());
+		//containerMap.put("ProjectPath", containerSourceText.getText());
 		containerMap.put("TargetPath", containerTargetText.getText());
 		containerMap.put("ProjectName", containerProjectName.getText());
 		containerMap.put("PackageName", containerPackageName.getText());

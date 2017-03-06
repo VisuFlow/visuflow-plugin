@@ -77,7 +77,6 @@ import org.osgi.service.event.EventHandler;
 import com.google.common.base.Optional;
 
 import de.unipaderborn.visuflow.builder.GlobalSettings;
-import de.unipaderborn.visuflow.builder.JimpleBuilder;
 import de.unipaderborn.visuflow.debug.handlers.NavigationHandler;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
@@ -114,8 +113,9 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	Container panel;
 	JApplet applet;
 	JButton zoomInButton, zoomOutButton, viewCenterButton, toggleLayout, showICFGButton, btColor;
-	JToolBar settingsBar;
+	JToolBar headerBar, settingsBar;
 	JTextField searchText;
+	JLabel header;
 
 	JDialog dialog;
 	JPanel panelColor;
@@ -156,7 +156,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private JMenuItem setCosAttr;
 	private JMenu callGraphOption;
 	private JMenuItem cha;
-	private JMenuItem rta;
+	private JMenuItem spark;
 
 	public GraphManager(String graphName, String styleSheet) {
 		//		System.setProperty("sun.awt.noerasebackground", "true");
@@ -231,6 +231,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		createViewListeners();
 		createToggleLayoutButton();
 		createSearchText();
+		createHeaderBar();
 		createSettingsBar();
 		createPanel();
 		createAppletContainer();
@@ -352,10 +353,10 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 		callGraphOption = new JMenu("Call Graph Option");
 		cha = new JMenuItem("CHA");
-		rta = new JMenuItem("RTA");
+		spark = new JMenuItem("SPARK");
 
 		callGraphOption.add(cha);
-		callGraphOption.add(rta);
+		callGraphOption.add(spark);
 
 		followCall.setVisible(false);
 		followReturn.setVisible(false);
@@ -494,18 +495,18 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				GlobalSettings.put("CallGraphOption", "CHA");
-				//				IProject project =
+				ServiceUtil.getService(DataModel.class).triggerProjectRebuild();
+				header.setText(header.getText() + " ------> CHA");
 			}
 		});
 
-		rta.addActionListener(new ActionListener() {
+		spark.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				GlobalSettings.put("CallGraphOption", "RTA");
-				JimpleBuilder builder = new JimpleBuilder();
-				builder.forgetLastBuiltState();
-				builder.needRebuild();
+				GlobalSettings.put("CallGraphOption", "SPARK");
+				ServiceUtil.getService(DataModel.class).triggerProjectRebuild();
+				header.setText(header.getText() + " ------> SPARK");
 			}
 		});
 	}
@@ -596,10 +597,19 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		settingsBar.add(searchText);
 	}
 
+	private void createHeaderBar()
+	{
+		this.headerBar = new JToolBar("Header");
+		this.headerBar.setFloatable(false);
+		this.header = new JLabel("ICFG");
+		this.headerBar.add(header);
+	}
+	
 	private void createPanel() {
 		JFrame temp = new JFrame();
 		temp.setLayout(new BorderLayout());
 		panel = temp.getContentPane();
+		panel.add(headerBar,BorderLayout.PAGE_START);
 		panel.add(view);
 		panel.add(settingsBar, BorderLayout.PAGE_END);
 	}
@@ -1046,6 +1056,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			createGraphMethodEdge(src, dest);
 		}
 		this.CFG = false;
+		this.header.setText("ICFG");
 		experimentalLayout();
 	}
 
@@ -1086,6 +1097,11 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			createGraphNode(dest);
 			createGraphEdge(src,dest);
 		}
+		if(interGraph.listEdges.size() == 1)
+		{
+			VFNode node = interGraph.listNodes.get(0);
+			createGraphNode(node);
+		}
 		this.CFG = true;
 		experimentalLayout();
 
@@ -1093,6 +1109,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			defaultPanZoom();
 			panToNode(graph.getNodeIterator().next().getId());
 		}
+		this.header.setText("Method CFG ----> " + ServiceUtil.getService(DataModel.class).getSelectedMethod().toString());
 	}
 
 	private void createGraphEdge(VFNode src, VFNode dest) {
@@ -1131,7 +1148,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 	}
 
-	static void nodeIterator(Node n)
+	@SuppressWarnings("unused")
+	private void getNodesToCollapse(Node n)
 	{
 		boolean present = false;
 		scala.collection.Iterator<Node> setIterator = setOfNode.iterator();
@@ -1165,7 +1183,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 				map.put(start, previous);
 				setOfNode.add(n);
-				nodeIterator(k);
+				getNodesToCollapse(k);
 
 			}
 		}
@@ -1274,6 +1292,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		experimentalLayoutOld();
 	}
 
+	@SuppressWarnings("unused")
 	private void insertFakeNodes(Iterator<Node> nodeIterator)
 	{
 		if(!nodeIterator.hasNext())

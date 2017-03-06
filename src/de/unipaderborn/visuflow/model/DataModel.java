@@ -37,6 +37,7 @@ public interface DataModel {
 	public VFMethod getSelectedMethod();
 	public VFMethod getVFMethodByName(SootMethod method);
 	public void setIcfg(ICFGStructure icfg);
+	public void triggerProjectRebuild();
 
 	public void setInSet(String unitFqn, String name, String value);
 	public void setOutSet(String unitFqn, String name, String value);
