@@ -389,8 +389,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				Object node = curr.getAttribute("nodeUnit");
 				if (node instanceof VFNode) {
 					VFUnit selectedVF = ((VFNode) node).getVFUnit();
-					setCosAttr(selectedVF);
-					curr.setAttribute("ui.color", jcc.getColor());
+					setCosAttr(selectedVF, curr);
+//					curr.setAttribute("ui.color", jcc.getColor());
 				}
 			}
 		});
@@ -1571,7 +1571,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public void setCosAttr(VFUnit selectedVF) {
+	public void setCosAttr(VFUnit selectedVF, Node curr) {
 		JPanel panel = new JPanel(new GridLayout(0, 2));
 
 		JTextField tfAnalysis = new JTextField("");
@@ -1603,6 +1603,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 					ArrayList<VFUnit> units = new ArrayList<>();
 					units.add(selectedVF);
+					curr.setAttribute("ui.color", jcc.getColor());
 
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
