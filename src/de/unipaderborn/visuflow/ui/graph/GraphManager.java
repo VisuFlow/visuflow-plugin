@@ -429,7 +429,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					ArrayList<VFNode> nodes = new ArrayList<>();
 					nodes.add((VFNode) node);
 					try {
-						dataModel.filterGraph(nodes, true, null);
+						dataModel.filterGraph(nodes, true, true, null);
 					} catch (Exception e1) {
 						e1.printStackTrace();
 					}
@@ -563,7 +563,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 				try {
 					DataModel model = ServiceUtil.getService(DataModel.class);
-					model.filterGraph(vfNodes, true, null);
+					model.filterGraph(vfNodes, true, true, null);
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
@@ -811,7 +811,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						ArrayList<VFNode> nodes = new ArrayList<>();
 						nodes.add((VFNode) node);
 						try {
-							dataModel.filterGraph(nodes, true, null);
+							dataModel.filterGraph(nodes, true, true, null);
 						} catch (Exception e1) {
 							e1.printStackTrace();
 						}
@@ -1004,7 +1004,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		});
 	}
 
-	private void filterGraphNodes(List<VFNode> nodes, boolean selected, String uiClassName) {
+	private void filterGraphNodes(List<VFNode> nodes, boolean selected, boolean panToNode, String uiClassName) {
 		boolean panned = false;
 		if (uiClassName == null) {
 			uiClassName = "filter";
@@ -1019,7 +1019,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					if (selected) {
 						node.setAttribute("ui.class", uiClassName);
 					}
-					if (!panned) {
+					if (!panned && panToNode) {
 						this.panToNode(node.getId());
 						panned = true;
 					}
@@ -1491,7 +1491,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			}
 		}
 		if (event.getTopic().contentEquals(DataModel.EA_TOPIC_DATA_FILTER_GRAPH)) {
-			filterGraphNodes((List<VFNode>) event.getProperty("nodesToFilter"), (boolean) event.getProperty("selection"),
+			filterGraphNodes((List<VFNode>) event.getProperty("nodesToFilter"), (boolean) event.getProperty("selection"), (boolean) event.getProperty("panToNode"),
 					(String) event.getProperty("uiClassName"));
 		}
 		if (event.getTopic().equals(DataModel.EA_TOPIC_DATA_UNIT_CHANGED)) {
@@ -1539,7 +1539,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 		panelColor.removeAll();
 
-		boolean inICFG = inICFG(graph);
+		boolean inICFG = this.CFG;
 		if (!inICFG) {
 
 			for (JButton bt : createStmtTypes(stmtTypes)) {
@@ -1814,7 +1814,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	}
 
-	private boolean inICFG(Graph graph) {
+	/*private boolean inICFG(Graph graph) {
 		boolean inICFG = false;
 
 		for (Node n : graph.getEachNode()) {
@@ -1826,6 +1826,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 		return inICFG;
 
-	}
+	}*/
 
 }

@@ -85,7 +85,7 @@ public class NavigationHandler extends AbstractHandler {
 					}
 					if (event.getCommand().getId().equals("JimpleEditor.NavigateToCFG")) {
 						try {
-							ServiceUtil.getService(DataModel.class).filterGraph(unit, true, null);
+							ServiceUtil.getService(DataModel.class).filterGraph(unit, true, true, null);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -93,14 +93,14 @@ public class NavigationHandler extends AbstractHandler {
 
 					else if (event.getCommand().getId().equals("JimpleEditor.NavigateToUnitView")) {
 						try {
-							ServiceUtil.getService(DataModel.class).filterGraph(unit, true, null);
+							ServiceUtil.getService(DataModel.class).filterGraph(unit, true, true, null);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
 					} else if (event.getCommand().getId().equals("JimpleEditor.VariablePath")) {
 						try {
 							List<VFNode> unitList = prepareVariablePath(className, document, content.trim().substring(0, content.length() - 1), lineNumber);
-							ServiceUtil.getService(DataModel.class).filterGraph(unitList, true, null);
+							ServiceUtil.getService(DataModel.class).filterGraph(unitList, true, true, null);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -181,7 +181,7 @@ public class NavigationHandler extends AbstractHandler {
 
 	public void highlightJavaSource(VFUnit unit) {
 		try {
-			ServiceUtil.getService(DataModel.class).filterGraph(new ArrayList<VFNode>(), false, null);
+			ServiceUtil.getService(DataModel.class).filterGraph(new ArrayList<VFNode>(), false, true, null);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -61,7 +61,7 @@ public class JavaToCFGHandler extends AbstractHandler {
 						unit.add(new VFNode(vfUnit, 0));
 					}
 					try {
-						ServiceUtil.getService(DataModel.class).filterGraph(unit, true, null);
+						ServiceUtil.getService(DataModel.class).filterGraph(unit, true, true, null);
 
 					} catch (Exception e) {
 						e.printStackTrace();

@@ -240,7 +240,7 @@ public class DataModelImpl implements DataModel {
 	}
 
 	@Override
-	public void filterGraph(List<VFNode> selectedNodes, boolean selection, String uiClassName) throws Exception {
+	public void filterGraph(List<VFNode> selectedNodes, boolean selection, boolean panToNode, String uiClassName) throws Exception {
 		NavigationHandler handler = new NavigationHandler();
 		handler.removeJimpleHighlight();
 		this.selectedNodes = selectedNodes;
@@ -255,6 +255,7 @@ public class DataModelImpl implements DataModel {
 		properties.put("nodesToFilter", this.selectedNodes);
 		properties.put("selection", this.selection);
 		properties.put("uiClassName", uiClassName);
+		properties.put("panToNode", panToNode);
 		Event filterGraph = new Event(DataModel.EA_TOPIC_DATA_FILTER_GRAPH, properties);
 		eventAdmin.postEvent(filterGraph);
 	}
