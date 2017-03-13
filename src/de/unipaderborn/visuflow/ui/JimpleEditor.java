@@ -1,4 +1,4 @@
-package de.unipaderborn.visuflow.debug.handlers;
+package de.unipaderborn.visuflow.ui;
 
 import org.eclipse.ui.editors.text.TextEditor;
 
