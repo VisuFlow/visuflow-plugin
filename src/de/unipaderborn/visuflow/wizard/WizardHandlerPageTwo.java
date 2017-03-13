@@ -41,23 +41,6 @@ public class WizardHandlerPageTwo extends WizardPage {
 		layout.verticalSpacing = 15;
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 		
-		gd = new GridData(GridData.FILL_HORIZONTAL);
-		gd.horizontalSpan = 1;
-		Label labelAnalysis = new Label(container, SWT.NULL);
-		labelAnalysis.setText("Analysis Type: ");
-		labelAnalysis.setLayoutData(gd);
-		
-		gd = new GridData(GridData.FILL_HORIZONTAL);
-		gd.horizontalSpan = 2;
-		analysisType = new Combo(container, SWT.DROP_DOWN);
-		analysisType.setItems(new String[]{"Select","Inter Procedural Analysis","Intra Procedural Analysis"});
-		analysisType.select(0);
-		analysisType.setLayoutData(gd);
-		
-		gd = new GridData(GridData.FILL_HORIZONTAL);
-		gd.horizontalSpan = 1;
-		new Label(container, SWT.NONE).setLayoutData(gd);
-		
 		Label labelAnalysisFramework = new Label(container, SWT.NULL);
 		labelAnalysisFramework.setText("Analysis Framework: ");
 		gd = new GridData(GridData.FILL_HORIZONTAL);
@@ -77,7 +60,7 @@ public class WizardHandlerPageTwo extends WizardPage {
 				String selectedFramework = analysisFramework.getText();
 				if(selectedFramework.equalsIgnoreCase("IFDS/IDE"))
 				{
-					analysisType.select(2);
+					analysisType.select(1);
 					analysisType.setEnabled(false);
 					flowSet.select(0);
 					flowSet.setEnabled(false);
@@ -101,6 +84,23 @@ public class WizardHandlerPageTwo extends WizardPage {
 		
 		gd = new GridData(GridData.FILL_HORIZONTAL);
 		gd.horizontalSpan = 2;
+		new Label(container, SWT.NONE).setLayoutData(gd);
+		
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = 1;
+		Label labelAnalysis = new Label(container, SWT.NULL);
+		labelAnalysis.setText("Analysis Type: ");
+		labelAnalysis.setLayoutData(gd);
+		
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = 2;
+		analysisType = new Combo(container, SWT.DROP_DOWN);
+		analysisType.setItems(new String[]{"Select","Inter Procedural Analysis","Intra Procedural Analysis"});
+		analysisType.select(0);
+		analysisType.setLayoutData(gd);
+		
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = 1;
 		new Label(container, SWT.NONE).setLayoutData(gd);
 		
 		gd = new GridData(GridData.FILL_HORIZONTAL);
