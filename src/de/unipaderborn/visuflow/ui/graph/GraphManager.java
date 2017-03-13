@@ -1550,21 +1550,13 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						dialog.setVisible(true);
-						for (Node n : graph.getEachNode()) {
 
-							VFNode vfNode = n.getAttribute("nodeUnit");
-
-							if (vfNode.getUnit().getClass().toString().equals("class " + bt.getName())) {
-								System.out.println("vfNode.getUnit().getClass() *******: " + vfNode.getUnit().getClass());
-								n.setAttribute("ui.color", jcc.getColor());
-								
-								//TODO Send vfNode and Color to Kaarthik
+						// TODO Send vfNode and Color to Kaarthik
 								ProjectPreferences pref = new ProjectPreferences();
 								pref.updateColorPreferences(vfNode.getUnit().getClass().getName(),jcc.getColor().getRGB());
-//								kaarthik(vfNode, jcc.getColor())
-
-							}
-						}
+						
+						System.out.println("Statement is : " + bt.getName());
+						System.out.println("Color is : " + jcc.getColor().getRGB());
 
 					}
 				});
@@ -1683,6 +1675,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 		int result = JOptionPane.showConfirmDialog(null, panelColor, "Test", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		if (result == JOptionPane.OK_OPTION) {
+			System.out.println("Color in JOptionPane"+ jcc.getColor().getRGB());
 
 		} else {
 			System.out.println("Cancelled");
