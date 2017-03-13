@@ -1556,7 +1556,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 						// TODO Send vfNode and Color to Kaarthik
 								ProjectPreferences pref = new ProjectPreferences();
-								pref.updateColorPreferences(vfNode.getUnit().getClass().getName(),jcc.getColor().getRGB());
+								pref.updateColorPreferences(bt.getName(),jcc.getColor().getRGB());
 						
 						System.out.println("Statement is : " + bt.getName());
 						System.out.println("Color is : " + jcc.getColor().getRGB());
