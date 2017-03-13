@@ -13,6 +13,7 @@ import java.awt.Container;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.Label;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
@@ -77,6 +78,7 @@ import org.osgi.service.event.EventHandler;
 
 import com.google.common.base.Optional;
 
+import de.unipaderborn.visuflow.ProjectPreferences;
 import de.unipaderborn.visuflow.builder.GlobalSettings;
 import de.unipaderborn.visuflow.debug.handlers.NavigationHandler;
 import de.unipaderborn.visuflow.model.DataModel;
@@ -97,7 +99,7 @@ import soot.jimple.Stmt;
 
 public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
-	//private static final transient Logger logger = Visuflow.getDefault().getLogger();
+	// private static final transient Logger logger = Visuflow.getDefault().getLogger();
 
 	Graph graph;
 	String styleSheet;
@@ -121,6 +123,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	JDialog dialog;
 	JPanel panelColor;
 	JColorChooser jcc;
+
+	List<JButton> stmtTypes;
 
 	double zoomInDelta, zoomOutDelta, maxZoomPercent, minZoomPercent, panXDelta, panYDelta;
 
@@ -160,8 +164,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private JMenuItem spark;
 
 	public GraphManager(String graphName, String styleSheet) {
-		//		System.setProperty("sun.awt.noerasebackground", "true");
-		//		System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
+		// System.setProperty("sun.awt.noerasebackground", "true");
+		// System.setProperty("org.graphstream.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
 		this.panXDelta = 2;
 		this.panYDelta = 2;
 		this.zoomInDelta = .075;
@@ -183,13 +187,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	}
 
 	private void registerEventHandler() {
-		String [] topics = new String[] {
-				EA_TOPIC_DATA_FILTER_GRAPH,
-				EA_TOPIC_DATA_SELECTION,
-				EA_TOPIC_DATA_MODEL_CHANGED,
-				EA_TOPIC_DATA_UNIT_CHANGED,
-				"GraphReady"
-		};
+		String[] topics = new String[] { EA_TOPIC_DATA_FILTER_GRAPH, EA_TOPIC_DATA_SELECTION, EA_TOPIC_DATA_MODEL_CHANGED, EA_TOPIC_DATA_UNIT_CHANGED,
+				"GraphReady" };
 		Hashtable<String, Object> properties = new Hashtable<>();
 		properties.put(EventConstants.EVENT_TOPIC, topics);
 		ServiceUtil.registerService(EventHandler.class, this, properties);
@@ -236,7 +235,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		createSettingsBar();
 		createPanel();
 		createAppletContainer();
-		//		colorNode();
+		// colorNode();
 	}
 
 	private void panUp() {
@@ -260,7 +259,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	}
 
 	private void panToNode(String nodeId) {
-		//		view.getCamera().resetView();
+		// view.getCamera().resetView();
 		Node panToNode = graph.getNode(nodeId);
 		double[] pos = Toolkit.nodePosition(panToNode);
 		double currPosition = view.getCamera().getViewCenter().y;
@@ -276,7 +275,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	private void defaultPanZoom() {
 		int count = 0;
-		if(graph.getNodeCount() > 10)
+		if (graph.getNodeCount() > 10)
 			count = 10;
 		for (int i = 0; i < count; i++) {
 			try {
@@ -285,13 +284,11 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			/*SwingUtilities.invokeLater(new Runnable() {
-
-				@Override
-				public void run() {
-					GraphManager.this.zoomIn();
-				}
-			});*/
+			/*
+			 * SwingUtilities.invokeLater(new Runnable() {
+			 * 
+			 * @Override public void run() { GraphManager.this.zoomIn(); } });
+			 */
 		}
 	}
 
@@ -367,7 +364,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				GraphicElement curElement = view.findNodeOrSpriteAt(x, y);
-				if(curElement == null)
+				if (curElement == null)
 					return;
 				Node curr = graph.getNode(curElement.getId());
 				Object node = curr.getAttribute("nodeUnit");
@@ -391,8 +388,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				Object node = curr.getAttribute("nodeUnit");
 				if (node instanceof VFNode) {
 					VFUnit selectedVF = ((VFNode) node).getVFUnit();
-					setCosAttr(selectedVF);
-					curr.setAttribute("ui.color", jcc.getColor());
+					setCosAttr(selectedVF, curr);
+					// curr.setAttribute("ui.color", jcc.getColor());
 				}
 			}
 		});
@@ -402,7 +399,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				GraphicElement curElement = view.findNodeOrSpriteAt(x, y);
-				if(curElement == null)
+				if (curElement == null)
 					return;
 				Node curr = graph.getNode(curElement.getId());
 				Object node = curr.getAttribute("nodeUnit");
@@ -421,7 +418,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			public void actionPerformed(ActionEvent e) {
 				DataModel dataModel = ServiceUtil.getService(DataModel.class);
 				GraphicElement curElement = view.findNodeOrSpriteAt(x, y);
-				if(curElement == null)
+				if (curElement == null)
 					return;
 				Node curr = graph.getNode(curElement.getId());
 				Object node = curr.getAttribute("nodeUnit");
@@ -445,13 +442,13 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				GraphicElement curElement = view.findNodeOrSpriteAt(x, y);
-				if(curElement == null)
+				if (curElement == null)
 					return;
 				Node curr = graph.getNode(curElement.getId());
 				Object node = curr.getAttribute("nodeUnit");
 				if (node instanceof VFNode) {
-					if(((Stmt)((VFNode) node).getUnit()).containsInvokeExpr()){
-						callInvokeExpr(((Stmt)((VFNode) node).getUnit()).getInvokeExpr());
+					if (((Stmt) ((VFNode) node).getUnit()).containsInvokeExpr()) {
+						callInvokeExpr(((Stmt) ((VFNode) node).getUnit()).getInvokeExpr());
 					}
 				}
 			}
@@ -462,29 +459,29 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				GraphicElement curElement = view.findNodeOrSpriteAt(x, y);
-				if(curElement == null)
+				if (curElement == null)
 					return;
 				Node curr = graph.getNode(curElement.getId());
 				Object node = curr.getAttribute("nodeUnit");
 				if (node instanceof VFNode) {
-					if(((VFNode) node).getUnit() instanceof ReturnStmt || ((VFNode) node).getUnit() instanceof ReturnVoidStmt){
+					if (((VFNode) node).getUnit() instanceof ReturnStmt || ((VFNode) node).getUnit() instanceof ReturnVoidStmt) {
 						System.out.println("Return ahoy");
 						List<VFUnit> list = new ArrayList<>();
-						for(VFUnit edge : ((VFNode) node).getVFUnit().getVfMethod().getIncomingEdges()){
+						for (VFUnit edge : ((VFNode) node).getVFUnit().getVfMethod().getIncomingEdges()) {
 							list.add(edge);
 						}
 						Display.getDefault().syncExec(new Runnable() {
-						    public void run() {
-						    	Shell shell = new Shell();
+							public void run() {
+								Shell shell = new Shell();
 								ReturnPathFilter returnFilter = new ReturnPathFilter(shell);
 								returnFilter.setPaths(list);
 								returnFilter.setInitialPattern("?");
 								returnFilter.open();
-								if(returnFilter.getFirstResult() != null){
+								if (returnFilter.getFirstResult() != null) {
 									returnToCaller((VFUnit) returnFilter.getFirstResult());
 								}
 								shell.close();
-						    }
+							}
 						});
 					}
 				}
@@ -526,7 +523,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 	}
 
-	private Image getScaledImage(Image srcImg, int w, int h){
+	private Image getScaledImage(Image srcImg, int w, int h) {
 		BufferedImage resizedImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2 = resizedImg.createGraphics();
 
@@ -558,7 +555,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				ArrayList<VFNode> vfNodes = new ArrayList<>();
 				ArrayList<VFUnit> vfUnits = new ArrayList<>();
 				for (Node node : graph) {
-					if(node.getAttribute("ui.label").toString().toLowerCase().contains((searchString))){
+					if (node.getAttribute("ui.label").toString().toLowerCase().contains((searchString))) {
 						vfNodes.add((VFNode) node.getAttribute("nodeUnit"));
 						vfUnits.add(((VFNode) node.getAttribute("nodeUnit")).getVFUnit());
 					}
@@ -625,7 +622,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			@Override
 			public void mouseWheelMoved(MouseWheelEvent e) {
 				int rotationDirection = e.getWheelRotation();
-				if(rotationDirection > 0)
+				if (rotationDirection > 0)
 					zoomIn();
 				else
 					zoomOut();
@@ -638,23 +635,23 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 				GraphicElement curElement = view.findNodeOrSpriteAt(event.getX(), event.getY());
 
-				if(curElement == null) {
+				if (curElement == null) {
 					view.setToolTipText(null);
 				}
 
-				if(curElement != null) {
+				if (curElement != null) {
 					Node node = graph.getNode(curElement.getId());
 					String result = "<html><table>";
 					int maxToolTipLength = 0;
-					for(String key:node.getEachAttributeKey()) {
-						if(key.startsWith("nodeData")){
+					for (String key : node.getEachAttributeKey()) {
+						if (key.startsWith("nodeData")) {
 							Object value = node.getAttribute(key);
 							String tempVal = key.substring(key.lastIndexOf(".") + 1) + " : " + value.toString();
-							if(tempVal.length() > maxToolTipLength){
+							if (tempVal.length() > maxToolTipLength) {
 								maxToolTipLength = tempVal.length();
 							}
 
-							result += "<tr><td>" + key.substring(key.lastIndexOf(".") + 1) + "</td>"+"<td>" + value.toString() + "</td></tr>";
+							result += "<tr><td>" + key.substring(key.lastIndexOf(".") + 1) + "</td>" + "<td>" + value.toString() + "</td></tr>";
 						}
 					}
 					result += "</table></html>";
@@ -664,7 +661,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			@Override
 			public void mouseDragged(MouseEvent e) {
-				if(draggingGraph) {
+				if (draggingGraph) {
 					dragGraph(e);
 				} else {
 					defaultListener.mouseDragged(e);
@@ -672,10 +669,10 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			}
 
 			private void dragGraph(MouseEvent e) {
-				if(mouseDraggedFrom == null) {
+				if (mouseDraggedFrom == null) {
 					mouseDraggedFrom = e.getPoint();
 				} else {
-					if(mouseDraggedTo != null) {
+					if (mouseDraggedTo != null) {
 						mouseDraggedFrom = mouseDraggedTo;
 					}
 					mouseDraggedTo = e.getPoint();
@@ -702,7 +699,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			@Override
 			public void mousePressed(MouseEvent e) {
-				if(e.getButton() == MouseEvent.BUTTON3) {
+				if (e.getButton() == MouseEvent.BUTTON3) {
 					// reset mouse drag tracking
 					mouseDraggedFrom = null;
 					mouseDraggedTo = null;
@@ -712,33 +709,30 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			@Override
 			public void mouseExited(MouseEvent e) {
-				//noop
+				// noop
 			}
 
 			@Override
 			public void mouseEntered(MouseEvent e) {
-				//noop
+				// noop
 			}
 
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				DataModel dataModel = ServiceUtil.getService(DataModel.class);
 				GraphicElement curElement = view.findNodeOrSpriteAt(e.getX(), e.getY());
-				if(e.getButton() == MouseEvent.BUTTON3 && !CFG)
-				{
+				if (e.getButton() == MouseEvent.BUTTON3 && !CFG) {
 					x = e.getX();
 					y = e.getY();
 					popUp = new JPopupMenu("right click menu");
 					popUp.add(callGraphOption);
 					popUp.show(e.getComponent(), x, y);
 				}
-				if(e.getButton() == MouseEvent.BUTTON3 && CFG)
-				{
+				if (e.getButton() == MouseEvent.BUTTON3 && CFG) {
 					x = e.getX();
 					y = e.getY();
 
-					if(curElement != null)
-					{
+					if (curElement != null) {
 						popUp = new JPopupMenu("right click menu");
 
 						popUp.add(navigateToJimple);
@@ -747,18 +741,18 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						popUp.add(setCosAttr);
 						popUp.add(followCall);
 						popUp.add(followReturn);
-						popUp.addPopupMenuListener(new PopupMenuListener(){
+						popUp.addPopupMenuListener(new PopupMenuListener() {
 
 							@Override
 							public void popupMenuWillBecomeVisible(PopupMenuEvent arg0) {
 								GraphicElement curElement = view.findNodeOrSpriteAt(x, y);
-								if(curElement == null) {
+								if (curElement == null) {
 									return;
 								}
 								Node curr = graph.getNode(curElement.getId());
 								Object node = curr.getAttribute("nodeUnit");
 								if (node instanceof VFNode) {
-									if(((Stmt)((VFNode) node).getUnit()).containsInvokeExpr()){
+									if (((Stmt) ((VFNode) node).getUnit()).containsInvokeExpr()) {
 										followCall.setVisible(true);
 										followReturn.setVisible(false);
 									} else if (((VFNode) node).getUnit() instanceof ReturnStmt || ((VFNode) node).getUnit() instanceof ReturnVoidStmt) {
@@ -788,7 +782,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						popUp.show(e.getComponent(), x, y);
 					}
 				}
-				if(curElement == null)
+				if (curElement == null)
 					return;
 				Node curr = graph.getNode(curElement.getId());
 				if (e.getButton() == MouseEvent.BUTTON1 && !CFG && !((e.getModifiers() & ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK)) {
@@ -796,7 +790,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					if (node instanceof VFMethod) {
 						VFMethod selectedMethod = (VFMethod) node;
 						try {
-							if(selectedMethod.getControlFlowGraph() == null)
+							if (selectedMethod.getControlFlowGraph() == null)
 								throw new Exception("CFG Null Exception");
 							else {
 								dataModel.setSelectedMethod(selectedMethod, true);
@@ -824,7 +818,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					}
 				} else if (e.getButton() == MouseEvent.BUTTON1 && (e.getModifiers() & ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK) {
 					String id = curr.getId();
-					if(id != null)
+					if (id != null)
 						toggleNode(id);
 				}
 				if (e.getButton() == MouseEvent.BUTTON3 && CFG) {
@@ -852,7 +846,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			public void keyPressed(KeyEvent e) {
 				int keyCode = e.getKeyCode();
 				if (e.isShiftDown()) {
-					switch( keyCode ) {
+					switch (keyCode) {
 					case KeyEvent.VK_UP:
 						// handle up
 						panUp();
@@ -865,7 +859,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						// handle left
 						panLeft();
 						break;
-					case KeyEvent.VK_RIGHT :
+					case KeyEvent.VK_RIGHT:
 						// handle right
 						panRight();
 						break;
@@ -874,15 +868,15 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			}
 		});
 	}
-	
-	private void returnToCaller(VFUnit unit){
-		if(unit == null) return;
+
+	private void returnToCaller(VFUnit unit) {
+		if (unit == null)
+			return;
 		DataModel dataModel = ServiceUtil.getService(DataModel.class);
 		try {
-			if(unit.getVfMethod().getControlFlowGraph() == null)
+			if (unit.getVfMethod().getControlFlowGraph() == null)
 				throw new Exception("CFG Null Exception");
-			else
-			{
+			else {
 				dataModel.setSelectedMethod(unit.getVfMethod(), true);
 			}
 		} catch (Exception e1) {
@@ -890,14 +884,14 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 	}
 
-	private void callInvokeExpr(InvokeExpr expr){
+	private void callInvokeExpr(InvokeExpr expr) {
 		if (expr == null)
 			return;
 		DataModel dataModel = ServiceUtil.getService(DataModel.class);
 		System.out.println(expr);
 		VFMethod selectedMethod = dataModel.getVFMethodByName(expr.getMethod());
 		try {
-			if(selectedMethod.getControlFlowGraph() == null)
+			if (selectedMethod.getControlFlowGraph() == null)
 				throw new Exception("CFG Null Exception");
 			else {
 				dataModel.setSelectedMethod(selectedMethod, true);
@@ -909,13 +903,13 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	private void zoomOut() {
 		double viewPercent = view.getCamera().getViewPercent();
-		if(viewPercent > maxZoomPercent)
+		if (viewPercent > maxZoomPercent)
 			view.getCamera().setViewPercent(viewPercent - zoomInDelta);
 	}
 
 	private void zoomIn() {
 		double viewPercent = view.getCamera().getViewPercent();
-		if(viewPercent < minZoomPercent)
+		if (viewPercent < minZoomPercent)
 			view.getCamera().setViewPercent(viewPercent + zoomOutDelta);
 	}
 
@@ -969,10 +963,10 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private void toggleAutoLayout() {
 		if (!autoLayoutEnabled) {
 			if (viewer != null && graphLayout != null) {
-				//				viewer.enableAutoLayout(graphLayout);
+				// viewer.enableAutoLayout(graphLayout);
 				experimentalLayout();
 			} else if (viewer != null) {
-				//				viewer.enableAutoLayout();
+				// viewer.enableAutoLayout();
 				experimentalLayout();
 			}
 			autoLayoutEnabled = true;
@@ -984,14 +978,14 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 	}
 
-	private void colorNode(){
+	private void colorNode() {
 		jcc = new JColorChooser(Color.RED);
 		jcc.getSelectionModel().addChangeListener(new ChangeListener() {
 
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				Color color = jcc.getColor();
-				System.out.println("color:"+ color);
+				System.out.println("color:" + color);
 
 			}
 		});
@@ -999,9 +993,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		dialog = JColorChooser.createDialog(null, "Color Chooser", true, jcc, null, null);
 		panelColor = new JPanel(new GridLayout(0, 2));
 
-		btColor = new JButton ("Color nodes");
+		btColor = new JButton("Color nodes");
 		btColor.addActionListener(new ActionListener() {
-
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1013,17 +1006,17 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	private void filterGraphNodes(List<VFNode> nodes, boolean selected, String uiClassName) {
 		boolean panned = false;
-		if(uiClassName == null) {
+		if (uiClassName == null) {
 			uiClassName = "filter";
 		}
 		Iterable<? extends Node> graphNodes = graph.getEachNode();
 		for (Node node : graphNodes) {
-			if(node.hasAttribute("ui.class")) {
+			if (node.hasAttribute("ui.class")) {
 				node.removeAttribute("ui.class");
 			}
 			for (VFNode vfNode : nodes) {
 				if (node.getAttribute("unit").toString().contentEquals(vfNode.getUnit().toString())) {
-					if(selected) {
+					if (selected) {
 						node.setAttribute("ui.class", uiClassName);
 					}
 					if (!panned) {
@@ -1036,7 +1029,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	}
 
 	private void renderICFG(ICFGStructure icfg) {
-		if(icfg == null) {
+		if (icfg == null) {
 			return;
 		}
 
@@ -1082,7 +1075,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	}
 
 	private void renderMethodCFG(ControlFlowGraph interGraph, boolean panToNode) throws Exception {
-		if(interGraph == null)
+		if (interGraph == null)
 			throw new Exception("GraphStructure is null");
 
 		this.reintializeGraph();
@@ -1096,7 +1089,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			createGraphNode(src);
 			createGraphNode(dest);
-			createGraphEdge(src,dest);
+			createGraphEdge(src, dest);
 		}
 		if(interGraph.listEdges.size() == 1)
 		{
@@ -1125,7 +1118,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private void createGraphNode(VFNode node) {
 		if (graph.getNode(node.getId() + "") == null) {
 			Node createdNode = graph.addNode(node.getId() + "");
-			if(node.getUnit().toString().length() > maxLength) {
+			if (node.getUnit().toString().length() > maxLength) {
 				createdNode.setAttribute("ui.label", node.getUnit().toString().substring(0, maxLength) + "...");
 			} else {
 				createdNode.setAttribute("ui.label", node.getUnit().toString());
@@ -1144,40 +1137,32 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			createdNode.setAttribute("nodeData.inSet", nodeInSet);
 			createdNode.setAttribute("nodeData.outSet", nodeOutSet);
 			createdNode.setAttribute("nodeData.line", node.getUnit().getJavaSourceStartLineNumber());
-			//			createdNode.setAttribute("nodeData.column", node.getUnit().getJavaSourceStartColumnNumber());
+			// createdNode.setAttribute("nodeData.column", node.getUnit().getJavaSourceStartColumnNumber());
 			createdNode.setAttribute("nodeUnit", node);
 		}
 	}
 
 	@SuppressWarnings("unused")
 	private void getNodesToCollapse(Node n)
-	{
 		boolean present = false;
 		scala.collection.Iterator<Node> setIterator = setOfNode.iterator();
-		while(setIterator.hasNext())
-		{
-			if(setIterator.next().equals(n))
-			{
+		while (setIterator.hasNext()) {
+			if (setIterator.next().equals(n)) {
 				present = true;
 				break;
 			}
 		}
-		if(!present)
-		{
+		if (!present) {
 			Iterator<Edge> edgeIterator = n.getLeavingEdgeIterator();
-			while(edgeIterator.hasNext()) {
+			while (edgeIterator.hasNext()) {
 				Edge edge = edgeIterator.next();
 				start = edge.getNode1();
 				Node k = start;
-				while(true)
-				{
-					if(k.getOutDegree() == 1 && k.getInDegree() == 1)
-					{
+				while (true) {
+					if (k.getOutDegree() == 1 && k.getInDegree() == 1) {
 						previous = k;
 						k = k.getEachLeavingEdge().iterator().next().getNode1();
-					}
-					else
-					{
+					} else {
 						break;
 					}
 				}
@@ -1191,7 +1176,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	}
 
 	/*private void experimentalLayoutOld()
-		if(!CFG) {
+		if (!CFG) {
 			viewer.enableAutoLayout(new SpringBox());
 			view.getCamera().resetView();
 			return;
@@ -1217,7 +1202,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				currNodeIndex++;
 				while (currEdgeIterator.hasNext()) {
 					Node temp = currEdgeIterator.next().getOpposite(curr);
-					temp.setAttribute("xyz", ((columnSpacing- currEdgeIndex) * currEdgeCount), ((totalNodeCount * columnSpacing) - currNodeIndex), 0.0);
+					temp.setAttribute("xyz", ((columnSpacing - currEdgeIndex) * currEdgeCount), ((totalNodeCount * columnSpacing) - currNodeIndex), 0.0);
 					curr.setAttribute("layout.visited");
 					currEdgeIndex++;
 				}
@@ -1232,7 +1217,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			double[] pos = Toolkit.nodePosition(graph, node.getId());
 			int inDegree = node.getInDegree();
 			int outDegree = node.getOutDegree();
-			if(inDegree == 0)
+			if (inDegree == 0)
 				continue;
 			if (inDegree > outDegree) {
 				node.setAttribute("xyz", pos[0] - rowSpacing, pos[1], 0.0);
@@ -1249,10 +1234,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		view.getCamera().resetView();
 	}*/
 
-	private void experimentalLayout()
-	{
-		if(!CFG)
-		{
+	private void experimentalLayout() {
+		if (!CFG) {
 			viewer.enableAutoLayout(new SpringBox());
 			view.getCamera().resetView();
 			return;
@@ -1412,21 +1395,21 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		return parent;
 	}
 
-	void toggleNode(String id){
-		Node n  = graph.getNode(id);
+	void toggleNode(String id) {
+		Node n = graph.getNode(id);
 		Object[] pos = n.getAttribute("xyz");
 		Iterator<Node> it = n.getBreadthFirstIterator(true);
-		if(n.hasAttribute("collapsed")){
+		if (n.hasAttribute("collapsed")) {
 			n.removeAttribute("collapsed");
-			while(it.hasNext()){
-				Node m  =  it.next();
+			while (it.hasNext()) {
+				Node m = it.next();
 
-				for(Edge e : m.getLeavingEdgeSet()) {
+				for (Edge e : m.getLeavingEdgeSet()) {
 					e.removeAttribute("ui.hide");
 				}
 				m.removeAttribute("layout.frozen");
-				m.setAttribute("x",((double)pos[0])+Math.random()*0.0001);
-				m.setAttribute("y",((double)pos[1])+Math.random()*0.0001);
+				m.setAttribute("x", ((double) pos[0]) + Math.random() * 0.0001);
+				m.setAttribute("y", ((double) pos[1]) + Math.random() * 0.0001);
 
 				m.removeAttribute("ui.hide");
 
@@ -1437,16 +1420,16 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			n.setAttribute("ui.class", "plus");
 			n.setAttribute("collapsed");
 
-			while(it.hasNext()){
-				Node m  =  it.next();
+			while (it.hasNext()) {
+				Node m = it.next();
 
-				for(Edge e : m.getLeavingEdgeSet()) {
+				for (Edge e : m.getLeavingEdgeSet()) {
 					e.setAttribute("ui.hide");
 				}
-				if(n != m) {
+				if (n != m) {
 					m.setAttribute("layout.frozen");
-					//					m.setAttribute("x", ((double) pos[0]) + Math.random() * 0.0001);
-					//					m.setAttribute("y", ((double) pos[1]) + Math.random() * 0.0001);
+					// m.setAttribute("x", ((double) pos[0]) + Math.random() * 0.0001);
+					// m.setAttribute("y", ((double) pos[1]) + Math.random() * 0.0001);
 
 					m.setAttribute("xyz", ((double) pos[0]) + Math.random() * 0.0001, ((double) pos[1]) + Math.random() * 0.0001, 0.0);
 
@@ -1464,29 +1447,20 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		this.registerEventHandler();
 		System.out.println("GraphManager ---> registered for events");
 
+		// No need to have the following code.
 
-
-		//		No need to have the following code.
-
-		/*ViewerPipe fromViewer = viewer.newViewerPipe();
-		fromViewer.addViewerListener(this);
-		fromViewer.addSink(graph);
-
-		// FIXME the Thread.sleep slows down the loop, so that it does not eat up the CPU
-		// but this really should be implemented differently. isn't there an event listener
-		// or something we can use, so that we call pump() only when necessary
-		while(true) {
-			try {
-				Thread.sleep(1);
-			} catch (InterruptedException e) {
-			}
-			fromViewer.pump();
-		}*/
+		/*
+		 * ViewerPipe fromViewer = viewer.newViewerPipe(); fromViewer.addViewerListener(this); fromViewer.addSink(graph);
+		 * 
+		 * // FIXME the Thread.sleep slows down the loop, so that it does not eat up the CPU // but this really should be implemented differently. isn't there
+		 * an event listener // or something we can use, so that we call pump() only when necessary while(true) { try { Thread.sleep(1); } catch
+		 * (InterruptedException e) { } fromViewer.pump(); }
+		 */
 	}
 
 	@Override
 	public void buttonPushed(String id) {
-		//noop
+		// noop
 	}
 
 	@Override
@@ -1497,7 +1471,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	@Override
 	public void viewClosed(String id) {
-		//noop
+		// noop
 	}
 
 	@SuppressWarnings("unchecked")
@@ -1525,9 +1499,9 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			for (Edge edge : graph.getEdgeSet()) {
 				Node src = edge.getSourceNode();
 				VFNode vfNode = src.getAttribute("nodeUnit");
-				if(vfNode != null) {
+				if (vfNode != null) {
 					VFUnit currentUnit = vfNode.getVFUnit();
-					if(unit.getFullyQualifiedName().equals(currentUnit.getFullyQualifiedName())) {
+					if (unit.getFullyQualifiedName().equals(currentUnit.getFullyQualifiedName())) {
 						String outset = Optional.fromNullable(unit.getOutSet()).or("").toString();
 						edge.setAttribute("ui.label", outset);
 						edge.setAttribute("edgeData.outSet", outset);
@@ -1539,12 +1513,12 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 	}
 
-	private boolean inPanel( String btName, JPanel panel){
+	private boolean inPanel(String btName, JPanel panel) {
 		boolean exist = false;
 
-		for(Component c : panel.getComponents()){
+		for (Component c : panel.getComponents()) {
 
-			if (!(c.getName()== null)) {
+			if (!(c.getName() == null)) {
 				if ((c.getClass().toString().equals("class javax.swing.JButton"))) {
 					JButton bt = (JButton) c;
 					System.out.println("Button's name = " + c.getName());
@@ -1560,78 +1534,151 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		return exist;
 	}
 
-	public void colorTheGraph(){
+	public void colorTheGraph() {
 
 		panelColor.removeAll();
 
-		for(Node n: graph.getEachNode()){
-			if(!(n.getAttribute("nodeData.unitType") == null)){
-				JLabel l = new JLabel("Change the color of this unit");
-				JButton bt = new JButton(n.getAttribute("nodeData.unitType").toString());
-				//            	 bt.setName(n.getAttribute("nodeData.methodName").toString());
-				bt.setName(n.getAttribute("nodeData.unitType").toString());
+		boolean inICFG = inICFG(graph);
+		if (!inICFG) {
 
+			for (JButton bt : createStmtTypes(stmtTypes)) {
+				panelColor.add(new Label("Set color preference for this kind of statement"));
+				panelColor.add(bt);
 				bt.addActionListener(new ActionListener() {
 
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						dialog.setVisible(true);
-						System.out.println("Button's name is : " + bt.getName());
-						System.out.println("Button's name is..." );
-						for(Node n: graph.getEachNode()){
-							//							if(n.getAttribute("nodeData.methodName").toString().equals(bt.getName())){
-							//							if(n.getAttribute("ui.label").toString().equals(bt.getName())){
-							if(n.getAttribute("nodeData.unitType").toString().equals(bt.getName())){
+						for (Node n : graph.getEachNode()) {
+
+							VFNode vfNode = n.getAttribute("nodeUnit");
+
+							if (vfNode.getUnit().getClass().toString().equals("class " + bt.getName())) {
+								System.out.println("vfNode.getUnit().getClass() *******: " + vfNode.getUnit().getClass());
 								n.setAttribute("ui.color", jcc.getColor());
-								//								n.setAttribute("ui.text-size", "20%");
-								System.out.println(jcc.getColor());
+								
+								//TODO Send vfNode and Color to Kaarthik
+								ProjectPreferences pref = new ProjectPreferences();
+								pref.updateColorPreferences(vfNode.getUnit().getClass().getName(),jcc.getColor().getRGB());
+//								kaarthik(vfNode, jcc.getColor())
+
 							}
-
 						}
-
 
 					}
 				});
-
-				if(!(inPanel(bt.getName(), panelColor))){
-					panelColor.add(l);
-					panelColor.add(bt);
-				}
-
 			}
-			if (!(n.getAttribute("nodeData.unescapedMethodName") == null)) {
-				JLabel l = new JLabel("Change the color of this unit");
-				JButton bt = new JButton(n.getAttribute("nodeData.unescapedMethodName").toString());
-				bt.setName(n.getAttribute("nodeData.unescapedMethodName").toString());
-				bt.addActionListener(new ActionListener() {
 
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						dialog.setVisible(true);
-						System.out.println("Button's name is : " + bt.getName());
-						System.out.println("Button's name is..." );
-						for(Node n: graph.getEachNode()){
-							//							if(n.getAttribute("nodeData.methodName").toString().equals(bt.getName())){
-							//							if(n.getAttribute("ui.label").toString().equals(bt.getName())){
-							if (n.getAttribute("nodeData.unescapedMethodName").toString().equals(bt.getName())) {
-								n.setAttribute("ui.color", jcc.getColor());
-								System.out.println(jcc.getColor());
+		} else {
+			for (Node n : graph.getEachNode()) {
+				if (!(n.getAttribute("nodeData.unescapedMethodName") == null)) {
+					JLabel l = new JLabel("Change the color of this unit");
+					JButton bt = new JButton(n.getAttribute("nodeData.unescapedMethodName").toString());
+					bt.setName(n.getAttribute("nodeData.unescapedMethodName").toString());
+
+					bt.addActionListener(new ActionListener() {
+
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							dialog.setVisible(true);
+							System.out.println("Button's name is : " + bt.getName());
+							System.out.println("Button's name is...");
+
+							for (Node n : graph.getEachNode()) {
+								if (n.getAttribute("nodeData.unescapedMethodName").toString().equals(bt.getName())) {
+									n.setAttribute("ui.color", jcc.getColor());
+									System.out.println(jcc.getColor());
+								}
+
 							}
-
 						}
 
+					});
 
+					if (!(inPanel(bt.getName(), panelColor))) {
+						panelColor.add(l);
+						panelColor.add(bt);
 					}
-				});
 
-				if(!(inPanel(bt.getName(), panelColor))){
-					panelColor.add(l);
-					panelColor.add(bt);
 				}
 
 			}
 
 		}
+		// for (Node n : graph.getEachNode()) {
+		// if (!(n.getAttribute("nodeData.unitType") == null)) {
+		//
+		//
+		//
+		//
+		//
+		//
+		// // JLabel l = new JLabel("Change the color of this unit");
+		// // JButton bt = new JButton(n.getAttribute("nodeData.unitType").toString());
+		// // // bt.setName(n.getAttribute("nodeData.methodName").toString());
+		// // bt.setName(n.getAttribute("nodeData.unitType").toString());
+		// //
+		// // bt.addActionListener(new ActionListener() {
+		// //
+		// // @Override
+		// // public void actionPerformed(ActionEvent e) {
+		// // dialog.setVisible(true);
+		// // System.out.println("Button's name is : " + bt.getName());
+		// // System.out.println("Button's name is..." );
+		// // for(Node n: graph.getEachNode()){
+		// // // if(n.getAttribute("nodeData.methodName").toString().equals(bt.getName())){
+		// // // if(n.getAttribute("ui.label").toString().equals(bt.getName())){
+		// // if(n.getAttribute("nodeData.unitType").toString().equals(bt.getName())){
+		// // n.setAttribute("ui.color", jcc.getColor());
+		// // // n.setAttribute("ui.text-size", "20%");
+		// // System.out.println(jcc.getColor());
+		// // }
+		// //
+		// // }
+		// //
+		// //
+		// // }
+		// // });
+		// //
+		// // if(!(inPanel(bt.getName(), panelColor))){
+		// // panelColor.add(l);
+		// // panelColor.add(bt);
+		// // }
+		//
+		// }
+		//
+		// if (!(n.getAttribute("nodeData.unescapedMethodName") == null)) {
+		// JLabel l = new JLabel("Change the color of this unit");
+		// JButton bt = new JButton(n.getAttribute("nodeData.unescapedMethodName").toString());
+		// bt.setName(n.getAttribute("nodeData.unescapedMethodName").toString());
+		// bt.addActionListener(new ActionListener() {
+		//
+		// @Override
+		// public void actionPerformed(ActionEvent e) {
+		// dialog.setVisible(true);
+		// System.out.println("Button's name is : " + bt.getName());
+		// System.out.println("Button's name is...");
+		// for (Node n : graph.getEachNode()) {
+		// // if(n.getAttribute("nodeData.methodName").toString().equals(bt.getName())){
+		// // if(n.getAttribute("ui.label").toString().equals(bt.getName())){
+		// if (n.getAttribute("nodeData.unescapedMethodName").toString().equals(bt.getName())) {
+		// n.setAttribute("ui.color", jcc.getColor());
+		// System.out.println(jcc.getColor());
+		// }
+		//
+		// }
+		//
+		// }
+		// });
+		//
+		// if (!(inPanel(bt.getName(), panelColor))) {
+		// panelColor.add(l);
+		// panelColor.add(bt);
+		// }
+		//
+		// }
+		//
+		// }
 
 		int result = JOptionPane.showConfirmDialog(null, panelColor, "Test", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		if (result == JOptionPane.OK_OPTION) {
@@ -1642,7 +1689,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public void setCosAttr(VFUnit selectedVF) {
+	public void setCosAttr(VFUnit selectedVF, Node curr) {
 		JPanel panel = new JPanel(new GridLayout(0, 2));
 
 		JTextField tfAnalysis = new JTextField("");
@@ -1674,12 +1721,13 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 					ArrayList<VFUnit> units = new ArrayList<>();
 					units.add(selectedVF);
+					curr.setAttribute("ui.color", jcc.getColor());
 
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			}else{
+			} else {
 				JOptionPane.showMessageDialog(new JPanel(), "Please make sure all fields are correctly filled out", "Warning", JOptionPane.WARNING_MESSAGE);
 				System.out.println("Please make sure all fields are correctly filled out");
 			}
@@ -1690,10 +1738,93 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	}
 
-	public void colorCostumizedNode(){
-		for(Node n : graph.getEachNode()){
+	public void colorCostumizedNode() {
+		for (Node n : graph.getEachNode()) {
 			n.setAttribute("ui.color", jcc.getColor());
 		}
+	}
+
+	private List<JButton> createStmtTypes(List<JButton> stmtTypes) {
+		stmtTypes = new ArrayList<JButton>();
+
+		// All button
+		JButton btJNopStmt, btJIdentityStmt, btJAssignStmt, btJIfStmt, btJGotoStmt, btJTableSwitchStmt, btJLookupSwitchStmt, btJInvokeStmt, btJReturnStmt,
+				JReturnVoidStmt, btJThrowStmt, btJRetStmt, btJEnterMonitorSmt, btJExitMonitorStmt;
+
+		btJNopStmt = new JButton("soot.jimple.internal.JNopStmt");
+		btJNopStmt.setName("soot.jimple.internal.JNopStmt");
+
+		btJIdentityStmt = new JButton("soot.jimple.internal.JIdentityStmt");
+		btJIdentityStmt.setName("soot.jimple.internal.JIdentityStmt");
+
+		btJAssignStmt = new JButton("soot.jimple.internal.JAssignStmt");
+		btJAssignStmt.setName("soot.jimple.internal.JAssignStmt");
+
+		btJIfStmt = new JButton("soot.jimple.internal.JIfStmt");
+		btJIfStmt.setName("soot.jimple.internal.JIfStmt");
+
+		btJGotoStmt = new JButton("soot.jimple.internal.JGotoStmt");
+		btJGotoStmt.setName("soot.jimple.internal.JGotoStmt");
+
+		btJTableSwitchStmt = new JButton("soot.jimple.internal.JTableSwitchStmt");
+		btJTableSwitchStmt.setName("soot.jimple.internal.JTableSwitchStmt");
+
+		btJLookupSwitchStmt = new JButton("soot.jimple.internal.JLookupSwitchStmt");
+		btJLookupSwitchStmt.setName("soot.jimple.internal.JLookupSwitchStmt");
+
+		btJInvokeStmt = new JButton("soot.jimple.internal.JInvokeStmt");
+		btJInvokeStmt.setName("soot.jimple.internal.JInvokeStmt");
+
+		btJReturnStmt = new JButton("soot.jimple.internal.JReturnStmt");
+		btJReturnStmt.setName("soot.jimple.internal.JReturnStmt");
+
+		JReturnVoidStmt = new JButton("soot.jimple.internal.JReturnVoidStmt");
+		JReturnVoidStmt.setName("soot.jimple.internal.JReturnVoidStmt");
+
+		btJThrowStmt = new JButton("soot.jimple.internal.JThrowStmt");
+		btJThrowStmt.setName("soot.jimple.internal.JThrowStmt");
+
+		btJRetStmt = new JButton("soot.jimple.internal.JRetStmt");
+		btJRetStmt.setName("soot.jimple.internal.JRetStmt");
+
+		btJEnterMonitorSmt = new JButton("soot.jimple.internal.JEnterMonitorStmt");
+		btJEnterMonitorSmt.setName("soot.jimple.internal.JEnterMonitorStmt");
+
+		btJExitMonitorStmt = new JButton("soot.jimple.internal.JExitMonitorStmt");
+		btJExitMonitorStmt.setName("soot.jimple.internal.JExitMonitorStmt");
+
+		// Add buttons to the list
+		stmtTypes.add(btJNopStmt);
+		stmtTypes.add(btJIdentityStmt);
+		stmtTypes.add(btJAssignStmt);
+		stmtTypes.add(btJIfStmt);
+		stmtTypes.add(btJGotoStmt);
+		stmtTypes.add(btJTableSwitchStmt);
+		stmtTypes.add(btJLookupSwitchStmt);
+		stmtTypes.add(btJInvokeStmt);
+		stmtTypes.add(btJReturnStmt);
+		stmtTypes.add(JReturnVoidStmt);
+		stmtTypes.add(btJThrowStmt);
+		stmtTypes.add(btJRetStmt);
+		stmtTypes.add(btJEnterMonitorSmt);
+		stmtTypes.add(btJExitMonitorStmt);
+
+		return stmtTypes;
+
+	}
+
+	private boolean inICFG(Graph graph) {
+		boolean inICFG = false;
+
+		for (Node n : graph.getEachNode()) {
+			if ((n.getAttribute("nodeData.unitType") == null)) {
+				inICFG = true;
+				break;
+			}
+		}
+
+		return inICFG;
+
 	}
 
 }

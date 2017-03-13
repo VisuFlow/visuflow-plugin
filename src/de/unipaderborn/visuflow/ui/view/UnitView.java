@@ -457,7 +457,7 @@ public class UnitView extends ViewPart implements EventHandler {
 				}
 				HashMap<String, Object> unitDetails = getUnitDetails(selectedItem.getText());
 				VFUnit vfSelected = ((VFUnit) unitDetails.get("unit"));
-
+		
 				// Open the dialog
 				Attribute p = new Attribute(e.display.getActiveShell());
 				p.open();
@@ -638,6 +638,18 @@ public class UnitView extends ViewPart implements EventHandler {
 		}
 
 		hmCustAttr.put(p.getAnalysis(), p.getAttribute());
+
+		VFNode vfn = new VFNode(vfSelected, 0);
+	
+		ArrayList<VFNode> listAttrNodes = new ArrayList<VFNode>();
+		listAttrNodes.add(vfn);
+		
+		try {
+			ServiceUtil.getService(DataModel.class).filterGraph(listAttrNodes, true, "customAttribute");
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}		
 		//TODO ask how to get the nod ID from VFUnit
 		//		colorCostumizedNode((Node)vfSelected);
 

@@ -5,12 +5,17 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
+import org.eclipse.core.internal.runtime.Activator;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -20,7 +25,9 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
+import org.osgi.service.prefs.BackingStoreException;
 
+import de.unipaderborn.visuflow.ProjectPreferences;
 import de.unipaderborn.visuflow.builder.GlobalSettings;
 
 public class WizardHandler extends Wizard implements INewWizard {
@@ -132,6 +139,8 @@ public class WizardHandler extends Wizard implements INewWizard {
 		//IJavaProject analysisProject = JavaCore.create(resourceAnalysis.getProject());
 		GlobalSettings.put("AnalysisProject", sourceProject.getProject().getName());
 		GlobalSettings.put("TargetProject", targetProject.getProject().getName());
+		ProjectPreferences projPref = new ProjectPreferences();
+		projPref.createPreferences();
 		monitor.worked(1);
 		monitor.setTaskName("Opening file for editing...");
 		getShell().getDisplay().asyncExec(new Runnable() {

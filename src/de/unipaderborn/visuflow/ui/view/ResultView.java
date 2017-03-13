@@ -1,6 +1,7 @@
 package de.unipaderborn.visuflow.ui.view;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -253,8 +254,10 @@ public class ResultView extends ViewPart implements EventHandler {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				//Get all chosen VFUnits
+				// Get all chosen VFUnits
 				List<VFUnit> l = getUnitsToCustomize(highlightNodes.getSelection());
+
+				ArrayList<VFNode> listAttrNodes = new ArrayList<VFNode>();
 
 				// Open the dialog
 				Attribute p = new Attribute(e.display.getActiveShell());
@@ -262,7 +265,17 @@ public class ResultView extends ViewPart implements EventHandler {
 				if (p.getAnalysis().length() > 0 && p.getAttribute().length() > 0) {
 					for (VFUnit vu : l) {
 						vu.setHmCustAttr(setCustAttr(vu, p));
+						VFNode vfn = new VFNode(vu, 0);
+						listAttrNodes.add(vfn);
 					}
+
+					try {
+						ServiceUtil.getService(DataModel.class).filterGraph(listAttrNodes, true, "customAttribute");
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+
 				}
 			}
 
@@ -345,6 +358,7 @@ public class ResultView extends ViewPart implements EventHandler {
 		}
 
 		hmCustAttr.put(p.getAnalysis(), p.getAttribute());
+
 		// TODO ask how to get the nod ID from VFUnit
 		// colorCostumizedNode((Node)vfSelected);
 
