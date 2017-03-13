@@ -137,8 +137,6 @@ public class WizardPageHandler extends WizardPage {
 		containerMap.put("ProjectName", containerProjectName.getText());
 		containerMap.put("PackageName", containerPackageName.getText());
 		containerMap.put("ClassName", containerClassName.getText());
-			containerMap.put("AnalysisFramework", analysisFramework[0].getText());
-			containerMap.put("AnalysisFramework", analysisFramework[1].getText());
 		return containerMap;
 	}
 }
