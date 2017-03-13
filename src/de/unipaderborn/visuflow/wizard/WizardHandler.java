@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -51,22 +52,24 @@ public class WizardHandler extends Wizard implements INewWizard {
 	}
 
 	public boolean performFinish() {
-		final String targetProjectPath = page.getContainerName().get("TargetPath");
-		final String analysisProjectName = page.getContainerName().get("ProjectName");
+		HashMap<String, String> pageOneValues = page.getContainerName();
+		HashMap<String, String> pageTwoValues = pageTwo.getContainerName();
+		final String targetProjectPath = pageOneValues.get("TargetPath");
+		final String analysisProjectName = pageOneValues.get("ProjectName");
 		wizardInput = new WizardInput();
 		wizardInput.setTargetPath(targetProjectPath);
 		wizardInput.setProjectName(analysisProjectName);
-		wizardInput.setPackageName(page.getContainerName().get("PackageName"));
-		wizardInput.setClassName(page.getContainerName().get("ClassName"));
-		wizardInput.setAnalysisType(page.getContainerName().get("AnalysisType"));
-		wizardInput.setAnalysisFramework(page.getContainerName().get("AnalysisFramework"));
-		wizardInput.setAnalysisDirection(pageTwo.getContainerName().get("AnalysisDirection"));
-		wizardInput.setFlowType(pageTwo.getContainerName().get("FlowSet"));
-		wizardInput.setFlowType1(pageTwo.getContainerName().get("Type1"));
-		wizardInput.setFlowtype2(pageTwo.getContainerName().get("Type2"));
-		wizardInput.setCustomClassFirst(pageTwo.getContainerName().get("CustomType1"));
-		wizardInput.setCustomClassSecond(pageTwo.getContainerName().get("CustomType2"));
-		String sootLocation = pageTwo.getContainerName().get("sootLocation");
+		wizardInput.setPackageName(pageOneValues.get("PackageName"));
+		wizardInput.setClassName(pageOneValues.get("ClassName"));
+		wizardInput.setAnalysisType(pageTwoValues.get("AnalysisType"));
+		wizardInput.setAnalysisFramework(pageTwoValues.get("AnalysisFramework"));
+		wizardInput.setAnalysisDirection(pageTwoValues.get("AnalysisDirection"));
+		wizardInput.setFlowType(pageTwoValues.get("FlowSet"));
+		wizardInput.setFlowType1(pageTwoValues.get("Type1"));
+		wizardInput.setFlowtype2(pageTwoValues.get("Type2"));
+		wizardInput.setCustomClassFirst(pageTwoValues.get("CustomType1"));
+		wizardInput.setCustomClassSecond(pageTwoValues.get("CustomType2"));
+		String sootLocation = pageTwoValues.get("sootLocation");
 		Path sootPath = new Path(sootLocation);
 		wizardInput.setSootPath(sootPath);
 		IRunnableWithProgress op = new IRunnableWithProgress() {
