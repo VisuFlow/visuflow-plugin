@@ -23,7 +23,7 @@ public class ProjectPreferences {
 		IScopeContext projectScope = new ProjectScope(project);
 		IEclipsePreferences pref = projectScope.getNode(Activator.PLUGIN_ID);
 		for (String stmt : getStatementTypes()) {
-			pref.putInt(stmt, 38536);
+			pref.putInt(stmt, -16724941);
 		}
 		try {
 			pref.flush();
