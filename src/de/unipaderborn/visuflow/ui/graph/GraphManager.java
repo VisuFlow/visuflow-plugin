@@ -1514,6 +1514,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 	}
 
+	
 	private boolean inPanel(String btName, JPanel panel) {
 		boolean exist = false;
 
@@ -1539,8 +1540,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 		panelColor.removeAll();
 
-		boolean inICFG = this.CFG;
-		if (!inICFG) {
+//		boolean inICFG = !this.CFG;
+		if (CFG) {
 
 			for (JButton bt : createStmtTypes(stmtTypes)) {
 				panelColor.add(new Label("Set color preference for this kind of statement"));
