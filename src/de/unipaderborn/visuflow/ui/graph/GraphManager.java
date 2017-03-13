@@ -1144,6 +1144,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	@SuppressWarnings("unused")
 	private void getNodesToCollapse(Node n)
+	{
 		boolean present = false;
 		scala.collection.Iterator<Node> setIterator = setOfNode.iterator();
 		while (setIterator.hasNext()) {
