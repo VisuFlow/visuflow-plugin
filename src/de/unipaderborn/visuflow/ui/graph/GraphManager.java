@@ -77,6 +77,7 @@ import org.osgi.service.event.EventHandler;
 
 import com.google.common.base.Optional;
 
+import de.unipaderborn.visuflow.ProjectPreferences;
 import de.unipaderborn.visuflow.builder.GlobalSettings;
 import de.unipaderborn.visuflow.builder.JimpleBuilder;
 import de.unipaderborn.visuflow.debug.handlers.NavigationHandler;
@@ -1478,6 +1479,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 								n.setAttribute("ui.color", jcc.getColor());
 								
 								//TODO Send vfNode and Color to Kaarthik
+								ProjectPreferences pref = new ProjectPreferences();
+								pref.updateColorPreferences(vfNode.getUnit().getClass().getName(),jcc.getColor().getRGB());
 //								kaarthik(vfNode, jcc.getColor())
 
 							}

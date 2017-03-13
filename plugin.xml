@@ -265,7 +265,7 @@
          id="GraphStreamFeasibility.RunBuilder"
          name="Run Builder">
    </command>
-   <command>
+   <command
          defaultHandler="de.unipaderborn.visuflow.debug.handlers.DebugStepOverHandler"
          id="visuflow.debug.step.over"
          name="Step over">
