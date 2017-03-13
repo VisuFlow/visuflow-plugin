@@ -21,6 +21,7 @@ public class WizardHandlerPageTwo extends WizardPage {
 	private Text classFirst, classSecond, containerSootLocation;
 	private Combo flowSet,flowSetType1,flowSetType2;
 	private Button[] analysisDirection = new Button[2];
+	private Combo analysisType, analysisFramework;
 
 	@SuppressWarnings("unused")
 	private Text fileText;
@@ -46,6 +47,69 @@ public class WizardHandlerPageTwo extends WizardPage {
 		layout.numColumns = 4;
 		layout.verticalSpacing = 15;
 		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+		
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = 1;
+		Label labelAnalysis = new Label(container, SWT.NULL);
+		labelAnalysis.setText("Analysis Type: ");
+		labelAnalysis.setLayoutData(gd);
+		
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = 2;
+		analysisType = new Combo(container, SWT.DROP_DOWN);
+		analysisType.setItems(new String[]{"Select","Inter Procedural Analysis","Intra Procedural Analysis"});
+		analysisType.select(0);
+		analysisType.setLayoutData(gd);
+		
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = 1;
+		new Label(container, SWT.NONE).setLayoutData(gd);
+		
+		Label labelAnalysisFramework = new Label(container, SWT.NULL);
+		labelAnalysisFramework.setText("Analysis Framework: ");
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		
+		gd.horizontalSpan = 1;
+		labelAnalysisFramework.setLayoutData(gd);
+		
+		analysisFramework = new Combo(container, SWT.DROP_DOWN);
+		analysisFramework.setItems(new String[]{"Select","Soot","IFDS/IDE"});
+		analysisFramework.select(0);
+		analysisFramework.setLayoutData(gd);
+		
+		analysisFramework.addSelectionListener(new SelectionListener() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				String selectedFramework = analysisFramework.getText();
+				if(selectedFramework.equalsIgnoreCase("IFDS/IDE"))
+				{
+					analysisType.select(2);
+					analysisType.setEnabled(false);
+					flowSet.select(0);
+					flowSet.setEnabled(false);
+					flowSetType2.select(0);
+					flowSetType2.setEnabled(false);
+				}
+				
+				else if (selectedFramework.equalsIgnoreCase("Soot")){
+					
+					analysisType.setEnabled(true);
+					flowSet.setEnabled(true);
+					flowSetType2.setEnabled(true);
+				}
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				
+				
+			}
+		});
+		
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd.horizontalSpan = 2;
+		new Label(container, SWT.NONE).setLayoutData(gd);
 		
 		gd = new GridData(GridData.FILL_HORIZONTAL);
 		gd.horizontalSpan = 1;
@@ -95,11 +159,15 @@ public class WizardHandlerPageTwo extends WizardPage {
 					classFirst.setEnabled(true);
 				}
 				
+				else 
+				{
+					classFirst.setEnabled(false);
+				}
+				
 			}
 			
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
 				
 			}
 		});
@@ -119,12 +187,15 @@ public class WizardHandlerPageTwo extends WizardPage {
 				{
 					classSecond.setEnabled(true);
 				}
+				else
+				{
+					classSecond.setEnabled(false);
+				}
 				
 			}
 			
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
 				
 			}
 		});
@@ -176,7 +247,7 @@ public class WizardHandlerPageTwo extends WizardPage {
 					classSecond.setEnabled(false);
 				}
 				
-				if(selectedType.equalsIgnoreCase("HashMap"))
+				if(selectedType.equalsIgnoreCase("HashMap") || selectedType.equalsIgnoreCase("Map") || selectedType.equalsIgnoreCase("ArrayList"))
 				{
 					flowSetType2.setEnabled(true);
 				}
@@ -185,7 +256,6 @@ public class WizardHandlerPageTwo extends WizardPage {
 			
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
 				
 			}
 		});
@@ -205,6 +275,8 @@ public class WizardHandlerPageTwo extends WizardPage {
 
 	public HashMap<String, String> getContainerName() {
 		HashMap<String, String> containerMap = new HashMap<>();
+		containerMap.put("AnalysisType", analysisType.getText());
+		containerMap.put("AnalysisFramework", analysisFramework.getText());
 		if(analysisDirection[0].getSelection())
 		{
 			containerMap.put("AnalysisDirection", analysisDirection[0].getText());
