@@ -1137,8 +1137,9 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			createdNode.setAttribute("nodeData.inSet", nodeInSet);
 			createdNode.setAttribute("nodeData.outSet", nodeOutSet);
 			createdNode.setAttribute("nodeData.line", node.getUnit().getJavaSourceStartLineNumber());
-			// createdNode.setAttribute("nodeData.column", node.getUnit().getJavaSourceStartColumnNumber());
 			createdNode.setAttribute("nodeUnit", node);
+			Color nodeColor = new Color(new ProjectPreferences().getColorForNode(node.getUnit().getClass().getName().toString()));
+			createdNode.setAttribute("ui.color", nodeColor);
 		}
 	}
 
@@ -1536,6 +1537,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		return exist;
 	}
 
+	
 	public void colorTheGraph() {
 
 		panelColor.removeAll();
@@ -1690,6 +1692,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 	}
 
+	
 	@SuppressWarnings("rawtypes")
 	public void setCosAttr(VFUnit selectedVF, Node curr) {
 		JPanel panel = new JPanel(new GridLayout(0, 2));
@@ -1740,12 +1743,14 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	}
 
+	
 	public void colorCostumizedNode() {
 		for (Node n : graph.getEachNode()) {
 			n.setAttribute("ui.color", jcc.getColor());
 		}
 	}
 
+	
 	private List<JButton> createStmtTypes(List<JButton> stmtTypes) {
 		stmtTypes = new ArrayList<JButton>();
 
