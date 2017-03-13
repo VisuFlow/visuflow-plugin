@@ -44,6 +44,8 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 
+import de.unipaderborn.visuflow.Logger;
+import de.unipaderborn.visuflow.Visuflow;
 import de.unipaderborn.visuflow.builder.GlobalSettings;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
@@ -59,6 +61,8 @@ import soot.jimple.internal.JInstanceFieldRef;
 import soot.tagkit.LineNumberTag;
 
 public class NavigationHandler extends AbstractHandler {
+
+	private static final transient Logger logger = Visuflow.getDefault().getLogger();
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -156,11 +160,11 @@ public class NavigationHandler extends AbstractHandler {
 							e.printStackTrace();
 						}
 						IDocument document = provider.getDocument(file);
-						Integer methodLine = getMethodLineNumbers(document, unit.getVfMethod());
+						Integer methodOffset = getMethodOffset(document, unit.getVfMethod());
 						FindReplaceDocumentAdapter findReplaceDocumentAdapter = new FindReplaceDocumentAdapter(document);
 
 						try {
-							IRegion region = findReplaceDocumentAdapter.find(methodLine,
+							IRegion region = findReplaceDocumentAdapter.find(methodOffset,
 									FindReplaceDocumentAdapter.escapeForRegExPattern(unit.getUnit().toString()), true, true, false, true);
 							// IRegion region = findReplaceDocumentAdapter.find(methodLine, unit.getUnit().toString(), true, true, true, false);
 							if (region != null) {
@@ -322,7 +326,7 @@ public class NavigationHandler extends AbstractHandler {
 		return unitList;
 	}
 
-	private Integer getMethodLineNumbers(IDocument document, VFMethod method) {
+	private Integer getMethodOffset(IDocument document, VFMethod method) {
 
 		FindReplaceDocumentAdapter findReplaceDocumentAdapter = new FindReplaceDocumentAdapter(document);
 		try {

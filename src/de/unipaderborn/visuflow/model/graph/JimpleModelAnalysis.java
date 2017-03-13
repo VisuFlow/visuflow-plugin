@@ -23,6 +23,8 @@ import soot.SootClass;
 import soot.SootMethod;
 import soot.Transform;
 import soot.Unit;
+import soot.jimple.InvokeExpr;
+import soot.jimple.Stmt;
 import soot.jimple.spark.SparkTransformer;
 import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.jimple.toolkits.callgraph.Targets;
@@ -49,23 +51,23 @@ public class JimpleModelAnalysis {
 		Transform transform = new Transform("wjap.myTransform", new SceneTransformer() {
 			@Override
 			protected void internalTransform(String phase, Map<String, String> arg1) {
-				
+
 				String callGraphPref = GlobalSettings.get("CallGraphOption");
-				if(callGraphPref.equalsIgnoreCase("CHA"))
-				{				
+				if("CHA".equalsIgnoreCase(callGraphPref))
+				{
 					Options.v().setPhaseOption("cg.cha", "on");
 				}
 				else
 				{
 					HashMap<String, String> opt = new HashMap<>();
-				    opt.put("verbose", "true");
-				    opt.put("propagator", "worklist");
-				    opt.put("simple-edges-bidirectional", "false");
-				    opt.put("on-fly-cg", "false");
-				    opt.put("set-impl", "double");
-				    opt.put("double-set-old", "hybrid");
-				    opt.put("double-set-new", "hybrid");
-				    opt.put("enabled", "true");
+					opt.put("verbose", "true");
+					opt.put("propagator", "worklist");
+					opt.put("simple-edges-bidirectional", "false");
+					opt.put("on-fly-cg", "false");
+					opt.put("set-impl", "double");
+					opt.put("double-set-old", "hybrid");
+					opt.put("double-set-new", "hybrid");
+					opt.put("enabled", "true");
 					SparkTransformer.v().transform("",opt);
 				}
 				createJimpleHierarchyWithCfgs(vfClasses);
@@ -155,6 +157,20 @@ public class JimpleModelAnalysis {
 				});
 			}
 
+			private void addReturnPoint(VFMethodEdge edge){
+				List<VFUnit> unitList = edge.getSourceMethod().getUnits();
+				for (VFUnit unit : unitList){
+					if(((Stmt)unit.getUnit()).containsInvokeExpr()){
+						InvokeExpr ivE = ((Stmt)unit.getUnit()).getInvokeExpr();
+						if(ivE.getMethod().equals(edge.getDestMethod().getSootMethod())){
+							if(edge.getDestMethod().addIncomingEdge(unit)){
+								return;
+							}
+						}
+					}
+				}
+			}
+
 			private void traverseMethods(SootMethod source, CallGraph cg) {
 				Targets tc = new Targets(cg.edgesOutOf(source));
 				while (tc.hasNext()) {
@@ -165,14 +181,14 @@ public class JimpleModelAnalysis {
 						Iterator<VFMethodEdge> edgeIterator = methodGraph.listEdges.iterator();
 						while(edgeIterator.hasNext())
 						{
-							VFMethodEdge vfMethodEdge = (VFMethodEdge) edgeIterator.next();
+							VFMethodEdge vfMethodEdge = edgeIterator.next();
 							if(vfMethodEdge.getSourceMethod().getSootMethod().equals(source) && vfMethodEdge.getDestMethod().getSootMethod().equals(destination))
 							{
 								edgeConnection = true;
 								break;
 							}
 						}
-						
+
 						if(edgeConnection)
 							continue;
 						boolean methodPresent = false;
@@ -210,9 +226,9 @@ public class JimpleModelAnalysis {
 						}
 						edgeCount++;
 						VFMethodEdge edge = new VFMethodEdge(edgeCount, sourceMethod, destinationMethod);
-						destinationMethod.addIncomingEdge(edge);
-						System.out.println("Method " + destinationMethod + " Edge " + edge);
+						addReturnPoint(edge);
 						if (destinationMethod.getIncomingEdges().isEmpty()) {
+							System.out.println("Method " + destinationMethod + " Edge " + edge);
 							System.out.println("adding didnt work");
 						}
 						methodGraph.listEdges.add(edge);

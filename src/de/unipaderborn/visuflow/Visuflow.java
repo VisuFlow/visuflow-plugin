@@ -11,6 +11,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import de.unipaderborn.visuflow.debug.JimpleBreakpointManager;
+
 public class Visuflow extends AbstractUIPlugin {
 	public static Visuflow plugin;
 	public static BundleContext context;
@@ -24,10 +26,12 @@ public class Visuflow extends AbstractUIPlugin {
 
 	@Override
 	public void start(BundleContext context) {
+
 		Visuflow.context = context;
 		plugin = this;
 		logger = new Logger(getLog());
 		logger.info("Visuflow plug-in starting...");
+		JimpleBreakpointManager.getInstance();
 
 		// iterate over all projects in the workspace to find projects with the
 		// visuflow nature. for these projects we trigger a full build to fill
