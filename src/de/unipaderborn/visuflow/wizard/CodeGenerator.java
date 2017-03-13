@@ -145,6 +145,7 @@ public class CodeGenerator {
 
 		JClass flowAbstraction = null;
 		try {
+			if(!input.getFlowType().equals("Select")){
 			flowAbstraction = codeModel.ref(Class.forName("java.util." + input.getFlowType()));
 
 			if (input.getFlowType1() != null && !input.getFlowType1().equals("Custom")) {
@@ -160,7 +161,14 @@ public class CodeGenerator {
 				JDefinedClass secondClass = codeModel._class(input.getPackageName() + "." + input.getCustomClassSecond());
 				flowAbstraction = flowAbstraction.narrow(secondClass);
 			}
-
+			}
+			else{
+				if (input.getFlowType1() != null && !input.getFlowType1().equals("Custom")) {
+					flowAbstraction = codeModel.ref(Class.forName("java.lang." + input.getFlowType1()));
+				} else if (input.getCustomClassFirst() != null) {
+					flowAbstraction = codeModel._class(input.getPackageName() + "." + input.getCustomClassFirst());
+				}
+			}
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -266,6 +274,7 @@ public class CodeGenerator {
 			
 			JClass flowAbstraction = null;
 			try {
+				if(!input.getFlowType().equals("Select")){
 				flowAbstraction = codeModel.ref(Class.forName("java.util." + input.getFlowType()));
 
 				if (input.getFlowType1() != null && !input.getFlowType1().equals("Custom")) {
@@ -280,6 +289,13 @@ public class CodeGenerator {
 				} else if (input.getCustomClassSecond() != null) {
 					JDefinedClass secondClass = codeModel._class(input.getPackageName() + "." + input.getCustomClassSecond());
 					flowAbstraction = flowAbstraction.narrow(secondClass);
+				}
+				}else{
+					if (input.getFlowType1() != null && !input.getFlowType1().equals("Custom")) {
+						flowAbstraction = codeModel.ref(Class.forName("java.lang." + input.getFlowType1()));
+					} else if (input.getCustomClassFirst() != null) {
+						flowAbstraction = codeModel._class(input.getPackageName() + "." + input.getCustomClassFirst());
+					}
 				}
 
 			} catch (ClassNotFoundException e) {
