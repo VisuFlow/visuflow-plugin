@@ -17,9 +17,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
-import de.unipaderborn.visuflow.builder.VisuFlowNature;
-
-public class ProjectListener implements IResourceChangeListener {
+public class ProjectListener implements IResourceChangeListener, VisuflowConstants {
 
 	@Override
 	public void resourceChanged(IResourceChangeEvent event) {
@@ -51,7 +49,7 @@ public class ProjectListener implements IResourceChangeListener {
 	}
 
 	private boolean isVisuflowNatureEnabled(IProject project) throws CoreException {
-		return project.isOpen() && project.hasNature(VisuFlowNature.NATURE_ID) && project.isNatureEnabled(VisuFlowNature.NATURE_ID);
+		return project.isOpen() && project.hasNature(VISUFLOW_NATURE) && project.isNatureEnabled(VISUFLOW_NATURE);
 	}
 
 	private List<IProject> getProjects(IResourceDelta delta) {

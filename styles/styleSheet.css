@@ -13,7 +13,7 @@ node {
 	text-padding: 4px, 4px;
 	text-offset: 0px, 2px;
 	text-size: 12gu;
-	z-index: 0;
+	z-index: 1;
 }
 
 node.filter {
@@ -28,12 +28,12 @@ node.plus {
 
 edge {
 	/* arrow-shape: arrow; */
-	arrow-size: 6px, 10px;
+	arrow-size: 14px, 4px;
 	fill-color: blue;
 	text-size: 10gu;
 	text-background-mode: plain;
 	size-mode: normal;
-	z-index: 1;
+	z-index: 0;
 }
 
 node:clicked {

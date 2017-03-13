@@ -13,8 +13,11 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-public class AddRemoveVisuFlowNatureHandler extends AbstractHandler {
+import de.unipaderborn.visuflow.VisuflowConstants;
 
+public class AddRemoveVisuFlowNatureHandler extends AbstractHandler implements VisuflowConstants {
+
+	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		ISelection selection = HandlerUtil.getCurrentSelection(event);
 		//
@@ -26,7 +29,7 @@ public class AddRemoveVisuFlowNatureHandler extends AbstractHandler {
 				if (element instanceof IProject) {
 					project = (IProject) element;
 				} else if (element instanceof IAdaptable) {
-					project = (IProject) ((IAdaptable) element)
+					project = ((IAdaptable) element)
 							.getAdapter(IProject.class);
 				}
 				if (project != null) {
@@ -55,7 +58,7 @@ public class AddRemoveVisuFlowNatureHandler extends AbstractHandler {
 		String[] natures = description.getNatureIds();
 
 		for (int i = 0; i < natures.length; ++i) {
-			if (VisuFlowNature.NATURE_ID.equals(natures[i])) {
+			if (VISUFLOW_NATURE.equals(natures[i])) {
 				// Remove the nature
 				String[] newNatures = new String[natures.length - 1];
 				System.arraycopy(natures, 0, newNatures, 0, i);
@@ -69,7 +72,7 @@ public class AddRemoveVisuFlowNatureHandler extends AbstractHandler {
 		// Add the nature
 		String[] newNatures = new String[natures.length + 1];
 		System.arraycopy(natures, 0, newNatures, 0, natures.length);
-		newNatures[natures.length] = VisuFlowNature.NATURE_ID;
+		newNatures[natures.length] = VISUFLOW_NATURE;
 		description.setNatureIds(newNatures);
 		project.setDescription(description, null);
 		for(String a : project.getDescription().getNatureIds()){

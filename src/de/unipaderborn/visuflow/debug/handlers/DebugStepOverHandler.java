@@ -10,12 +10,12 @@ import org.osgi.service.event.EventAdmin;
 import de.unipaderborn.visuflow.VisuflowConstants;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 
-public class DebugStepResumeHandler extends org.eclipse.core.commands.AbstractHandler implements VisuflowConstants {
+public class DebugStepOverHandler extends org.eclipse.core.commands.AbstractHandler implements VisuflowConstants {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		EventAdmin ea = ServiceUtil.getService(EventAdmin.class);
-		Event stepOver = new Event(EA_TOPIC_DEBUGGING_ACTION_RESUME, Collections.emptyMap());
+		Event stepOver = new Event(EA_TOPIC_DEBUGGING_ACTION_STEP_OVER, Collections.emptyMap());
 		ea.sendEvent(stepOver);
 
 		// has to be null (see javadoc)

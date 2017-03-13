@@ -213,7 +213,7 @@ public class WizardPageHandler extends WizardPage {
 		}
 		if(analysisFramework[1].getSelection())
 		{
-			containerMap.put("AnalysisFramework", analysisFramework[0].getText());
+			containerMap.put("AnalysisFramework", analysisFramework[1].getText());
 		}
 		return containerMap;
 	}
