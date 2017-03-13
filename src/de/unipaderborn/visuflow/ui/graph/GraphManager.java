@@ -263,13 +263,19 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		Node panToNode = graph.getNode(nodeId);
 		double[] pos = Toolkit.nodePosition(panToNode);
 		double currPosition = view.getCamera().getViewCenter().y;
-		while (pos[1] > currPosition) {
+		Point3 viewCenter = view.getCamera().getViewCenter();
+		double diff = pos[1] - viewCenter.y;
+		double sign = Math.signum(diff);
+		double steps = 15;
+		double stepWidth = Math.abs(diff) / steps;
+		for (int i = 0; i < steps; i++) {
 			try {
 				Thread.sleep(40);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			view.getCamera().setViewCenter(pos[0], currPosition++, 0.0);
+			currPosition += sign * stepWidth;
+			view.getCamera().setViewCenter(pos[0], currPosition, 0.0);
 		}
 	}
 
