@@ -14,6 +14,7 @@ import com.sun.codemodel.JDefinedClass;
 import com.sun.codemodel.JExpr;
 import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
+import com.sun.codemodel.JPackage;
 import com.sun.codemodel.JType;
 import com.sun.codemodel.JVar;
 
@@ -39,8 +40,8 @@ public class CodeGenerator {
 
 	public static void generateGeneralClass(WizardInput input) throws JClassAlreadyExistsException, IOException {
 		JCodeModel codeModel = new JCodeModel();
-
-		JDefinedClass classToBeCreated = codeModel._class(input.getPackageName() + "." + input.getAnalysisType());
+		JPackage jp = codeModel._package(input.getPackageName());
+		JDefinedClass classToBeCreated = jp._class(input.getAnalysisType());
 
 		classToBeCreated.field(JMod.PRIVATE, Integer.class, "flowThroughCount").assign(JExpr.lit(0));
 		classToBeCreated.field(JMod.PRIVATE | JMod.FINAL, soot.SootMethod.class, "method");
@@ -52,14 +53,14 @@ public class CodeGenerator {
 			if (input.getFlowType1() != null && !input.getFlowType1().equals("Custom")) {
 				flowAbstraction = flowAbstraction.narrow(Class.forName("java.lang." + input.getFlowType1()));
 			} else if (input.getCustomClassFirst() != null) {
-				JDefinedClass firstClass = codeModel._class(input.getPackageName() + "." + input.getCustomClassFirst());
+				JDefinedClass firstClass = jp._class(input.getCustomClassFirst());
 				flowAbstraction = flowAbstraction.narrow(firstClass);
 			}
 
 			if (input.getFlowtype2() != null && !input.getFlowtype2().equals("Custom")) {
 				flowAbstraction = flowAbstraction.narrow(Class.forName("java.lang." + input.getFlowtype2()));
 			} else if (input.getCustomClassSecond() != null) {
-				JDefinedClass secondClass = codeModel._class(input.getPackageName() + "." + input.getCustomClassSecond());
+				JDefinedClass secondClass = jp._class(input.getCustomClassSecond());
 				flowAbstraction = flowAbstraction.narrow(secondClass);
 			}
 
@@ -140,8 +141,8 @@ public class CodeGenerator {
 
 	public static void generateIFDSClass(WizardInput input) throws JClassAlreadyExistsException, IOException {
 		JCodeModel codeModel = new JCodeModel();
-
-		JDefinedClass classToBeCreated = codeModel._class(input.getPackageName() + "." + input.getAnalysisType());
+		JPackage jp = codeModel._package(input.getPackageName());
+		JDefinedClass classToBeCreated = jp._class(input.getPackageName() + "." + input.getAnalysisType());
 
 		JClass flowAbstraction = null;
 		try {
@@ -151,14 +152,14 @@ public class CodeGenerator {
 			if (input.getFlowType1() != null && !input.getFlowType1().equals("Custom")) {
 				flowAbstraction = flowAbstraction.narrow(Class.forName("java.lang." + input.getFlowType1()));
 			} else if (input.getCustomClassFirst() != null) {
-				JDefinedClass firstClass = codeModel._class(input.getPackageName() + "." + input.getCustomClassFirst());
+				JDefinedClass firstClass = jp._class(input.getPackageName() + "." + input.getCustomClassFirst());
 				flowAbstraction = flowAbstraction.narrow(firstClass);
 			}
 
 			if (input.getFlowtype2() != null && !input.getFlowtype2().equals("Custom")) {
 				flowAbstraction = flowAbstraction.narrow(Class.forName("java.lang." + input.getFlowtype2()));
 			} else if (input.getCustomClassSecond() != null) {
-				JDefinedClass secondClass = codeModel._class(input.getPackageName() + "." + input.getCustomClassSecond());
+				JDefinedClass secondClass = jp._class(input.getPackageName() + "." + input.getCustomClassSecond());
 				flowAbstraction = flowAbstraction.narrow(secondClass);
 			}
 			}
@@ -166,7 +167,7 @@ public class CodeGenerator {
 				if (input.getFlowType1() != null && !input.getFlowType1().equals("Custom")) {
 					flowAbstraction = codeModel.ref(Class.forName("java.lang." + input.getFlowType1()));
 				} else if (input.getCustomClassFirst() != null) {
-					flowAbstraction = codeModel._class(input.getPackageName() + "." + input.getCustomClassFirst());
+					flowAbstraction = jp._class(input.getPackageName() + "." + input.getCustomClassFirst());
 				}
 			}
 		} catch (ClassNotFoundException e) {
@@ -215,8 +216,8 @@ public class CodeGenerator {
 
 	public static void generateMain(WizardInput input) throws JClassAlreadyExistsException, IOException {
 		JCodeModel codeModel = new JCodeModel();
-
-		JDefinedClass classToBeCreated = codeModel._class(input.getPackageName() + "." + input.getClassName());
+		JPackage jp = codeModel._package(input.getPackageName());
+		JDefinedClass classToBeCreated = jp._class(input.getClassName());
 		JMethod runAnalysis = classToBeCreated.method(JMod.PUBLIC | JMod.STATIC, void.class, "runAnalysis");
 		JBlock runAnalysisBody = runAnalysis.body();
 		JClass sootG = codeModel.ref(G.class);
@@ -280,21 +281,21 @@ public class CodeGenerator {
 				if (input.getFlowType1() != null && !input.getFlowType1().equals("Custom")) {
 					flowAbstraction = flowAbstraction.narrow(Class.forName("java.lang." + input.getFlowType1()));
 				} else if (input.getCustomClassFirst() != null) {
-					JDefinedClass firstClass = codeModel._class(input.getPackageName() + "." + input.getCustomClassFirst());
+					JDefinedClass firstClass = jp._class(input.getPackageName() + "." + input.getCustomClassFirst());
 					flowAbstraction = flowAbstraction.narrow(firstClass);
 				}
 
 				if (input.getFlowtype2() != null && !input.getFlowtype2().equals("Custom")) {
 					flowAbstraction = flowAbstraction.narrow(Class.forName("java.lang." + input.getFlowtype2()));
 				} else if (input.getCustomClassSecond() != null) {
-					JDefinedClass secondClass = codeModel._class(input.getPackageName() + "." + input.getCustomClassSecond());
+					JDefinedClass secondClass = jp._class(input.getPackageName() + "." + input.getCustomClassSecond());
 					flowAbstraction = flowAbstraction.narrow(secondClass);
 				}
 				}else{
 					if (input.getFlowType1() != null && !input.getFlowType1().equals("Custom")) {
 						flowAbstraction = codeModel.ref(Class.forName("java.lang." + input.getFlowType1()));
 					} else if (input.getCustomClassFirst() != null) {
-						flowAbstraction = codeModel._class(input.getPackageName() + "." + input.getCustomClassFirst());
+						flowAbstraction = jp._class(input.getPackageName() + "." + input.getCustomClassFirst());
 					}
 				}
 
