@@ -30,17 +30,10 @@ public class WizardHandler extends Wizard implements INewWizard {
 	private ISelection selection;
 	private WizardInput wizardInput;
 
-	/**
-	 * Constructor for SampleNewWizard.
-	 */
 	public WizardHandler() {
 		super();
 		setNeedsProgressMonitor(true);
 	}
-	
-	/**
-	 * Adding the page to the wizard.
-	 */
 
 	public void addPages() {
 		page = new WizardPageHandler(selection);
@@ -58,11 +51,9 @@ public class WizardHandler extends Wizard implements INewWizard {
 	}
 
 	public boolean performFinish() {
-		//final String analysisProjectPath = page.getContainerName().get("ProjectPath");
 		final String targetProjectPath = page.getContainerName().get("TargetPath");
 		final String analysisProjectName = page.getContainerName().get("ProjectName");
 		wizardInput = new WizardInput();
-		//wizardInput.setProjectPath(analysisProjectPath);
 		wizardInput.setTargetPath(targetProjectPath);
 		wizardInput.setProjectName(analysisProjectName);
 		wizardInput.setPackageName(page.getContainerName().get("PackageName"));
@@ -102,7 +93,6 @@ public class WizardHandler extends Wizard implements INewWizard {
 		} catch (InvocationTargetException e) {
 			Throwable realException = e.getTargetException();
 			MessageDialog.openError(getShell(), "Error", realException.getMessage());
-			//System.out.println(realException.getMessage().toString());
 			System.out.println(realException.getStackTrace().toString());
 			return false;
 		}
@@ -114,22 +104,13 @@ public class WizardHandler extends Wizard implements INewWizard {
 		String analysisProjectName,
 		IProgressMonitor monitor)
 		throws CoreException, IOException {
-		//create a sample file
 		monitor.beginTask("Creating " +analysisProjectName, 2);
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		ProjectGenerator projectGen = new ProjectGenerator();
 		IJavaProject sourceProject = projectGen.createProject(wizardInput);
-//--		IResource resourceAnalysis = root.findMember(new Path(analysisProjectPath));
 		IResource resourceTarget = root.findMember(new Path(targetProjectPath));
-//--		if (!resourceAnalysis.exists() || !(resourceAnalysis instanceof IContainer)) {
-//--			throwCoreException("Container \"" + analysisProjectPath + "\" does not exist.");
-//--		}
-		
-//--		IContainer containerAnalysis = (IContainer) resourceAnalysis;
 		IJavaProject targetProject = JavaCore.create(resourceTarget.getProject());
-		//String key = "TargetProject_"+sourceProject.getProject().getName();
 		GlobalSettings.put("Target_Path",resourceTarget.getLocation().toOSString()+ File.separator +  targetProject.getOutputLocation().lastSegment());
-		//IJavaProject analysisProject = JavaCore.create(resourceAnalysis.getProject());
 		GlobalSettings.put("AnalysisProject", sourceProject.getProject().getName());
 		GlobalSettings.put("TargetProject", targetProject.getProject().getName());
 		monitor.worked(1);
@@ -141,12 +122,6 @@ public class WizardHandler extends Wizard implements INewWizard {
 		});
 		monitor.worked(1);
 	}
-	
-//	private void throwCoreException(String message) throws CoreException {
-//		IStatus status =
-//			new Status(IStatus.ERROR, "TestPlugIn", IStatus.OK, message, null);
-//		throw new CoreException(status);
-//	}
 
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		this.selection = selection;

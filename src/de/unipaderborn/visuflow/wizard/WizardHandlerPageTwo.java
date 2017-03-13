@@ -26,20 +26,13 @@ public class WizardHandlerPageTwo extends WizardPage {
 	@SuppressWarnings("unused")
 	private Text fileText;
 
-	/**
-	 * Constructor for SampleNewWizardPage.
-	 * 
-	 * @param pageName
-	 */
 	public WizardHandlerPageTwo(ISelection selection) {
 		super("wizardPage");
 		setTitle("Create New Analysis Project");
 		setDescription("This wizard creates new analysis project based on user-inputs");
 	}
 
-	/**
-	 * @see IDialogPage#createControl(Composite)
-	 */
+	/* This method creates all the control on the second page of Wizard */
 	public void createControl(Composite parent) {
 		Composite container = new Composite(parent, SWT.NULL);
 		GridLayout layout = new GridLayout();
@@ -93,7 +86,6 @@ public class WizardHandlerPageTwo extends WizardPage {
 				}
 				
 				else if (selectedFramework.equalsIgnoreCase("Soot")){
-					
 					analysisType.setEnabled(true);
 					flowSet.setEnabled(true);
 					flowSetType2.setEnabled(true);
@@ -120,12 +112,11 @@ public class WizardHandlerPageTwo extends WizardPage {
 		analysisDirection[0] = new Button(container, SWT.RADIO);
 		analysisDirection[0].setSelection(true);
 		analysisDirection[0].setText("Forward");
-		//analysisType[0].setBounds(10, 5, 75, 30);
 		
 		analysisDirection[1] = new Button(container, SWT.RADIO);
 		analysisDirection[1].setSelection(false);
 		analysisDirection[1].setText("Backward");
-		//analysisType[1].setBounds(10, 50, 75, 30);
+		
 		gd = new GridData(GridData.FILL_HORIZONTAL);
 		gd.horizontalSpan = 1;
 		new Label(container, SWT.NONE).setLayoutData(gd);
@@ -263,9 +254,6 @@ public class WizardHandlerPageTwo extends WizardPage {
 		setControl(container);
 	}
 
-	/**
-	 * Tests if the current workbench selection is a suitable container to use.
-	 */
 
 	private void handleFileBrowse() {
 		FileDialog fileDialog = new FileDialog(getShell(),SWT.OPEN);

@@ -28,10 +28,9 @@ public class WizardPageHandler extends WizardPage {
 		super("wizardPage");
 		setTitle("Create New Analysis Project");
 		setDescription("This wizard creates new analysis project based on user-inputs");
-		//this.selection = selection;
 	}
 
-
+	/* This method creates all the control on the first page of Wizard */
 	public void createControl(Composite parent) {
 		Composite container = new Composite(parent, SWT.NULL);
 		GridLayout layout = new GridLayout();
@@ -90,9 +89,6 @@ public class WizardPageHandler extends WizardPage {
 				dialogChanged();
 			}
 		});
-		
-		//initialize();
-		//dialogChanged();
 		setControl(container);
 	}
 
