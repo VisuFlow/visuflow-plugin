@@ -1,7 +1,6 @@
 package de.unipaderborn.visuflow.ui.view;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;

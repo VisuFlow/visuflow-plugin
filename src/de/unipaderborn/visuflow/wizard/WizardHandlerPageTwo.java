@@ -25,7 +25,7 @@ public class WizardHandlerPageTwo extends WizardPage {
 	@SuppressWarnings("unused")
 	private Text fileText;
 
-	@SuppressWarnings("unused")
+	
 	/**
 	 * Constructor for SampleNewWizardPage.
 	 * 

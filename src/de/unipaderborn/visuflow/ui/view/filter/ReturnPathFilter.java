@@ -9,7 +9,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -24,7 +23,7 @@ public class ReturnPathFilter extends FilteredItemsSelectionDialog {
 	
 	List<VFUnit> paths = new ArrayList<>();
 	
-	public void setPaths(List paths){
+	public void setPaths(List<VFUnit> paths){
 		this.paths = paths;
 	}
 	
@@ -53,7 +52,7 @@ public class ReturnPathFilter extends FilteredItemsSelectionDialog {
 	@Override
 	protected void fillContentProvider(AbstractContentProvider contentProvider, ItemsFilter itemsFilter, IProgressMonitor progressMonitor) throws CoreException {
 		      progressMonitor.beginTask("Searching", paths.size());
-		      for (Iterator iter = paths.iterator(); iter.hasNext();) {
+		      for (Iterator<VFUnit> iter = paths.iterator(); iter.hasNext();) {
 		         contentProvider.add(((VFUnit)iter.next()), itemsFilter);
 		         progressMonitor.worked(1);
 		      }
@@ -70,8 +69,8 @@ public class ReturnPathFilter extends FilteredItemsSelectionDialog {
 		return item.toString();
 	}
 
-	protected Comparator getItemsComparator() {
-	      return new Comparator() {
+	protected Comparator<?> getItemsComparator() {
+	      return new Comparator<Object>() {
 	         public int compare(Object arg0, Object arg1) {
 	            return arg0.toString().compareTo(arg1.toString());
 	         }

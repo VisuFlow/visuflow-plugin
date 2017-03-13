@@ -44,8 +44,6 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-import de.unipaderborn.visuflow.Logger;
-import de.unipaderborn.visuflow.Visuflow;
 import de.unipaderborn.visuflow.builder.GlobalSettings;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
@@ -61,8 +59,6 @@ import soot.jimple.internal.JInstanceFieldRef;
 import soot.tagkit.LineNumberTag;
 
 public class NavigationHandler extends AbstractHandler {
-
-	private static final transient Logger logger = Visuflow.getDefault().getLogger();
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
