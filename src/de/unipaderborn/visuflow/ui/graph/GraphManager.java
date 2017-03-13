@@ -28,6 +28,7 @@ import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -79,7 +80,6 @@ import com.google.common.base.Optional;
 
 import de.unipaderborn.visuflow.ProjectPreferences;
 import de.unipaderborn.visuflow.builder.GlobalSettings;
-import de.unipaderborn.visuflow.builder.JimpleBuilder;
 import de.unipaderborn.visuflow.debug.handlers.NavigationHandler;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
@@ -116,8 +116,9 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	Container panel;
 	JApplet applet;
 	JButton zoomInButton, zoomOutButton, viewCenterButton, toggleLayout, showICFGButton, btColor;
-	JToolBar settingsBar;
+	JToolBar headerBar, settingsBar;
 	JTextField searchText;
+	JLabel header;
 
 	JDialog dialog;
 	JPanel panelColor;
@@ -160,7 +161,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private JMenuItem setCosAttr;
 	private JMenu callGraphOption;
 	private JMenuItem cha;
-	private JMenuItem rta;
+	private JMenuItem spark;
 
 	public GraphManager(String graphName, String styleSheet) {
 		// System.setProperty("sun.awt.noerasebackground", "true");
@@ -230,6 +231,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		createViewListeners();
 		createToggleLayoutButton();
 		createSearchText();
+		createHeaderBar();
 		createSettingsBar();
 		createPanel();
 		createAppletContainer();
@@ -349,10 +351,10 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 		callGraphOption = new JMenu("Call Graph Option");
 		cha = new JMenuItem("CHA");
-		rta = new JMenuItem("RTA");
+		spark = new JMenuItem("SPARK");
 
 		callGraphOption.add(cha);
-		callGraphOption.add(rta);
+		callGraphOption.add(spark);
 
 		followCall.setVisible(false);
 		followReturn.setVisible(false);
@@ -427,7 +429,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					ArrayList<VFNode> nodes = new ArrayList<>();
 					nodes.add((VFNode) node);
 					try {
-						dataModel.filterGraph(nodes, true, null);
+						dataModel.filterGraph(nodes, true, true, null);
 					} catch (Exception e1) {
 						e1.printStackTrace();
 					}
@@ -491,18 +493,18 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				GlobalSettings.put("CallGraphOption", "CHA");
-				// IProject project =
+				ServiceUtil.getService(DataModel.class).triggerProjectRebuild();
+				header.setText(header.getText() + " ------> CHA");
 			}
 		});
 
-		rta.addActionListener(new ActionListener() {
+		spark.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				GlobalSettings.put("CallGraphOption", "RTA");
-				JimpleBuilder builder = new JimpleBuilder();
-				builder.forgetLastBuiltState();
-				builder.needRebuild();
+				GlobalSettings.put("CallGraphOption", "SPARK");
+				ServiceUtil.getService(DataModel.class).triggerProjectRebuild();
+				header.setText(header.getText() + " ------> SPARK");
 			}
 		});
 	}
@@ -561,7 +563,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 				try {
 					DataModel model = ServiceUtil.getService(DataModel.class);
-					model.filterGraph(vfNodes, true, null);
+					model.filterGraph(vfNodes, true, true, null);
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
@@ -593,10 +595,19 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		settingsBar.add(searchText);
 	}
 
+	private void createHeaderBar()
+	{
+		this.headerBar = new JToolBar("Header");
+		this.headerBar.setFloatable(false);
+		this.header = new JLabel("ICFG");
+		this.headerBar.add(header);
+	}
+
 	private void createPanel() {
 		JFrame temp = new JFrame();
 		temp.setLayout(new BorderLayout());
 		panel = temp.getContentPane();
+		panel.add(headerBar,BorderLayout.PAGE_START);
 		panel.add(view);
 		panel.add(settingsBar, BorderLayout.PAGE_END);
 	}
@@ -800,7 +811,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						ArrayList<VFNode> nodes = new ArrayList<>();
 						nodes.add((VFNode) node);
 						try {
-							dataModel.filterGraph(nodes, true, null);
+							dataModel.filterGraph(nodes, true, true, null);
 						} catch (Exception e1) {
 							e1.printStackTrace();
 						}
@@ -993,7 +1004,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		});
 	}
 
-	private void filterGraphNodes(List<VFNode> nodes, boolean selected, String uiClassName) {
+	private void filterGraphNodes(List<VFNode> nodes, boolean selected, boolean panToNode, String uiClassName) {
 		boolean panned = false;
 		if (uiClassName == null) {
 			uiClassName = "filter";
@@ -1008,7 +1019,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					if (selected) {
 						node.setAttribute("ui.class", uiClassName);
 					}
-					if (!panned) {
+					if (!panned && panToNode) {
 						this.panToNode(node.getId());
 						panned = true;
 					}
@@ -1039,6 +1050,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			createGraphMethodEdge(src, dest);
 		}
 		this.CFG = false;
+		this.header.setText("ICFG");
 		experimentalLayout();
 	}
 
@@ -1079,6 +1091,11 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			createGraphNode(dest);
 			createGraphEdge(src, dest);
 		}
+		if(interGraph.listEdges.size() == 1)
+		{
+			VFNode node = interGraph.listNodes.get(0);
+			createGraphNode(node);
+		}
 		this.CFG = true;
 		experimentalLayout();
 
@@ -1086,6 +1103,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			defaultPanZoom();
 			panToNode(graph.getNodeIterator().next().getId());
 		}
+		this.header.setText("Method CFG ----> " + ServiceUtil.getService(DataModel.class).getSelectedMethod().toString());
 	}
 
 	private void createGraphEdge(VFNode src, VFNode dest) {
@@ -1124,7 +1142,9 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 	}
 
-	static void nodeIterator(Node n) {
+	@SuppressWarnings("unused")
+	private void getNodesToCollapse(Node n)
+	{
 		boolean present = false;
 		scala.collection.Iterator<Node> setIterator = setOfNode.iterator();
 		while (setIterator.hasNext()) {
@@ -1150,13 +1170,13 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 				map.put(start, previous);
 				setOfNode.add(n);
-				nodeIterator(k);
+				getNodesToCollapse(k);
 
 			}
 		}
 	}
 
-	private void experimentalLayoutOld() {
+	/*private void experimentalLayoutOld()
 		if (!CFG) {
 			viewer.enableAutoLayout(new SpringBox());
 			view.getCamera().resetView();
@@ -1213,7 +1233,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 
 		view.getCamera().resetView();
-	}
+	}*/
 
 	private void experimentalLayout() {
 		if (!CFG) {
@@ -1223,97 +1243,157 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 		viewer.disableAutoLayout();
 
-		int nodeCount = graph.getNodeCount();
 		Iterator<Node> nodeIterator = graph.getNodeIterator();
 		Node first = nodeIterator.next();
+		Iterator<Node> depthFirstIterator = first.getDepthFirstIterator();
 
-		// step 1 ---> assign layers to nodes
+		//Assign the layer to each node
 		first.setAttribute("layoutLayer", 0);
-		assignLayers(nodeIterator, 1);
-
-		ArrayList<ArrayList<Node>> nodeLayers = new ArrayList<>();
-		for (int i = 0; i < nodeCount; i++) {
-			nodeLayers.add(new ArrayList<>());
+		while(depthFirstIterator.hasNext())
+		{
+			Node curr = depthFirstIterator.next();
+			int inDegree = curr.getInDegree();
+			int layer = 1;
+			if(inDegree == 1)
+			{
+				Iterable<Edge> edges = curr.getEachEnteringEdge();
+				for (Edge edge : edges) {
+					layer = edge.getOpposite(curr).getAttribute("layoutLayer");
+					layer++;
+				}
+			}
+			if(inDegree > 1)
+			{
+				Iterable<Edge> edges = curr.getEachEnteringEdge();
+				int parentLayer = layer;
+				for (Edge edge : edges) {
+					Node parent = edge.getOpposite(curr);
+					if(curr.hasAttribute("layoutLayer"))
+					{
+						int currLayer = parent.getAttribute("layoutLayer");
+						if(currLayer > parentLayer)
+							parentLayer = currLayer;
+					}
+				}
+				layer = parentLayer++;
+			}
+			if(curr.hasAttribute("layoutLayer"))
+				curr.removeAttribute("layoutLayer");
+			curr.setAttribute("layoutLayer", layer);
 		}
-		System.out.println("Total layers " + nodeLayers.size());
+		
+		HashMap<Integer, Integer> levelCount = new HashMap<Integer, Integer>();
 		for (Node node : graph) {
 			int layer = node.getAttribute("layoutLayer");
-			nodeLayers.get(layer).add(node);
+			if(levelCount.containsKey(layer))
+			{
+				int currCount = levelCount.get(layer);
+				levelCount.remove(layer);
+				levelCount.put(layer, currCount++);
+			}
+			else
+			{
+				levelCount.put(layer, 1);
+			}
 		}
-		int iterationCount = nodeCount - 1;
-		while (nodeLayers.get(iterationCount).isEmpty())
-			nodeLayers.remove(iterationCount--);
-		System.out.println("final layer count " + nodeLayers.size());
-
-		// step 2 ---> insert fake nodes
-		/*
-		 * nodeIterator = graph.getNodeIterator(); insertFakeNodes(nodeIterator);
-		 */
-
+		
 		for (Node node : graph) {
-			int layer = node.getAttribute("layoutLayer");
-			// System.out.println("node " + node.getId() + " ----> " + node.getAttribute("ui.label") + " ----> layer " + layer);
-			node.setAttribute("xyz", 2.0, (nodeCount - (layer * 3.0)), 0.0);
-		}
-		experimentalLayoutOld();
-	}
-
-	private void insertFakeNodes(Iterator<Node> nodeIterator) {
-		if (!nodeIterator.hasNext())
-			return;
-
-		Node curr = nodeIterator.next();
-		int inDegree = curr.getInDegree();
-		if (inDegree > 1) {
-			Iterable<Edge> edges = curr.getEachEnteringEdge();
-			int childLayer = curr.getAttribute("layoutLayer");
-			for (Edge edge : edges) {
-				Node tempParent = edge.getOpposite(curr);
-				int parentLayer = tempParent.getAttribute("layoutLayer");
-				if (parentLayer == childLayer)
-					continue;
-				else {
-					int diff = parentLayer - childLayer;
-					for (int i = 1; i < diff; i++) {
-						int nodeId = diff + parentLayer;
-						graph.addNode("" + nodeId);
-						graph.addEdge(tempParent.getId(), "" + nodeId, tempParent.getId() + nodeId);
+			Collection<Edge> leavingEdgeSet = node.getLeavingEdgeSet();
+			Edge[] childEdge = new Edge[leavingEdgeSet.size()];
+			leavingEdgeSet.toArray(childEdge);
+			int directionResolver = childEdge.length/2;
+			int even = childEdge.length % 2;
+			
+			if(even == 0)
+			{
+				for(int i = 0; i < childEdge.length; i++)
+				{
+					Node child = childEdge[i].getOpposite(node);
+					if(i < directionResolver)
+					{
+						child.setAttribute("directionResolver", -1);
+						child.setAttribute("nodeData.direction", -1);
+					}
+					else
+					{
+						child.setAttribute("directionResolver", 1);
+						child.setAttribute("nodeData.direction", 1);
+					}
+				}
+			}
+			else
+			{
+				for(int i = 0; i < childEdge.length; i++)
+				{
+					Node child = childEdge[i].getOpposite(node);
+					if(i > directionResolver)
+					{
+						child.setAttribute("directionResolver", -1);
+						child.setAttribute("nodeData.direction", -1);
+					}
+					else if(i < directionResolver)
+					{
+						child.setAttribute("directionResolver", 1);
+						child.setAttribute("nodeData.direction", 1);
 					}
 				}
 			}
 		}
-	}
-
-	private void assignLayers(Iterator<Node> nodeIterator, int layer) {
-		if (!nodeIterator.hasNext())
-			return;
-
-		Node curr = nodeIterator.next();
-		int inDegree = curr.getInDegree();
-		if (inDegree == 1) {
-			Iterable<Edge> edges = curr.getEachEnteringEdge();
-			for (Edge edge : edges) {
-				layer = edge.getOpposite(curr).getAttribute("layoutLayer");
-				layer++;
+		
+		//Assign the coordinates to each node
+		double spacingX = 16.0;
+		double spacingY = 3.0;
+//		Iterator<Node> breadthFirstIterator = first.getBreadthFirstIterator();
+		depthFirstIterator = first.getDepthFirstIterator();
+		first.setAttribute("xyz", spacingX, spacingY * graph.getNodeCount(), 0.0);
+		while(depthFirstIterator.hasNext())
+		{
+			Node curr = depthFirstIterator.next();
+			Node parent = findParentWithHighestLevel(curr);
+			
+			if(parent == null)
+				continue;
+			double[] positionOfParent = Toolkit.nodePosition(parent);
+			int outDegreeOfParent = parent.getOutDegree();
+			
+			curr.setAttribute("nodeData.parent", (String) parent.getAttribute("ui.label"));
+			curr.setAttribute("nodeData.layerOfParent", (int) parent.getAttribute("layoutLayer"));
+			
+			if(outDegreeOfParent == 1)
+			{
+				curr.setAttribute("xyz", positionOfParent[0], positionOfParent[1] - spacingY, 0.0);
+			}
+			else
+			{
+				if(curr.hasAttribute("directionResolver"))
+					curr.setAttribute("xyz", positionOfParent[0] + ((int) curr.getAttribute("directionResolver") * spacingX), positionOfParent[1] - spacingY, 0.0);
+				else
+					curr.setAttribute("xyz", positionOfParent[0], positionOfParent[1] - spacingY, 0.0);
 			}
 		}
-		if (inDegree > 1) {
-			Iterable<Edge> edges = curr.getEachEnteringEdge();
-			int parentLayer = layer;
-			for (Edge edge : edges) {
-				Node parent = edge.getOpposite(curr);
-				if (curr.hasAttribute("layoutLayer")) {
-					int currLayer = parent.getAttribute("layoutLayer");
-					if (currLayer > parentLayer)
-						parentLayer = currLayer;
+	}
+	
+	Node findParentWithHighestLevel(Node node)
+	{
+		int inDegreeOfNode = node.getInDegree();
+		Node parent = null;
+		
+		Iterator<Edge> nodeIterator = node.getEachEnteringEdge().iterator();
+		if(inDegreeOfNode == 1)
+			parent = nodeIterator.next().getOpposite(node);
+		else if(inDegreeOfNode > 1)
+		{
+			parent = nodeIterator.next().getOpposite(node);
+			while(nodeIterator.hasNext())
+			{
+				Node temp = nodeIterator.next().getOpposite(node);
+				if(temp.hasAttribute("layoutLayer") && (int) temp.getAttribute("layoutLayer") > (int) parent.getAttribute("layoutLayer"))
+				{
+					parent = temp;
 				}
 			}
-			layer = parentLayer++;
 		}
-		curr.setAttribute("layoutLayer", layer);
-		System.out.println("node " + curr.getAttribute("ui.label"));
-		assignLayers(nodeIterator, layer);
-		return;
+		return parent;
 	}
 
 	void toggleNode(String id) {
@@ -1411,7 +1491,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			}
 		}
 		if (event.getTopic().contentEquals(DataModel.EA_TOPIC_DATA_FILTER_GRAPH)) {
-			filterGraphNodes((List<VFNode>) event.getProperty("nodesToFilter"), (boolean) event.getProperty("selection"),
+			filterGraphNodes((List<VFNode>) event.getProperty("nodesToFilter"), (boolean) event.getProperty("selection"), (boolean) event.getProperty("panToNode"),
 					(String) event.getProperty("uiClassName"));
 		}
 		if (event.getTopic().equals(DataModel.EA_TOPIC_DATA_UNIT_CHANGED)) {
@@ -1459,7 +1539,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 		panelColor.removeAll();
 
-		boolean inICFG = inICFG(graph);
+		boolean inICFG = this.CFG;
 		if (!inICFG) {
 
 			for (JButton bt : createStmtTypes(stmtTypes)) {
@@ -1734,7 +1814,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	}
 
-	private boolean inICFG(Graph graph) {
+	/*private boolean inICFG(Graph graph) {
 		boolean inICFG = false;
 
 		for (Node n : graph.getEachNode()) {
@@ -1746,6 +1826,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 		return inICFG;
 
-	}
+	}*/
 
 }

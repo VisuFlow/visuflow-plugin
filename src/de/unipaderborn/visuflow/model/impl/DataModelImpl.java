@@ -9,6 +9,9 @@ import java.util.List;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.FindReplaceDocumentAdapter;
 import org.eclipse.jface.text.IDocument;
@@ -27,7 +30,6 @@ import de.unipaderborn.visuflow.debug.handlers.NavigationHandler;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
-import de.unipaderborn.visuflow.model.VFMethodEdge;
 import de.unipaderborn.visuflow.model.VFNode;
 import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.model.graph.ICFGStructure;
@@ -238,7 +240,7 @@ public class DataModelImpl implements DataModel {
 	}
 
 	@Override
-	public void filterGraph(List<VFNode> selectedNodes, boolean selection, String uiClassName) throws Exception {
+	public void filterGraph(List<VFNode> selectedNodes, boolean selection, boolean panToNode, String uiClassName) throws Exception {
 		NavigationHandler handler = new NavigationHandler();
 		handler.removeJimpleHighlight();
 		this.selectedNodes = selectedNodes;
@@ -253,6 +255,7 @@ public class DataModelImpl implements DataModel {
 		properties.put("nodesToFilter", this.selectedNodes);
 		properties.put("selection", this.selection);
 		properties.put("uiClassName", uiClassName);
+		properties.put("panToNode", panToNode);
 		Event filterGraph = new Event(DataModel.EA_TOPIC_DATA_FILTER_GRAPH, properties);
 		eventAdmin.postEvent(filterGraph);
 	}
@@ -303,10 +306,18 @@ public class DataModelImpl implements DataModel {
 			IRegion region = findReplaceDocumentAdapter.find(0, method.getSootMethod().getDeclaration(), true, true, false, false);
 			return document.getLineOfOffset(region.getOffset());
 		} catch (BadLocationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return -1;
 
+	}
+
+	@Override
+	public void triggerProjectRebuild() {
+		try {
+			ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		} catch (CoreException e1) {
+			e1.printStackTrace();
+		}
 	}
 }

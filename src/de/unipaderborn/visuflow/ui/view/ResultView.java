@@ -1,7 +1,6 @@
 package de.unipaderborn.visuflow.ui.view;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -119,7 +118,7 @@ public class ResultView extends ViewPart implements EventHandler {
 				nodesToFilter.add(new VFNode((VFUnit) tableItem.getData(), 0));
 		}
 		try {
-			ServiceUtil.getService(DataModel.class).filterGraph(nodesToFilter, selection, null);
+			ServiceUtil.getService(DataModel.class).filterGraph(nodesToFilter, selection, true, null);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -270,7 +269,7 @@ public class ResultView extends ViewPart implements EventHandler {
 					}
 
 					try {
-						ServiceUtil.getService(DataModel.class).filterGraph(listAttrNodes, true, "customAttribute");
+						ServiceUtil.getService(DataModel.class).filterGraph(listAttrNodes, true, true, "customAttribute");
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();

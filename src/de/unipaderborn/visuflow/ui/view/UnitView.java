@@ -405,7 +405,7 @@ public class UnitView extends ViewPart implements EventHandler {
 				List<VFNode> cfgArrayList = new ArrayList<>();
 				cfgArrayList.add(new VFNode((VFUnit)unitDetails.get("unit"),0));
 				try {
-					ServiceUtil.getService(DataModel.class).filterGraph(cfgArrayList, false, null);
+					ServiceUtil.getService(DataModel.class).filterGraph(cfgArrayList, false, true, null);
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
@@ -432,9 +432,8 @@ public class UnitView extends ViewPart implements EventHandler {
 				List<VFNode> al = new ArrayList<>();
 				al.add(new VFNode((VFUnit)unitDetails.get("unit"),0));
 				try {
-					ServiceUtil.getService(DataModel.class).filterGraph(al, true, null);
+					ServiceUtil.getService(DataModel.class).filterGraph(al, true, true, null);
 				} catch (Exception e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
@@ -645,9 +644,8 @@ public class UnitView extends ViewPart implements EventHandler {
 		listAttrNodes.add(vfn);
 		
 		try {
-			ServiceUtil.getService(DataModel.class).filterGraph(listAttrNodes, true, "customAttribute");
+			ServiceUtil.getService(DataModel.class).filterGraph(listAttrNodes, true, true, "customAttribute");
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}		
 		//TODO ask how to get the nod ID from VFUnit

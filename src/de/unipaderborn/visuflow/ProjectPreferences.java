@@ -15,6 +15,7 @@ import org.osgi.service.prefs.BackingStoreException;
 
 import de.unipaderborn.visuflow.builder.GlobalSettings;
 
+@SuppressWarnings("restriction")
 public class ProjectPreferences {
 
 	public void createPreferences() {
@@ -27,7 +28,6 @@ public class ProjectPreferences {
 		try {
 			pref.flush();
 		} catch (BackingStoreException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -40,7 +40,6 @@ public class ProjectPreferences {
 		try {
 			pref.flush();
 		} catch (BackingStoreException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

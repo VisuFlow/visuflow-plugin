@@ -4,11 +4,14 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
+import de.unipaderborn.visuflow.model.DataModel;
+import de.unipaderborn.visuflow.util.ServiceUtil;
+
 public class RunBuilder extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		System.out.println("In Run Builder");
+		ServiceUtil.getService(DataModel.class).triggerProjectRebuild();
 		return null;
 	}
 

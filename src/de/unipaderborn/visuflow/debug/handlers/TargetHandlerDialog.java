@@ -1,36 +1,37 @@
 package de.unipaderborn.visuflow.debug.handlers;
 	
 	import java.io.File;
-	import java.util.HashMap;
+import java.io.InputStream;
+import java.util.HashMap;
 
-	import org.eclipse.core.resources.IContainer;
-	import org.eclipse.core.resources.IResource;
-	import org.eclipse.core.resources.IWorkspaceRoot;
-	import org.eclipse.core.resources.ResourcesPlugin;
-	import org.eclipse.core.runtime.Path;
-	import org.eclipse.jdt.core.IJavaProject;
-	import org.eclipse.jdt.core.JavaCore;
-	import org.eclipse.jdt.core.JavaModelException;
-	import org.eclipse.jface.dialogs.IDialogConstants;
-	import org.eclipse.jface.dialogs.IMessageProvider;
-	import org.eclipse.jface.dialogs.TitleAreaDialog;
-	import org.eclipse.jface.viewers.ISelection;
-	import org.eclipse.jface.viewers.IStructuredSelection;
-	import org.eclipse.swt.SWT;
-	import org.eclipse.swt.events.ModifyEvent;
-	import org.eclipse.swt.events.ModifyListener;
-	import org.eclipse.swt.events.SelectionAdapter;
-	import org.eclipse.swt.events.SelectionEvent;
-	import org.eclipse.swt.graphics.Point;
-	import org.eclipse.swt.layout.GridData;
-	import org.eclipse.swt.layout.GridLayout;
-	import org.eclipse.swt.widgets.Button;
-	import org.eclipse.swt.widgets.Composite;
-	import org.eclipse.swt.widgets.Control;
-	import org.eclipse.swt.widgets.Label;
-	import org.eclipse.swt.widgets.Shell;
-	import org.eclipse.swt.widgets.Text;
-	import org.eclipse.ui.dialogs.ContainerSelectionDialog;
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.IMessageProvider;
+import org.eclipse.jface.dialogs.TitleAreaDialog;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 
 import de.unipaderborn.visuflow.ProjectPreferences;
 import de.unipaderborn.visuflow.builder.GlobalSettings;
@@ -195,7 +196,8 @@ import de.unipaderborn.visuflow.builder.GlobalSettings;
 	        protected void configureShell(Shell newShell) {
 	                super.configureShell(newShell);
 	                newShell.setText("Link Analysis and Target Project");
-	                newShell.setImage(new org.eclipse.swt.graphics.Image(newShell.getDisplay(), "icons/Link.png"));
+	                InputStream in = getClass().getResourceAsStream("/icons/Link.png");
+	                newShell.setImage(new org.eclipse.swt.graphics.Image(newShell.getDisplay(), in));
 	        }
 	    	
 	    	@Override

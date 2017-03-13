@@ -44,8 +44,6 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-import de.unipaderborn.visuflow.Logger;
-import de.unipaderborn.visuflow.Visuflow;
 import de.unipaderborn.visuflow.builder.GlobalSettings;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
@@ -61,8 +59,6 @@ import soot.jimple.internal.JInstanceFieldRef;
 import soot.tagkit.LineNumberTag;
 
 public class NavigationHandler extends AbstractHandler {
-
-	private static final transient Logger logger = Visuflow.getDefault().getLogger();
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -89,7 +85,7 @@ public class NavigationHandler extends AbstractHandler {
 					}
 					if (event.getCommand().getId().equals("JimpleEditor.NavigateToCFG")) {
 						try {
-							ServiceUtil.getService(DataModel.class).filterGraph(unit, true, null);
+							ServiceUtil.getService(DataModel.class).filterGraph(unit, true, true, null);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -97,15 +93,14 @@ public class NavigationHandler extends AbstractHandler {
 
 					else if (event.getCommand().getId().equals("JimpleEditor.NavigateToUnitView")) {
 						try {
-							ServiceUtil.getService(DataModel.class).filterGraph(unit, true, null);
+							ServiceUtil.getService(DataModel.class).filterGraph(unit, true, true, null);
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					} else if (event.getCommand().getId().equals("JimpleEditor.VariablePath")) {
 						try {
 							List<VFNode> unitList = prepareVariablePath(className, document, content.trim().substring(0, content.length() - 1), lineNumber);
-							ServiceUtil.getService(DataModel.class).filterGraph(unitList, true, null);
+							ServiceUtil.getService(DataModel.class).filterGraph(unitList, true, true, null);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -186,7 +181,7 @@ public class NavigationHandler extends AbstractHandler {
 
 	public void highlightJavaSource(VFUnit unit) {
 		try {
-			ServiceUtil.getService(DataModel.class).filterGraph(new ArrayList<VFNode>(), false, null);
+			ServiceUtil.getService(DataModel.class).filterGraph(new ArrayList<VFNode>(), false, true, null);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

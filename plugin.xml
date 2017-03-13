@@ -487,7 +487,7 @@
        point="org.eclipse.ui.newWizards">
     <category
           id="VisuFlow.PlugIn.Wizard.VFCategory"
-          name="New Analysis Project">
+          name="Taget Project">
     </category>
     <wizard
           class="de.unipaderborn.visuflow.wizard.WizardHandler"

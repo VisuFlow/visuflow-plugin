@@ -26,6 +26,7 @@ public class WizardHandlerPageTwo extends WizardPage {
 	@SuppressWarnings("unused")
 	private Text fileText;
 
+	
 	public WizardHandlerPageTwo(ISelection selection) {
 		super("wizardPage");
 		setTitle("Create New Analysis Project");
