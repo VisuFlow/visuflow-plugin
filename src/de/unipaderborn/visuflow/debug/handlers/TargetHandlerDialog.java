@@ -31,7 +31,9 @@ package de.unipaderborn.visuflow.debug.handlers;
 	import org.eclipse.swt.widgets.Shell;
 	import org.eclipse.swt.widgets.Text;
 	import org.eclipse.ui.dialogs.ContainerSelectionDialog;
-	import de.unipaderborn.visuflow.builder.GlobalSettings;
+
+import de.unipaderborn.visuflow.ProjectPreferences;
+import de.unipaderborn.visuflow.builder.GlobalSettings;
 
 	public class TargetHandlerDialog extends TitleAreaDialog {
 	        
@@ -235,6 +237,8 @@ package de.unipaderborn.visuflow.debug.handlers;
 	    		IJavaProject analysisProject = JavaCore.create(resourceAnalysis.getProject());
 	    		GlobalSettings.put("AnalysisProject", analysisProject.getProject().getName());
 	    		GlobalSettings.put("TargetProject", targetProject.getProject().getName());
+	    		ProjectPreferences projPref = new ProjectPreferences();
+	    		projPref.createPreferences();
 	    		super.okPressed();
 	        	
 	        }

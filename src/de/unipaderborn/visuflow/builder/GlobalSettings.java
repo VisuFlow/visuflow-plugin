@@ -2,8 +2,16 @@ package de.unipaderborn.visuflow.builder;
 
 import java.io.IOException;
 
+import org.eclipse.core.internal.runtime.Activator;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ProjectScope;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.jface.dialogs.DialogSettings;
+import org.eclipse.ui.PlatformUI;
+import org.osgi.service.prefs.BackingStoreException;
 
 import de.unipaderborn.visuflow.Visuflow;
 
@@ -20,7 +28,6 @@ public final class GlobalSettings {
 	}
 
 	public static void put(String key, String value) {
-
 		IPath path = Visuflow.getDefault().getStateLocation();
 		String filename = path.append(fileName).toOSString();
 		try {
