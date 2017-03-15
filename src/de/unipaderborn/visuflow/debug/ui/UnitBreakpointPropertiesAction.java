@@ -15,6 +15,7 @@ import beaver.Action;
 import de.unipaderborn.visuflow.Logger;
 import de.unipaderborn.visuflow.Visuflow;
 import de.unipaderborn.visuflow.VisuflowConstants;
+import de.unipaderborn.visuflow.builder.GlobalSettings;
 import de.unipaderborn.visuflow.debug.UnitLocation;
 import de.unipaderborn.visuflow.debug.UnitLocator;
 import de.unipaderborn.visuflow.model.VFUnit;
@@ -85,6 +86,7 @@ public class UnitBreakpointPropertiesAction extends RulerBreakpointAction implem
 						} else {
 							IMarker m = breakpoint.getMarker();
 							m.setAttribute("Jimple.breakpoint.type", "unitType");
+							m.setAttribute("Jimple.project", GlobalSettings.get("AnalysisProject"));
 						}
 
 					} catch (Exception e) {

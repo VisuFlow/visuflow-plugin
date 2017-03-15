@@ -44,14 +44,20 @@ public class JavaBreakpointListener implements IJavaBreakpointListener, Visuflow
 		try {
 			IMarker marker = breakpoint.getMarker();
 			if(marker.getAttribute("Jimple.breakpoint.type") == null) {
-				// we are missing breakpoint type information. don't know what to do -> ignore
+				// we are missing breakpoint type information. don't know what to do -> return
 				return JavaBreakpointListener.DONT_CARE;
 			}
 
 			String type = marker.getAttribute("Jimple.breakpoint.type").toString();
 			if(!"unit".equals(type)) {
 				// this is a breakpoint for a certain type of units
-				return JavaBreakpointListener.DONT_CARE;
+
+				// at the moment we don't know, which unit this is, so we just remove the
+				// instruction pointer marker and continue
+				String project = marker.getAttribute("Jimple.project").toString();
+				removeOldInstructionPointer(project);
+
+				return 0;
 			} else {
 				// this is a unit breakpoint
 				String project = marker.getAttribute("Jimple.project").toString();
