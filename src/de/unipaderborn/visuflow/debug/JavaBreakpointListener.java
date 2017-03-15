@@ -33,6 +33,14 @@ import de.unipaderborn.visuflow.model.VFNode;
 import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 
+/**
+ * This listener is responsible for tracking the location in the code / graph while
+ * debugging. It highlights the current position in the jimple file (if possible)
+ * and also opens the CFG and scrolls to the unit.
+ *
+ * @author henni@upb.de
+ *
+ */
 public class JavaBreakpointListener implements IJavaBreakpointListener, VisuflowConstants {
 
 	private static final transient Logger logger = Visuflow.getDefault().getLogger();
