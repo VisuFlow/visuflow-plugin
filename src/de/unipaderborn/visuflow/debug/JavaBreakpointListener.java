@@ -43,17 +43,29 @@ public class JavaBreakpointListener implements IJavaBreakpointListener, Visuflow
 
 		try {
 			IMarker marker = breakpoint.getMarker();
-			String project = marker.getAttribute("Jimple.project").toString();
-			String path = marker.getAttribute("Jimple.file").toString();
-			IFile file = getFile(project, path);
-			int line = marker.getAttribute("Jimple." + IMarker.LINE_NUMBER, -1);
-			int charStart = marker.getAttribute("Jimple.unit.charStart", -1);
-			int charEnd = marker.getAttribute("Jimple.unit.charEnd", -1);
-			String unitFqn = marker.getAttribute("Jimple.unit.fqn").toString();
+			if(marker.getAttribute("Jimple.breakpoint.type") == null) {
+				// we are missing breakpoint type information. don't know what to do -> ignore
+				return JavaBreakpointListener.DONT_CARE;
+			}
 
-			revealLocationInFile(file, charStart);
-			revealUnitInGraph(unitFqn);
-			highlightLine(project, path, line, charStart, charEnd);
+			String type = marker.getAttribute("Jimple.breakpoint.type").toString();
+			if(!"unit".equals(type)) {
+				// this is a breakpoint for a certain type of units
+				return JavaBreakpointListener.DONT_CARE;
+			} else {
+				// this is a unit breakpoint
+				String project = marker.getAttribute("Jimple.project").toString();
+				String path = marker.getAttribute("Jimple.file").toString();
+				IFile file = getFile(project, path);
+				int line = marker.getAttribute("Jimple." + IMarker.LINE_NUMBER, -1);
+				int charStart = marker.getAttribute("Jimple.unit.charStart", -1);
+				int charEnd = marker.getAttribute("Jimple.unit.charEnd", -1);
+				String unitFqn = marker.getAttribute("Jimple.unit.fqn").toString();
+
+				revealLocationInFile(file, charStart);
+				revealUnitInGraph(unitFqn);
+				highlightLine(project, path, line, charStart, charEnd);
+			}
 		} catch (Exception e) {
 			logger.error("Couldn't open hit breakpoint location in jimple file", e);
 		}
