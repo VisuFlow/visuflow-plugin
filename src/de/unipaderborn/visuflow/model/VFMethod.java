@@ -1,7 +1,6 @@
 package de.unipaderborn.visuflow.model;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -89,16 +88,33 @@ public class VFMethod {
 		return incomingEdges.add(incomingEdge);
 	}
 
-	public VFUnit getUnitAfter(VFUnit unit) {
+	/**
+	 * Returns a unit after the given unit. The offset determines how
+	 * many units to skip. Offset 1 means the next unit (direct sibling).
+	 * @param unit
+	 * @param offset
+	 * @return
+	 */
+	public VFUnit getUnitAfter(VFUnit unit, int offset) {
 		boolean returnNext = false;
-		for (Iterator<VFUnit> iterator = units.iterator(); iterator.hasNext();) {
-			VFUnit current = iterator.next();
+		int lastIndex = units.size() - 1;
+		for (int i = 0; i < units.size(); i++) {
+			VFUnit current = units.get(i);
 			if(returnNext) {
-				return current;
+				int requestedIndex = i - 1 + offset;
+				if(requestedIndex <= lastIndex) {
+					return units.get(requestedIndex);
+				} else {
+					throw new NoSuchElementException("There is no unit after " + unit.getFullyQualifiedName());
+				}
 			} else if(current.getFullyQualifiedName().equals(unit.getFullyQualifiedName())) {
-				returnNext = true;
+				if(i == lastIndex) {
+					throw new NoSuchElementException("There is no unit after " + unit.getFullyQualifiedName());
+				} else {
+					returnNext = true;
+				}
 			}
 		}
-		throw new NoSuchElementException("There is no unit after " + unit.getFullyQualifiedName());
+		throw new UnitNotFoundException("There is no unit after " + unit.getFullyQualifiedName());
 	}
 }

@@ -590,4 +590,17 @@
           name="project">
     </scope>
  </extension>
+<extension
+         point="org.eclipse.ui.popupMenus">
+ <viewerContribution
+            targetID="#CompilationUnitRulerContext"
+            id="org.eclipse.jdt.debug.ui.CompilationUnitRulerPopupActions">
+         <action
+               class="de.unipaderborn.visuflow.debug.ui.UnitBreakpointPropertiesActionDelegate"
+               id="de.unipaderborn.visuflow.debug.ui.UnitBreakpointPropertiesActionDelegate"
+               label="Unit Breakpoint Properties"
+               menubarPath="group.properties">
+         </action>
+</viewerContribution>
+</extension>
 </plugin>

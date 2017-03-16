@@ -8,6 +8,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IFile;
@@ -108,9 +109,11 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 			javaLineBreakpoint.setConditionEnabled(true);
 			String requiredFqn = m.getAttribute("Jimple.unit.fqn", "");
 			String escapedRequiredFqn = requiredFqn.replaceAll("\"", "\\\\\"");
+			// FIXME find out the name of the unit
 			javaLineBreakpoint.setCondition("new String(d.getTag(\"Fully Qualified Name\").getValue()).equals(\""+escapedRequiredFqn+"\")");
 			javaLineBreakpoint.setConditionSuspendOnTrue(true);
 			IMarker javaBreakpointMarker = javaBreakpoint.getMarker();
+			javaBreakpointMarker.setAttribute("Jimple.breakpoint.type", "unit");
 			javaBreakpointMarker.setAttribute("Jimple." + IMarker.LINE_NUMBER, m.getAttribute(IMarker.LINE_NUMBER, -1));
 			javaBreakpointMarker.setAttribute("Jimple.unit.charStart", m.getAttribute("Jimple.unit.charStart", -1));
 			javaBreakpointMarker.setAttribute("Jimple.unit.charEnd", m.getAttribute("Jimple.unit.charEnd", -1));
@@ -343,12 +346,23 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 		try {
 			// find the next unit to stop at
 			String unitFqn = marker.getAttribute("Jimple.unit.fqn").toString();
-			VFUnit nextUnitToStopAt = findNextUnit(unitFqn);
+
+			int offset = 1;
+			UnitLocation location = null;
+			while(true) {
+				VFUnit nextUnitToStopAt = findNextUnit(unitFqn, offset);
+				try {
+					location = UnitLocator.locateUnit(nextUnitToStopAt);
+					break;
+				} catch (NoSuchElementException e) {
+					offset++;
+				}
+			}
 
 			// TODO disable the currently active unit breakpoint by disabling all of its' conditional java breakpoints
 
 			// create a new JimpleBreakpoint for the found unit
-			IMarker newMarker = createBreakpointMarkerForNextUnit(nextUnitToStopAt, marker);
+			IMarker newMarker = createBreakpointMarkerForNextUnit(location, marker);
 
 			// remove previous set temporary breakpoints
 			removeTemporaryBreakpoints();
@@ -375,28 +389,25 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 		}
 	}
 
-	private IMarker createBreakpointMarkerForNextUnit(VFUnit nextUnitToStopAt, IMarker marker) throws CoreException, IOException {
-		UnitLocation location = UnitLocator.locateUnit(nextUnitToStopAt);
-		// FIXME for now we use the same resource, but to support stepping beyond the end of a method, the actual resource
-		// has to be determined
+	private IMarker createBreakpointMarkerForNextUnit(UnitLocation location, IMarker marker) throws CoreException, IOException {
 		IFile file = location.project.getFile(location.jimpleFile);
-
 		IMarker m = file.createMarker(marker.getType());
+		m.setAttribute("Jimple.breakpoint.type", "unit");
 		m.setAttribute(IMarker.LINE_NUMBER, location.line);
 		m.setAttribute("Jimple.file", file.getProjectRelativePath().toString());
 		m.setAttribute("Jimple.project", marker.getAttribute("Jimple.project"));
 		m.setAttribute("Jimple.unit.charStart", location.charStart);
 		m.setAttribute("Jimple.unit.charEnd", location.charEnd);
-		m.setAttribute("Jimple.unit.fqn", nextUnitToStopAt.getFullyQualifiedName());
+		m.setAttribute("Jimple.unit.fqn", location.vfUnit.getFullyQualifiedName());
 		m.setAttribute("Jimple.temporary", true);
 		return m;
 	}
 
-	private VFUnit findNextUnit(String unitFqn) {
+	// FIXME handle end of method (at the moment a NoSuchElementException is thrown)
+	private VFUnit findNextUnit(String unitFqn, int offset) {
 		DataModel dataModel = ServiceUtil.getService(DataModel.class);
 		VFUnit unit = dataModel.getVFUnit(unitFqn);
-		VFUnit unitAfter = unit.getVfMethod().getUnitAfter(unit);
-		// FIXME handle end of method (at the moment a NoSuchElementException is thrown)
+		VFUnit unitAfter = unit.getVfMethod().getUnitAfter(unit, offset);
 		return unitAfter;
 	}
 }
