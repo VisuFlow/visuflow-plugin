@@ -12,6 +12,7 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -35,6 +36,34 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 
 	private Logger logger = Visuflow.getDefault().getLogger();
 	private String classpath;
+	private boolean executeBuild;
+	
+	class JimpleDeltaVisitor implements IResourceDeltaVisitor {
+		public boolean visit(IResourceDelta delta) throws CoreException {
+			IResource resource = delta.getResource();
+			switch (delta.getKind()) {
+			case IResourceDelta.ADDED:
+				if(resource.getFileExtension().equals("java")){
+					executeBuild = true;
+					return false;
+				}
+				break;
+			case IResourceDelta.REMOVED:
+				if(resource.getFileExtension().equals("java")){
+					executeBuild = true;
+					return false;
+				}
+				break;
+			case IResourceDelta.CHANGED:
+				if(resource.getFileExtension().equals("java")){
+					executeBuild = true;
+					return false;
+				}
+				break;
+			}
+			return true;
+		}
+	}
 
 	protected String getClassFilesLocation(IJavaProject javaProject) throws JavaModelException {
 		String path = javaProject.getOutputLocation().toString();
@@ -96,6 +125,21 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 
 	@Override
 	protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
+		executeBuild = false;
+		if (kind == FULL_BUILD) {
+			fullBuild(monitor);
+		} else {
+			IResourceDelta delta = getDelta(getProject());
+			if (delta == null) {
+				fullBuild(monitor);
+			} else {
+				checkForBuild(delta, monitor);
+			}
+		}
+		return null;
+	}
+	
+	protected void fullBuild(IProgressMonitor monitor) throws CoreException{
 		Visuflow.getDefault().getLogger().info("Build Start");
 		String targetFolder = "sootOutput";
 		IJavaProject project = JavaCore.create(getProject());
@@ -132,6 +176,15 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 
 			folder.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 		}
-		return null;
 	}
+	
+	protected void checkForBuild(IResourceDelta delta,
+			IProgressMonitor monitor) throws CoreException {
+		delta.accept(new JimpleDeltaVisitor());
+		if(executeBuild){
+			fullBuild(monitor);
+			executeBuild = false;
+		}
+	}
+	
 }

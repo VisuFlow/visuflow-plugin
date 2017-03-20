@@ -31,6 +31,7 @@ import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.source.IVerticalRulerInfo;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IFileEditorInput;
@@ -41,6 +42,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 
@@ -131,6 +133,7 @@ public class NavigationHandler extends AbstractHandler {
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
+				removeJimpleHighlight(true);
 				IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 				for (VFUnit unit : units) {
 					// Get the current page
@@ -192,7 +195,7 @@ public class NavigationHandler extends AbstractHandler {
 		}
 	}
 
-	public void removeJimpleHighlight() {
+	public void removeJimpleHighlight(boolean isJimple) {
 		Display.getDefault().asyncExec(() -> {
 			try {
 				IEditorReference[] references = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getEditorReferences();
@@ -200,10 +203,23 @@ public class NavigationHandler extends AbstractHandler {
 					IEditorPart editorpart = references[i].getEditor(false);
 					if (editorpart instanceof ITextEditor) {
 						final ITextEditor editor = (ITextEditor) editorpart;
-						ISelection selection = editor.getSelectionProvider().getSelection();
-						if (selection != null) {
-							ITextSelection textSelection = (ITextSelection) selection;
-							editor.selectAndReveal(textSelection.getOffset(), 0);
+						IEditorInput input = editorpart.getEditorInput();
+						IPath path = ((FileEditorInput)input).getPath();
+						boolean extensionJimple = path.getFileExtension().equals("jimple");
+						boolean extensionJava = path.getFileExtension().equals("java");
+						if (isJimple && extensionJava){
+							ISelection selection = editor.getSelectionProvider().getSelection();
+							if (selection != null) {
+								ITextSelection textSelection = (ITextSelection) selection;
+								editor.selectAndReveal(textSelection.getOffset(), 0);
+							}
+
+						}else if (extensionJimple && !isJimple){
+							ISelection selection = editor.getSelectionProvider().getSelection();
+							if (selection != null) {
+								ITextSelection textSelection = (ITextSelection) selection;
+								editor.selectAndReveal(textSelection.getOffset(), 0);
+							}
 						}
 
 					}
@@ -338,7 +354,7 @@ public class NavigationHandler extends AbstractHandler {
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				//removeJimpleHighlight();
+				removeJimpleHighlight(false);
 				IWorkspaceRoot myWorkspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 				IProject analysisProject = myWorkspaceRoot.getProject(GlobalSettings.get("TargetProject"));
 				if (analysisProject.exists()) {
