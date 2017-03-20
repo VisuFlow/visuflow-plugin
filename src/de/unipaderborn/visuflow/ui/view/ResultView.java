@@ -239,7 +239,7 @@ public class ResultView extends ViewPart implements EventHandler {
 					return attrs;
 
 				} else {
-					return "is still empty";
+					return "";
 				}
 			}
 		});
@@ -336,7 +336,7 @@ public class ResultView extends ViewPart implements EventHandler {
 
 		}
 		if (attrs.equals("")) {
-			return "is still empty";
+			return "";
 		}
 
 		return attrs;

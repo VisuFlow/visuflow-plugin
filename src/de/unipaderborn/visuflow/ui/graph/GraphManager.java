@@ -350,7 +350,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		navigateToJimple = new JMenuItem("Navigate to Jimple");
 		navigateToJava = new JMenuItem("Navigate to Java");
 		showInUnitView = new JMenuItem("Highlight on Units view");
-		setCosAttr = new JMenuItem("Set costusm attribute");
+		setCosAttr = new JMenuItem("Set custom attribute");
 		followCall = new JMenuItem("Follow the Call");
 		followReturn = new JMenuItem("Follow the Return");
 
@@ -1530,12 +1530,12 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		JTextField tfAnalysis = new JTextField("");
 		JTextField tfAttr = new JTextField("");
 
-		panel.add(new JLabel("Analysis: "));
-		panel.add(tfAnalysis);
 		panel.add(new JLabel("Attribute: "));
+		panel.add(tfAnalysis);
+		panel.add(new JLabel("Attribute value: "));
 		panel.add(tfAttr);
 
-		int result = JOptionPane.showConfirmDialog(null, panel, "Setting costum attribute", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+		int result = JOptionPane.showConfirmDialog(null, panel, "Setting custom attribute", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		if (result == JOptionPane.OK_OPTION) {
 			Map<String, String> hmCustAttr = new HashMap<>();
 
