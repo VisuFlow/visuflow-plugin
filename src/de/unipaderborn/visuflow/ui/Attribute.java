@@ -98,7 +98,7 @@ public class Attribute extends TitleAreaDialog {
 
 		// setTitle("This wizard links the Target Java project with
 
-		setMessage("Please enter the analysis and the attribute ", IMessageProvider.INFORMATION);
+		setMessage("Please enter the attribute and its value. ", IMessageProvider.INFORMATION);
 
 	}
 

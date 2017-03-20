@@ -19,6 +19,7 @@ public interface DataModel {
 	public static final String EA_TOPIC_DATA_UNIT_CHANGED = EA_TOPIC_DATA + "/UnitChanged";
 	public static final String EA_TOPIC_DATA_UNIT_REMOVED = EA_TOPIC_DATA + "/UnitRemoved";
 	public static final String EA_TOPIC_DATA_FILTER_GRAPH = EA_TOPIC_DATA + "/UnitFiltered";
+	public static final String EA_TOPIC_DATA_VIEW_REFRESH = EA_TOPIC_DATA + "/refresh";
 
 	public static final String EA_TOPIC_DATA_SELECTION = EA_TOPIC_DATA + "/SelectionChanged";
 
@@ -38,6 +39,7 @@ public interface DataModel {
 	public VFMethod getVFMethodByName(SootMethod method);
 	public void setIcfg(ICFGStructure icfg);
 	public void triggerProjectRebuild();
+	public void refreshView();
 
 	public void setInSet(String unitFqn, String name, String value);
 	public void setOutSet(String unitFqn, String name, String value);
