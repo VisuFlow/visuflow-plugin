@@ -241,7 +241,7 @@ public class ResultView extends ViewPart implements EventHandler {
 				// Get all chosen VFUnits
 				List<VFUnit> l = getUnitsToCustomize(highlightNodes.getSelection());
 
-				ArrayList<VFNode> listAttrNodes = new ArrayList<VFNode>();
+				ArrayList<VFNode> listAttrNodes = new ArrayList<>();
 
 				// Open the dialog
 				Attribute p = new Attribute(e.display.getActiveShell());
@@ -327,7 +327,7 @@ public class ResultView extends ViewPart implements EventHandler {
 		// Display elements
 		while (i.hasNext()) {
 			Map.Entry me = (Map.Entry) i.next();
-			attrs = attrs + me.getKey() + " = " + me.getValue() + ". \n";
+			attrs = attrs + me.getKey() + " = " + me.getValue() + "\n";
 
 		}
 		if (attrs.equals("")) {

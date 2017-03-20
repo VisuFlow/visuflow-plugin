@@ -1,5 +1,7 @@
 package de.unipaderborn.visuflow.ui.view.filter;
 
+import java.util.Map.Entry;
+
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
@@ -37,11 +39,13 @@ public class ResultViewFilter extends ViewerFilter {
 		if(contains(outset, searchString)) {
 			return true;
 		}
-		//From me
-		if(unit.getHmCustAttr().toString().matches(searchString)){
-			return true;
+
+		for (Entry<String, String> customAttribute : unit.getHmCustAttr().entrySet()) {
+			if (contains(customAttribute.getKey(), searchString) || contains(customAttribute.getValue(), searchString)) {
+				return true;
+			}
 		}
-		
+
 		return false;
 	}
 
