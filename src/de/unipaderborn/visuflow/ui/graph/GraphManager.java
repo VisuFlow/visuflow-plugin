@@ -18,6 +18,8 @@ import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -551,11 +553,25 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	private void createSearchText() {
 		this.searchText = new JTextField("Search graph");
+		searchText.addFocusListener(new FocusListener() {
+			
+			@Override
+			public void focusLost(FocusEvent e) {
+				searchText.setText("Search graph");
+			}
+			
+			@Override
+			public void focusGained(FocusEvent e) {
+				searchText.setText("");
+			}
+		});
 		searchText.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String searchString = searchText.getText().toLowerCase();
+				if(searchString.isEmpty())
+					return;
 				ArrayList<VFNode> vfNodes = new ArrayList<>();
 				ArrayList<VFUnit> vfUnits = new ArrayList<>();
 				for (Node node : graph) {
@@ -1043,6 +1059,9 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			createdNode.setAttribute("ui.label", methodName);
 			createdNode.setAttribute("nodeData.methodName", escapedMethodName);
 			createdNode.setAttribute("nodeData.methodSignature", escapedMethodSignature);
+
+//			src.getBody().toString().split(";").toString().;
+
 			createdNode.setAttribute("nodeData.methodBody", src.getBody().toString().replaceAll(";", ";<br>"));
 			createdNode.setAttribute("nodeData.unescapedMethodName", methodName);
 			createdNode.setAttribute("nodeMethod", src);
@@ -1166,65 +1185,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			}
 		}
 	}
-
-	/*private void experimentalLayoutOld()
-		if (!CFG) {
-			viewer.enableAutoLayout(new SpringBox());
-			view.getCamera().resetView();
-			return;
-		}
-		viewer.disableAutoLayout();
-
-		double rowSpacing = 3.0;
-		double columnSpacing = 3.0;
-		Iterator<Node> nodeIterator = graph.getNodeIterator();
-		int totalNodeCount = graph.getNodeCount();
-		int currNodeIndex = 0;
-		while (nodeIterator.hasNext()) {
-			Node curr = nodeIterator.next();
-			if (curr.hasAttribute("layout.visited")) {
-				continue;
-			}
-			int currEdgeCount = curr.getOutDegree();
-			int currEdgeIndex = 0;
-			if (currEdgeCount > 1) {
-				Iterator<Edge> currEdgeIterator = curr.getEdgeIterator();
-				curr.setAttribute("xyz", 0.0, ((totalNodeCount * rowSpacing) - currNodeIndex), 0.0);
-				curr.setAttribute("layout.visited");
-				currNodeIndex++;
-				while (currEdgeIterator.hasNext()) {
-					Node temp = currEdgeIterator.next().getOpposite(curr);
-					temp.setAttribute("xyz", ((columnSpacing - currEdgeIndex) * currEdgeCount), ((totalNodeCount * columnSpacing) - currNodeIndex), 0.0);
-					curr.setAttribute("layout.visited");
-					currEdgeIndex++;
-				}
-				currNodeIndex++;
-			}
-			curr.setAttribute("xyz", 0.0, ((totalNodeCount * rowSpacing) - currNodeIndex), 0.0);
-			curr.setAttribute("layout.visited");
-			currNodeIndex++;
-		}
-
-		for (Node node : graph) {
-			double[] pos = Toolkit.nodePosition(graph, node.getId());
-			int inDegree = node.getInDegree();
-			int outDegree = node.getOutDegree();
-			if (inDegree == 0)
-				continue;
-			if (inDegree > outDegree) {
-				node.setAttribute("xyz", pos[0] - rowSpacing, pos[1], 0.0);
-			}
-			if (outDegree > inDegree) {
-				node.setAttribute("xyz", pos[0] + rowSpacing, pos[1], 0.0);
-			}
-			if (inDegree > 1 && outDegree > 1 && inDegree == outDegree) {
-				node.setAttribute("xyz", pos[0] - rowSpacing, pos[1], 0.0);
-			} else
-				continue;
-		}
-
-		view.getCamera().resetView();
-	}*/
 
 	private void experimentalLayout() {
 		if (!CFG) {
@@ -1505,7 +1465,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 	}
 
-
 	private boolean inPanel(String btName, JPanel panel) {
 		boolean exist = false;
 
@@ -1526,7 +1485,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 		return exist;
 	}
-
 
 	public void colorTheGraph() {
 
@@ -1677,7 +1635,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 	}
 
-
 	@SuppressWarnings("rawtypes")
 	public void setCosAttr(VFUnit selectedVF, Node curr) {
 		JPanel panel = new JPanel(new GridLayout(0, 2));
@@ -1728,13 +1685,11 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	}
 
-
 	public void colorCostumizedNode() {
 		for (Node n : graph.getEachNode()) {
 			n.setAttribute("ui.color", jcc.getColor());
 		}
 	}
-
 
 	private List<JButton> createStmtTypes(List<JButton> stmtTypes) {
 		stmtTypes = new ArrayList<JButton>();
@@ -1804,19 +1759,5 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		return stmtTypes;
 
 	}
-
-	/*private boolean inICFG(Graph graph) {
-		boolean inICFG = false;
-
-		for (Node n : graph.getEachNode()) {
-			if ((n.getAttribute("nodeData.unitType") == null)) {
-				inICFG = true;
-				break;
-			}
-		}
-
-		return inICFG;
-
-	}*/
 
 }
