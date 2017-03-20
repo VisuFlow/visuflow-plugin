@@ -56,6 +56,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
+import javax.xml.crypto.Data;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.eclipse.swt.widgets.Display;
@@ -1564,6 +1565,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						// TODO Send vfNode and Color to Kaarthik
 								ProjectPreferences pref = new ProjectPreferences();
 								pref.updateColorPreferences(bt.getName(),jcc.getColor().getRGB());
+								DataModel dataModel = ServiceUtil.getService(DataModel.class);
+								dataModel.setSelectedMethod(dataModel.getSelectedMethod(), false);
 						
 						System.out.println("Statement is : " + bt.getName());
 						System.out.println("Color is : " + jcc.getColor().getRGB());
