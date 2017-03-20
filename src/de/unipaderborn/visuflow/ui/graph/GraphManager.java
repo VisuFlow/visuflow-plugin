@@ -56,8 +56,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
-import javax.xml.crypto.Data;
-
 import org.apache.commons.lang.StringEscapeUtils;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -932,7 +930,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				zoomIn();
+				zoomOut();
 			}
 		});
 
@@ -940,7 +938,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				zoomOut();
+				zoomIn();
 			}
 		});
 
