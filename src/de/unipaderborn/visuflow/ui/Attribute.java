@@ -1,11 +1,14 @@
 package de.unipaderborn.visuflow.ui;
 
+import java.io.InputStream;
+
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -86,7 +89,8 @@ public class Attribute extends TitleAreaDialog {
 
 		newShell.setText("Set custom attributes");
 
-		newShell.setImage(new org.eclipse.swt.graphics.Image(newShell.getDisplay(), "icons/sample.gif"));
+		InputStream in = getClass().getClassLoader().getResourceAsStream("/icons/sample.gif");
+		newShell.setImage(new Image(newShell.getDisplay(), in));
 
 	}
 
