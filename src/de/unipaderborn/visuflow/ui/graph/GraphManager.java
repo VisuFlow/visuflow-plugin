@@ -7,13 +7,11 @@ import static de.unipaderborn.visuflow.model.DataModel.EA_TOPIC_DATA_UNIT_CHANGE
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Image;
-import java.awt.Insets;
 import java.awt.Label;
 import java.awt.Point;
 import java.awt.RenderingHints;
@@ -75,7 +73,6 @@ import org.graphstream.ui.swingViewer.ViewPanel;
 import org.graphstream.ui.view.Viewer;
 import org.graphstream.ui.view.ViewerListener;
 import org.osgi.service.event.Event;
-import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 
@@ -119,7 +116,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	Container panel;
 	JApplet applet;
-	JButton zoomInButton, zoomOutButton, viewCenterButton, toggleLayout, showICFGButton, btColor;
+	JButton zoomInButton, zoomOutButton, showICFGButton, btColor;
 	JToolBar headerBar, settingsBar;
 	JTextField searchText;
 	JLabel header;
@@ -183,7 +180,21 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 		renderICFG(ServiceUtil.getService(DataModel.class).getIcfg());
 
-		view.setToolTipText("Tooltip Test");
+		adjustToolbarButtonHeights();
+	}
+
+	private void adjustToolbarButtonHeights() {
+		Dimension d = new Dimension(90, 32);
+		showICFGButton.setSize(d);
+		showICFGButton.setPreferredSize(d);
+		showICFGButton.setMinimumSize(d);
+		showICFGButton.setMaximumSize(d);
+
+		d = new Dimension(100, 32);
+		btColor.setSize(d);
+		btColor.setPreferredSize(d);
+		btColor.setMinimumSize(d);
+		btColor.setMaximumSize(d);
 	}
 
 	public Container getApplet() {
@@ -192,7 +203,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	private void registerEventHandler() {
 		String[] topics = new String[] { EA_TOPIC_DATA_FILTER_GRAPH, EA_TOPIC_DATA_SELECTION, EA_TOPIC_DATA_MODEL_CHANGED, EA_TOPIC_DATA_UNIT_CHANGED,
-				"GraphReady" };
+		"GraphReady" };
 		Hashtable<String, Object> properties = new Hashtable<>();
 		properties.put(EventConstants.EVENT_TOPIC, topics);
 		ServiceUtil.registerService(EventHandler.class, this, properties);
@@ -294,7 +305,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			}
 			/*
 			 * SwingUtilities.invokeLater(new Runnable() {
-			 * 
+			 *
 			 * @Override public void run() { GraphManager.this.zoomIn(); } });
 			 */
 		}
@@ -479,6 +490,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 							list.add(edge);
 						}
 						Display.getDefault().syncExec(new Runnable() {
+							@Override
 							public void run() {
 								Shell shell = new Shell();
 								ReturnPathFilter returnFilter = new ReturnPathFilter(shell);
@@ -593,7 +605,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		settingsBar.add(zoomInButton);
 		settingsBar.add(zoomOutButton);
 		settingsBar.add(showICFGButton);
-		settingsBar.add(viewCenterButton);
 		settingsBar.add(btColor);
 		settingsBar.add(panLeftButton);
 		settingsBar.add(panRightButton);
@@ -922,8 +933,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private void createZoomControls() {
 		zoomInButton = new JButton();
 		zoomOutButton = new JButton();
-		viewCenterButton = new JButton("reset");
-
 		zoomInButton.setIcon(new ImageIcon(getScaledImage(imgPlus, 20, 20)));
 		zoomOutButton.setIcon(new ImageIcon(getScaledImage(imgMinus, 20, 20)));
 
@@ -940,14 +949,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				zoomIn();
-			}
-		});
-
-		viewCenterButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				view.getCamera().resetView();
 			}
 		});
 
@@ -1171,7 +1172,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	/*
 	 * private void experimentalLayoutOld() if (!CFG) { viewer.enableAutoLayout(new SpringBox()); view.getCamera().resetView(); return; }
 	 * viewer.disableAutoLayout();
-	 * 
+	 *
 	 * double rowSpacing = 3.0; double columnSpacing = 3.0; Iterator<Node> nodeIterator = graph.getNodeIterator(); int totalNodeCount = graph.getNodeCount();
 	 * int currNodeIndex = 0; while (nodeIterator.hasNext()) { Node curr = nodeIterator.next(); if (curr.hasAttribute("layout.visited")) { continue; } int
 	 * currEdgeCount = curr.getOutDegree(); int currEdgeIndex = 0; if (currEdgeCount > 1) { Iterator<Edge> currEdgeIterator = curr.getEdgeIterator();
@@ -1179,12 +1180,12 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	 * (currEdgeIterator.hasNext()) { Node temp = currEdgeIterator.next().getOpposite(curr); temp.setAttribute("xyz", ((columnSpacing - currEdgeIndex) *
 	 * currEdgeCount), ((totalNodeCount * columnSpacing) - currNodeIndex), 0.0); curr.setAttribute("layout.visited"); currEdgeIndex++; } currNodeIndex++; }
 	 * curr.setAttribute("xyz", 0.0, ((totalNodeCount * rowSpacing) - currNodeIndex), 0.0); curr.setAttribute("layout.visited"); currNodeIndex++; }
-	 * 
+	 *
 	 * for (Node node : graph) { double[] pos = Toolkit.nodePosition(graph, node.getId()); int inDegree = node.getInDegree(); int outDegree =
 	 * node.getOutDegree(); if (inDegree == 0) continue; if (inDegree > outDegree) { node.setAttribute("xyz", pos[0] - rowSpacing, pos[1], 0.0); } if (outDegree
 	 * > inDegree) { node.setAttribute("xyz", pos[0] + rowSpacing, pos[1], 0.0); } if (inDegree > 1 && outDegree > 1 && inDegree == outDegree) {
 	 * node.setAttribute("xyz", pos[0] - rowSpacing, pos[1], 0.0); } else continue; }
-	 * 
+	 *
 	 * view.getCamera().resetView(); }
 	 */
 
@@ -1230,8 +1231,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				curr.removeAttribute("layoutLayer");
 			curr.setAttribute("layoutLayer", layer);
 		}
-		
-		HashMap<Integer, Integer> levelCount = new HashMap<Integer, Integer>();
+
+		HashMap<Integer, Integer> levelCount = new HashMap<>();
 		for (Node node : graph) {
 			int layer = node.getAttribute("layoutLayer");
 			if (levelCount.containsKey(layer)) {
@@ -1242,23 +1243,21 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				levelCount.put(layer, 1);
 			}
 		}
-		
+
 		for (Node node : graph) {
 			Collection<Edge> leavingEdgeSet = node.getLeavingEdgeSet();
 			Edge[] childEdge = new Edge[leavingEdgeSet.size()];
 			leavingEdgeSet.toArray(childEdge);
 			int directionResolver = childEdge.length/2;
 			int even = childEdge.length % 2;
-			
+
 			if (even == 0) {
 				for (int i = 0; i < childEdge.length; i++) {
 					Node child = childEdge[i].getOpposite(node);
 					if (i < directionResolver) {
 						child.setAttribute("directionResolver", -1);
-						child.setAttribute("nodeData.direction", -1);
 					} else {
 						child.setAttribute("directionResolver", 1);
-						child.setAttribute("nodeData.direction", 1);
 					}
 				}
 			} else {
@@ -1266,33 +1265,27 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					Node child = childEdge[i].getOpposite(node);
 					if (i > directionResolver) {
 						child.setAttribute("directionResolver", -1);
-						child.setAttribute("nodeData.direction", -1);
 					} else if (i < directionResolver) {
 						child.setAttribute("directionResolver", 1);
-						child.setAttribute("nodeData.direction", 1);
 					}
 				}
 			}
 		}
-		
+
 		//Assign the coordinates to each node
 		double spacingX = 16.0;
 		double spacingY = 3.0;
-//		Iterator<Node> breadthFirstIterator = first.getBreadthFirstIterator();
+		//		Iterator<Node> breadthFirstIterator = first.getBreadthFirstIterator();
 		depthFirstIterator = first.getDepthFirstIterator();
 		first.setAttribute("xyz", spacingX, spacingY * graph.getNodeCount(), 0.0);
 		while (depthFirstIterator.hasNext()) {
 			Node curr = depthFirstIterator.next();
 			Node parent = findParentWithHighestLevel(curr);
-			
+
 			if(parent == null)
 				continue;
 			double[] positionOfParent = Toolkit.nodePosition(parent);
 			int outDegreeOfParent = parent.getOutDegree();
-			
-			curr.setAttribute("nodeData.parent", (String) parent.getAttribute("ui.label"));
-			curr.setAttribute("nodeData.layerOfParent", (int) parent.getAttribute("layoutLayer"));
-			
 			if (outDegreeOfParent == 1) {
 				curr.setAttribute("xyz", positionOfParent[0], positionOfParent[1] - spacingY, 0.0);
 			} else {
@@ -1304,11 +1297,11 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			}
 		}
 	}
-	
+
 	Node findParentWithHighestLevel(Node node) {
 		int inDegreeOfNode = node.getInDegree();
 		Node parent = null;
-		
+
 		Iterator<Edge> nodeIterator = node.getEachEnteringEdge().iterator();
 		if(inDegreeOfNode == 1)
 			parent = nodeIterator.next().getOpposite(node);
@@ -1380,7 +1373,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 		/*
 		 * ViewerPipe fromViewer = viewer.newViewerPipe(); fromViewer.addViewerListener(this); fromViewer.addSink(graph);
-		 * 
+		 *
 		 * // FIXME the Thread.sleep slows down the loop, so that it does not eat up the CPU // but this really should be implemented differently. isn't there
 		 * an event listener // or something we can use, so that we call pump() only when necessary while(true) { try { Thread.sleep(1); } catch
 		 * (InterruptedException e) { } fromViewer.pump(); }
@@ -1442,34 +1435,11 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 	}
 
-	
-	private boolean inPanel(String btName, JPanel panel) {
-		boolean exist = false;
-
-		for (Component c : panel.getComponents()) {
-
-			if (!(c.getName() == null)) {
-				if ((c.getClass().toString().equals("class javax.swing.JButton"))) {
-					JButton bt = (JButton) c;
-					System.out.println("Button's name = " + c.getName());
-					if (bt.getName().equals(btName)) {
-						System.out.println("btName = " + btName + " , component name = " + bt.getName());
-						exist = true;
-						break;
-					}
-				}
-			}
-		}
-
-		return exist;
-	}
-
-	
 	public void colorTheGraph() {
 
 		panelColor.removeAll();
 
-//		boolean inICFG = !this.CFG;
+		//		boolean inICFG = !this.CFG;
 		if (CFG) {
 
 			for (JButton bt : createStmtTypes(stmtTypes)) {
@@ -1482,11 +1452,11 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						dialog.setVisible(true);
 
 						// TODO Send vfNode and Color to Kaarthik
-								ProjectPreferences pref = new ProjectPreferences();
-								pref.updateColorPreferences(bt.getName(),jcc.getColor().getRGB());
-								DataModel dataModel = ServiceUtil.getService(DataModel.class);
-								dataModel.setSelectedMethod(dataModel.getSelectedMethod(), false);
-						
+						ProjectPreferences pref = new ProjectPreferences();
+						pref.updateColorPreferences(bt.getName(),jcc.getColor().getRGB());
+						DataModel dataModel = ServiceUtil.getService(DataModel.class);
+						dataModel.setSelectedMethod(dataModel.getSelectedMethod(), false);
+
 						System.out.println("Statement is : " + bt.getName());
 						System.out.println("Color is : " + jcc.getColor().getRGB());
 
@@ -1498,19 +1468,19 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			if (result == JOptionPane.OK_OPTION) {
 				System.out.println("Color in JOptionPane" + jcc.getColor().getRGB());
 
-		} else {
+			} else {
 
 				System.out.println("Cancelled");
-								}
+			}
 
 		} else {
 			JOptionPane.showMessageDialog(new JPanel(), "Changing color not possible in the ICFG", "Warning", JOptionPane.WARNING_MESSAGE);
 
-			}
-
 		}
 
-	
+	}
+
+
 	@SuppressWarnings("rawtypes")
 	public void setCosAttr(VFUnit selectedVF, Node curr) {
 		JPanel panel = new JPanel(new GridLayout(0, 2));
@@ -1546,7 +1516,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 					units.add(selectedVF);
 					curr.setAttribute("ui.color", jcc.getColor());
 					ServiceUtil.getService(DataModel.class).refreshView();
-					
+
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -1562,20 +1532,20 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	}
 
-	
+
 	public void colorCostumizedNode() {
 		for (Node n : graph.getEachNode()) {
 			n.setAttribute("ui.color", jcc.getColor());
 		}
 	}
 
-	
+
 	private List<JButton> createStmtTypes(List<JButton> stmtTypes) {
-		stmtTypes = new ArrayList<JButton>();
+		stmtTypes = new ArrayList<>();
 
 		// All button
 		JButton btJNopStmt, btJIdentityStmt, btJAssignStmt, btJIfStmt, btJGotoStmt, btJTableSwitchStmt, btJLookupSwitchStmt, btJInvokeStmt, btJReturnStmt,
-				JReturnVoidStmt, btJThrowStmt, btJRetStmt, btJEnterMonitorSmt, btJExitMonitorStmt;
+		JReturnVoidStmt, btJThrowStmt, btJRetStmt, btJEnterMonitorSmt, btJExitMonitorStmt;
 
 		btJNopStmt = new JButton("soot.jimple.internal.JNopStmt");
 		btJNopStmt.setName("soot.jimple.internal.JNopStmt");
@@ -1641,11 +1611,11 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/*
 	 * private boolean inICFG(Graph graph) { boolean inICFG = false;
-	 * 
+	 *
 	 * for (Node n : graph.getEachNode()) { if ((n.getAttribute("nodeData.unitType") == null)) { inICFG = true; break; } }
-	 * 
+	 *
 	 * return inICFG;
-	 * 
+	 *
 	 * }
 	 */
 
