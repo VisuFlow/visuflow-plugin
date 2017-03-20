@@ -26,6 +26,8 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 
+import de.unipaderborn.visuflow.Logger;
+import de.unipaderborn.visuflow.Visuflow;
 import de.unipaderborn.visuflow.debug.handlers.NavigationHandler;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
@@ -36,6 +38,8 @@ import de.unipaderborn.visuflow.model.graph.ICFGStructure;
 import soot.SootMethod;
 
 public class DataModelImpl implements DataModel {
+
+	private Logger logger = Visuflow.getDefault().getLogger();
 
 	private List<VFClass> classList;
 
@@ -201,6 +205,8 @@ public class DataModelImpl implements DataModel {
 		if (vfUnit != null) {
 			vfUnit.setInSet(value);
 			fireUnitChanged(vfUnit);
+		} else {
+			logger.info("Unit not found " + unitFqn);
 		}
 	}
 
@@ -210,12 +216,15 @@ public class DataModelImpl implements DataModel {
 		if (vfUnit != null) {
 			vfUnit.setOutSet(value);
 			fireUnitChanged(vfUnit);
+		} else {
+			logger.info("Unit not found " + unitFqn);
 		}
 	}
 
 	/*
 	 * This is a naive implementation, we might need a faster data structure for this
 	 */
+	@Override
 	public VFUnit getVFUnit(String fqn) {
 		VFUnit result = null;
 		if(classList != null) {
