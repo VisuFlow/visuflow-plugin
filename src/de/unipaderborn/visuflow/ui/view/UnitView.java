@@ -402,13 +402,6 @@ public class UnitView extends ViewPart implements EventHandler {
 				jimpleArrayList.add((VFUnit)unitDetails.get("unit"));
 				NavigationHandler nh = new NavigationHandler();
 				nh.highlightJimpleSource(jimpleArrayList);
-				List<VFNode> cfgArrayList = new ArrayList<>();
-				cfgArrayList.add(new VFNode((VFUnit)unitDetails.get("unit"),0));
-				try {
-					ServiceUtil.getService(DataModel.class).filterGraph(cfgArrayList, false, true, null);
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
 			}
 
 			@Override
