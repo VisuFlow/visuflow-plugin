@@ -568,7 +568,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 				try {
 					DataModel model = ServiceUtil.getService(DataModel.class);
-					model.filterGraph(vfNodes, true, true, null);
+					model.filterGraph(vfNodes, true, true, "filter");
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
@@ -1022,7 +1022,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			for (VFNode vfNode : nodes) {
 				if (node.getAttribute("unit").toString().contentEquals(vfNode.getUnit().toString())) {
 					if (selected) {
-						node.setAttribute("ui.class", uiClassName);
+						node.removeAttribute("ui.color");
+						node.addAttribute("ui.class", uiClassName);
 					}
 					if (!panned && panToNode) {
 						this.panToNode(node.getId());
@@ -1144,8 +1145,9 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			createdNode.setAttribute("nodeData.outSet", nodeOutSet);
 			createdNode.setAttribute("nodeData.line", node.getUnit().getJavaSourceStartLineNumber());
 			createdNode.setAttribute("nodeUnit", node);
+//			createdNode.setAttribute("ui.class", "node");
 			Color nodeColor = new Color(new ProjectPreferences().getColorForNode(node.getUnit().getClass().getName().toString()));
-			createdNode.setAttribute("ui.color", nodeColor);
+			createdNode.addAttribute("ui.color", nodeColor);
 		}
 	}
 
