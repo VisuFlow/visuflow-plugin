@@ -123,7 +123,7 @@ public class JavaBreakpointListener implements IJavaBreakpointListener, Visuflow
 		VFUnit vfUnit = model.getVFUnit(unitFqn);
 		if(vfUnit != null) {
 			VFNode node = new VFNode(vfUnit, 0);
-			model.filterGraph(Collections.singletonList(node), true, true, "filter");
+			model.filterGraph(Collections.singletonList(node), true, true, "debugHighlight");
 		}
 	}
 

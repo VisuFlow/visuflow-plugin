@@ -20,6 +20,10 @@ node.filter {
 	fill-color: yellow;
 }
 
+node.debugHighlight {
+	fill-color: #c6dbae;
+}
+
 node.customAttribute {
 	fill-color: red;
 }

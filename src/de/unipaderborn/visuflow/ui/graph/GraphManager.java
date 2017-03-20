@@ -4,15 +4,16 @@ import static de.unipaderborn.visuflow.model.DataModel.EA_TOPIC_DATA_FILTER_GRAP
 import static de.unipaderborn.visuflow.model.DataModel.EA_TOPIC_DATA_MODEL_CHANGED;
 import static de.unipaderborn.visuflow.model.DataModel.EA_TOPIC_DATA_SELECTION;
 import static de.unipaderborn.visuflow.model.DataModel.EA_TOPIC_DATA_UNIT_CHANGED;
-import de.unipaderborn.visuflow.ui.view.filter.ReturnPathFilter;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.Label;
 import java.awt.Point;
 import java.awt.RenderingHints;
@@ -35,6 +36,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
@@ -56,6 +58,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -89,6 +92,7 @@ import de.unipaderborn.visuflow.model.VFNode;
 import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.model.graph.ControlFlowGraph;
 import de.unipaderborn.visuflow.model.graph.ICFGStructure;
+import de.unipaderborn.visuflow.ui.view.filter.ReturnPathFilter;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 import scala.collection.mutable.HashSet;
 import soot.jimple.InvokeExpr;
@@ -228,13 +232,11 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		createPanningButtons();
 		createPopUpMenu();
 		createViewListeners();
-		createToggleLayoutButton();
 		createSearchText();
 		createHeaderBar();
 		createSettingsBar();
 		createPanel();
 		createAppletContainer();
-		// colorNode();
 	}
 
 	private void panUp() {
@@ -591,7 +593,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		settingsBar.add(zoomOutButton);
 		settingsBar.add(showICFGButton);
 		settingsBar.add(viewCenterButton);
-		settingsBar.add(toggleLayout);
 		settingsBar.add(btColor);
 		settingsBar.add(panLeftButton);
 		settingsBar.add(panRightButton);
@@ -952,36 +953,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		colorNode();
 	}
 
-	private void createToggleLayoutButton() {
-		toggleLayout = new JButton();
-		toggleAutoLayout();
-		toggleLayout.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				toggleAutoLayout();
-			}
-		});
-	}
-
-	private void toggleAutoLayout() {
-		if (!autoLayoutEnabled) {
-			if (viewer != null && graphLayout != null) {
-				// viewer.enableAutoLayout(graphLayout);
-				experimentalLayout();
-			} else if (viewer != null) {
-				// viewer.enableAutoLayout();
-				experimentalLayout();
-			}
-			autoLayoutEnabled = true;
-			toggleLayout.setText("Disable Layouting");
-		} else {
-			viewer.disableAutoLayout();
-			autoLayoutEnabled = false;
-			toggleLayout.setText("Enable Layouting");
-		}
-	}
-
 	private void colorNode() {
 		jcc = new JColorChooser(Color.RED);
 		jcc.getSelectionModel().addChangeListener(new ChangeListener() {
@@ -1141,9 +1112,23 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			createdNode.setAttribute("nodeData.inSet", nodeInSet);
 			createdNode.setAttribute("nodeData.outSet", nodeOutSet);
-			createdNode.setAttribute("nodeData.line", node.getUnit().getJavaSourceStartLineNumber());
+
+			Map<String, String> customAttributes = node.getVFUnit().getHmCustAttr();
+			String attributeData = "";
+			if(!customAttributes.isEmpty())
+			{
+				Iterator<Entry<String, String>> customAttributeIterator = customAttributes.entrySet().iterator();
+				while(customAttributeIterator.hasNext())
+				{
+					Entry<String, String> curr = customAttributeIterator.next();
+					//					 createdNode.setAttribute(arg0, arg1);
+					attributeData += curr.getKey() + " : " + curr.getValue();
+					attributeData += "<br />";
+				}
+				createdNode.setAttribute("nodeData.attributes", attributeData);
+			}
+
 			createdNode.setAttribute("nodeUnit", node);
-//			createdNode.setAttribute("ui.class", "node");
 			Color nodeColor = new Color(new ProjectPreferences().getColorForNode(node.getUnit().getClass().getName().toString()));
 			createdNode.addAttribute("ui.color", nodeColor);
 		}

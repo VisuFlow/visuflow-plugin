@@ -128,8 +128,8 @@ public class DataModelImpl implements DataModel {
 
 	@Override
 	public void setSelectedMethod(VFMethod selectedMethod, boolean panToNode) {
-		if(this.selectedMethod != null && this.selectedMethod.toString().contentEquals(selectedMethod.toString()))
-			return;
+//		if(this.selectedMethod != null && this.selectedMethod.toString().contentEquals(selectedMethod.toString()))
+//			return;
 		this.selectedMethod = selectedMethod;
 		this.populateUnits();
 		this.populateEdges();
