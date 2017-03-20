@@ -45,7 +45,7 @@ public class Attribute extends TitleAreaDialog {
 		container.setLayout(layout);
 
 		Label lblAttribute = new Label(container, SWT.NONE);
-		lblAttribute.setText("Ananlysis:");
+		lblAttribute.setText("Attribute:");
 
 		tfAnalysis = new Text(container, SWT.BORDER);
 		tfAnalysis.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -64,7 +64,7 @@ public class Attribute extends TitleAreaDialog {
 		GridData gd_lblNewLabel = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_lblNewLabel.horizontalIndent = 1;
 		lAttr.setLayoutData(gd_lblNewLabel);
-		lAttr.setText("Attribute:");
+		lAttr.setText("Attribute value:");
 
 		tfAttr = new Text(container, SWT.BORDER | SWT.BORDER);
 		tfAttr.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -102,7 +102,7 @@ public class Attribute extends TitleAreaDialog {
 
 		// setTitle("This wizard links the Target Java project with
 
-		setMessage("Please enter the analysis and the attribute ", IMessageProvider.INFORMATION);
+		setMessage("Please enter the attribute and its value. ", IMessageProvider.INFORMATION);
 
 	}
 

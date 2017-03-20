@@ -3,9 +3,11 @@ package de.unipaderborn.visuflow.model.impl;
 import java.io.File;
 import java.util.Collections;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -167,6 +169,8 @@ public class DataModelImpl implements DataModel {
 	public void setEventAdmin(EventAdmin eventAdmin) {
 		this.eventAdmin = eventAdmin;
 	}
+	
+	
 
 	@Override
 	public ICFGStructure getIcfg() {
@@ -330,5 +334,13 @@ public class DataModelImpl implements DataModel {
 		} catch (CoreException e1) {
 			e1.printStackTrace();
 		}
+	}
+
+	@Override
+	public void refreshView() {
+		Event refreshView = new Event(DataModel.EA_TOPIC_DATA_VIEW_REFRESH, new HashMap<String,String>());
+		System.out.println("triggered refresh");
+		eventAdmin.postEvent(refreshView);
+		
 	}
 }
