@@ -35,6 +35,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
@@ -1143,9 +1144,23 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			createdNode.setAttribute("nodeData.inSet", nodeInSet);
 			createdNode.setAttribute("nodeData.outSet", nodeOutSet);
-			createdNode.setAttribute("nodeData.line", node.getUnit().getJavaSourceStartLineNumber());
+			
+			Map<String, String> customAttributes = node.getVFUnit().getHmCustAttr();
+			String attributeData = "";
+			if(!customAttributes.isEmpty())
+			{
+				 Iterator<Entry<String, String>> customAttributeIterator = customAttributes.entrySet().iterator();
+				 while(customAttributeIterator.hasNext())
+				 {
+					 Entry<String, String> curr = customAttributeIterator.next();
+//					 createdNode.setAttribute(arg0, arg1);
+					 attributeData += curr.getKey() + " : " + curr.getValue();
+					 attributeData += "<br />";
+				 }
+				createdNode.setAttribute("nodeData.attributes", attributeData);
+			}
+			
 			createdNode.setAttribute("nodeUnit", node);
-//			createdNode.setAttribute("ui.class", "node");
 			Color nodeColor = new Color(new ProjectPreferences().getColorForNode(node.getUnit().getClass().getName().toString()));
 			createdNode.addAttribute("ui.color", nodeColor);
 		}
