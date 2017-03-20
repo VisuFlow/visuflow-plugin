@@ -41,6 +41,7 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 	class JimpleDeltaVisitor implements IResourceDeltaVisitor {
 		public boolean visit(IResourceDelta delta) throws CoreException {
 			IResource resource = delta.getResource();
+			if (resource.getFileExtension() != null){
 			switch (delta.getKind()) {
 			case IResourceDelta.ADDED:
 				if(resource.getFileExtension().equals("java")){
@@ -55,11 +56,12 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 				}
 				break;
 			case IResourceDelta.CHANGED:
-				if(resource.getFileExtension().equals("java")){
+				if( resource.getFileExtension().equals("java")){
 					executeBuild = true;
 					return false;
 				}
 				break;
+			}
 			}
 			return true;
 		}
