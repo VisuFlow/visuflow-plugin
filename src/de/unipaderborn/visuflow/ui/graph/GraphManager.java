@@ -1075,6 +1075,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			createdNode.setAttribute("ui.label", methodName);
 			createdNode.setAttribute("nodeData.methodName", escapedMethodName);
 			createdNode.setAttribute("nodeData.methodSignature", escapedMethodSignature);
+			createdNode.setAttribute("nodeData.methodBody", src.getBody().toString().replaceAll(";", ";<br>"));
 			createdNode.setAttribute("nodeData.unescapedMethodName", methodName);
 			createdNode.setAttribute("nodeMethod", src);
 		}
