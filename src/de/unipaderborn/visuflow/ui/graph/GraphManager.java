@@ -601,8 +601,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		settingsBar.add(searchText);
 	}
 
-	private void createHeaderBar()
-	{
+	private void createHeaderBar() {
 		this.headerBar = new JToolBar("Header");
 		this.headerBar.setFloatable(false);
 		this.header = new JLabel("ICFG");
@@ -613,7 +612,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		JFrame temp = new JFrame();
 		temp.setLayout(new BorderLayout());
 		panel = temp.getContentPane();
-		panel.add(headerBar,BorderLayout.PAGE_START);
+		panel.add(headerBar, BorderLayout.PAGE_START);
 		panel.add(view);
 		panel.add(settingsBar, BorderLayout.PAGE_END);
 	}
@@ -1097,8 +1096,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			createGraphNode(dest);
 			createGraphEdge(src, dest);
 		}
-		if(interGraph.listEdges.size() == 1)
-		{
+		if (interGraph.listEdges.size() == 1) {
 			VFNode node = interGraph.listNodes.get(0);
 			createGraphNode(node);
 		}
@@ -1150,8 +1148,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	}
 
 	@SuppressWarnings("unused")
-	private void getNodesToCollapse(Node n)
-	{
+	private void getNodesToCollapse(Node n) {
 		boolean present = false;
 		scala.collection.Iterator<Node> setIterator = setOfNode.iterator();
 		while (setIterator.hasNext()) {
@@ -1183,64 +1180,25 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 	}
 
-	/*private void experimentalLayoutOld()
-		if (!CFG) {
-			viewer.enableAutoLayout(new SpringBox());
-			view.getCamera().resetView();
-			return;
-		}
-		viewer.disableAutoLayout();
-
-		double rowSpacing = 3.0;
-		double columnSpacing = 3.0;
-		Iterator<Node> nodeIterator = graph.getNodeIterator();
-		int totalNodeCount = graph.getNodeCount();
-		int currNodeIndex = 0;
-		while (nodeIterator.hasNext()) {
-			Node curr = nodeIterator.next();
-			if (curr.hasAttribute("layout.visited")) {
-				continue;
-			}
-			int currEdgeCount = curr.getOutDegree();
-			int currEdgeIndex = 0;
-			if (currEdgeCount > 1) {
-				Iterator<Edge> currEdgeIterator = curr.getEdgeIterator();
-				curr.setAttribute("xyz", 0.0, ((totalNodeCount * rowSpacing) - currNodeIndex), 0.0);
-				curr.setAttribute("layout.visited");
-				currNodeIndex++;
-				while (currEdgeIterator.hasNext()) {
-					Node temp = currEdgeIterator.next().getOpposite(curr);
-					temp.setAttribute("xyz", ((columnSpacing - currEdgeIndex) * currEdgeCount), ((totalNodeCount * columnSpacing) - currNodeIndex), 0.0);
-					curr.setAttribute("layout.visited");
-					currEdgeIndex++;
-				}
-				currNodeIndex++;
-			}
-			curr.setAttribute("xyz", 0.0, ((totalNodeCount * rowSpacing) - currNodeIndex), 0.0);
-			curr.setAttribute("layout.visited");
-			currNodeIndex++;
-		}
-
-		for (Node node : graph) {
-			double[] pos = Toolkit.nodePosition(graph, node.getId());
-			int inDegree = node.getInDegree();
-			int outDegree = node.getOutDegree();
-			if (inDegree == 0)
-				continue;
-			if (inDegree > outDegree) {
-				node.setAttribute("xyz", pos[0] - rowSpacing, pos[1], 0.0);
-			}
-			if (outDegree > inDegree) {
-				node.setAttribute("xyz", pos[0] + rowSpacing, pos[1], 0.0);
-			}
-			if (inDegree > 1 && outDegree > 1 && inDegree == outDegree) {
-				node.setAttribute("xyz", pos[0] - rowSpacing, pos[1], 0.0);
-			} else
-				continue;
-		}
-
-		view.getCamera().resetView();
-	}*/
+	/*
+	 * private void experimentalLayoutOld() if (!CFG) { viewer.enableAutoLayout(new SpringBox()); view.getCamera().resetView(); return; }
+	 * viewer.disableAutoLayout();
+	 * 
+	 * double rowSpacing = 3.0; double columnSpacing = 3.0; Iterator<Node> nodeIterator = graph.getNodeIterator(); int totalNodeCount = graph.getNodeCount();
+	 * int currNodeIndex = 0; while (nodeIterator.hasNext()) { Node curr = nodeIterator.next(); if (curr.hasAttribute("layout.visited")) { continue; } int
+	 * currEdgeCount = curr.getOutDegree(); int currEdgeIndex = 0; if (currEdgeCount > 1) { Iterator<Edge> currEdgeIterator = curr.getEdgeIterator();
+	 * curr.setAttribute("xyz", 0.0, ((totalNodeCount * rowSpacing) - currNodeIndex), 0.0); curr.setAttribute("layout.visited"); currNodeIndex++; while
+	 * (currEdgeIterator.hasNext()) { Node temp = currEdgeIterator.next().getOpposite(curr); temp.setAttribute("xyz", ((columnSpacing - currEdgeIndex) *
+	 * currEdgeCount), ((totalNodeCount * columnSpacing) - currNodeIndex), 0.0); curr.setAttribute("layout.visited"); currEdgeIndex++; } currNodeIndex++; }
+	 * curr.setAttribute("xyz", 0.0, ((totalNodeCount * rowSpacing) - currNodeIndex), 0.0); curr.setAttribute("layout.visited"); currNodeIndex++; }
+	 * 
+	 * for (Node node : graph) { double[] pos = Toolkit.nodePosition(graph, node.getId()); int inDegree = node.getInDegree(); int outDegree =
+	 * node.getOutDegree(); if (inDegree == 0) continue; if (inDegree > outDegree) { node.setAttribute("xyz", pos[0] - rowSpacing, pos[1], 0.0); } if (outDegree
+	 * > inDegree) { node.setAttribute("xyz", pos[0] + rowSpacing, pos[1], 0.0); } if (inDegree > 1 && outDegree > 1 && inDegree == outDegree) {
+	 * node.setAttribute("xyz", pos[0] - rowSpacing, pos[1], 0.0); } else continue; }
+	 * 
+	 * view.getCamera().resetView(); }
+	 */
 
 	private void experimentalLayout() {
 		if (!CFG) {
@@ -1254,148 +1212,123 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		Node first = nodeIterator.next();
 		Iterator<Node> depthFirstIterator = first.getDepthFirstIterator();
 
-		//Assign the layer to each node
+		// Assign the layer to each node
 		first.setAttribute("layoutLayer", 0);
-		while(depthFirstIterator.hasNext())
-		{
+		while (depthFirstIterator.hasNext()) {
 			Node curr = depthFirstIterator.next();
 			int inDegree = curr.getInDegree();
 			int layer = 1;
-			if(inDegree == 1)
-			{
+			if (inDegree == 1) {
 				Iterable<Edge> edges = curr.getEachEnteringEdge();
 				for (Edge edge : edges) {
 					layer = edge.getOpposite(curr).getAttribute("layoutLayer");
 					layer++;
 				}
 			}
-			if(inDegree > 1)
-			{
+			if (inDegree > 1) {
 				Iterable<Edge> edges = curr.getEachEnteringEdge();
 				int parentLayer = layer;
 				for (Edge edge : edges) {
 					Node parent = edge.getOpposite(curr);
-					if(curr.hasAttribute("layoutLayer"))
-					{
+					if (curr.hasAttribute("layoutLayer")) {
 						int currLayer = parent.getAttribute("layoutLayer");
-						if(currLayer > parentLayer)
+						if (currLayer > parentLayer)
 							parentLayer = currLayer;
 					}
 				}
 				layer = parentLayer++;
 			}
-			if(curr.hasAttribute("layoutLayer"))
+			if (curr.hasAttribute("layoutLayer"))
 				curr.removeAttribute("layoutLayer");
 			curr.setAttribute("layoutLayer", layer);
 		}
-		
+
 		HashMap<Integer, Integer> levelCount = new HashMap<Integer, Integer>();
 		for (Node node : graph) {
 			int layer = node.getAttribute("layoutLayer");
-			if(levelCount.containsKey(layer))
-			{
+			if (levelCount.containsKey(layer)) {
 				int currCount = levelCount.get(layer);
 				levelCount.remove(layer);
 				levelCount.put(layer, currCount++);
-			}
-			else
-			{
+			} else {
 				levelCount.put(layer, 1);
 			}
 		}
-		
+
 		for (Node node : graph) {
 			Collection<Edge> leavingEdgeSet = node.getLeavingEdgeSet();
 			Edge[] childEdge = new Edge[leavingEdgeSet.size()];
 			leavingEdgeSet.toArray(childEdge);
-			int directionResolver = childEdge.length/2;
+			int directionResolver = childEdge.length / 2;
 			int even = childEdge.length % 2;
-			
-			if(even == 0)
-			{
-				for(int i = 0; i < childEdge.length; i++)
-				{
+
+			if (even == 0) {
+				for (int i = 0; i < childEdge.length; i++) {
 					Node child = childEdge[i].getOpposite(node);
-					if(i < directionResolver)
-					{
+					if (i < directionResolver) {
 						child.setAttribute("directionResolver", -1);
 						child.setAttribute("nodeData.direction", -1);
-					}
-					else
-					{
+					} else {
 						child.setAttribute("directionResolver", 1);
 						child.setAttribute("nodeData.direction", 1);
 					}
 				}
-			}
-			else
-			{
-				for(int i = 0; i < childEdge.length; i++)
-				{
+			} else {
+				for (int i = 0; i < childEdge.length; i++) {
 					Node child = childEdge[i].getOpposite(node);
-					if(i > directionResolver)
-					{
+					if (i > directionResolver) {
 						child.setAttribute("directionResolver", -1);
 						child.setAttribute("nodeData.direction", -1);
-					}
-					else if(i < directionResolver)
-					{
+					} else if (i < directionResolver) {
 						child.setAttribute("directionResolver", 1);
 						child.setAttribute("nodeData.direction", 1);
 					}
 				}
 			}
 		}
-		
-		//Assign the coordinates to each node
+
+		// Assign the coordinates to each node
 		double spacingX = 16.0;
 		double spacingY = 3.0;
-//		Iterator<Node> breadthFirstIterator = first.getBreadthFirstIterator();
+		// Iterator<Node> breadthFirstIterator = first.getBreadthFirstIterator();
 		depthFirstIterator = first.getDepthFirstIterator();
 		first.setAttribute("xyz", spacingX, spacingY * graph.getNodeCount(), 0.0);
-		while(depthFirstIterator.hasNext())
-		{
+		while (depthFirstIterator.hasNext()) {
 			Node curr = depthFirstIterator.next();
 			Node parent = findParentWithHighestLevel(curr);
-			
-			if(parent == null)
+
+			if (parent == null)
 				continue;
 			double[] positionOfParent = Toolkit.nodePosition(parent);
 			int outDegreeOfParent = parent.getOutDegree();
-			
+
 			curr.setAttribute("nodeData.parent", (String) parent.getAttribute("ui.label"));
 			curr.setAttribute("nodeData.layerOfParent", (int) parent.getAttribute("layoutLayer"));
-			
-			if(outDegreeOfParent == 1)
-			{
+
+			if (outDegreeOfParent == 1) {
 				curr.setAttribute("xyz", positionOfParent[0], positionOfParent[1] - spacingY, 0.0);
-			}
-			else
-			{
-				if(curr.hasAttribute("directionResolver"))
-					curr.setAttribute("xyz", positionOfParent[0] + ((int) curr.getAttribute("directionResolver") * spacingX), positionOfParent[1] - spacingY, 0.0);
+			} else {
+				if (curr.hasAttribute("directionResolver"))
+					curr.setAttribute("xyz", positionOfParent[0] + ((int) curr.getAttribute("directionResolver") * spacingX), positionOfParent[1] - spacingY,
+							0.0);
 				else
 					curr.setAttribute("xyz", positionOfParent[0], positionOfParent[1] - spacingY, 0.0);
 			}
 		}
 	}
-	
-	Node findParentWithHighestLevel(Node node)
-	{
+
+	Node findParentWithHighestLevel(Node node) {
 		int inDegreeOfNode = node.getInDegree();
 		Node parent = null;
-		
+
 		Iterator<Edge> nodeIterator = node.getEachEnteringEdge().iterator();
-		if(inDegreeOfNode == 1)
+		if (inDegreeOfNode == 1)
 			parent = nodeIterator.next().getOpposite(node);
-		else if(inDegreeOfNode > 1)
-		{
+		else if (inDegreeOfNode > 1) {
 			parent = nodeIterator.next().getOpposite(node);
-			while(nodeIterator.hasNext())
-			{
+			while (nodeIterator.hasNext()) {
 				Node temp = nodeIterator.next().getOpposite(node);
-				if(temp.hasAttribute("layoutLayer") && (int) temp.getAttribute("layoutLayer") > (int) parent.getAttribute("layoutLayer"))
-				{
+				if (temp.hasAttribute("layoutLayer") && (int) temp.getAttribute("layoutLayer") > (int) parent.getAttribute("layoutLayer")) {
 					parent = temp;
 				}
 			}
@@ -1498,8 +1431,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			}
 		}
 		if (event.getTopic().contentEquals(DataModel.EA_TOPIC_DATA_FILTER_GRAPH)) {
-			filterGraphNodes((List<VFNode>) event.getProperty("nodesToFilter"), (boolean) event.getProperty("selection"), (boolean) event.getProperty("panToNode"),
-					(String) event.getProperty("uiClassName"));
+			filterGraphNodes((List<VFNode>) event.getProperty("nodesToFilter"), (boolean) event.getProperty("selection"),
+					(boolean) event.getProperty("panToNode"), (String) event.getProperty("uiClassName"));
 		}
 		if (event.getTopic().equals(DataModel.EA_TOPIC_DATA_UNIT_CHANGED)) {
 			VFUnit unit = (VFUnit) event.getProperty("unit");
@@ -1521,7 +1454,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 	}
 
-	
 	private boolean inPanel(String btName, JPanel panel) {
 		boolean exist = false;
 
@@ -1543,12 +1475,11 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		return exist;
 	}
 
-	
 	public void colorTheGraph() {
 
 		panelColor.removeAll();
 
-//		boolean inICFG = !this.CFG;
+		// boolean inICFG = !this.CFG;
 		if (CFG) {
 
 			for (JButton bt : createStmtTypes(stmtTypes)) {
@@ -1561,9 +1492,9 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						dialog.setVisible(true);
 
 						// TODO Send vfNode and Color to Kaarthik
-								ProjectPreferences pref = new ProjectPreferences();
-								pref.updateColorPreferences(bt.getName(),jcc.getColor().getRGB());
-						
+						ProjectPreferences pref = new ProjectPreferences();
+						pref.updateColorPreferences(bt.getName(), jcc.getColor().getRGB());
+
 						System.out.println("Statement is : " + bt.getName());
 						System.out.println("Color is : " + jcc.getColor().getRGB());
 
@@ -1571,127 +1502,22 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				});
 			}
 
-		} else {
-			for (Node n : graph.getEachNode()) {
-				if (!(n.getAttribute("nodeData.unescapedMethodName") == null)) {
-					JLabel l = new JLabel("Change the color of this unit");
-					JButton bt = new JButton(n.getAttribute("nodeData.unescapedMethodName").toString());
-					bt.setName(n.getAttribute("nodeData.unescapedMethodName").toString());
+			int result = JOptionPane.showConfirmDialog(null, panelColor, "Test", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+			if (result == JOptionPane.OK_OPTION) {
+				System.out.println("Color in JOptionPane" + jcc.getColor().getRGB());
 
-					bt.addActionListener(new ActionListener() {
+			} else {
 
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							dialog.setVisible(true);
-							System.out.println("Button's name is : " + bt.getName());
-							System.out.println("Button's name is...");
-
-							for (Node n : graph.getEachNode()) {
-								if (n.getAttribute("nodeData.unescapedMethodName").toString().equals(bt.getName())) {
-									n.setAttribute("ui.color", jcc.getColor());
-									System.out.println(jcc.getColor());
-								}
-
-							}
-						}
-
-					});
-
-					if (!(inPanel(bt.getName(), panelColor))) {
-						panelColor.add(l);
-						panelColor.add(bt);
-					}
-
-				}
-
+				System.out.println("Cancelled");
 			}
 
-		}
-		// for (Node n : graph.getEachNode()) {
-		// if (!(n.getAttribute("nodeData.unitType") == null)) {
-		//
-		//
-		//
-		//
-		//
-		//
-		// // JLabel l = new JLabel("Change the color of this unit");
-		// // JButton bt = new JButton(n.getAttribute("nodeData.unitType").toString());
-		// // // bt.setName(n.getAttribute("nodeData.methodName").toString());
-		// // bt.setName(n.getAttribute("nodeData.unitType").toString());
-		// //
-		// // bt.addActionListener(new ActionListener() {
-		// //
-		// // @Override
-		// // public void actionPerformed(ActionEvent e) {
-		// // dialog.setVisible(true);
-		// // System.out.println("Button's name is : " + bt.getName());
-		// // System.out.println("Button's name is..." );
-		// // for(Node n: graph.getEachNode()){
-		// // // if(n.getAttribute("nodeData.methodName").toString().equals(bt.getName())){
-		// // // if(n.getAttribute("ui.label").toString().equals(bt.getName())){
-		// // if(n.getAttribute("nodeData.unitType").toString().equals(bt.getName())){
-		// // n.setAttribute("ui.color", jcc.getColor());
-		// // // n.setAttribute("ui.text-size", "20%");
-		// // System.out.println(jcc.getColor());
-		// // }
-		// //
-		// // }
-		// //
-		// //
-		// // }
-		// // });
-		// //
-		// // if(!(inPanel(bt.getName(), panelColor))){
-		// // panelColor.add(l);
-		// // panelColor.add(bt);
-		// // }
-		//
-		// }
-		//
-		// if (!(n.getAttribute("nodeData.unescapedMethodName") == null)) {
-		// JLabel l = new JLabel("Change the color of this unit");
-		// JButton bt = new JButton(n.getAttribute("nodeData.unescapedMethodName").toString());
-		// bt.setName(n.getAttribute("nodeData.unescapedMethodName").toString());
-		// bt.addActionListener(new ActionListener() {
-		//
-		// @Override
-		// public void actionPerformed(ActionEvent e) {
-		// dialog.setVisible(true);
-		// System.out.println("Button's name is : " + bt.getName());
-		// System.out.println("Button's name is...");
-		// for (Node n : graph.getEachNode()) {
-		// // if(n.getAttribute("nodeData.methodName").toString().equals(bt.getName())){
-		// // if(n.getAttribute("ui.label").toString().equals(bt.getName())){
-		// if (n.getAttribute("nodeData.unescapedMethodName").toString().equals(bt.getName())) {
-		// n.setAttribute("ui.color", jcc.getColor());
-		// System.out.println(jcc.getColor());
-		// }
-		//
-		// }
-		//
-		// }
-		// });
-		//
-		// if (!(inPanel(bt.getName(), panelColor))) {
-		// panelColor.add(l);
-		// panelColor.add(bt);
-		// }
-		//
-		// }
-		//
-		// }
-
-		int result = JOptionPane.showConfirmDialog(null, panelColor, "Test", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-		if (result == JOptionPane.OK_OPTION) {
-			System.out.println("Color in JOptionPane"+ jcc.getColor().getRGB());
-
 		} else {
-			System.out.println("Cancelled");
+			JOptionPane.showMessageDialog(new JPanel(), "Changing color not possible in the ICFG", "Warning", JOptionPane.WARNING_MESSAGE);
+
 		}
+
 	}
 
-	
 	@SuppressWarnings("rawtypes")
 	public void setCosAttr(VFUnit selectedVF, Node curr) {
 		JPanel panel = new JPanel(new GridLayout(0, 2));
@@ -1742,14 +1568,12 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	}
 
-	
 	public void colorCostumizedNode() {
 		for (Node n : graph.getEachNode()) {
 			n.setAttribute("ui.color", jcc.getColor());
 		}
 	}
 
-	
 	private List<JButton> createStmtTypes(List<JButton> stmtTypes) {
 		stmtTypes = new ArrayList<JButton>();
 
@@ -1819,18 +1643,14 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	}
 
-	/*private boolean inICFG(Graph graph) {
-		boolean inICFG = false;
-
-		for (Node n : graph.getEachNode()) {
-			if ((n.getAttribute("nodeData.unitType") == null)) {
-				inICFG = true;
-				break;
-			}
-		}
-
-		return inICFG;
-
-	}*/
+	/*
+	 * private boolean inICFG(Graph graph) { boolean inICFG = false;
+	 * 
+	 * for (Node n : graph.getEachNode()) { if ((n.getAttribute("nodeData.unitType") == null)) { inICFG = true; break; } }
+	 * 
+	 * return inICFG;
+	 * 
+	 * }
+	 */
 
 }
