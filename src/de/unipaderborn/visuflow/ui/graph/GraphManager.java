@@ -188,7 +188,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	private void registerEventHandler() {
 		String[] topics = new String[] { EA_TOPIC_DATA_FILTER_GRAPH, EA_TOPIC_DATA_SELECTION, EA_TOPIC_DATA_MODEL_CHANGED, EA_TOPIC_DATA_UNIT_CHANGED,
-				"GraphReady" };
+		"GraphReady" };
 		Hashtable<String, Object> properties = new Hashtable<>();
 		properties.put(EventConstants.EVENT_TOPIC, topics);
 		ServiceUtil.registerService(EventHandler.class, this, properties);
@@ -229,13 +229,11 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		createPanningButtons();
 		createPopUpMenu();
 		createViewListeners();
-		createToggleLayoutButton();
 		createSearchText();
 		createHeaderBar();
 		createSettingsBar();
 		createPanel();
 		createAppletContainer();
-		// colorNode();
 	}
 
 	private void panUp() {
@@ -592,7 +590,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		settingsBar.add(zoomOutButton);
 		settingsBar.add(showICFGButton);
 		settingsBar.add(viewCenterButton);
-		settingsBar.add(toggleLayout);
 		settingsBar.add(btColor);
 		settingsBar.add(panLeftButton);
 		settingsBar.add(panRightButton);
@@ -954,36 +951,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		colorNode();
 	}
 
-	private void createToggleLayoutButton() {
-		toggleLayout = new JButton();
-		toggleAutoLayout();
-		toggleLayout.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				toggleAutoLayout();
-			}
-		});
-	}
-
-	private void toggleAutoLayout() {
-		if (!autoLayoutEnabled) {
-			if (viewer != null && graphLayout != null) {
-				// viewer.enableAutoLayout(graphLayout);
-				experimentalLayout();
-			} else if (viewer != null) {
-				// viewer.enableAutoLayout();
-				experimentalLayout();
-			}
-			autoLayoutEnabled = true;
-			toggleLayout.setText("Disable Layouting");
-		} else {
-			viewer.disableAutoLayout();
-			autoLayoutEnabled = false;
-			toggleLayout.setText("Enable Layouting");
-		}
-	}
-
 	private void colorNode() {
 		jcc = new JColorChooser(Color.RED);
 		jcc.getSelectionModel().addChangeListener(new ChangeListener() {
@@ -1144,22 +1111,22 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			createdNode.setAttribute("nodeData.inSet", nodeInSet);
 			createdNode.setAttribute("nodeData.outSet", nodeOutSet);
-			
+
 			Map<String, String> customAttributes = node.getVFUnit().getHmCustAttr();
 			String attributeData = "";
 			if(!customAttributes.isEmpty())
 			{
-				 Iterator<Entry<String, String>> customAttributeIterator = customAttributes.entrySet().iterator();
-				 while(customAttributeIterator.hasNext())
-				 {
-					 Entry<String, String> curr = customAttributeIterator.next();
-//					 createdNode.setAttribute(arg0, arg1);
-					 attributeData += curr.getKey() + " : " + curr.getValue();
-					 attributeData += "<br />";
-				 }
+				Iterator<Entry<String, String>> customAttributeIterator = customAttributes.entrySet().iterator();
+				while(customAttributeIterator.hasNext())
+				{
+					Entry<String, String> curr = customAttributeIterator.next();
+					//					 createdNode.setAttribute(arg0, arg1);
+					attributeData += curr.getKey() + " : " + curr.getValue();
+					attributeData += "<br />";
+				}
 				createdNode.setAttribute("nodeData.attributes", attributeData);
 			}
-			
+
 			createdNode.setAttribute("nodeUnit", node);
 			Color nodeColor = new Color(new ProjectPreferences().getColorForNode(node.getUnit().getClass().getName().toString()));
 			createdNode.addAttribute("ui.color", nodeColor);
@@ -1305,7 +1272,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				curr.removeAttribute("layoutLayer");
 			curr.setAttribute("layoutLayer", layer);
 		}
-		
+
 		HashMap<Integer, Integer> levelCount = new HashMap<Integer, Integer>();
 		for (Node node : graph) {
 			int layer = node.getAttribute("layoutLayer");
@@ -1320,14 +1287,14 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				levelCount.put(layer, 1);
 			}
 		}
-		
+
 		for (Node node : graph) {
 			Collection<Edge> leavingEdgeSet = node.getLeavingEdgeSet();
 			Edge[] childEdge = new Edge[leavingEdgeSet.size()];
 			leavingEdgeSet.toArray(childEdge);
 			int directionResolver = childEdge.length/2;
 			int even = childEdge.length % 2;
-			
+
 			if(even == 0)
 			{
 				for(int i = 0; i < childEdge.length; i++)
@@ -1363,26 +1330,26 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				}
 			}
 		}
-		
+
 		//Assign the coordinates to each node
 		double spacingX = 16.0;
 		double spacingY = 3.0;
-//		Iterator<Node> breadthFirstIterator = first.getBreadthFirstIterator();
+		//		Iterator<Node> breadthFirstIterator = first.getBreadthFirstIterator();
 		depthFirstIterator = first.getDepthFirstIterator();
 		first.setAttribute("xyz", spacingX, spacingY * graph.getNodeCount(), 0.0);
 		while(depthFirstIterator.hasNext())
 		{
 			Node curr = depthFirstIterator.next();
 			Node parent = findParentWithHighestLevel(curr);
-			
+
 			if(parent == null)
 				continue;
 			double[] positionOfParent = Toolkit.nodePosition(parent);
 			int outDegreeOfParent = parent.getOutDegree();
-			
+
 			curr.setAttribute("nodeData.parent", (String) parent.getAttribute("ui.label"));
 			curr.setAttribute("nodeData.layerOfParent", (int) parent.getAttribute("layoutLayer"));
-			
+
 			if(outDegreeOfParent == 1)
 			{
 				curr.setAttribute("xyz", positionOfParent[0], positionOfParent[1] - spacingY, 0.0);
@@ -1396,12 +1363,12 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			}
 		}
 	}
-	
+
 	Node findParentWithHighestLevel(Node node)
 	{
 		int inDegreeOfNode = node.getInDegree();
 		Node parent = null;
-		
+
 		Iterator<Edge> nodeIterator = node.getEachEnteringEdge().iterator();
 		if(inDegreeOfNode == 1)
 			parent = nodeIterator.next().getOpposite(node);
@@ -1538,7 +1505,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 	}
 
-	
+
 	private boolean inPanel(String btName, JPanel panel) {
 		boolean exist = false;
 
@@ -1560,12 +1527,12 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		return exist;
 	}
 
-	
+
 	public void colorTheGraph() {
 
 		panelColor.removeAll();
 
-//		boolean inICFG = !this.CFG;
+		//		boolean inICFG = !this.CFG;
 		if (CFG) {
 
 			for (JButton bt : createStmtTypes(stmtTypes)) {
@@ -1578,11 +1545,11 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						dialog.setVisible(true);
 
 						// TODO Send vfNode and Color to Kaarthik
-								ProjectPreferences pref = new ProjectPreferences();
-								pref.updateColorPreferences(bt.getName(),jcc.getColor().getRGB());
-								DataModel dataModel = ServiceUtil.getService(DataModel.class);
-								dataModel.setSelectedMethod(dataModel.getSelectedMethod(), false);
-						
+						ProjectPreferences pref = new ProjectPreferences();
+						pref.updateColorPreferences(bt.getName(),jcc.getColor().getRGB());
+						DataModel dataModel = ServiceUtil.getService(DataModel.class);
+						dataModel.setSelectedMethod(dataModel.getSelectedMethod(), false);
+
 						System.out.println("Statement is : " + bt.getName());
 						System.out.println("Color is : " + jcc.getColor().getRGB());
 
@@ -1710,7 +1677,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 	}
 
-	
+
 	@SuppressWarnings("rawtypes")
 	public void setCosAttr(VFUnit selectedVF, Node curr) {
 		JPanel panel = new JPanel(new GridLayout(0, 2));
@@ -1761,20 +1728,20 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	}
 
-	
+
 	public void colorCostumizedNode() {
 		for (Node n : graph.getEachNode()) {
 			n.setAttribute("ui.color", jcc.getColor());
 		}
 	}
 
-	
+
 	private List<JButton> createStmtTypes(List<JButton> stmtTypes) {
 		stmtTypes = new ArrayList<JButton>();
 
 		// All button
 		JButton btJNopStmt, btJIdentityStmt, btJAssignStmt, btJIfStmt, btJGotoStmt, btJTableSwitchStmt, btJLookupSwitchStmt, btJInvokeStmt, btJReturnStmt,
-				JReturnVoidStmt, btJThrowStmt, btJRetStmt, btJEnterMonitorSmt, btJExitMonitorStmt;
+		JReturnVoidStmt, btJThrowStmt, btJRetStmt, btJEnterMonitorSmt, btJExitMonitorStmt;
 
 		btJNopStmt = new JButton("soot.jimple.internal.JNopStmt");
 		btJNopStmt.setName("soot.jimple.internal.JNopStmt");
