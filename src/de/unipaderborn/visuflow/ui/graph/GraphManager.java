@@ -492,19 +492,24 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						for (VFUnit edge : ((VFNode) node).getVFUnit().getVfMethod().getIncomingEdges()) {
 							list.add(edge);
 						}
-						Display.getDefault().syncExec(new Runnable() {
-							@Override
-							public void run() {
-								Shell shell = Display.getDefault().getActiveShell();
-								ReturnPathFilter returnFilter = new ReturnPathFilter(shell);
-								returnFilter.setPaths(list);
-								returnFilter.setInitialPattern("?");
-								returnFilter.open();
-								if (returnFilter.getFirstResult() != null) {
-									returnToCaller((VFUnit) returnFilter.getFirstResult());
+
+						if(list.size() == 1) {
+							returnToCaller(list.get(0));
+						} else {
+							Display.getDefault().syncExec(new Runnable() {
+								@Override
+								public void run() {
+									Shell shell = Display.getDefault().getActiveShell();
+									ReturnPathFilter returnFilter = new ReturnPathFilter(shell);
+									returnFilter.setPaths(list);
+									returnFilter.setInitialPattern("?");
+									returnFilter.open();
+									if (returnFilter.getFirstResult() != null) {
+										returnToCaller((VFUnit) returnFilter.getFirstResult());
+									}
 								}
-							}
-						});
+							});
+						}
 					}
 				}
 			}
