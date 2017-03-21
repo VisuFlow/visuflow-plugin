@@ -29,6 +29,7 @@ import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -494,7 +495,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						Display.getDefault().syncExec(new Runnable() {
 							@Override
 							public void run() {
-								Shell shell = new Shell();
+								Shell shell = Display.getDefault().getActiveShell();
 								ReturnPathFilter returnFilter = new ReturnPathFilter(shell);
 								returnFilter.setPaths(list);
 								returnFilter.setInitialPattern("?");
@@ -502,7 +503,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 								if (returnFilter.getFirstResult() != null) {
 									returnToCaller((VFUnit) returnFilter.getFirstResult());
 								}
-								shell.close();
 							}
 						});
 					}
@@ -910,7 +910,9 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			if (unit.getVfMethod().getControlFlowGraph() == null)
 				throw new Exception("CFG Null Exception");
 			else {
-				dataModel.setSelectedMethod(unit.getVfMethod(), true);
+				VFNode node = new VFNode(unit, 0);
+				List<VFNode> nodes = Collections.singletonList(node);
+				dataModel.filterGraph(nodes, true, true, "filter");
 			}
 		} catch (Exception e1) {
 			e1.printStackTrace();
