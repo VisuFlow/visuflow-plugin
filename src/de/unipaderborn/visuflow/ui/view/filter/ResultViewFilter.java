@@ -35,7 +35,7 @@ public class ResultViewFilter extends ViewerFilter {
 			return true;
 		}
 
-		String outset = Optional.fromNullable(unit.getInSet()).or("n/a").toString();
+		String outset = Optional.fromNullable(unit.getOutSet()).or("n/a").toString();
 		if(contains(outset, searchString)) {
 			return true;
 		}
