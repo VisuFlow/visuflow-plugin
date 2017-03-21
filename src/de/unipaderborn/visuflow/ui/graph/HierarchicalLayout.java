@@ -11,6 +11,9 @@ import org.graphstream.graph.Node;
 
 public class HierarchicalLayout {
 
+	private static double spacingX = 16.0;
+	private static double spacingY = 3.0;
+
 	static void layout(Graph graph) {
 		Iterator<Node> nodeIterator = graph.getNodeIterator();
 		Node first = nodeIterator.next();
@@ -88,27 +91,40 @@ public class HierarchicalLayout {
 		}
 
 		//Assign the coordinates to each node
-		double spacingX = 16.0;
-		double spacingY = 3.0;
-		//		Iterator<Node> breadthFirstIterator = first.getBreadthFirstIterator();
-		depthFirstIterator = first.getDepthFirstIterator();
+		Iterator<Node> breadthFirstIterator = first.getBreadthFirstIterator();
 		first.setAttribute("xyz", spacingX, spacingY * graph.getNodeCount(), 0.0);
-		while (depthFirstIterator.hasNext()) {
-			Node curr = depthFirstIterator.next();
-			Node parent = findParentWithHighestLevel(curr);
+		while (breadthFirstIterator.hasNext()) {
+			Node curr = breadthFirstIterator.next();
+			positionNode(curr);
+		}
 
-			if(parent == null)
-				continue;
-			double[] positionOfParent = Toolkit.nodePosition(parent);
-			int outDegreeOfParent = parent.getOutDegree();
-			if (outDegreeOfParent == 1) {
-				curr.setAttribute("xyz", positionOfParent[0], positionOfParent[1] - spacingY, 0.0);
+		// reset the "layouted" flag
+		breadthFirstIterator = first.getBreadthFirstIterator();
+		while (breadthFirstIterator.hasNext()) {
+			Node curr = breadthFirstIterator.next();
+			curr.removeAttribute("layouted");
+		}
+	}
+
+	private static void positionNode(Node curr) {
+		Node parent = findParentWithHighestLevel(curr);
+		if(parent == null)
+			return;
+
+		double[] positionOfParent = Toolkit.nodePosition(parent);
+		int outDegreeOfParent = parent.getOutDegree();
+		if (outDegreeOfParent == 1) {
+			curr.setAttribute("xyz", positionOfParent[0], positionOfParent[1] - spacingY, 0.0);
+			curr.setAttribute("layouted", "true");
+		} else {
+			if(curr.hasAttribute("directionResolver")) {
+				double x = positionOfParent[0] + ((int) curr.getAttribute("directionResolver") * spacingX);
+				double y = positionOfParent[1] - spacingY;
+				curr.setAttribute("xyz", x, y, 0.0);
+				curr.setAttribute("layouted", "true");
 			} else {
-				if(curr.hasAttribute("directionResolver"))
-					curr.setAttribute("xyz", positionOfParent[0] + ((int) curr.getAttribute("directionResolver") * spacingX), positionOfParent[1] - spacingY,
-							0.0);
-				else
-					curr.setAttribute("xyz", positionOfParent[0], positionOfParent[1] - spacingY, 0.0);
+				curr.setAttribute("xyz", positionOfParent[0], positionOfParent[1] - spacingY, 0.0);
+				curr.setAttribute("layouted", "true");
 			}
 		}
 	}
@@ -128,6 +144,11 @@ public class HierarchicalLayout {
 					parent = temp;
 				}
 			}
+
+		}
+
+		if(parent != null && !parent.hasAttribute("layouted")) {
+			positionNode(parent);
 		}
 		return parent;
 	}
