@@ -81,7 +81,9 @@ import org.osgi.service.event.EventHandler;
 
 import com.google.common.base.Optional;
 
+import de.unipaderborn.visuflow.Logger;
 import de.unipaderborn.visuflow.ProjectPreferences;
+import de.unipaderborn.visuflow.Visuflow;
 import de.unipaderborn.visuflow.builder.GlobalSettings;
 import de.unipaderborn.visuflow.debug.handlers.NavigationHandler;
 import de.unipaderborn.visuflow.model.DataModel;
@@ -93,9 +95,12 @@ import de.unipaderborn.visuflow.model.VFNode;
 import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.model.graph.ControlFlowGraph;
 import de.unipaderborn.visuflow.model.graph.ICFGStructure;
+import de.unipaderborn.visuflow.ui.graph.formatting.UnitFormatter;
+import de.unipaderborn.visuflow.ui.graph.formatting.UnitFormatterFactory;
 import de.unipaderborn.visuflow.ui.view.filter.ReturnPathFilter;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 import scala.collection.mutable.HashSet;
+import soot.Unit;
 import soot.jimple.InvokeExpr;
 import soot.jimple.ReturnStmt;
 import soot.jimple.ReturnVoidStmt;
@@ -103,7 +108,7 @@ import soot.jimple.Stmt;
 
 public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
-	// private static final transient Logger logger = Visuflow.getDefault().getLogger();
+	private static final transient Logger logger = Visuflow.getDefault().getLogger();
 
 	Graph graph;
 	String styleSheet;
@@ -176,7 +181,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		this.zoomOutDelta = .075;
 		this.maxZoomPercent = 0.2;
 		this.minZoomPercent = 1.0;
-		this.maxLength = 45;
+		this.maxLength = 55;
 		this.styleSheet = styleSheet;
 		createGraph(graphName);
 		createUI();
@@ -1125,12 +1130,18 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private void createGraphNode(VFNode node) {
 		if (graph.getNode(node.getId() + "") == null) {
 			Node createdNode = graph.addNode(node.getId() + "");
-			if (node.getUnit().toString().length() > maxLength) {
-				createdNode.setAttribute("ui.label", node.getUnit().toString().substring(0, maxLength) + "...");
-			} else {
-				createdNode.setAttribute("ui.label", node.getUnit().toString());
+			Unit unit = node.getUnit();
+			String label = unit.toString();
+			try {
+				UnitFormatter formatter = UnitFormatterFactory.createFormatter(unit);
+				//UnitFormatter formatter = new DefaultFormatter();
+				label = formatter.format(unit, maxLength);
+			} catch (Exception e) {
+				logger.error("Unit formatting failed", e);
 			}
-			String str = node.getUnit().toString();
+
+			createdNode.setAttribute("ui.label", label);
+			String str = unit.toString();
 			String escapedNodename = StringEscapeUtils.escapeHtml(str);
 			createdNode.setAttribute("unit", str);
 			createdNode.setAttribute("nodeData.unit", escapedNodename);
