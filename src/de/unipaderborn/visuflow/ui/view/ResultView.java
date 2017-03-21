@@ -230,7 +230,7 @@ public class ResultView extends ViewPart implements EventHandler {
 		});
 
 		Menu menu = new Menu(parent);
-		parent.setMenu(menu);
+		viewer.getControl().setMenu(menu);
 
 		MenuItem menuItemCustAttr = new MenuItem(menu, SWT.None);
 		menuItemCustAttr.setText("Custom attribute");
@@ -238,6 +238,10 @@ public class ResultView extends ViewPart implements EventHandler {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				//				StructuredSelection selection = (StructuredSelection) viewer.getSelection();
+				//				@SuppressWarnings("unchecked")
+				//				List<VFUnit> l = selection.toList();
+
 				// Get all chosen VFUnits
 				List<VFUnit> l = getUnitsToCustomize(highlightNodes.getSelection());
 
