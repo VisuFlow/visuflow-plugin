@@ -164,6 +164,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private JMenu callGraphOption;
 	private JMenuItem cha;
 	private JMenuItem spark;
+	
+	private String nodeAttributesString = "nodeData.attributes";
 
 	public GraphManager(String graphName, String styleSheet) {
 		// System.setProperty("sun.awt.noerasebackground", "true");
@@ -575,7 +577,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				ArrayList<VFNode> vfNodes = new ArrayList<>();
 				ArrayList<VFUnit> vfUnits = new ArrayList<>();
 				for (Node node : graph) {
-					if (node.getAttribute("ui.label").toString().toLowerCase().contains((searchString))) {
+					if (node.getAttribute("ui.label").toString().toLowerCase().contains((searchString)) || (node.hasAttribute(nodeAttributesString) && node.getAttribute(nodeAttributesString).toString().toLowerCase().contains(searchString))) {
 						vfNodes.add((VFNode) node.getAttribute("nodeUnit"));
 						vfUnits.add(((VFNode) node.getAttribute("nodeUnit")).getVFUnit());
 					}
@@ -1139,11 +1141,10 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				while(customAttributeIterator.hasNext())
 				{
 					Entry<String, String> curr = customAttributeIterator.next();
-					//					 createdNode.setAttribute(arg0, arg1);
 					attributeData += curr.getKey() + " : " + curr.getValue();
 					attributeData += "<br />";
 				}
-				createdNode.setAttribute("nodeData.attributes", attributeData);
+				createdNode.setAttribute(nodeAttributesString, attributeData);
 			}
 
 			createdNode.setAttribute("nodeUnit", node);
@@ -1639,13 +1640,13 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	public void setCosAttr(VFUnit selectedVF, Node curr) {
 		JPanel panel = new JPanel(new GridLayout(0, 2));
 
-		JTextField tfAnalysis = new JTextField("");
-		JTextField tfAttr = new JTextField("");
+		JTextField attributeName = new JTextField("");
+		JTextField attributeValue = new JTextField("");
 
 		panel.add(new JLabel("Analysis: "));
-		panel.add(tfAnalysis);
+		panel.add(attributeName);
 		panel.add(new JLabel("Attribute: "));
-		panel.add(tfAttr);
+		panel.add(attributeValue);
 
 		int result = JOptionPane.showConfirmDialog(null, panel, "Setting costum attribute", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		if (result == JOptionPane.OK_OPTION) {
@@ -1654,24 +1655,37 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			// Get actual customized attributes
 			Set set = selectedVF.getHmCustAttr().entrySet();
 			Iterator i = set.iterator();
+			String attributeString = "";
+			
+			if(curr.hasAttribute(nodeAttributesString))
+			{
+				attributeString += curr.getAttribute(nodeAttributesString) + "<br>";
+				curr.removeAttribute(nodeAttributesString);
+			}
+			else
+				attributeString += "";
 
 			// Display elements
 			while (i.hasNext()) {
 				Map.Entry me = (Map.Entry) i.next();
 				hmCustAttr.put((String) me.getKey(), (String) me.getValue());
 			}
-
-			if ((tfAnalysis.getText().length() > 0) && (tfAttr.getText().length() > 0)) {
+			
+			if ((attributeName.getText().length() > 0) && (attributeValue.getText().length() > 0)) {
 				try {
-					hmCustAttr.put(tfAnalysis.getText(), tfAttr.getText());
+					hmCustAttr.put(attributeName.getText(), attributeValue.getText());
 					selectedVF.setHmCustAttr(hmCustAttr);
 
 					ArrayList<VFUnit> units = new ArrayList<>();
 					units.add(selectedVF);
-					curr.setAttribute("ui.color", jcc.getColor());
+					
+					attributeString += attributeName.getText() + ":" + attributeValue.getText();
+					
+					curr.setAttribute(nodeAttributesString, attributeString);
+					System.out.println("color attribute string " + attributeString);
+					curr.addAttribute("ui.color", Color.red.getRGB());
 
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			} else {
