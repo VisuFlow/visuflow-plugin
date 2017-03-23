@@ -345,7 +345,14 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 		IMarker marker = suspendedAtBreakpoint.getMarker();
 		try {
 			// find the next unit to stop at
-			String unitFqn = marker.getAttribute("Jimple.unit.fqn").toString();
+			String unitFqn = (String) marker.getAttribute("Jimple.unit.fqn");
+			if(unitFqn == null) {
+				// FIXME get the unit from the stack, if possible
+				// for example for unit-type-breakpoints
+				
+				// no unit fqn, we don't know, where we are
+				return;
+			}
 
 			int offset = 1;
 			UnitLocation location = null;

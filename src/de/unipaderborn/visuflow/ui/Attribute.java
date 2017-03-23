@@ -1,11 +1,14 @@
 package de.unipaderborn.visuflow.ui;
 
+import java.io.InputStream;
+
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -42,7 +45,7 @@ public class Attribute extends TitleAreaDialog {
 		container.setLayout(layout);
 
 		Label lblAttribute = new Label(container, SWT.NONE);
-		lblAttribute.setText("Ananlysis:");
+		lblAttribute.setText("Attribute:");
 
 		tfAnalysis = new Text(container, SWT.BORDER);
 		tfAnalysis.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -61,7 +64,7 @@ public class Attribute extends TitleAreaDialog {
 		GridData gd_lblNewLabel = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
 		gd_lblNewLabel.horizontalIndent = 1;
 		lAttr.setLayoutData(gd_lblNewLabel);
-		lAttr.setText("Attribute:");
+		lAttr.setText("Attribute value:");
 
 		tfAttr = new Text(container, SWT.BORDER | SWT.BORDER);
 		tfAttr.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
@@ -86,7 +89,8 @@ public class Attribute extends TitleAreaDialog {
 
 		newShell.setText("Set custom attributes");
 
-		newShell.setImage(new org.eclipse.swt.graphics.Image(newShell.getDisplay(), "icons/sample.gif"));
+		InputStream in = getClass().getClassLoader().getResourceAsStream("/icons/sample.gif");
+		newShell.setImage(new Image(newShell.getDisplay(), in));
 
 	}
 
@@ -98,7 +102,7 @@ public class Attribute extends TitleAreaDialog {
 
 		// setTitle("This wizard links the Target Java project with
 
-		setMessage("Please enter the analysis and the attribute ", IMessageProvider.INFORMATION);
+		setMessage("Please enter the attribute and its value. ", IMessageProvider.INFORMATION);
 
 	}
 

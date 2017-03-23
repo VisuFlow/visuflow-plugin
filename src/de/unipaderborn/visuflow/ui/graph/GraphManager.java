@@ -4,12 +4,11 @@ import static de.unipaderborn.visuflow.model.DataModel.EA_TOPIC_DATA_FILTER_GRAP
 import static de.unipaderborn.visuflow.model.DataModel.EA_TOPIC_DATA_MODEL_CHANGED;
 import static de.unipaderborn.visuflow.model.DataModel.EA_TOPIC_DATA_SELECTION;
 import static de.unipaderborn.visuflow.model.DataModel.EA_TOPIC_DATA_UNIT_CHANGED;
-import de.unipaderborn.visuflow.ui.view.filter.ReturnPathFilter;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Image;
@@ -30,7 +29,7 @@ import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -39,6 +38,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -59,6 +59,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -80,7 +81,9 @@ import org.osgi.service.event.EventHandler;
 
 import com.google.common.base.Optional;
 
+import de.unipaderborn.visuflow.Logger;
 import de.unipaderborn.visuflow.ProjectPreferences;
+import de.unipaderborn.visuflow.Visuflow;
 import de.unipaderborn.visuflow.builder.GlobalSettings;
 import de.unipaderborn.visuflow.debug.handlers.NavigationHandler;
 import de.unipaderborn.visuflow.model.DataModel;
@@ -92,8 +95,12 @@ import de.unipaderborn.visuflow.model.VFNode;
 import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.model.graph.ControlFlowGraph;
 import de.unipaderborn.visuflow.model.graph.ICFGStructure;
+import de.unipaderborn.visuflow.ui.graph.formatting.UnitFormatter;
+import de.unipaderborn.visuflow.ui.graph.formatting.UnitFormatterFactory;
+import de.unipaderborn.visuflow.ui.view.filter.ReturnPathFilter;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 import scala.collection.mutable.HashSet;
+import soot.Unit;
 import soot.jimple.InvokeExpr;
 import soot.jimple.ReturnStmt;
 import soot.jimple.ReturnVoidStmt;
@@ -101,7 +108,7 @@ import soot.jimple.Stmt;
 
 public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
-	// private static final transient Logger logger = Visuflow.getDefault().getLogger();
+	private static final transient Logger logger = Visuflow.getDefault().getLogger();
 
 	Graph graph;
 	String styleSheet;
@@ -117,7 +124,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	Container panel;
 	JApplet applet;
-	JButton zoomInButton, zoomOutButton, viewCenterButton, toggleLayout, showICFGButton, btColor;
+	JButton zoomInButton, zoomOutButton, showICFGButton, btColor;
 	JToolBar headerBar, settingsBar;
 	JTextField searchText;
 	JLabel header;
@@ -176,14 +183,28 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		this.zoomOutDelta = .075;
 		this.maxZoomPercent = 0.2;
 		this.minZoomPercent = 1.0;
-		this.maxLength = 45;
+		this.maxLength = 55;
 		this.styleSheet = styleSheet;
 		createGraph(graphName);
 		createUI();
 
 		renderICFG(ServiceUtil.getService(DataModel.class).getIcfg());
 
-		view.setToolTipText("Tooltip Test");
+		adjustToolbarButtonHeights();
+	}
+
+	private void adjustToolbarButtonHeights() {
+		Dimension d = new Dimension(90, 32);
+		showICFGButton.setSize(d);
+		showICFGButton.setPreferredSize(d);
+		showICFGButton.setMinimumSize(d);
+		showICFGButton.setMaximumSize(d);
+
+		d = new Dimension(100, 32);
+		btColor.setSize(d);
+		btColor.setPreferredSize(d);
+		btColor.setMinimumSize(d);
+		btColor.setMaximumSize(d);
 	}
 
 	public Container getApplet() {
@@ -294,7 +315,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			}
 			/*
 			 * SwingUtilities.invokeLater(new Runnable() {
-			 * 
+			 *
 			 * @Override public void run() { GraphManager.this.zoomIn(); } });
 			 */
 		}
@@ -353,7 +374,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		navigateToJimple = new JMenuItem("Navigate to Jimple");
 		navigateToJava = new JMenuItem("Navigate to Java");
 		showInUnitView = new JMenuItem("Highlight on Units view");
-		setCosAttr = new JMenuItem("Set costusm attribute");
+		setCosAttr = new JMenuItem("Set custom attribute");
 		followCall = new JMenuItem("Follow the Call");
 		followReturn = new JMenuItem("Follow the Return");
 
@@ -478,19 +499,24 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						for (VFUnit edge : ((VFNode) node).getVFUnit().getVfMethod().getIncomingEdges()) {
 							list.add(edge);
 						}
-						Display.getDefault().syncExec(new Runnable() {
-							public void run() {
-								Shell shell = new Shell();
-								ReturnPathFilter returnFilter = new ReturnPathFilter(shell);
-								returnFilter.setPaths(list);
-								returnFilter.setInitialPattern("?");
-								returnFilter.open();
-								if (returnFilter.getFirstResult() != null) {
-									returnToCaller((VFUnit) returnFilter.getFirstResult());
+
+						if(list.size() == 1) {
+							returnToCaller(list.get(0));
+						} else {
+							Display.getDefault().syncExec(new Runnable() {
+								@Override
+								public void run() {
+									Shell shell = Display.getDefault().getActiveShell();
+									ReturnPathFilter returnFilter = new ReturnPathFilter(shell);
+									returnFilter.setPaths(list);
+									returnFilter.setInitialPattern("?");
+									returnFilter.open();
+									if (returnFilter.getFirstResult() != null) {
+										returnToCaller((VFUnit) returnFilter.getFirstResult());
+									}
 								}
-								shell.close();
-							}
-						});
+							});
+						}
 					}
 				}
 			}
@@ -556,12 +582,12 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private void createSearchText() {
 		this.searchText = new JTextField("Search graph");
 		searchText.addFocusListener(new FocusListener() {
-			
+
 			@Override
 			public void focusLost(FocusEvent e) {
 				searchText.setText("Search graph");
 			}
-			
+
 			@Override
 			public void focusGained(FocusEvent e) {
 				searchText.setText("");
@@ -607,7 +633,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		settingsBar.add(zoomInButton);
 		settingsBar.add(zoomOutButton);
 		settingsBar.add(showICFGButton);
-		settingsBar.add(viewCenterButton);
 		settingsBar.add(btColor);
 		settingsBar.add(panLeftButton);
 		settingsBar.add(panRightButton);
@@ -616,8 +641,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		settingsBar.add(searchText);
 	}
 
-	private void createHeaderBar()
-	{
+	private void createHeaderBar() {
 		this.headerBar = new JToolBar("Header");
 		this.headerBar.setFloatable(false);
 		this.header = new JLabel("ICFG");
@@ -898,7 +922,9 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			if (unit.getVfMethod().getControlFlowGraph() == null)
 				throw new Exception("CFG Null Exception");
 			else {
-				dataModel.setSelectedMethod(unit.getVfMethod(), true);
+				VFNode node = new VFNode(unit, 0);
+				List<VFNode> nodes = Collections.singletonList(node);
+				dataModel.filterGraph(nodes, true, true, "filter");
 			}
 		} catch (Exception e1) {
 			e1.printStackTrace();
@@ -937,8 +963,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private void createZoomControls() {
 		zoomInButton = new JButton();
 		zoomOutButton = new JButton();
-		viewCenterButton = new JButton("reset");
-
 		zoomInButton.setIcon(new ImageIcon(getScaledImage(imgPlus, 20, 20)));
 		zoomOutButton.setIcon(new ImageIcon(getScaledImage(imgMinus, 20, 20)));
 
@@ -955,14 +979,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				zoomIn();
-			}
-		});
-
-		viewCenterButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				view.getCamera().resetView();
 			}
 		});
 
@@ -1062,10 +1078,13 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			createdNode.setAttribute("nodeData.methodName", escapedMethodName);
 			createdNode.setAttribute("nodeData.methodSignature", escapedMethodSignature);
 
-//			src.getBody().toString().split(";").toString().;
+			//			src.getBody().toString().split(";").toString().;
 
-			createdNode.setAttribute("nodeData.methodBody", src.getBody().toString().replaceAll(";", ";<br>"));
-			createdNode.setAttribute("nodeData.unescapedMethodName", methodName);
+			String methodBody = src.getBody().toString();
+			methodBody = Pattern.compile("^[ ]{4}", Pattern.MULTILINE).matcher(methodBody).replaceAll(""); // remove indentation at line start
+			methodBody = methodBody.replaceAll("\n{2,}", "\n"); // replace empty lines
+			String escapedMethodBody = StringEscapeUtils.escapeHtml(methodBody);
+			createdNode.setAttribute("nodeData.methodBody", "<code><pre style=\"color: #000000; background-color: #acc2d6\">" + escapedMethodBody + "</pre></code>");
 			createdNode.setAttribute("nodeMethod", src);
 		}
 	}
@@ -1087,8 +1106,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			createGraphNode(dest);
 			createGraphEdge(src, dest);
 		}
-		if(interGraph.listEdges.size() == 1)
-		{
+		if (interGraph.listEdges.size() == 1) {
 			VFNode node = interGraph.listNodes.get(0);
 			createGraphNode(node);
 		}
@@ -1114,12 +1132,18 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private void createGraphNode(VFNode node) {
 		if (graph.getNode(node.getId() + "") == null) {
 			Node createdNode = graph.addNode(node.getId() + "");
-			if (node.getUnit().toString().length() > maxLength) {
-				createdNode.setAttribute("ui.label", node.getUnit().toString().substring(0, maxLength) + "...");
-			} else {
-				createdNode.setAttribute("ui.label", node.getUnit().toString());
+			Unit unit = node.getUnit();
+			String label = unit.toString();
+			try {
+				UnitFormatter formatter = UnitFormatterFactory.createFormatter(unit);
+				//UnitFormatter formatter = new DefaultFormatter();
+				label = formatter.format(unit, maxLength);
+			} catch (Exception e) {
+				logger.error("Unit formatting failed", e);
 			}
-			String str = node.getUnit().toString();
+
+			createdNode.setAttribute("ui.label", label);
+			String str = unit.toString();
 			String escapedNodename = StringEscapeUtils.escapeHtml(str);
 			createdNode.setAttribute("unit", str);
 			createdNode.setAttribute("nodeData.unit", escapedNodename);
@@ -1154,8 +1178,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	}
 
 	@SuppressWarnings("unused")
-	private void getNodesToCollapse(Node n)
-	{
+	private void getNodesToCollapse(Node n) {
 		boolean present = false;
 		scala.collection.Iterator<Node> setIterator = setOfNode.iterator();
 		while (setIterator.hasNext()) {
@@ -1195,157 +1218,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 		viewer.disableAutoLayout();
 
-		Iterator<Node> nodeIterator = graph.getNodeIterator();
-		Node first = nodeIterator.next();
-		Iterator<Node> depthFirstIterator = first.getDepthFirstIterator();
-
-		//Assign the layer to each node
-		first.setAttribute("layoutLayer", 0);
-		while(depthFirstIterator.hasNext())
-		{
-			Node curr = depthFirstIterator.next();
-			int inDegree = curr.getInDegree();
-			int layer = 1;
-			if(inDegree == 1)
-			{
-				Iterable<Edge> edges = curr.getEachEnteringEdge();
-				for (Edge edge : edges) {
-					layer = edge.getOpposite(curr).getAttribute("layoutLayer");
-					layer++;
-				}
-			}
-			if(inDegree > 1)
-			{
-				Iterable<Edge> edges = curr.getEachEnteringEdge();
-				int parentLayer = layer;
-				for (Edge edge : edges) {
-					Node parent = edge.getOpposite(curr);
-					if(curr.hasAttribute("layoutLayer"))
-					{
-						int currLayer = parent.getAttribute("layoutLayer");
-						if(currLayer > parentLayer)
-							parentLayer = currLayer;
-					}
-				}
-				layer = parentLayer++;
-			}
-			if(curr.hasAttribute("layoutLayer"))
-				curr.removeAttribute("layoutLayer");
-			curr.setAttribute("layoutLayer", layer);
-		}
-
-		HashMap<Integer, Integer> levelCount = new HashMap<Integer, Integer>();
-		for (Node node : graph) {
-			int layer = node.getAttribute("layoutLayer");
-			if(levelCount.containsKey(layer))
-			{
-				int currCount = levelCount.get(layer);
-				levelCount.remove(layer);
-				levelCount.put(layer, currCount++);
-			}
-			else
-			{
-				levelCount.put(layer, 1);
-			}
-		}
-
-		for (Node node : graph) {
-			Collection<Edge> leavingEdgeSet = node.getLeavingEdgeSet();
-			Edge[] childEdge = new Edge[leavingEdgeSet.size()];
-			leavingEdgeSet.toArray(childEdge);
-			int directionResolver = childEdge.length/2;
-			int even = childEdge.length % 2;
-
-			if(even == 0)
-			{
-				for(int i = 0; i < childEdge.length; i++)
-				{
-					Node child = childEdge[i].getOpposite(node);
-					if(i < directionResolver)
-					{
-						child.setAttribute("directionResolver", -1);
-						child.setAttribute("nodeData.direction", -1);
-					}
-					else
-					{
-						child.setAttribute("directionResolver", 1);
-						child.setAttribute("nodeData.direction", 1);
-					}
-				}
-			}
-			else
-			{
-				for(int i = 0; i < childEdge.length; i++)
-				{
-					Node child = childEdge[i].getOpposite(node);
-					if(i > directionResolver)
-					{
-						child.setAttribute("directionResolver", -1);
-						child.setAttribute("nodeData.direction", -1);
-					}
-					else if(i < directionResolver)
-					{
-						child.setAttribute("directionResolver", 1);
-						child.setAttribute("nodeData.direction", 1);
-					}
-				}
-			}
-		}
-
-		//Assign the coordinates to each node
-		double spacingX = 16.0;
-		double spacingY = 3.0;
-		//		Iterator<Node> breadthFirstIterator = first.getBreadthFirstIterator();
-		depthFirstIterator = first.getDepthFirstIterator();
-		first.setAttribute("xyz", spacingX, spacingY * graph.getNodeCount(), 0.0);
-		while(depthFirstIterator.hasNext())
-		{
-			Node curr = depthFirstIterator.next();
-			Node parent = findParentWithHighestLevel(curr);
-
-			if(parent == null)
-				continue;
-			double[] positionOfParent = Toolkit.nodePosition(parent);
-			int outDegreeOfParent = parent.getOutDegree();
-
-			curr.setAttribute("nodeData.parent", (String) parent.getAttribute("ui.label"));
-			curr.setAttribute("nodeData.layerOfParent", (int) parent.getAttribute("layoutLayer"));
-
-			if(outDegreeOfParent == 1)
-			{
-				curr.setAttribute("xyz", positionOfParent[0], positionOfParent[1] - spacingY, 0.0);
-			}
-			else
-			{
-				if(curr.hasAttribute("directionResolver"))
-					curr.setAttribute("xyz", positionOfParent[0] + ((int) curr.getAttribute("directionResolver") * spacingX), positionOfParent[1] - spacingY, 0.0);
-				else
-					curr.setAttribute("xyz", positionOfParent[0], positionOfParent[1] - spacingY, 0.0);
-			}
-		}
-	}
-
-	Node findParentWithHighestLevel(Node node)
-	{
-		int inDegreeOfNode = node.getInDegree();
-		Node parent = null;
-
-		Iterator<Edge> nodeIterator = node.getEachEnteringEdge().iterator();
-		if(inDegreeOfNode == 1)
-			parent = nodeIterator.next().getOpposite(node);
-		else if(inDegreeOfNode > 1)
-		{
-			parent = nodeIterator.next().getOpposite(node);
-			while(nodeIterator.hasNext())
-			{
-				Node temp = nodeIterator.next().getOpposite(node);
-				if(temp.hasAttribute("layoutLayer") && (int) temp.getAttribute("layoutLayer") > (int) parent.getAttribute("layoutLayer"))
-				{
-					parent = temp;
-				}
-			}
-		}
-		return parent;
+		HierarchicalLayout.layout(graph);
 	}
 
 	void toggleNode(String id) {
@@ -1404,7 +1277,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 		/*
 		 * ViewerPipe fromViewer = viewer.newViewerPipe(); fromViewer.addViewerListener(this); fromViewer.addSink(graph);
-		 * 
+		 *
 		 * // FIXME the Thread.sleep slows down the loop, so that it does not eat up the CPU // but this really should be implemented differently. isn't there
 		 * an event listener // or something we can use, so that we call pump() only when necessary while(true) { try { Thread.sleep(1); } catch
 		 * (InterruptedException e) { } fromViewer.pump(); }
@@ -1443,8 +1316,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			}
 		}
 		if (event.getTopic().contentEquals(DataModel.EA_TOPIC_DATA_FILTER_GRAPH)) {
-			filterGraphNodes((List<VFNode>) event.getProperty("nodesToFilter"), (boolean) event.getProperty("selection"), (boolean) event.getProperty("panToNode"),
-					(String) event.getProperty("uiClassName"));
+			filterGraphNodes((List<VFNode>) event.getProperty("nodesToFilter"), (boolean) event.getProperty("selection"),
+					(boolean) event.getProperty("panToNode"), (String) event.getProperty("uiClassName"));
 		}
 		if (event.getTopic().equals(DataModel.EA_TOPIC_DATA_UNIT_CHANGED)) {
 			VFUnit unit = (VFUnit) event.getProperty("unit");
@@ -1464,27 +1337,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				}
 			}
 		}
-	}
-
-	private boolean inPanel(String btName, JPanel panel) {
-		boolean exist = false;
-
-		for (Component c : panel.getComponents()) {
-
-			if (!(c.getName() == null)) {
-				if ((c.getClass().toString().equals("class javax.swing.JButton"))) {
-					JButton bt = (JButton) c;
-					System.out.println("Button's name = " + c.getName());
-					if (bt.getName().equals(btName)) {
-						System.out.println("btName = " + btName + " , component name = " + bt.getName());
-						exist = true;
-						break;
-					}
-				}
-			}
-		}
-
-		return exist;
 	}
 
 	public void colorTheGraph() {
@@ -1516,124 +1368,20 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				});
 			}
 
-		} else {
-			for (Node n : graph.getEachNode()) {
-				if (!(n.getAttribute("nodeData.unescapedMethodName") == null)) {
-					JLabel l = new JLabel("Change the color of this unit");
-					JButton bt = new JButton(n.getAttribute("nodeData.unescapedMethodName").toString());
-					bt.setName(n.getAttribute("nodeData.unescapedMethodName").toString());
+			int result = JOptionPane.showConfirmDialog(null, panelColor, "Test", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+			if (result == JOptionPane.OK_OPTION) {
+				System.out.println("Color in JOptionPane" + jcc.getColor().getRGB());
 
-					bt.addActionListener(new ActionListener() {
+			} else {
 
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							dialog.setVisible(true);
-							System.out.println("Button's name is : " + bt.getName());
-							System.out.println("Button's name is...");
-
-							for (Node n : graph.getEachNode()) {
-								if (n.getAttribute("nodeData.unescapedMethodName").toString().equals(bt.getName())) {
-									n.setAttribute("ui.color", jcc.getColor());
-									System.out.println(jcc.getColor());
-								}
-
-							}
-						}
-
-					});
-
-					if (!(inPanel(bt.getName(), panelColor))) {
-						panelColor.add(l);
-						panelColor.add(bt);
-					}
-
-				}
-
+				System.out.println("Cancelled");
 			}
 
-		}
-		// for (Node n : graph.getEachNode()) {
-		// if (!(n.getAttribute("nodeData.unitType") == null)) {
-		//
-		//
-		//
-		//
-		//
-		//
-		// // JLabel l = new JLabel("Change the color of this unit");
-		// // JButton bt = new JButton(n.getAttribute("nodeData.unitType").toString());
-		// // // bt.setName(n.getAttribute("nodeData.methodName").toString());
-		// // bt.setName(n.getAttribute("nodeData.unitType").toString());
-		// //
-		// // bt.addActionListener(new ActionListener() {
-		// //
-		// // @Override
-		// // public void actionPerformed(ActionEvent e) {
-		// // dialog.setVisible(true);
-		// // System.out.println("Button's name is : " + bt.getName());
-		// // System.out.println("Button's name is..." );
-		// // for(Node n: graph.getEachNode()){
-		// // // if(n.getAttribute("nodeData.methodName").toString().equals(bt.getName())){
-		// // // if(n.getAttribute("ui.label").toString().equals(bt.getName())){
-		// // if(n.getAttribute("nodeData.unitType").toString().equals(bt.getName())){
-		// // n.setAttribute("ui.color", jcc.getColor());
-		// // // n.setAttribute("ui.text-size", "20%");
-		// // System.out.println(jcc.getColor());
-		// // }
-		// //
-		// // }
-		// //
-		// //
-		// // }
-		// // });
-		// //
-		// // if(!(inPanel(bt.getName(), panelColor))){
-		// // panelColor.add(l);
-		// // panelColor.add(bt);
-		// // }
-		//
-		// }
-		//
-		// if (!(n.getAttribute("nodeData.unescapedMethodName") == null)) {
-		// JLabel l = new JLabel("Change the color of this unit");
-		// JButton bt = new JButton(n.getAttribute("nodeData.unescapedMethodName").toString());
-		// bt.setName(n.getAttribute("nodeData.unescapedMethodName").toString());
-		// bt.addActionListener(new ActionListener() {
-		//
-		// @Override
-		// public void actionPerformed(ActionEvent e) {
-		// dialog.setVisible(true);
-		// System.out.println("Button's name is : " + bt.getName());
-		// System.out.println("Button's name is...");
-		// for (Node n : graph.getEachNode()) {
-		// // if(n.getAttribute("nodeData.methodName").toString().equals(bt.getName())){
-		// // if(n.getAttribute("ui.label").toString().equals(bt.getName())){
-		// if (n.getAttribute("nodeData.unescapedMethodName").toString().equals(bt.getName())) {
-		// n.setAttribute("ui.color", jcc.getColor());
-		// System.out.println(jcc.getColor());
-		// }
-		//
-		// }
-		//
-		// }
-		// });
-		//
-		// if (!(inPanel(bt.getName(), panelColor))) {
-		// panelColor.add(l);
-		// panelColor.add(bt);
-		// }
-		//
-		// }
-		//
-		// }
-
-		int result = JOptionPane.showConfirmDialog(null, panelColor, "Test", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-		if (result == JOptionPane.OK_OPTION) {
-			System.out.println("Color in JOptionPane"+ jcc.getColor().getRGB());
-
 		} else {
-			System.out.println("Cancelled");
+			JOptionPane.showMessageDialog(new JPanel(), "Changing color not possible in the ICFG", "Warning", JOptionPane.WARNING_MESSAGE);
+
 		}
+
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -1643,12 +1391,12 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		JTextField attributeName = new JTextField("");
 		JTextField attributeValue = new JTextField("");
 
-		panel.add(new JLabel("Analysis: "));
 		panel.add(attributeName);
 		panel.add(new JLabel("Attribute: "));
 		panel.add(attributeValue);
+		panel.add(new JLabel("Attribute value: "));
 
-		int result = JOptionPane.showConfirmDialog(null, panel, "Setting costum attribute", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+		int result = JOptionPane.showConfirmDialog(null, panel, "Setting custom attribute", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		if (result == JOptionPane.OK_OPTION) {
 			Map<String, String> hmCustAttr = new HashMap<>();
 
@@ -1706,7 +1454,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	}
 
 	private List<JButton> createStmtTypes(List<JButton> stmtTypes) {
-		stmtTypes = new ArrayList<JButton>();
+		stmtTypes = new ArrayList<>();
 
 		// All button
 		JButton btJNopStmt, btJIdentityStmt, btJAssignStmt, btJIfStmt, btJGotoStmt, btJTableSwitchStmt, btJLookupSwitchStmt, btJInvokeStmt, btJReturnStmt,
@@ -1773,5 +1521,4 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		return stmtTypes;
 
 	}
-
 }

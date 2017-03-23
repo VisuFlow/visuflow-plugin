@@ -48,7 +48,7 @@ public class ResultView extends ViewPart implements EventHandler {
 	private TableViewer viewer;
 	private ResultViewFilter filter;
 	private List<VFUnit> units;
-	private Button highlightNodes, bRefresh;
+	private Button highlightNodes;
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -56,21 +56,6 @@ public class ResultView extends ViewPart implements EventHandler {
 		parent.setLayout(layout);
 		Label searchLabel = new Label(parent, SWT.NONE);
 		searchLabel.setText("Search: ");
-		bRefresh = new Button(parent, SWT.COLOR_BLUE);
-		bRefresh.setText("Refresh");
-
-		bRefresh.addSelectionListener(new SelectionListener() {
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				viewer.refresh();
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// noOp
-			}
-		});
 
 		highlightNodes = new Button(parent, SWT.CHECK);
 		highlightNodes.setText("Highlight selected nodes on graph");
@@ -172,7 +157,7 @@ public class ResultView extends ViewPart implements EventHandler {
 		viewer.getControl().setLayoutData(gridData);
 
 		Hashtable<String, Object> properties = new Hashtable<>();
-		String[] topics = new String[] { DataModel.EA_TOPIC_DATA_SELECTION, DataModel.EA_TOPIC_DATA_UNIT_CHANGED };
+		String[] topics = new String[] { DataModel.EA_TOPIC_DATA_SELECTION, DataModel.EA_TOPIC_DATA_UNIT_CHANGED, DataModel.EA_TOPIC_DATA_VIEW_REFRESH };
 		properties.put(EventConstants.EVENT_TOPIC, topics);
 		ServiceUtil.registerService(EventHandler.class, this, properties);
 
@@ -239,13 +224,13 @@ public class ResultView extends ViewPart implements EventHandler {
 					return attrs;
 
 				} else {
-					return "is still empty";
+					return "";
 				}
 			}
 		});
 
 		Menu menu = new Menu(parent);
-		parent.setMenu(menu);
+		viewer.getControl().setMenu(menu);
 
 		MenuItem menuItemCustAttr = new MenuItem(menu, SWT.None);
 		menuItemCustAttr.setText("Custom attribute");
@@ -253,10 +238,14 @@ public class ResultView extends ViewPart implements EventHandler {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				//				StructuredSelection selection = (StructuredSelection) viewer.getSelection();
+				//				@SuppressWarnings("unchecked")
+				//				List<VFUnit> l = selection.toList();
+
 				// Get all chosen VFUnits
 				List<VFUnit> l = getUnitsToCustomize(highlightNodes.getSelection());
 
-				ArrayList<VFNode> listAttrNodes = new ArrayList<VFNode>();
+				ArrayList<VFNode> listAttrNodes = new ArrayList<>();
 
 				// Open the dialog
 				Attribute p = new Attribute(e.display.getActiveShell());
@@ -318,6 +307,16 @@ public class ResultView extends ViewPart implements EventHandler {
 					}
 				});
 			}
+		} else if (event.getTopic().equals(DataModel.EA_TOPIC_DATA_VIEW_REFRESH)) {
+			System.out.println("refreshing resultsview");
+			if (viewer != null && !viewer.getControl().isDisposed()) {
+				viewer.getTable().getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						viewer.refresh();
+					}
+				});
+			}
 		}
 	}
 
@@ -332,11 +331,11 @@ public class ResultView extends ViewPart implements EventHandler {
 		// Display elements
 		while (i.hasNext()) {
 			Map.Entry me = (Map.Entry) i.next();
-			attrs = attrs + me.getKey() + " = " + me.getValue() + ". \n";
+			attrs = attrs + me.getKey() + " = " + me.getValue() + "\n";
 
 		}
 		if (attrs.equals("")) {
-			return "is still empty";
+			return "";
 		}
 
 		return attrs;
