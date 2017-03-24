@@ -26,8 +26,18 @@ import soot.toolkits.graph.ExceptionalUnitGraph;
 import heros.InterproceduralCFG;
 import heros.solver.IFDSSolver;
 
+/**
+ * 
+ * @author kaarthik
+ *
+ */
 public class CodeGenerator {
 
+	/**
+	 * @param input
+	 * @throws JClassAlreadyExistsException
+	 * @throws IOException
+	 */
 	public static void generateSource(WizardInput input) throws JClassAlreadyExistsException, IOException {
 		if (input.AnalysisFramework.equals("Soot")) {
 			generateGeneralClass(input);
@@ -38,6 +48,11 @@ public class CodeGenerator {
 		generateMain(input);
 	}
 
+	/**
+	 * @param input
+	 * @throws JClassAlreadyExistsException
+	 * @throws IOException
+	 */
 	public static void generateGeneralClass(WizardInput input) throws JClassAlreadyExistsException, IOException {
 		JCodeModel codeModel = new JCodeModel();
 		JPackage jp = codeModel._package(input.getPackageName());
@@ -139,6 +154,11 @@ public class CodeGenerator {
 		// generateMain(input);
 	}
 
+	/**
+	 * @param input
+	 * @throws JClassAlreadyExistsException
+	 * @throws IOException
+	 */
 	public static void generateIFDSClass(WizardInput input) throws JClassAlreadyExistsException, IOException {
 		JCodeModel codeModel = new JCodeModel();
 		JPackage jp = codeModel._package(input.getPackageName());
@@ -214,6 +234,11 @@ public class CodeGenerator {
 		codeModel.build(input.getFile());
 	}
 
+	/**
+	 * @param input
+	 * @throws JClassAlreadyExistsException
+	 * @throws IOException
+	 */
 	public static void generateMain(WizardInput input) throws JClassAlreadyExistsException, IOException {
 		JCodeModel codeModel = new JCodeModel();
 		JPackage jp = codeModel._package(input.getPackageName());
