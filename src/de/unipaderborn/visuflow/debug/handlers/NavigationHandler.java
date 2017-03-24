@@ -64,8 +64,11 @@ public class NavigationHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
+		
+		//Get the editor part object
 		IEditorPart part = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
 		IFileEditorInput input = (IFileEditorInput) part.getEditorInput();
+		//Get a handle of the current file
 		IFile file = input.getFile();
 		if (part instanceof ITextEditor) {
 			final ITextEditor editor = (ITextEditor) part;
@@ -204,17 +207,17 @@ public class NavigationHandler extends AbstractHandler {
 					if (editorpart instanceof ITextEditor) {
 						final ITextEditor editor = (ITextEditor) editorpart;
 						IEditorInput input = editorpart.getEditorInput();
-						IPath path = ((FileEditorInput)input).getPath();
+						IPath path = ((FileEditorInput) input).getPath();
 						boolean extensionJimple = path.getFileExtension().equals("jimple");
 						boolean extensionJava = path.getFileExtension().equals("java");
-						if (isJimple && extensionJava){
+						if (isJimple && extensionJava) {
 							ISelection selection = editor.getSelectionProvider().getSelection();
 							if (selection != null) {
 								ITextSelection textSelection = (ITextSelection) selection;
 								editor.selectAndReveal(textSelection.getOffset(), 0);
 							}
 
-						}else if (extensionJimple && !isJimple){
+						} else if (extensionJimple && !isJimple) {
 							ISelection selection = editor.getSelectionProvider().getSelection();
 							if (selection != null) {
 								ITextSelection textSelection = (ITextSelection) selection;
