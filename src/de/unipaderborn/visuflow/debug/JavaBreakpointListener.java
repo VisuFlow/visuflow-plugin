@@ -34,7 +34,7 @@ import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 
 /**
- * This listener is responsible for tracking the location in the code / graph while
+ * This listener is responsible for tracking the location in the jimple code / graph while
  * debugging. It highlights the current position in the jimple file (if possible)
  * and also opens the CFG and scrolls to the unit.
  *
@@ -118,7 +118,12 @@ public class JavaBreakpointListener implements IJavaBreakpointListener, Visuflow
 		return file;
 	}
 
-	private void revealUnitInGraph(String unitFqn) throws Exception {
+	/**
+	 *
+	 * @param unitFqn
+	 * @throws Exception
+	 */
+	private void revealUnitInGraph(String unitFqn) {
 		DataModel model = ServiceUtil.getService(DataModel.class);
 		VFUnit vfUnit = model.getVFUnit(unitFqn);
 		if(vfUnit != null) {
@@ -127,6 +132,23 @@ public class JavaBreakpointListener implements IJavaBreakpointListener, Visuflow
 		}
 	}
 
+	/**
+	 * Highlights a line of Jimple code in the Jimple editor. It tints the line with the green color known from the Java Debugger. It also adds a small icon to
+	 * the ruler on the left side indicating where the debugger currently stopped. If previously another line was highlighted, this highlighting will be
+	 * removed.
+	 *
+	 * @param project
+	 *            the project containing the Jimple file
+	 * @param file
+	 *            the Jimple file containing the line to highlight
+	 * @param line
+	 *            the line number of the line to highlight
+	 * @param charStart
+	 *            the offset in the file of the line start
+	 * @param charEnd
+	 *            the offset in the file of the line end
+	 * @throws CoreException
+	 */
 	private void highlightLine(String project, String file, int line, int charStart, int charEnd) throws CoreException {
 		removeOldInstructionPointer(project);
 		addNewInstructionPointer(project, file, line, charStart, charEnd);

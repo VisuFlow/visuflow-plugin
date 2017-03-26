@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -130,8 +129,8 @@ public class DataModelImpl implements DataModel {
 
 	@Override
 	public void setSelectedMethod(VFMethod selectedMethod, boolean panToNode) {
-//		if(this.selectedMethod != null && this.selectedMethod.toString().contentEquals(selectedMethod.toString()))
-//			return;
+		//		if(this.selectedMethod != null && this.selectedMethod.toString().contentEquals(selectedMethod.toString()))
+		//			return;
 		this.selectedMethod = selectedMethod;
 		this.populateUnits();
 		this.populateEdges();
@@ -169,8 +168,8 @@ public class DataModelImpl implements DataModel {
 	public void setEventAdmin(EventAdmin eventAdmin) {
 		this.eventAdmin = eventAdmin;
 	}
-	
-	
+
+
 
 	@Override
 	public ICFGStructure getIcfg() {
@@ -255,7 +254,7 @@ public class DataModelImpl implements DataModel {
 	}
 
 	@Override
-	public void filterGraph(List<VFNode> selectedNodes, boolean selection, boolean panToNode, String uiClassName) throws Exception {
+	public void filterGraph(List<VFNode> selectedNodes, boolean selection, boolean panToNode, String uiClassName) {
 		NavigationHandler handler = new NavigationHandler();
 		handler.removeJimpleHighlight(true);
 		this.selectedNodes = selectedNodes;
@@ -341,6 +340,6 @@ public class DataModelImpl implements DataModel {
 		Event refreshView = new Event(DataModel.EA_TOPIC_DATA_VIEW_REFRESH, new HashMap<String,String>());
 		System.out.println("triggered refresh");
 		eventAdmin.postEvent(refreshView);
-		
+
 	}
 }
