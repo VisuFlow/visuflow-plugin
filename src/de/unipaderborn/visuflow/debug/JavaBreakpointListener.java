@@ -86,6 +86,14 @@ public class JavaBreakpointListener implements IJavaBreakpointListener, Visuflow
 		return 0;
 	}
 
+	/**
+	 * Opens the given file in an editor view and scrolls to the given position.
+	 *
+	 * @param file
+	 *            the file to open
+	 * @param position
+	 *            the position to scroll as character offset in the file
+	 */
 	private void revealLocationInFile(IFile file, int position) {
 		Display.getDefault().syncExec(() -> {
 			try {
@@ -119,14 +127,15 @@ public class JavaBreakpointListener implements IJavaBreakpointListener, Visuflow
 	}
 
 	/**
+	 * Reveals the unit represented by the given fully qualified name in the CFG view.
 	 *
 	 * @param unitFqn
-	 * @throws Exception
+	 *            the fully qualified name of the unit to show
 	 */
 	private void revealUnitInGraph(String unitFqn) {
 		DataModel model = ServiceUtil.getService(DataModel.class);
 		VFUnit vfUnit = model.getVFUnit(unitFqn);
-		if(vfUnit != null) {
+		if (vfUnit != null) {
 			VFNode node = new VFNode(vfUnit, 0);
 			model.filterGraph(Collections.singletonList(node), true, true, "debugHighlight");
 		}
