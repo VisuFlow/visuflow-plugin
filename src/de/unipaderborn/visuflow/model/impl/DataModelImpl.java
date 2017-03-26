@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
@@ -130,8 +128,8 @@ public class DataModelImpl implements DataModel {
 
 	@Override
 	public void setSelectedMethod(VFMethod selectedMethod, boolean panToNode) {
-//		if(this.selectedMethod != null && this.selectedMethod.toString().contentEquals(selectedMethod.toString()))
-//			return;
+		//		if(this.selectedMethod != null && this.selectedMethod.toString().contentEquals(selectedMethod.toString()))
+		//			return;
 		this.selectedMethod = selectedMethod;
 		this.populateUnits();
 		this.populateEdges();
@@ -169,8 +167,6 @@ public class DataModelImpl implements DataModel {
 	public void setEventAdmin(EventAdmin eventAdmin) {
 		this.eventAdmin = eventAdmin;
 	}
-	
-	
 
 	@Override
 	public ICFGStructure getIcfg() {
@@ -331,9 +327,10 @@ public class DataModelImpl implements DataModel {
 	public void triggerProjectRebuild() {
 		try {
 			ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
-		} catch (CoreException e1) {
-			e1.printStackTrace();
+		} catch (CoreException e) {
+			e.printStackTrace();
 		}
+		
 	}
 
 	@Override
@@ -341,6 +338,6 @@ public class DataModelImpl implements DataModel {
 		Event refreshView = new Event(DataModel.EA_TOPIC_DATA_VIEW_REFRESH, new HashMap<String,String>());
 		System.out.println("triggered refresh");
 		eventAdmin.postEvent(refreshView);
-		
+
 	}
 }

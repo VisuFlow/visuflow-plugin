@@ -35,6 +35,8 @@ import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 
 import de.unipaderborn.visuflow.ProjectPreferences;
 import de.unipaderborn.visuflow.builder.GlobalSettings;
+import de.unipaderborn.visuflow.model.DataModel;
+import de.unipaderborn.visuflow.util.ServiceUtil;
 
 	public class TargetHandlerDialog extends TitleAreaDialog {
 	        
@@ -242,6 +244,7 @@ import de.unipaderborn.visuflow.builder.GlobalSettings;
 	    		ProjectPreferences projPref = new ProjectPreferences();
 	    		projPref.createPreferences();
 	    		super.okPressed();
+	    		ServiceUtil.getService(DataModel.class).triggerProjectRebuild();
 	        	
 	        }
 

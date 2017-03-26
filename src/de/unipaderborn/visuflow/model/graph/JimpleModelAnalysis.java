@@ -99,6 +99,7 @@ public class JimpleModelAnalysis {
 			}
 
 			private void createJimpleHierarchyWithCfgs(List<VFClass> vfClasses) {
+				//TODO cuncurrent modification exception comes from here.
 				Chain<SootClass> classes = Scene.v().getClasses();
 				for (SootClass sootClass : classes) {
 					if (sootClass.isJavaLibraryClass() || sootClass.isLibraryClass()) {
