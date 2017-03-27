@@ -1523,20 +1523,20 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	public void colorTheGraph() {
 
 		panelColor.removeAll();
-
-		//		boolean inICFG = !this.CFG;
 		if (CFG) {
 			ProjectPreferences pref = new ProjectPreferences();
 			DataModel dataModel = ServiceUtil.getService(DataModel.class);
 			for (JButton bt : createStmtTypes(stmtTypes)) {
-				panelColor.add(new Label("Set color preference for this kind of statement"));
+				panelColor.add(new Label(bt.getName()));
+				bt.setText("change color");
+				bt.setBackground(new Color(pref.getColorForNode(bt.getName())));
+				bt.setForeground(new Color(pref.getColorForNode(bt.getName())));
 				panelColor.add(bt);
 				bt.addActionListener(new ActionListener() {
 
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						dialog.setVisible(true);
-
 						pref.updateColorPreferences(bt.getName(),jcc.getColor().getRGB());
 						dataModel.setSelectedMethod(dataModel.getSelectedMethod(), false);
 					}
