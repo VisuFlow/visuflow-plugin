@@ -17,6 +17,10 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 
+/**
+ * @author Zafar Habeeb
+ *
+ */
 public class WizardPageHandler extends WizardPage {
 	private Text containerTargetText,containerProjectName,containerPackageName,containerClassName;
 
@@ -29,7 +33,9 @@ public class WizardPageHandler extends WizardPage {
 		setDescription("This wizard creates new analysis project based on user-inputs");
 	}
 
-	/* This method creates all the control on the first page of Wizard */
+	/**
+	 *  This method creates all the control on the first page of Wizard.
+	 **/
 	public void createControl(Composite parent) {
 		Composite container = new Composite(parent, SWT.NULL);
 		GridLayout layout = new GridLayout();
@@ -92,6 +98,10 @@ public class WizardPageHandler extends WizardPage {
 	}
 
 	
+	/**
+	 * This method handles project selection. It displays the user, all the projects in current workspace and let user
+	 * select the project
+	 **/
 	private void handleProjectBrowse() {
 		ContainerSelectionDialog dialog = new ContainerSelectionDialog(
 				getShell(), ResourcesPlugin.getWorkspace().getRoot(), false,
@@ -104,6 +114,9 @@ public class WizardPageHandler extends WizardPage {
 		}
 	}
 
+	/**
+	 * This method ensures user select Target project and permissions
+	 */
 	private void dialogChanged() {
 		IResource container = ResourcesPlugin.getWorkspace().getRoot()
 				.findMember(new Path(getContainerName().get("TargetPath")));
@@ -130,6 +143,11 @@ public class WizardPageHandler extends WizardPage {
 		setPageComplete(message == null);
 	}
 
+	/**
+	 * This method captures all the data entered or selected in input fields and store it in a HashMap<String, String>.
+	 * This input data can later be used for further processing
+	 * @return HashMap<String, String>
+	 **/
 	public HashMap<String, String> getContainerName() {
 		HashMap<String, String> containerMap = new HashMap<>();
 		containerMap.put("TargetPath", containerTargetText.getText());

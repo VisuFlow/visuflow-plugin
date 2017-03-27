@@ -28,8 +28,20 @@ import com.sun.codemodel.JClassAlreadyExistsException;
 
 import de.unipaderborn.visuflow.builder.AddRemoveVisuFlowNatureHandler;
 
+/**
+ * @author Zafar Habeeb
+ *
+ */
 public class ProjectGenerator {
 	
+	/**
+	 * This method creates a new java project based on the user inputs, captured in WizardInput object.
+	 * The new project is created in the current workspace.
+	 * @param wizardInput
+	 * @return IJavaProject
+	 * @throws CoreException
+	 * @throws IOException
+	 **/
 	public IJavaProject createProject(WizardInput wizardInput) throws CoreException, IOException
 	{
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();

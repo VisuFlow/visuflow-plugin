@@ -13,6 +13,10 @@ import soot.Body;
 import soot.Unit;
 import soot.toolkits.graph.ExceptionalUnitGraph;
 
+/**
+ * @author Zafar Habeeb
+ *
+ */
 public class ControlFlowGraphGenerator {
 
 	static ExceptionalUnitGraph eg;
@@ -22,6 +26,12 @@ public class ControlFlowGraphGenerator {
 	private List<VFEdge> listEdges;
 	private VFMethod method;
 	
+	/**
+	 * This method generates the CFG of a method. It recursively iterates over the units and its successors
+	 * and creates a graph structure with nodes as units and control-flow between units as edges.
+	 * @param method
+	 * @return ControlFlowGraph
+	 */
 	public ControlFlowGraph generateControlFlowGraph(VFMethod method) {
 		this.method = method;
 		Body b = method.getBody();
@@ -47,6 +57,11 @@ public class ControlFlowGraphGenerator {
 		return g;
 	}
 	
+	/**
+	 * This recursive method is called from method generateControlFlowGraph() to iterate over units
+	 * and its successors.
+	 * @param currentNode
+	 */
 	private void traverseUnits(Unit currentNode) {
 		boolean present = false;
 		boolean edgeconnection = false;
@@ -100,6 +115,11 @@ public class ControlFlowGraphGenerator {
 		}
 	}
 
+	/**
+	 * This method takes input parameter a soot unit and returns its corresponding VFUnit from the Jimple model
+	 * @param unit
+	 * @return
+	 */
 	private VFUnit getVFUnit(Unit unit) {
 		for (VFUnit vfUnit : method.getUnits()) {
 			if(vfUnit.getUnit() == unit) {
