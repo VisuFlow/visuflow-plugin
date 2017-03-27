@@ -29,6 +29,7 @@ import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -55,6 +56,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
+import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.PopupMenuEvent;
@@ -1218,9 +1220,20 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			methodBody = Pattern.compile("^[ ]{4}", Pattern.MULTILINE).matcher(methodBody).replaceAll(""); // remove indentation at line start
 			methodBody = methodBody.replaceAll("\n{2,}", "\n"); // replace empty lines
 			String escapedMethodBody = StringEscapeUtils.escapeHtml(methodBody);
-			createdNode.setAttribute("nodeData.methodBody", "<code><pre style=\"color: #000000; background-color: #acc2d6\">" + escapedMethodBody + "</pre></code>");
+			String hexColor = getCodeBackgroundColor();
+			createdNode.setAttribute("nodeData.methodBody", "<code><pre style=\"color: #000000; background-color: #"+hexColor+"\">" + escapedMethodBody + "</pre></code>");
 			createdNode.setAttribute("nodeMethod", src);
 		}
+	}
+	
+	private String getCodeBackgroundColor() {
+		Color tooltipBackground = UIManager.getColor("ToolTip.background");
+		float[] hsb = new float[3];
+		hsb = Color.RGBtoHSB(tooltipBackground.getRed(), tooltipBackground.getGreen(), tooltipBackground.getBlue(), hsb);
+		hsb[2] = hsb[2] * 0.95f;
+		Color codeBackground = new Color(Color.HSBtoRGB(hsb[0], hsb[1], hsb[2]));
+		String hexColor = Integer.toHexString(codeBackground.getRGB() & 0xffffff);
+		return hexColor;
 	}
 
 	/**
