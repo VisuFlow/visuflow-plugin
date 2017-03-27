@@ -24,6 +24,9 @@ public class Visuflow extends AbstractUIPlugin {
 	 */
 	private ProjectListener projectListener = new ProjectListener();
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
+	 */
 	@Override
 	public void start(BundleContext context) {
 
@@ -61,6 +64,9 @@ public class Visuflow extends AbstractUIPlugin {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
+	 */
 	@Override
 	public void stop(BundleContext context) {
 		ResourcesPlugin.getWorkspace().removeResourceChangeListener(projectListener);
