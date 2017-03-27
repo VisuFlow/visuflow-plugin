@@ -6,6 +6,10 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
 
+/**
+ * @author Zafar Habeeb
+ *
+ */
 public class LinkTargetProject extends AbstractHandler {
 
 	@Override

@@ -16,6 +16,10 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
+/**
+ * @author Zafar Habeeb
+ *
+ **/
 public class WizardHandlerPageTwo extends WizardPage {
 
 	private Text classFirst, classSecond, containerSootLocation;
@@ -33,7 +37,9 @@ public class WizardHandlerPageTwo extends WizardPage {
 		setDescription("This wizard creates new analysis project based on user-inputs");
 	}
 
-	/* This method creates all the control on the second page of Wizard */
+	/**
+	 *  This method creates all the control on the second page of Wizard.
+	 **/
 	public void createControl(Composite parent) {
 		Composite container = new Composite(parent, SWT.NULL);
 		GridLayout layout = new GridLayout();
@@ -256,12 +262,20 @@ public class WizardHandlerPageTwo extends WizardPage {
 	}
 
 
+	/**
+	 * This method is used to handle file selection. It restricts the file type to .jar files.
+	 **/
 	private void handleFileBrowse() {
 		FileDialog fileDialog = new FileDialog(getShell(),SWT.OPEN);
 		fileDialog.setFilterExtensions(new String[]{"*.jar"});
 		 containerSootLocation.setText(fileDialog.open());
 	}
 
+	/**
+	 * This method captures all the data entered or selected in input fields and store it in a HashMap<String, String>.
+	 * This input data can later be used for further processing
+	 * @return HashMap<String, String>
+	 **/
 	public HashMap<String, String> getContainerName() {
 		HashMap<String, String> containerMap = new HashMap<>();
 		containerMap.put("AnalysisType", analysisType.getText());

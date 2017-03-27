@@ -9,11 +9,20 @@ import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 
+/**
+ * This class sets the layout of the graph. 
+ * @author Shashank B S
+ *
+ */
 public class HierarchicalLayout {
 
 	private static double spacingX = 16.0;
 	private static double spacingY = 3.0;
 
+	/**
+	 * Set layout of the graph.
+	 * @param graph
+	 */
 	static void layout(Graph graph) {
 		Iterator<Node> nodeIterator = graph.getNodeIterator();
 		Node first = nodeIterator.next();
@@ -106,29 +115,38 @@ public class HierarchicalLayout {
 		}
 	}
 
-	private static void positionNode(Node curr) {
-		Node parent = findParentWithHighestLevel(curr);
+	/**
+	 * Assign the coordinates to the node in the graph.
+	 * @param node
+	 */
+	private static void positionNode(Node node) {
+		Node parent = findParentWithHighestLevel(node);
 		if(parent == null)
 			return;
 
 		double[] positionOfParent = Toolkit.nodePosition(parent);
 		int outDegreeOfParent = parent.getOutDegree();
 		if (outDegreeOfParent == 1) {
-			curr.setAttribute("xyz", positionOfParent[0], positionOfParent[1] - spacingY, 0.0);
-			curr.setAttribute("layouted", "true");
+			node.setAttribute("xyz", positionOfParent[0], positionOfParent[1] - spacingY, 0.0);
+			node.setAttribute("layouted", "true");
 		} else {
-			if(curr.hasAttribute("directionResolver")) {
-				double x = positionOfParent[0] + ((int) curr.getAttribute("directionResolver") * spacingX);
+			if(node.hasAttribute("directionResolver")) {
+				double x = positionOfParent[0] + ((int) node.getAttribute("directionResolver") * spacingX);
 				double y = positionOfParent[1] - spacingY;
-				curr.setAttribute("xyz", x, y, 0.0);
-				curr.setAttribute("layouted", "true");
+				node.setAttribute("xyz", x, y, 0.0);
+				node.setAttribute("layouted", "true");
 			} else {
-				curr.setAttribute("xyz", positionOfParent[0], positionOfParent[1] - spacingY, 0.0);
-				curr.setAttribute("layouted", "true");
+				node.setAttribute("xyz", positionOfParent[0], positionOfParent[1] - spacingY, 0.0);
+				node.setAttribute("layouted", "true");
 			}
 		}
 	}
 
+	/**
+	 * Determine the parent of a node that has the highest level set.
+	 * @param node
+	 * @return parent node that has the highest level assigned
+	 */
 	static Node findParentWithHighestLevel(Node node) {
 		int inDegreeOfNode = node.getInDegree();
 		Node parent = null;
