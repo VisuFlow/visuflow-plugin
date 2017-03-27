@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
@@ -169,8 +168,6 @@ public class DataModelImpl implements DataModel {
 		this.eventAdmin = eventAdmin;
 	}
 
-
-
 	@Override
 	public ICFGStructure getIcfg() {
 		return icfg;
@@ -330,9 +327,10 @@ public class DataModelImpl implements DataModel {
 	public void triggerProjectRebuild() {
 		try {
 			ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
-		} catch (CoreException e1) {
-			e1.printStackTrace();
+		} catch (CoreException e) {
+			e.printStackTrace();
 		}
+		
 	}
 
 	@Override
