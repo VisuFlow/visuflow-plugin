@@ -8,7 +8,13 @@ public class InvokeStmtFormatter implements UnitFormatter {
 	@Override
 	public String format(Unit u, int maxLength) {
 		InvokeStmt invoke = (InvokeStmt) u;
-		return ValueFormatter.format(invoke.getInvokeExpr());
+		String s = ValueFormatter.format(invoke.getInvokeExpr());
+
+		if(s.length() > maxLength) {
+			s = s.substring(0, maxLength) + "\u2026";
+		}
+
+		return s;
 	}
 
 }

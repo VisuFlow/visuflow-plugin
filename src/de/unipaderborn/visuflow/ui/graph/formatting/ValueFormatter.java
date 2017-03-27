@@ -20,7 +20,7 @@ public class ValueFormatter {
 		return s;
 	}
 
-	private static String formatFieldRef(Value v) {
+	static String formatFieldRef(Value v) {
 		JInstanceFieldRef fieldRef = (JInstanceFieldRef) v;
 		return fieldRef.getBase().toString() + ".<" +
 		shorten(fieldRef.getBase().getType().toString()) + ": " +
@@ -28,7 +28,7 @@ public class ValueFormatter {
 		fieldRef.getFieldRef().name() + ">";
 	}
 
-	private static String formatInvoke(Value v) {
+	static String formatInvoke(Value v) {
 		if(v instanceof InstanceInvokeExpr) {
 			return formatInstanceInvoke((InstanceInvokeExpr) v);
 		}
@@ -37,11 +37,11 @@ public class ValueFormatter {
 		s = s.replaceAll("virtualinvoke ", "");
 		s = s.replaceAll("specialinvoke ", "");
 		s = s.replaceAll("staticinvoke ", "");
-		s = shortenClassName(s);
+		s = shortenClassNames(s);
 		return s;
 	}
 
-	private static String formatInstanceInvoke(InstanceInvokeExpr v) {
+	static String formatInstanceInvoke(InstanceInvokeExpr v) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(v.getBase().toString()).append(".<")
 		.append(shorten(v.getBase().getType().toString()))
@@ -64,7 +64,7 @@ public class ValueFormatter {
 		return sb.toString();
 	}
 
-	private static String shortenClassName(String s) {
+	static String shortenClassNames(String s) {
 		Matcher m = Pattern.compile("<(.*?): (.*?)>").matcher(s);
 		if(m.find()) {
 			String className = m.group(1);
@@ -75,7 +75,7 @@ public class ValueFormatter {
 		return s;
 	}
 
-	private static String shorten(String className) {
+	static String shorten(String className) {
 		String[] parts = className.split("\\.");
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < parts.length-1; i++) {
