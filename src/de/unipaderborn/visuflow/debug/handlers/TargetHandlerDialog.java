@@ -251,8 +251,8 @@ import de.unipaderborn.visuflow.util.ServiceUtil;
 	    		projPref.createPreferences();
 	    		AddRemoveVisuFlowNatureHandler addNature = new AddRemoveVisuFlowNatureHandler();
 	    		try {
-					if(!targetProject.getProject().isNatureEnabled("JimpleBuilder.VisuFlowNature"))
-					addNature.toggleNature(targetProject.getProject());
+					if(!analysisProject.getProject().isNatureEnabled("JimpleBuilder.VisuFlowNature"))
+					addNature.toggleNature(analysisProject.getProject());
 				} catch (CoreException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
