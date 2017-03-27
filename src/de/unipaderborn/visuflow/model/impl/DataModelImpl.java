@@ -11,7 +11,11 @@ import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.FindReplaceDocumentAdapter;
 import org.eclipse.jface.text.IDocument;
@@ -325,12 +329,15 @@ public class DataModelImpl implements DataModel {
 
 	@Override
 	public void triggerProjectRebuild() {
-		try {
-			ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
-		} catch (CoreException e) {
-			e.printStackTrace();
-		}
-		
+		WorkspaceJob build = new WorkspaceJob("rebuild") {
+			
+			@Override
+			public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
+				ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, monitor);
+				return Status.OK_STATUS;
+			}
+		};
+		build.schedule();
 	}
 
 	@Override
