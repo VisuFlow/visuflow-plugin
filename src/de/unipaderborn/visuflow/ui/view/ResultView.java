@@ -44,9 +44,20 @@ import de.unipaderborn.visuflow.ui.Attribute;
 import de.unipaderborn.visuflow.ui.view.filter.ResultViewFilter;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 
+/**
+ * This class creates a view which shows the results of an analysis.
+ * @author Shashank B S
+ *
+ */
 public class ResultView extends ViewPart implements EventHandler {
 
+	/**
+	 * table which contains the results of the analysis
+	 */
 	private TableViewer viewer;
+	/**
+	 * instance of {@link de.unipaderborn.visuflow.ui.view.filter.ResultViewFilter} that performs filtering of the analysis results
+	 */
 	private ResultViewFilter filter;
 	private List<VFUnit> units;
 	private Button highlightNodes;

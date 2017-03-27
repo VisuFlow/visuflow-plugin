@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -86,6 +85,7 @@ public class ProjectGenerator {
 		sourceFolder.refreshLocal(1, null);
 		javaProject.open(null);
 		AddRemoveVisuFlowNatureHandler addNature = new AddRemoveVisuFlowNatureHandler();
+		if(!project.isNatureEnabled("JimpleBuilder.VisuFlowNature"))
 		addNature.toggleNature(project);
 		return javaProject;
 	}

@@ -102,7 +102,6 @@ import de.unipaderborn.visuflow.ui.view.filter.ReturnPathFilter;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 import scala.collection.mutable.HashSet;
 import soot.Unit;
-import soot.jimple.InvokeExpr;
 import soot.jimple.ReturnStmt;
 import soot.jimple.ReturnVoidStmt;
 import soot.jimple.Stmt;
@@ -183,7 +182,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private boolean draggingGraph = false;
 	private Point mouseDraggedFrom;
 	private Point mouseDraggedTo;
-	
+
 	private JMenuItem navigateToJimple;
 	private JMenuItem navigateToJava;
 	private JMenuItem showInUnitView;
@@ -193,7 +192,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private JMenu callGraphOption;
 	private JMenuItem cha;
 	private JMenuItem spark;
-	
+
 	private String nodeAttributesString = "nodeData.attributes";
 
 	/**
@@ -561,17 +560,17 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 						if(list.size() == 1) {
 							returnToCaller(list.get(0));
 						} else {
-						Display.getDefault().syncExec(new Runnable() {
-						    public void run() {
-								ReturnPathFilter callFilter = new ReturnPathFilter(Display.getDefault().getActiveShell());
-								callFilter.setPaths(list);
-								callFilter.setInitialPattern("?");
-								callFilter.open();
-								if(callFilter.getFirstResult() != null){
-									jumpToCallee((VFUnit) callFilter.getFirstResult());
+							Display.getDefault().syncExec(new Runnable() {
+								public void run() {
+									ReturnPathFilter callFilter = new ReturnPathFilter(Display.getDefault().getActiveShell());
+									callFilter.setPaths(list);
+									callFilter.setInitialPattern("?");
+									callFilter.open();
+									if(callFilter.getFirstResult() != null){
+										jumpToCallee((VFUnit) callFilter.getFirstResult());
+									}
 								}
-						    }
-						});
+							});
 						}
 					}
 				}
@@ -1076,11 +1075,11 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			else
 			{
 				dataModel.setSelectedMethod(unit.getVfMethod(), true);
-				
+
 			}
 		} catch (Exception e1) {
 			e1.printStackTrace();
-			
+
 		}
 	}
 
@@ -1139,7 +1138,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			@Override
 			public void stateChanged(ChangeEvent e) {
-//				Color color = jcc.getColor();
+				//				Color color = jcc.getColor();
 			}
 		});
 
@@ -1258,7 +1257,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			createdNode.setAttribute("nodeMethod", src);
 		}
 	}
-	
+
 	private String getCodeBackgroundColor() {
 		Color tooltipBackground = UIManager.getColor("ToolTip.background");
 		float[] hsb = new float[3];
@@ -1524,35 +1523,39 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	public void colorTheGraph() {
 
 		panelColor.removeAll();
-
-		//		boolean inICFG = !this.CFG;
 		if (CFG) {
-
+			ProjectPreferences pref = new ProjectPreferences();
+			DataModel dataModel = ServiceUtil.getService(DataModel.class);
 			for (JButton bt : createStmtTypes(stmtTypes)) {
-				panelColor.add(new Label("Set color preference for this kind of statement"));
+				panelColor.add(new Label(bt.getName()));
+				bt.setText("change color");
+				bt.setBackground(new Color(pref.getColorForNode(bt.getName())));
+				bt.setForeground(new Color(pref.getColorForNode(bt.getName())));
 				panelColor.add(bt);
 				bt.addActionListener(new ActionListener() {
 
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						dialog.setVisible(true);
-
-						// TODO Send vfNode and Color to Kaarthik
-						ProjectPreferences pref = new ProjectPreferences();
 						pref.updateColorPreferences(bt.getName(),jcc.getColor().getRGB());
-						DataModel dataModel = ServiceUtil.getService(DataModel.class);
 						dataModel.setSelectedMethod(dataModel.getSelectedMethod(), false);
 					}
 				});
 			}
-
+			JButton resetDefaultColorSettingsButton = new JButton("Reset Defaults");
+			resetDefaultColorSettingsButton.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					pref.createPreferences();
+					dataModel.setSelectedMethod(dataModel.getSelectedMethod(), false);
+				}
+			});
+			panelColor.add(resetDefaultColorSettingsButton);
 			JOptionPane.showConfirmDialog(null, panelColor, "Test", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
 		} else {
 			JOptionPane.showMessageDialog(new JPanel(), "Changing color not possible in the ICFG", "Warning", JOptionPane.WARNING_MESSAGE);
-
 		}
-
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -1575,7 +1578,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			Set set = selectedVF.getHmCustAttr().entrySet();
 			Iterator i = set.iterator();
 			String attributeString = "";
-			
+
 			if(curr.hasAttribute(nodeAttributesString))
 			{
 				attributeString += curr.getAttribute(nodeAttributesString) + "<br>";
@@ -1589,7 +1592,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				Map.Entry me = (Map.Entry) i.next();
 				hmCustAttr.put((String) me.getKey(), (String) me.getValue());
 			}
-			
+
 			if ((attributeName.getText().length() > 0) && (attributeValue.getText().length() > 0)) {
 				try {
 					hmCustAttr.put(attributeName.getText(), attributeValue.getText());
@@ -1597,9 +1600,9 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 					ArrayList<VFUnit> units = new ArrayList<>();
 					units.add(selectedVF);
-					
+
 					attributeString += attributeName.getText() + ":" + attributeValue.getText();
-					
+
 					curr.setAttribute(nodeAttributesString, attributeString);
 					curr.addAttribute("ui.color", Color.red.getRGB());
 
