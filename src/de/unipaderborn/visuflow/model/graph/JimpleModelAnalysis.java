@@ -170,6 +170,21 @@ public class JimpleModelAnalysis {
 					}
 				}
 			}
+			
+			private void addCallPoint(VFMethodEdge edge){
+				System.out.println("called");
+				List<VFUnit> unitList = edge.getSourceMethod().getUnits();
+				for (VFUnit unit : unitList){
+					if(((Stmt)unit.getUnit()).containsInvokeExpr()){
+						InvokeExpr ivE = ((Stmt)unit.getUnit()).getInvokeExpr();
+						if(ivE.getMethod().equals(edge.getDestMethod().getSootMethod())){
+							if(unit.addOutgoingEdge(edge.getDestMethod().getUnits().get(0))){
+								return;
+							}
+						}
+					}
+				}
+			}
 
 			private void traverseMethods(SootMethod source, CallGraph cg) {
 				Targets tc = new Targets(cg.edgesOutOf(source));
@@ -227,10 +242,7 @@ public class JimpleModelAnalysis {
 						edgeCount++;
 						VFMethodEdge edge = new VFMethodEdge(edgeCount, sourceMethod, destinationMethod);
 						addReturnPoint(edge);
-						if (destinationMethod.getIncomingEdges().isEmpty()) {
-							System.out.println("Method " + destinationMethod + " Edge " + edge);
-							System.out.println("adding didnt work");
-						}
+						addCallPoint(edge);
 						methodGraph.listEdges.add(edge);
 						traverseMethods(destination, cg);
 					}
