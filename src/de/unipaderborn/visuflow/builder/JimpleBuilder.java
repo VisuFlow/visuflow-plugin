@@ -32,6 +32,15 @@ import de.unipaderborn.visuflow.model.graph.ICFGStructure;
 import de.unipaderborn.visuflow.model.graph.JimpleModelAnalysis;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 
+/**
+ * @author PAH-Laptop
+ * This is the Builder Class for our Project. 
+ * It triggers on the automatic builds of eclipse and checks which files have changed.
+ * It only triggers a build on Project with the Visuflow Nature that have issued a fullbuild
+ * or contain changed java files.
+ * Then it gathers all the necessary information on the target code and runs a soot analysis 
+ * to compute the structure and jimple necessary for the other views.
+ */
 public class JimpleBuilder extends IncrementalProjectBuilder {
 
 	private Logger logger = Visuflow.getDefault().getLogger();
@@ -67,6 +76,12 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 		}
 	}
 
+	
+	/**
+	 * @param javaProject
+	 * @return
+	 * @throws JavaModelException
+	 */
 	protected String getClassFilesLocation(IJavaProject javaProject) throws JavaModelException {
 		String path = javaProject.getOutputLocation().toString();
 		IResource binFolder = ResourcesPlugin.getWorkspace().getRoot().findMember(path);
@@ -75,6 +90,11 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 		throw new RuntimeException("Could not retrieve Soot classpath for project " + javaProject.getElementName());
 	}
 
+	/**
+	 * @param javaProject
+	 * @return String with the complete Classpath for the soot run
+	 * Computes the classpath necessary for the soot run
+	 */
 	private String getSootCP(IJavaProject javaProject) {
 		String sootCP = "";
 		try {
@@ -86,6 +106,14 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 		return sootCP;
 	}
 
+	
+	/**
+	 * @param javaProject
+	 * @return Set of the locations of jars for the soot classpath
+	 * @throws JavaModelException
+	 * 
+	 * This method computes the locations of the jar files necessary for the soot run
+	 */
 	protected Set<String> getJarFilesLocation(IJavaProject javaProject) throws JavaModelException {
 		Set<String> jars = new HashSet<>();
 		IClasspathEntry[] resolvedClasspath = javaProject.getResolvedClasspath(true);
@@ -128,14 +156,16 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 	@Override
 	protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
 		executeBuild = false;
-		if (kind == FULL_BUILD) {
-			fullBuild(monitor);
-		} else {
-			IResourceDelta delta = getDelta(getProject());
-			if (delta == null) {
+		if(getProject() != null || getProject().getName().equals(GlobalSettings.get("TargetProject"))){
+			if (kind == FULL_BUILD) {
 				fullBuild(monitor);
 			} else {
-				checkForBuild(delta, monitor);
+				IResourceDelta delta = getDelta(getProject());
+				if (delta == null) {
+					fullBuild(monitor);
+				} else {
+					checkForBuild(delta, monitor);
+				}
 			}
 		}
 		return null;
