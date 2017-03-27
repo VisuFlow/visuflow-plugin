@@ -1145,12 +1145,12 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		dialog = JColorChooser.createDialog(null, "Color Chooser", true, jcc, null, null);
 		panelColor = new JPanel(new GridLayout(0, 2));
 
-		colorSettingsButton = new JButton("Color nodes");
+		colorSettingsButton = new JButton("Color Settings");
 		colorSettingsButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				colorTheGraph();
+				createColorSettingsDialogue();
 
 			}
 		});
@@ -1520,42 +1520,41 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 	}
 
-	public void colorTheGraph() {
+	public void createColorSettingsDialogue() {
 
 		panelColor.removeAll();
-		if (CFG) {
-			ProjectPreferences pref = new ProjectPreferences();
-			DataModel dataModel = ServiceUtil.getService(DataModel.class);
-			for (JButton bt : createStmtTypes(stmtTypes)) {
-				panelColor.add(new Label(bt.getName()));
-				bt.setText("change color");
-				bt.setBackground(new Color(pref.getColorForNode(bt.getName())));
-				bt.setForeground(new Color(pref.getColorForNode(bt.getName())));
-				panelColor.add(bt);
-				bt.addActionListener(new ActionListener() {
+		ProjectPreferences pref = new ProjectPreferences();
+		DataModel dataModel = ServiceUtil.getService(DataModel.class);
+		for (JButton bt : createStmtTypes(stmtTypes)) {
+			panelColor.add(new Label(bt.getName()));
+			bt.setText("change color");
+			bt.setBackground(new Color(pref.getColorForNode(bt.getName())));
+			panelColor.add(bt);
+			bt.addActionListener(new ActionListener() {
 
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						dialog.setVisible(true);
-						pref.updateColorPreferences(bt.getName(),jcc.getColor().getRGB());
-						dataModel.setSelectedMethod(dataModel.getSelectedMethod(), false);
-					}
-				});
-			}
-			JButton resetDefaultColorSettingsButton = new JButton("Reset Defaults");
-			resetDefaultColorSettingsButton.addActionListener(new ActionListener() {
-				
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					pref.createPreferences();
-					dataModel.setSelectedMethod(dataModel.getSelectedMethod(), false);
+					dialog.setVisible(true);
+					int color = jcc.getColor().getRGB();
+					JButton button = (JButton) e.getSource();
+					pref.updateColorPreferences(bt.getName(),color);
+					button.setBackground(new Color(pref.getColorForNode(button.getName())));
+					if(CFG)
+						dataModel.setSelectedMethod(dataModel.getSelectedMethod(), false);
 				}
 			});
-			panelColor.add(resetDefaultColorSettingsButton);
-			JOptionPane.showConfirmDialog(null, panelColor, "Test", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-		} else {
-			JOptionPane.showMessageDialog(new JPanel(), "Changing color not possible in the ICFG", "Warning", JOptionPane.WARNING_MESSAGE);
 		}
+		JButton resetDefaultColorSettingsButton = new JButton("Reset Defaults");
+		resetDefaultColorSettingsButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				pref.createPreferences();
+				dataModel.setSelectedMethod(dataModel.getSelectedMethod(), false);
+			}
+		});
+		panelColor.add(resetDefaultColorSettingsButton);
+		JOptionPane.showConfirmDialog(null, panelColor, "Color Settings", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 	}
 
 	@SuppressWarnings("rawtypes")
