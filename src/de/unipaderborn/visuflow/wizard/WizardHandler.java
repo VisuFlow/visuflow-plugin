@@ -24,6 +24,10 @@ import org.eclipse.ui.IWorkbench;
 import de.unipaderborn.visuflow.ProjectPreferences;
 import de.unipaderborn.visuflow.builder.GlobalSettings;
 
+/**
+ * @author Zafar Habeeb
+ *
+ */
 public class WizardHandler extends Wizard implements INewWizard {
 
 	private WizardPageHandler page;
@@ -51,6 +55,9 @@ public class WizardHandler extends Wizard implements INewWizard {
 			return true;
 	}
 
+	/** 
+	 * This method is used to handle post processing after the user clicks on finish button in the wizard.
+	 **/
 	public boolean performFinish() {
 		HashMap<String, String> pageOneValues = page.getContainerName();
 		HashMap<String, String> pageTwoValues = pageTwo.getContainerName();

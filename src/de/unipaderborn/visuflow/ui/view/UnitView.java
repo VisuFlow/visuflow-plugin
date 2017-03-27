@@ -81,6 +81,7 @@ public class UnitView extends ViewPart implements EventHandler {
 		}
 	}
 
+
 	@Override
 	public void createPartControl(Composite parent) {
 		GridLayout layout = new GridLayout(3, true);
@@ -215,6 +216,10 @@ public class UnitView extends ViewPart implements EventHandler {
 
 	}
 
+	/**
+	 * This methods populates the unit view with the list of units and creates a tree structure.
+	 * @param listUnits
+	 */
 	public static void populateUnits(List<VFUnit> listUnits) {
 		for (VFUnit unit : listUnits) {
 			TreeItem treeItem = new TreeItem(tree, SWT.NONE | SWT.BORDER);
@@ -465,6 +470,12 @@ public class UnitView extends ViewPart implements EventHandler {
 		});
 	}
 
+	/**
+	 * This method takes unit text as input parameter and returns the unit details such as
+	 * the classname, method name it belongs to and the unit object.
+	 * @param unitText
+	 * @return
+	 */
 	public static HashMap<String, Object> getUnitDetails(String unitText) {
 		String selectedClass = classCombo.getText();
 		String selectedMethod = methodCombo.getText();

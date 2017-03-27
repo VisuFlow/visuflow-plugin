@@ -36,6 +36,10 @@ import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 import de.unipaderborn.visuflow.ProjectPreferences;
 import de.unipaderborn.visuflow.builder.GlobalSettings;
 
+	/**
+	 * @author Zafar Habeeb
+	 *
+	 */
 	public class TargetHandlerDialog extends TitleAreaDialog {
 	        
 	        private Text containerSourceText,containerTargetText;

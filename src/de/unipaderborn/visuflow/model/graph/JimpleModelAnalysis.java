@@ -1,3 +1,4 @@
+
 package de.unipaderborn.visuflow.model.graph;
 
 import java.io.UnsupportedEncodingException;
@@ -46,6 +47,12 @@ public class JimpleModelAnalysis {
 		this.sootString = s;
 	}
 
+	/**
+	 * This method generates the ICFG (Inter-procedural Control Flow Graph) of the target code. Call graph option(CHA/Spark)
+	 * can be set here. It also creates the Jimple model.
+	 * @param methodGraph
+	 * @param vfClasses
+	 **/
 	public void createICFG(final ICFGStructure methodGraph, List<VFClass> vfClasses) {
 		G.reset();
 		Transform transform = new Transform("wjap.myTransform", new SceneTransformer() {
@@ -74,6 +81,10 @@ public class JimpleModelAnalysis {
 				createICFG();
 			}
 
+			/**
+			 * This method iterates over all the called methods, starting from main(). It recursively calls the outgoing
+			 * edges of a method and generate structure (ICFG Structure) having nodes as methods and call to methods as edges.
+			 **/
 			private void createICFG() {
 				CallGraph cg = Scene.v().getCallGraph();
 				SootMethod entryMethod = null;
@@ -98,6 +109,12 @@ public class JimpleModelAnalysis {
 				traverseMethods(entryMethod, cg);
 			}
 
+			/**
+			 * This method creates a Jimple model consisting of (VFClass, VFMEthod and VFUnit). It creates a Scene() object
+			 * and iteratively finds all the classes, methods and units and creates a structure.
+			 * @param vfClasses
+			 * @return void
+			 */
 			private void createJimpleHierarchyWithCfgs(List<VFClass> vfClasses) {
 				Chain<SootClass> classes = Scene.v().getClasses();
 				for (SootClass sootClass : classes) {
@@ -171,6 +188,11 @@ public class JimpleModelAnalysis {
 				}
 			}
 
+			/**
+			 * This method recursively iterates over method calls to generate ICFG structure
+			 * @param SootMethod
+			 * @param CallGraph
+			 */
 			private void traverseMethods(SootMethod source, CallGraph cg) {
 				Targets tc = new Targets(cg.edgesOutOf(source));
 				while (tc.hasNext()) {
