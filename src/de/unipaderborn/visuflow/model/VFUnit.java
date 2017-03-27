@@ -1,6 +1,8 @@
 package de.unipaderborn.visuflow.model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import soot.Unit;
@@ -22,7 +24,23 @@ public class VFUnit {
 	private VFMethod vfMethod;
 
 	private Map<String, String> hmCustAttr = new HashMap<String, String>();
+	private List<VFUnit> outgoingEdges = new ArrayList<>();
 
+	public List<VFUnit> getOutgoingEdges() {
+		return outgoingEdges;
+	}
+
+	public void setOutgoingEdges(List<VFUnit> outgoingEdges) {
+		this.outgoingEdges = outgoingEdges;
+	}
+
+	public boolean addOutgoingEdge(VFUnit outgoingEdge){
+		if(outgoingEdges.contains(outgoingEdge)){
+			return false;
+		}
+		System.out.println(outgoingEdge);
+		return outgoingEdges.add(outgoingEdge);
+	}
 	public VFMethod getVfMethod() {
 		return vfMethod;
 	}

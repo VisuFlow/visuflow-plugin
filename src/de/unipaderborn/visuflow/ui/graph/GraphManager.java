@@ -545,16 +545,34 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 		followCall.addActionListener(new ActionListener() {
 
-			@Override
 			public void actionPerformed(ActionEvent e) {
 				GraphicElement curElement = view.findNodeOrSpriteAt(x, y);
-				if (curElement == null)
+				if(curElement == null)
 					return;
 				Node curr = graph.getNode(curElement.getId());
 				Object node = curr.getAttribute("nodeUnit");
 				if (node instanceof VFNode) {
-					if (((Stmt) ((VFNode) node).getUnit()).containsInvokeExpr()) {
-						callInvokeExpr(((Stmt) ((VFNode) node).getUnit()).getInvokeExpr());
+					if (((Stmt) ((VFNode) node).getUnit()).containsInvokeExpr()){
+						System.out.println("Call ahoy");
+						List<VFUnit> list = new ArrayList<>();
+						for(VFUnit edge : ((VFNode) node).getVFUnit().getOutgoingEdges()){
+							list.add(edge);
+						}
+						if(list.size() == 1) {
+							returnToCaller(list.get(0));
+						} else {
+						Display.getDefault().syncExec(new Runnable() {
+						    public void run() {
+								ReturnPathFilter callFilter = new ReturnPathFilter(Display.getDefault().getActiveShell());
+								callFilter.setPaths(list);
+								callFilter.setInitialPattern("?");
+								callFilter.open();
+								if(callFilter.getFirstResult() != null){
+									jumpToCallee((VFUnit) callFilter.getFirstResult());
+								}
+						    }
+						});
+						}
 					}
 				}
 			}
@@ -1049,19 +1067,20 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 	}
 
-	private void callInvokeExpr(InvokeExpr expr) {
-		if (expr == null)
-			return;
+	private void jumpToCallee(VFUnit unit){
+		if(unit == null) return;
 		DataModel dataModel = ServiceUtil.getService(DataModel.class);
-		VFMethod selectedMethod = dataModel.getVFMethodByName(expr.getMethod());
 		try {
-			if (selectedMethod.getControlFlowGraph() == null)
+			if(unit.getVfMethod().getControlFlowGraph() == null)
 				throw new Exception("CFG Null Exception");
-			else {
-				dataModel.setSelectedMethod(selectedMethod, true);
+			else
+			{
+				dataModel.setSelectedMethod(unit.getVfMethod(), true);
+				
 			}
 		} catch (Exception e1) {
 			e1.printStackTrace();
+			
 		}
 	}
 

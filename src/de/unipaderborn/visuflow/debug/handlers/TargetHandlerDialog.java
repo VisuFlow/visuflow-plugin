@@ -38,6 +38,10 @@ import de.unipaderborn.visuflow.builder.GlobalSettings;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 
+	/**
+	 * @author Zafar Habeeb
+	 *
+	 */
 	public class TargetHandlerDialog extends TitleAreaDialog {
 	        
 	        private Text containerSourceText,containerTargetText;
