@@ -24,6 +24,8 @@ import org.eclipse.ui.IWorkbench;
 import de.unipaderborn.visuflow.ProjectPreferences;
 import de.unipaderborn.visuflow.builder.AddRemoveVisuFlowNatureHandler;
 import de.unipaderborn.visuflow.builder.GlobalSettings;
+import de.unipaderborn.visuflow.model.DataModel;
+import de.unipaderborn.visuflow.util.ServiceUtil;
 
 /**
  * @author Zafar Habeeb
@@ -134,6 +136,7 @@ public class WizardHandler extends Wizard implements INewWizard {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		ServiceUtil.getService(DataModel.class).triggerProjectRebuild();
 		monitor.worked(1);
 		monitor.setTaskName("Opening file for editing...");
 		getShell().getDisplay().asyncExec(new Runnable() {
