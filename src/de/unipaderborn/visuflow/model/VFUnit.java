@@ -6,6 +6,11 @@ import java.util.Map;
 import soot.Unit;
 import soot.tagkit.Tag;
 
+/**
+ * This class is a wrapper around the {@link soot.Unit} and maintains an instance of {@link soot.Unit}. 
+ * @author Shashank B S
+ *
+ */
 public class VFUnit {
 
 	private String fullyQualifiedName;
