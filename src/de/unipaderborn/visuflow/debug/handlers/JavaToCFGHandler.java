@@ -36,8 +36,14 @@ import soot.tagkit.LineNumberTag;
 
 public class JavaToCFGHandler extends AbstractHandler {
 
+	/**
+	 * Get instance of default logger.`
+	 */
 	private Logger logger = Visuflow.getDefault().getLogger();
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.core.commands.IHandler#execute(org.eclipse.core.commands.ExecutionEvent)
+	 */
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		IEditorPart part = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
@@ -76,12 +82,19 @@ public class JavaToCFGHandler extends AbstractHandler {
 		}
 		return null;
 	}
-
+	/**
+	 * This function filters the units of a class according to the function name and class name and content. 
+	 * We need to filter this based on methods, because different function might contain similar lines of code and 
+	 * hence their contents will be similar.
+	 * @param className The name of the class.
+	 * @param document The document which the user is currently interacting with
+	 * @param content The contents of the document.
+	 * @param lineNumber The linenumber on which the user has right-clicked.
+	 * @return Map of filtered unit and the function it belongs to.
+	 */
 	private HashMap<VFUnit, VFMethod> getSelectedUnit(String className, IDocument document, int lineNumber) {
 		DataModel dataModel = ServiceUtil.getService(DataModel.class);
 		HashMap<VFUnit, VFMethod> map = new HashMap<VFUnit, VFMethod>();
-		// VFClass
-		// vfClass=dataModel.listClasses().stream().filter(x->x.getSootClass().getName()==className).collect(Collectors.toList()).get(0);
 		for (VFClass vfClass : dataModel.listClasses()) {
 			if (vfClass.getSootClass().getShortJavaStyleName().equals(className)) {
 				List<VFMethod> vfMethods = vfClass.getMethods();
@@ -106,7 +119,12 @@ public class JavaToCFGHandler extends AbstractHandler {
 		}
 		return map;
 	}
-
+	/**
+	 * This method returns the line numbers of all the methods passed to it.
+	 * @param document The document with which the user is interacting.
+	 * @param vfMethods The list of methods for which the line numbers are required.
+	 * @return Map containing method names and their starting line numbers.
+	 */
 	private Map<String, Integer> getMethodLineNumbers(IDocument document, List<VFMethod> vfMethods) {
 
 		FindReplaceDocumentAdapter findReplaceDocumentAdapter = new FindReplaceDocumentAdapter(document);

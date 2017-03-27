@@ -100,6 +100,7 @@ public class NavigationHandler extends AbstractHandler {
 					if (resultantUnit.size() > 0) {
 						unit.add(new VFNode((VFUnit) resultantUnit.keySet().toArray()[0], 0));
 					}
+					//The below conditions check for events.
 					if (event.getCommand().getId().equals("JimpleEditor.NavigateToCFG")) {
 						try {
 							ServiceUtil.getService(DataModel.class).filterGraph(unit, true, true, null);
