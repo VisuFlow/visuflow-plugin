@@ -34,6 +34,10 @@ import soot.tagkit.AttributeValueException;
 import soot.tagkit.Tag;
 import soot.util.Chain;
 
+/**
+ * @author Zafar Habeeb
+ *
+ */
 public class JimpleModelAnalysis {
 
 	private int methodcount = 0;
@@ -153,6 +157,13 @@ public class JimpleModelAnalysis {
 				}
 			}
 
+			/**
+			 * This methods accepts the unit details and adds the fully qualified name as a unit tag in the
+			 * Jimple model
+			 * @param unit
+			 * @param sootClass
+			 * @param sootMethod
+			 */
 			private void addFullyQualifiedName(Unit unit, SootClass sootClass, SootMethod sootMethod) {
 				unit.addTag(new Tag() {
 					@Override

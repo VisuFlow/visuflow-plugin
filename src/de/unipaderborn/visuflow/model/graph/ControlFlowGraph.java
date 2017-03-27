@@ -8,7 +8,7 @@ import de.unipaderborn.visuflow.model.VFNode;
 
 /**
  * Data structure used to store information about CFG
- *
+ * @author Zafar Habeeb
  */
 public class ControlFlowGraph {
 	public List<VFNode> listNodes = new ArrayList<VFNode>();
