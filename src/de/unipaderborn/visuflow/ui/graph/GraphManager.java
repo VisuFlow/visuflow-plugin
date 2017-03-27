@@ -1313,38 +1313,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 	}
 
-	private void getNodesToCollapse(Node n) {
-		boolean present = false;
-		scala.collection.Iterator<Node> setIterator = setOfNode.iterator();
-		while (setIterator.hasNext()) {
-			if (setIterator.next().equals(n)) {
-				present = true;
-				break;
-			}
-		}
-		if (!present) {
-			Iterator<Edge> edgeIterator = n.getLeavingEdgeIterator();
-			while (edgeIterator.hasNext()) {
-				Edge edge = edgeIterator.next();
-				start = edge.getNode1();
-				Node k = start;
-				while (true) {
-					if (k.getOutDegree() == 1 && k.getInDegree() == 1) {
-						previous = k;
-						k = k.getEachLeavingEdge().iterator().next().getNode1();
-					} else {
-						break;
-					}
-				}
-
-				map.put(start, previous);
-				setOfNode.add(n);
-				getNodesToCollapse(k);
-
-			}
-		}
-	}
-
 	/**
 	 * Layout the graph by setting the coordinates on the nodes. <br>
 	 * Refer to {@link de.unipaderborn.visuflow.ui.graph.HierarchicalLayout}
@@ -1593,12 +1561,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			System.out.println("Cancelled");
 		}
 
-	}
-
-	public void colorCustomNode() {
-		for (Node n : graph.getEachNode()) {
-			n.setAttribute("ui.color", jcc.getColor());
-		}
 	}
 
 	private List<JButton> createStmtTypes(List<JButton> stmtTypes) {
