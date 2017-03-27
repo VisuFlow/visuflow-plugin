@@ -4,6 +4,10 @@ import java.io.File;
 
 import org.eclipse.core.runtime.Path;
 
+/**
+ * Data structure used to capture user inputs in the Wizard.
+ * @author Zafar Habeeb
+ **/
 public class WizardInput {
 	
 	String flowType;
