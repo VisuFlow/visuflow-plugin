@@ -22,6 +22,7 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import de.unipaderborn.visuflow.ProjectPreferences;
+import de.unipaderborn.visuflow.builder.AddRemoveVisuFlowNatureHandler;
 import de.unipaderborn.visuflow.builder.GlobalSettings;
 
 /**
@@ -125,6 +126,14 @@ public class WizardHandler extends Wizard implements INewWizard {
 		GlobalSettings.put("TargetProject", targetProject.getProject().getName());
 		ProjectPreferences projPref = new ProjectPreferences();
 		projPref.createPreferences();
+		AddRemoveVisuFlowNatureHandler addNature = new AddRemoveVisuFlowNatureHandler();
+		try {
+			if(!targetProject.getProject().isNatureEnabled("JimpleBuilder.VisuFlowNature"))
+			addNature.toggleNature(targetProject.getProject());
+		} catch (CoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		monitor.worked(1);
 		monitor.setTaskName("Opening file for editing...");
 		getShell().getDisplay().asyncExec(new Runnable() {
