@@ -156,7 +156,7 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 	@Override
 	protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
 		executeBuild = false;
-		if(getProject() != null && getProject().getName().equals(GlobalSettings.get("TargetProject"))){
+		if(getProject() != null && getProject().getName().equals(GlobalSettings.get("AnalysisProject"))){
 			if (kind == FULL_BUILD) {
 				fullBuild(monitor);
 			} else {
