@@ -34,7 +34,7 @@ import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 
 /**
- * This listener is responsible for tracking the location in the code / graph while
+ * This listener is responsible for tracking the location in the jimple code / graph while
  * debugging. It highlights the current position in the jimple file (if possible)
  * and also opens the CFG and scrolls to the unit.
  *
@@ -86,6 +86,14 @@ public class JavaBreakpointListener implements IJavaBreakpointListener, Visuflow
 		return 0;
 	}
 
+	/**
+	 * Opens the given file in an editor view and scrolls to the given position.
+	 *
+	 * @param file
+	 *            the file to open
+	 * @param position
+	 *            the position to scroll as character offset in the file
+	 */
 	private void revealLocationInFile(IFile file, int position) {
 		Display.getDefault().syncExec(() -> {
 			try {
@@ -118,15 +126,38 @@ public class JavaBreakpointListener implements IJavaBreakpointListener, Visuflow
 		return file;
 	}
 
-	private void revealUnitInGraph(String unitFqn) throws Exception {
+	/**
+	 * Reveals the unit represented by the given fully qualified name in the CFG view.
+	 *
+	 * @param unitFqn
+	 *            the fully qualified name of the unit to show
+	 */
+	private void revealUnitInGraph(String unitFqn) {
 		DataModel model = ServiceUtil.getService(DataModel.class);
 		VFUnit vfUnit = model.getVFUnit(unitFqn);
-		if(vfUnit != null) {
+		if (vfUnit != null) {
 			VFNode node = new VFNode(vfUnit, 0);
 			model.filterGraph(Collections.singletonList(node), true, true, "debugHighlight");
 		}
 	}
 
+	/**
+	 * Highlights a line of Jimple code in the Jimple editor. It tints the line with the green color known from the Java Debugger. It also adds a small icon to
+	 * the ruler on the left side indicating where the debugger currently stopped. If previously another line was highlighted, this highlighting will be
+	 * removed.
+	 *
+	 * @param project
+	 *            the project containing the Jimple file
+	 * @param file
+	 *            the Jimple file containing the line to highlight
+	 * @param line
+	 *            the line number of the line to highlight
+	 * @param charStart
+	 *            the offset in the file of the line start
+	 * @param charEnd
+	 *            the offset in the file of the line end
+	 * @throws CoreException
+	 */
 	private void highlightLine(String project, String file, int line, int charStart, int charEnd) throws CoreException {
 		removeOldInstructionPointer(project);
 		addNewInstructionPointer(project, file, line, charStart, charEnd);

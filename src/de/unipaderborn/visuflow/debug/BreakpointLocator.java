@@ -30,6 +30,14 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
 // TODO analyze only the the current analysis project
+/**
+ * The BreakpointLocator is used to find the locations of the flow functions
+ * in the user analysis. These locations are needed to set the conditional breakpoints,
+ * which make up the Jimple breakpoints.
+ *
+ * @author henni@upb.de
+ *
+ */
 public class BreakpointLocator {
 
 	// @formatter:off

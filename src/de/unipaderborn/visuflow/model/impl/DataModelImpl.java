@@ -251,7 +251,7 @@ public class DataModelImpl implements DataModel {
 	}
 
 	@Override
-	public void filterGraph(List<VFNode> selectedNodes, boolean selection, boolean panToNode, String uiClassName) throws Exception {
+	public void filterGraph(List<VFNode> selectedNodes, boolean selection, boolean panToNode, String uiClassName) {
 		NavigationHandler handler = new NavigationHandler();
 		handler.removeJimpleHighlight(true);
 		this.selectedNodes = selectedNodes;
