@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
@@ -118,25 +119,6 @@ public class ResultView extends ViewPart implements EventHandler {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	private List<VFUnit> getUnitsToCustomize(boolean selection) {
-		TableItem[] selectedNodes = viewer.getTable().getItems();
-		List<VFUnit> unitToCustomize = new ArrayList<>();
-		List<VFNode> nodesToFilter = new ArrayList<>();
-
-		for (TableItem tableItem : selectedNodes) {
-			if (tableItem.getChecked()) {
-				unitToCustomize.add((VFUnit) tableItem.getData());
-				nodesToFilter.add(new VFNode((VFUnit) tableItem.getData(), 0));
-			}
-
-		}
-
-		highlightNodesOnGraph(highlightNodes.getSelection());
-
-		return unitToCustomize;
-
 	}
 
 	private void createViewer(Composite parent) {
@@ -249,13 +231,9 @@ public class ResultView extends ViewPart implements EventHandler {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				//				StructuredSelection selection = (StructuredSelection) viewer.getSelection();
-				//				@SuppressWarnings("unchecked")
-				//				List<VFUnit> l = selection.toList();
-
-				// Get all chosen VFUnits
-				List<VFUnit> l = getUnitsToCustomize(highlightNodes.getSelection());
-
+				StructuredSelection selection = (StructuredSelection) viewer.getSelection();
+				@SuppressWarnings("unchecked")
+				List<VFUnit> l = selection.toList();
 				ArrayList<VFNode> listAttrNodes = new ArrayList<>();
 
 				// Open the dialog
