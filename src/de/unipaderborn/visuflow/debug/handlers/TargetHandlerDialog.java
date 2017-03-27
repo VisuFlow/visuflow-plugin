@@ -8,6 +8,7 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -34,6 +35,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 
 import de.unipaderborn.visuflow.ProjectPreferences;
+import de.unipaderborn.visuflow.builder.AddRemoveVisuFlowNatureHandler;
 import de.unipaderborn.visuflow.builder.GlobalSettings;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.util.ServiceUtil;
@@ -247,6 +249,14 @@ import de.unipaderborn.visuflow.util.ServiceUtil;
 	    		GlobalSettings.put("TargetProject", targetProject.getProject().getName());
 	    		ProjectPreferences projPref = new ProjectPreferences();
 	    		projPref.createPreferences();
+	    		AddRemoveVisuFlowNatureHandler addNature = new AddRemoveVisuFlowNatureHandler();
+	    		try {
+					if(!targetProject.getProject().isNatureEnabled("JimpleBuilder.VisuFlowNature"))
+					addNature.toggleNature(targetProject.getProject());
+				} catch (CoreException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 	    		super.okPressed();
 	    		ServiceUtil.getService(DataModel.class).triggerProjectRebuild();
 	        	
