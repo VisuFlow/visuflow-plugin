@@ -114,8 +114,17 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	private static final transient Logger logger = Visuflow.getDefault().getLogger();
 
+	/**
+	 * Instance of {@link org.graphstream.graph.Graph} object.
+	 */
 	Graph graph;
-	String styleSheet;
+	/**
+	 * Path to the style sheet of the graph.
+	 */
+	String styleSheetPath;
+	/**
+	 * Limit on the number of characters of the node attributes.
+	 */
 	int maxLength;
 	private Viewer viewer;
 	private ViewPanel view;
@@ -141,8 +150,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	double zoomInDelta, zoomOutDelta, maxZoomPercent, minZoomPercent, panXDelta, panYDelta;
 
-	boolean autoLayoutEnabled = false;
-
 	Layout graphLayout = new SpringBox();
 
 	private JButton panLeftButton;
@@ -157,9 +164,18 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private BufferedImage imgPlus;
 	private BufferedImage imgMinus;
 
+	/**
+	 * The X coordinate of the pop up window to be displayed.
+	 */
 	private int x = 0;
+	/**
+	 * The Y coordinate of the pop up window to be displayed.
+	 */
 	private int y = 0;
 
+	/**
+	 * Flag that determines the type of the displayed graph.
+	 */
 	private boolean CFG;
 
 	// following 3 variables are used for graph dragging with the mouse
@@ -194,7 +210,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		this.maxZoomPercent = 0.2;
 		this.minZoomPercent = 1.0;
 		this.maxLength = 55;
-		this.styleSheet = styleSheet;
+		this.styleSheetPath = styleSheet;
 		createGraph(graphName);
 		createUI();
 
@@ -244,7 +260,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	 */
 	void createGraph(String graphName) {
 		graph = new MultiGraph(graphName);
-		graph.addAttribute("ui.stylesheet", styleSheet);
+		graph.addAttribute("ui.stylesheet", styleSheetPath);
 		graph.setStrict(true);
 		graph.setAutoCreate(true);
 		graph.addAttribute("ui.quality");
@@ -266,7 +282,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private void reintializeGraph() throws Exception {
 		if (graph != null) {
 			graph.clear();
-			graph.addAttribute("ui.stylesheet", styleSheet);
+			graph.addAttribute("ui.stylesheet", styleSheetPath);
 			graph.setStrict(true);
 			graph.setAutoCreate(true);
 			graph.addAttribute("ui.quality");
