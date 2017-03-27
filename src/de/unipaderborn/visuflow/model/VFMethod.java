@@ -8,6 +8,11 @@ import de.unipaderborn.visuflow.model.graph.ControlFlowGraph;
 import soot.Body;
 import soot.SootMethod;
 
+/**
+ * This class is a wrapper around the {@link soot.SootMethod} and maintains all the units of that method.
+ * @author Shashank B S
+ *
+ */
 public class VFMethod {
 
 	protected SootMethod wrapped;
@@ -39,7 +44,6 @@ public class VFMethod {
 	}
 
 	public VFMethod(int methodcount, SootMethod wrapped) {
-		// TODO Auto-generated constructor stub
 		this.id = methodcount;
 		this.wrapped = wrapped;
 	}

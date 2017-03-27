@@ -5,6 +5,11 @@ import java.util.List;
 
 import soot.SootClass;
 
+/**
+ * This class is a wrapper around the {@link soot.SootClass} which maintains the list of all the methods.
+ * @author Shashank B S
+ *
+ */
 public class VFClass {
 
 	private SootClass wrapped;

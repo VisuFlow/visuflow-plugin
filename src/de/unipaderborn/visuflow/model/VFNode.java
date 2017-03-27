@@ -2,6 +2,11 @@ package de.unipaderborn.visuflow.model;
 
 import soot.Unit;
 
+/**
+ * This class is a wrapper around {@link de.unipaderborn.visuflow.model.VFUnit} and maintains an instance of {@link de.unipaderborn.visuflow.model.VFUnit}. 
+ * @author Shashank B S
+ *
+ */
 public class VFNode {
 	
 	VFUnit vfUnit;
