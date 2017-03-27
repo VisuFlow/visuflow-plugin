@@ -128,8 +128,8 @@ public class WizardHandler extends Wizard implements INewWizard {
 		projPref.createPreferences();
 		AddRemoveVisuFlowNatureHandler addNature = new AddRemoveVisuFlowNatureHandler();
 		try {
-			if(!targetProject.getProject().isNatureEnabled("JimpleBuilder.VisuFlowNature"))
-			addNature.toggleNature(targetProject.getProject());
+			if(!sourceProject.getProject().isNatureEnabled("JimpleBuilder.VisuFlowNature"))
+			addNature.toggleNature(sourceProject.getProject());
 		} catch (CoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
