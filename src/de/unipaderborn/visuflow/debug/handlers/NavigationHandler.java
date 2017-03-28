@@ -72,7 +72,7 @@ public class NavigationHandler extends AbstractHandler {
 	 */
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		
+
 		//Get the editor part object
 		IEditorPart part = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
 		IFileEditorInput input = (IFileEditorInput) part.getEditorInput();
@@ -145,7 +145,7 @@ public class NavigationHandler extends AbstractHandler {
 	}
 
 	/**
-	 * This functions highlights units in a jimple file. 
+	 * This functions highlights units in a jimple file.
 	 * @param units The units which need to be highlighted
 	 */
 	public void highlightJimpleSource(List<VFUnit> units) {
@@ -259,8 +259,8 @@ public class NavigationHandler extends AbstractHandler {
 	}
 
 	/**
-	 * This function filters the units of a class according to the function name and class name and content. 
-	 * We need to filter this based on methods, because different function might contain similar lines of code and 
+	 * This function filters the units of a class according to the function name and class name and content.
+	 * We need to filter this based on methods, because different function might contain similar lines of code and
 	 * hence their contents will be similar.
 	 * @param className The name of the class.
 	 * @param document The document which the user is currently interacting with
@@ -359,7 +359,6 @@ public class NavigationHandler extends AbstractHandler {
 					valueList.add(db.getValue());
 				}
 			}
-			System.out.println(unit.getUnit());
 			for (ValueBox ub : u.getUseBoxes()) {
 				if (valueList.contains(ub.getValue())) {
 					if (u.getDefBoxes().isEmpty()) {

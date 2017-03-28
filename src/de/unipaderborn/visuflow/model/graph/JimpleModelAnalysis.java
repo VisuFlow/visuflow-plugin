@@ -199,9 +199,8 @@ public class JimpleModelAnalysis {
 					}
 				}
 			}
-			
+
 			private void addCallPoint(VFMethodEdge edge){
-				System.out.println("called");
 				List<VFUnit> unitList = edge.getSourceMethod().getUnits();
 				for (VFUnit unit : unitList){
 					if(((Stmt)unit.getUnit()).containsInvokeExpr()){

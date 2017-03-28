@@ -195,7 +195,6 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 
 						IBreakpoint javaBreakpoint = DebugPlugin.getDefault().getBreakpointManager().getBreakpoint(marker);
 						jimpleBreakpoint.addJavaBreakpoint(javaBreakpoint);
-						System.out.println("------------------------- JimpleBreakpoint created");
 						return Status.OK_STATUS;
 					}
 				};
@@ -349,7 +348,7 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 			if(unitFqn == null) {
 				// FIXME get the unit from the stack, if possible
 				// for example for unit-type-breakpoints
-				
+
 				// no unit fqn, we don't know, where we are
 				return;
 			}

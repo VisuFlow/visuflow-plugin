@@ -297,7 +297,6 @@ public class ResultView extends ViewPart implements EventHandler {
 				});
 			}
 		} else if (event.getTopic().equals(DataModel.EA_TOPIC_DATA_VIEW_REFRESH)) {
-			System.out.println("refreshing resultsview");
 			if (viewer != null && !viewer.getControl().isDisposed()) {
 				viewer.getTable().getDisplay().asyncExec(new Runnable() {
 					@Override

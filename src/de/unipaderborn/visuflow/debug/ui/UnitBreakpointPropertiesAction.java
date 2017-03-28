@@ -38,11 +38,6 @@ public class UnitBreakpointPropertiesAction extends RulerBreakpointAction implem
 	 */
 	@Override
 	public void run() {
-		System.out.println("run()");
-		System.out.println(getVerticalRulerInfo());
-		System.out.println(getEditor());
-		System.out.println(getBreakpoint());
-
 		UnitBreakpointPropertiesDialog dialog = new UnitBreakpointPropertiesDialog(getEditor().getSite().getShell());
 		int returnCode = dialog.open();
 		if(returnCode == Dialog.OK) {
@@ -51,7 +46,6 @@ public class UnitBreakpointPropertiesAction extends RulerBreakpointAction implem
 			if(dialog.isSuspendOnUnit()) {
 				unit = dialog.getSelectedUnit();
 				if(unit != null) {
-					System.out.println(unit.getFullyQualifiedName());
 					String escapedRequiredFqn = unit.getFullyQualifiedName().replaceAll("\"", "\\\\\"");
 					// FIXME find out the name of the unit
 					condition = "new String(d.getTag(\"Fully Qualified Name\").getValue()).equals(\""+escapedRequiredFqn+"\")";

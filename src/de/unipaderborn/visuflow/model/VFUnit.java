@@ -9,7 +9,7 @@ import soot.Unit;
 import soot.tagkit.Tag;
 
 /**
- * This class is a wrapper around the {@link soot.Unit} and maintains an instance of {@link soot.Unit}. 
+ * This class is a wrapper around the {@link soot.Unit} and maintains an instance of {@link soot.Unit}.
  * @author Shashank B S
  *
  */
@@ -23,7 +23,7 @@ public class VFUnit {
 
 	private VFMethod vfMethod;
 
-	private Map<String, String> hmCustAttr = new HashMap<String, String>();
+	private Map<String, String> hmCustAttr = new HashMap<>();
 	private List<VFUnit> outgoingEdges = new ArrayList<>();
 
 	public List<VFUnit> getOutgoingEdges() {
@@ -38,7 +38,6 @@ public class VFUnit {
 		if(outgoingEdges.contains(outgoingEdge)){
 			return false;
 		}
-		System.out.println(outgoingEdge);
 		return outgoingEdges.add(outgoingEdge);
 	}
 	public VFMethod getVfMethod() {
@@ -104,9 +103,10 @@ public class VFUnit {
 		return result;
 	}
 
-    public String toString(){
-    	return getFullyQualifiedName();
-    }
+	@Override
+	public String toString(){
+		return getFullyQualifiedName();
+	}
 
 	@Override
 	public boolean equals(Object obj) {

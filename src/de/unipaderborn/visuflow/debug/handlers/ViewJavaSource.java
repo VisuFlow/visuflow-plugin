@@ -32,7 +32,7 @@ public class ViewJavaSource extends AbstractHandler {
 		//      System.out.println("//////////////////////"+HandlerUtil.getActiveEditor(event).getEditorSite());
 		//      System.out.println(HandlerUtil.getCurrentSelection(event).toString());
 		//      System.out.println(window.getActivePage());
-		//ISelection selection = HandlerUtil.getCurrentSelectionChecked(event);           
+		//ISelection selection = HandlerUtil.getCurrentSelectionChecked(event);
 		File fileToOpen = new File("C:/Users/Shashank B S/Documents/Projects/visuflow-plugin/targets2/de/visuflow/analyzeMe/ex2/TargetClass2.java");
 
 		if (fileToOpen.exists() && fileToOpen.isFile()) {
@@ -49,13 +49,10 @@ public class ViewJavaSource extends AbstractHandler {
 		}
 		IEditorPart editor = window.getActivePage().getActiveEditor();
 
-		ITextEditor txteditor = (ITextEditor) editor.getAdapter(ITextEditor.class);
+		ITextEditor txteditor = editor.getAdapter(ITextEditor.class);
 		if (txteditor != null) {
 			IDocumentProvider provider = txteditor.getDocumentProvider();
 			IDocument document = provider.getDocument(editor.getEditorInput());
-			System.out.println(txteditor.getHighlightRange());
-			System.out.println("==============================="+document);
-			System.out.println(document);
 		}
 
 		ITextEditor editor1 = (ITextEditor) editor;
@@ -72,7 +69,6 @@ public class ViewJavaSource extends AbstractHandler {
 				// we guess this...
 			}
 			if (lineInfo != null) {
-				System.out.println("=================>>>>>>>>>"+lineInfo);
 				editor1.selectAndReveal(lineInfo.getOffset(), lineInfo.getLength());
 				// editor1.setHighlightRange(lineInfo.getOffset(), lineInfo.getLength(), true);
 

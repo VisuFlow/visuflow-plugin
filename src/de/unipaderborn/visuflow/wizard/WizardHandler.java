@@ -21,6 +21,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
+
 import de.unipaderborn.visuflow.ProjectPreferences;
 import de.unipaderborn.visuflow.builder.AddRemoveVisuFlowNatureHandler;
 import de.unipaderborn.visuflow.builder.GlobalSettings;
@@ -43,24 +44,26 @@ public class WizardHandler extends Wizard implements INewWizard {
 		setNeedsProgressMonitor(true);
 	}
 
+	@Override
 	public void addPages() {
 		page = new WizardPageHandler(selection);
 		addPage(page);
 		pageTwo = new WizardHandlerPageTwo(selection);
 		addPage(pageTwo);
 	}
-	
+
 	@Override
 	public boolean canFinish() {
 		if(getContainer().getCurrentPage() == page)
 			return false;
-			else 
+		else
 			return true;
 	}
 
-	/** 
+	/**
 	 * This method is used to handle post processing after the user clicks on finish button in the wizard.
 	 **/
+	@Override
 	public boolean performFinish() {
 		HashMap<String, String> pageOneValues = page.getContainerName();
 		HashMap<String, String> pageTwoValues = pageTwo.getContainerName();
@@ -83,16 +86,17 @@ public class WizardHandler extends Wizard implements INewWizard {
 		Path sootPath = new Path(sootLocation);
 		wizardInput.setSootPath(sootPath);
 		IRunnableWithProgress op = new IRunnableWithProgress() {
+			@Override
 			public void run(IProgressMonitor monitor) throws InvocationTargetException {
 				try {
 					doFinish(targetProjectPath, analysisProjectName, monitor);
 				} catch (CoreException e) {
 					throw new InvocationTargetException(e);
 				} catch (FileNotFoundException e) {
-					
+
 					e.printStackTrace();
 				} catch (IOException e) {
-					
+
 					e.printStackTrace();
 				} finally {
 					monitor.done();
@@ -106,17 +110,16 @@ public class WizardHandler extends Wizard implements INewWizard {
 		} catch (InvocationTargetException e) {
 			Throwable realException = e.getTargetException();
 			MessageDialog.openError(getShell(), "Error", realException.getMessage());
-			System.out.println(realException.getStackTrace().toString());
 			return false;
 		}
 		return true;
 	}
 
 	private void doFinish(
-		String targetProjectPath,
-		String analysisProjectName,
-		IProgressMonitor monitor)
-		throws CoreException, IOException {
+			String targetProjectPath,
+			String analysisProjectName,
+			IProgressMonitor monitor)
+					throws CoreException, IOException {
 		monitor.beginTask("Creating " +analysisProjectName, 2);
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		ProjectGenerator projectGen = new ProjectGenerator();
@@ -131,7 +134,7 @@ public class WizardHandler extends Wizard implements INewWizard {
 		AddRemoveVisuFlowNatureHandler addNature = new AddRemoveVisuFlowNatureHandler();
 		try {
 			if(!sourceProject.getProject().isNatureEnabled("JimpleBuilder.VisuFlowNature"))
-			addNature.toggleNature(sourceProject.getProject());
+				addNature.toggleNature(sourceProject.getProject());
 		} catch (CoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -140,6 +143,7 @@ public class WizardHandler extends Wizard implements INewWizard {
 		monitor.worked(1);
 		monitor.setTaskName("Opening file for editing...");
 		getShell().getDisplay().asyncExec(new Runnable() {
+			@Override
 			public void run() {
 
 			}
@@ -147,6 +151,7 @@ public class WizardHandler extends Wizard implements INewWizard {
 		monitor.worked(1);
 	}
 
+	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		this.selection = selection;
 	}

@@ -31,7 +31,6 @@ public class TerminationListener implements IDebugEventSetListener, VisuflowCons
 
 	@Override
 	public void handleDebugEvents(DebugEvent[] events) {
-		// System.out.println("Events " + events.length);
 		for (int i = 0; i < events.length; i++) {
 			DebugEvent debugEvent = events[i];
 			if (debugEvent.getKind() == DebugEvent.TERMINATE) {

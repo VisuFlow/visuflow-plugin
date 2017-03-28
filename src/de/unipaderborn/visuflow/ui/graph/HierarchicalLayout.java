@@ -128,16 +128,13 @@ public class HierarchicalLayout {
 		int outDegreeOfParent = parent.getOutDegree();
 		if (outDegreeOfParent == 1) {
 			node.setAttribute("xyz", positionOfParent[0], positionOfParent[1] - spacingY, 0.0);
-			//node.setAttribute("layouted", "true");
 		} else {
 			if(node.hasAttribute("directionResolver")) {
 				double x = positionOfParent[0] + ((int) node.getAttribute("directionResolver") * spacingX);
 				double y = positionOfParent[1] - spacingY;
 				node.setAttribute("xyz", x, y, 0.0);
-				//node.setAttribute("layouted", "true");
 			} else {
 				node.setAttribute("xyz", positionOfParent[0], positionOfParent[1] - spacingY, 0.0);
-				//node.setAttribute("layouted", "true");
 			}
 		}
 	}
