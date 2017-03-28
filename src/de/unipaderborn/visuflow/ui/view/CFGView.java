@@ -42,9 +42,9 @@ public class CFGView extends ViewPart {
 		frame.pack();
 	}
 
-	//	@Override
-	//	public void setFocus() {
-	//		System.out.println(getClass().getName() + " Set Focus");
-	//	}
+	@Override
+	public void setFocus() {
+		//System.out.println(getClass().getName() + " Set Focus");
+	}
 
 }
