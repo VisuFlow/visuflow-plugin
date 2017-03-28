@@ -197,7 +197,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * Creates a new instance of graph manager used for rendering ICFG and CFG.
-	 * 
+	 *
 	 * @param graphName - name of the graph
 	 * @param - styleSheet path to the style sheet file
 	 * @author Shashank B S
@@ -207,8 +207,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		this.panYDelta = 2;
 		this.zoomInDelta = .075;
 		this.zoomOutDelta = .075;
-		this.maxZoomPercent = 0.2;
-		this.minZoomPercent = 1.0;
+		this.maxZoomPercent = 0.1;
+		this.minZoomPercent = 3.0;
 		this.maxLength = 55;
 		this.styleSheetPath = styleSheet;
 		createGraph(graphName);
@@ -266,7 +266,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		graph.addAttribute("ui.quality");
 		graph.addAttribute("ui.antialias");
 
-		viewer = new Viewer(graph, Viewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
+		viewer = new Viewer(graph, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
 		viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
 
 		view = viewer.addDefaultView(false);
@@ -275,7 +275,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * Reinitializes the graph by deleting the existing nodes and resets the attributes.
-	 * 
+	 *
 	 * @throws Exception when graph is null
 	 * @author Shashank B S
 	 */
@@ -391,7 +391,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * Creates instances of buttons {@link #panLeftButton}, {@link #panRightButton}, {@link #panUpButton} and {@link #panDownButton} and its action listeners.
-	 * @author Shashank B S 
+	 * @author Shashank B S
 	 */
 	private void createPanningButtons() {
 		panLeftButton = new JButton("");
@@ -544,6 +544,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 		followCall.addActionListener(new ActionListener() {
 
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				GraphicElement curElement = view.findNodeOrSpriteAt(x, y);
 				if(curElement == null)
@@ -552,7 +553,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				Object node = curr.getAttribute("nodeUnit");
 				if (node instanceof VFNode) {
 					if (((Stmt) ((VFNode) node).getUnit()).containsInvokeExpr()){
-						System.out.println("Call ahoy");
 						List<VFUnit> list = new ArrayList<>();
 						for(VFUnit edge : ((VFNode) node).getVFUnit().getOutgoingEdges()){
 							list.add(edge);
@@ -561,6 +561,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 							returnToCaller(list.get(0));
 						} else {
 							Display.getDefault().syncExec(new Runnable() {
+								@Override
 								public void run() {
 									ReturnPathFilter callFilter = new ReturnPathFilter(Display.getDefault().getActiveShell());
 									callFilter.setPaths(list);
@@ -655,13 +656,13 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	}
 
 	/**
-	 * Resizes and returns the {@code image} to the dimensions of {@code width} and {@code height}. 
-	 * 
+	 * Resizes and returns the {@code image} to the dimensions of {@code width} and {@code height}.
+	 *
 	 * @param image - the source image to be resized
 	 * @param width - the new width
 	 * @param height - the new height
 	 * @return resized image - the resized image to the provided width and height
-	 * 
+	 *
 	 * @author Shashank B S
 	 */
 	private Image getScaledImage(Image image, int width, int height) {
@@ -1159,7 +1160,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	/**
 	 * Filters and highlights the graph by setting the {@code uiClassForFilteredNodes} class on the filtered nodes based on the boolean value {@code selection} and also pans the view to the last filtered node based on the value of {@code panToNode}.
 	 * @param nodes - nodes to be filtered
-	 * @param selection - flag to determine whether the nodes have to be highlighted 
+	 * @param selection - flag to determine whether the nodes have to be highlighted
 	 * @param panToNode - flag to determine whether to pan the graph to the last filtered node
 	 * @param uiClassForFilteredNodes - class name to be set on filtered nodes, defaults to <b>filter</b> if the passed in value is null
 	 * @author Shashank B S
@@ -1222,7 +1223,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * Creates an edge between the graph method nodes.
-	 * 
+	 *
 	 * @param src
 	 * @param dest
 	 * @author Shashank B S
@@ -1235,7 +1236,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * Creates the graph method node and sets the label, methodName, methodSignature, methodBody and nodeMethod attributes on the node.
-	 * 
+	 *
 	 * @param src
 	 * @author Shashank B S
 	 */
@@ -1269,8 +1270,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	}
 
 	/**
-	 * Renders the method CFG, sets the {@link #CFG} to true and pans the graph to the first node of the graph based on the value of {@code panToNode}. 
-	 * 
+	 * Renders the method CFG, sets the {@link #CFG} to true and pans the graph to the first node of the graph based on the value of {@code panToNode}.
+	 *
 	 * @param cfg
 	 * @param panToNode
 	 * @throws Exception
@@ -1309,7 +1310,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * Creates an edge between two CFG nodes.
-	 * 
+	 *
 	 * @param src
 	 * @param dest
 	 * @author Shashank B S
@@ -1325,7 +1326,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * Creates the CFG node and sets the label, unit, escapedHTMLunit, unitType, inSet, outSet, color attributes.
-	 * 
+	 *
 	 * @param node
 	 * @author Shashank B S
 	 */
@@ -1394,7 +1395,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * Toggles the visibility of the node and its children.
-	 * 
+	 *
 	 * @param nodeId
 	 * @author Shashank B S
 	 */
