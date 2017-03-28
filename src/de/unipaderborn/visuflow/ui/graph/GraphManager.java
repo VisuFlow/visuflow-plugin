@@ -226,7 +226,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		showICFGButton.setMinimumSize(d);
 		showICFGButton.setMaximumSize(d);
 
-		d = new Dimension(100, 32);
+		d = new Dimension(120, 32);
 		colorSettingsButton.setSize(d);
 		colorSettingsButton.setPreferredSize(d);
 		colorSettingsButton.setMinimumSize(d);
