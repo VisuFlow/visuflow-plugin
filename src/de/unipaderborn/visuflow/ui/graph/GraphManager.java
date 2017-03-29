@@ -558,7 +558,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 							list.add(edge);
 						}
 						if(list.size() == 1) {
-							returnToCaller(list.get(0));
+							jumpToCallee(list.get(0));
 						} else {
 							Display.getDefault().syncExec(new Runnable() {
 								@Override
