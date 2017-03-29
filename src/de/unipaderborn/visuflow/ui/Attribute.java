@@ -20,12 +20,22 @@ import org.eclipse.swt.widgets.Text;
 
 import de.unipaderborn.visuflow.model.VFUnit;
 
-public class Attribute extends TitleAreaDialog {
-	private Text tfAnalysis;
-	private Text tfAttr;
+/**
+ *This class provides a dialog box where the user enters Attribute and attribute's values while
+ * setting custom attributes to units.
+ * 
+ * @author kouot@mail.upb.de
+ * @param attr The attribute the user would like to set
+ * @param attrValue The value of the custom attribute the user would like to set
+ * 	
+ */
 
-	private String analysis = "";
-	private String attribute = "";
+public class Attribute extends TitleAreaDialog {
+	private Text tfAttr;
+	private Text tfAttrValue;
+
+	private String attr = "";
+	private String attrValue = "";
 
 	public Attribute(Shell parentShell) {
 		super(parentShell);
@@ -47,16 +57,16 @@ public class Attribute extends TitleAreaDialog {
 		Label lblAttribute = new Label(container, SWT.NONE);
 		lblAttribute.setText("Attribute:");
 
-		tfAnalysis = new Text(container, SWT.BORDER);
-		tfAnalysis.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		tfAnalysis.setText(analysis);
-		tfAnalysis.addModifyListener(new ModifyListener() {
+		tfAttr = new Text(container, SWT.BORDER);
+		tfAttr.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		tfAttr.setText(attr);
+		tfAttr.addModifyListener(new ModifyListener() {
 
 			@Override
 			public void modifyText(ModifyEvent e) {
 				Text textWidget = (Text) e.getSource();
 				String userText = textWidget.getText();
-				analysis = userText;
+				attr = userText;
 			}
 		});
 
@@ -66,29 +76,25 @@ public class Attribute extends TitleAreaDialog {
 		lAttr.setLayoutData(gd_lblNewLabel);
 		lAttr.setText("Attribute value:");
 
-		tfAttr = new Text(container, SWT.BORDER | SWT.BORDER);
-		tfAttr.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		tfAttr.setText(attribute);
-		tfAttr.addModifyListener(new ModifyListener() {
+		tfAttrValue = new Text(container, SWT.BORDER | SWT.BORDER);
+		tfAttrValue.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		tfAttrValue.setText(attrValue);
+		tfAttrValue.addModifyListener(new ModifyListener() {
 
 			@Override
 			public void modifyText(ModifyEvent e) {
 				Text textWidget = (Text) e.getSource();
 				String passwordText = textWidget.getText();
-				attribute = passwordText;
+				attrValue = passwordText;
 			}
 		});
 		return container;
 	}
 
 	@Override
-
 	protected void configureShell(Shell newShell) {
-
 		super.configureShell(newShell);
-
 		newShell.setText("Set custom attributes");
-
 		InputStream in = getClass().getClassLoader().getResourceAsStream("/icons/sample.gif");
 		newShell.setImage(new Image(newShell.getDisplay(), in));
 
@@ -97,11 +103,7 @@ public class Attribute extends TitleAreaDialog {
 	@Override
 
 	public void create() {
-
 		super.create();
-
-		// setTitle("This wizard links the Target Java project with
-
 		setMessage("Please enter the attribute and its value. ", IMessageProvider.INFORMATION);
 
 	}
@@ -120,27 +122,25 @@ public class Attribute extends TitleAreaDialog {
 
 	@Override
 	protected void okPressed() {
-		analysis = tfAnalysis.getText();
-		attribute = tfAttr.getText();
+		attr = tfAttr.getText();
+		attrValue = tfAttrValue.getText();
 		super.okPressed();
-		// System.out.println("Analysis :"+ analysis);
-		// System.out.println("Attribute :"+ attribute);
 	}
 
 	public String getAnalysis() {
-		return analysis;
+		return attr;
 	}
 
 	public void setAnalysis(String analysis) {
-		this.analysis = analysis;
+		this.attr = analysis;
 	}
 
 	public String getAttribute() {
-		return attribute;
+		return attrValue;
 	}
 
 	public void setAttribute(String attribute) {
-		this.attribute = attribute;
+		this.attrValue = attribute;
 	}
 
 }
