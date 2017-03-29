@@ -197,7 +197,6 @@ public class BreakpointLocator {
 	 * @throws JavaModelException
 	 */
 	void findRecursive(List<IJavaElement> result, IJavaElement parent, String name) throws JavaModelException {
-		System.out.println(parent.getElementName());
 		if (parent.getElementName().equals(name)) {
 			result.add(parent);
 		}
