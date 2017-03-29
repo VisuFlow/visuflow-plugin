@@ -60,10 +60,28 @@ public class JavaBreakpointListener implements IJavaBreakpointListener, Visuflow
 			if(!"unit".equals(type)) {
 				// this is a breakpoint for a certain type of units
 
-				// at the moment we don't know, which unit this is, so we just remove the
-				// instruction pointer marker and continue
+				// remove the old instruction pointer marker
 				String project = marker.getAttribute("Jimple.project").toString();
 				removeOldInstructionPointer(project);
+
+				// examine the suspended thread and find out, which unit this is, so that
+				// we can set the instruction pointer marker accordingly
+				try {
+					VFUnit unit = StackExaminer.getUnitFromStack(thread);
+					// save the information at the marker, so that the JimpleBreakpointManager knows
+					// where to continue, when the step over button is hit
+					marker.setAttribute("Jimple.unit.fqn", unit.getFullyQualifiedName());
+
+					// try to locate this unit in the Jimple file and reveal it in the
+					// JimpleEditor and in the graph
+					UnitLocation unitLocation = UnitLocator.locateUnit(unit);
+					IFile file = unitLocation.project.getFile(unitLocation.jimpleFile);
+					revealLocationInFile(file, unitLocation.charStart);
+					revealUnitInGraph(unit.getFullyQualifiedName());
+					highlightLine(project, file.getProjectRelativePath().toString(), unitLocation.line, unitLocation.charStart, unitLocation.charEnd);
+				} catch(Exception e) {
+					logger.error("Couldn't find unit on top stackframe", e);
+				}
 
 				return 0;
 			} else {

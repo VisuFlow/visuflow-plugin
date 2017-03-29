@@ -29,6 +29,7 @@ import de.unipaderborn.visuflow.Visuflow;
 import de.unipaderborn.visuflow.VisuflowConstants;
 import de.unipaderborn.visuflow.debug.JimpleBreakpointManager;
 import de.unipaderborn.visuflow.model.DataModel;
+import de.unipaderborn.visuflow.model.UnitNotFoundException;
 import de.unipaderborn.visuflow.model.VFClass;
 import de.unipaderborn.visuflow.model.VFMethod;
 import de.unipaderborn.visuflow.model.VFUnit;
@@ -75,18 +76,23 @@ public class ToggleJimpleBreakpointsTarget implements IToggleBreakpointsTarget, 
 		int length = document.getLineInformation(lineNumber - 1).getLength();
 		int charStart = offset;
 		int charEnd = offset + length;
-		String unitFqn = getUnitFqn(lineNumber - 1, offset, length);
+		try {
+			String unitFqn = getUnitFqn(lineNumber - 1, offset, length);
 
-		IMarker m = file.createMarker(JIMPLE_BREAKPOINT_MARKER);
-		m.setAttribute(IMarker.LINE_NUMBER, getLineNumber());
-		m.setAttribute(IMarker.MESSAGE, "Unit breakpoint: " + file.getName() + " [Line "+getLineNumber()+"]");
-		m.setAttribute("Jimple.file", file.getProjectRelativePath().toPortableString());
-		m.setAttribute("Jimple.project", file.getProject().getName());
-		m.setAttribute("Jimple.unit.charStart", charStart);
-		m.setAttribute("Jimple.unit.charEnd", charEnd);
-		m.setAttribute("Jimple.unit.fqn", unitFqn);
+			IMarker m = file.createMarker(JIMPLE_BREAKPOINT_MARKER);
+			m.setAttribute(IMarker.LINE_NUMBER, getLineNumber());
+			m.setAttribute(IMarker.MESSAGE, "Unit breakpoint: " + file.getName() + " [Line "+getLineNumber()+"]");
+			m.setAttribute("Jimple.file", file.getProjectRelativePath().toPortableString());
+			m.setAttribute("Jimple.project", file.getProject().getName());
+			m.setAttribute("Jimple.unit.charStart", charStart);
+			m.setAttribute("Jimple.unit.charEnd", charEnd);
+			m.setAttribute("Jimple.unit.fqn", unitFqn);
 
-		JimpleBreakpointManager.getInstance().createBreakpoint(m);
+			JimpleBreakpointManager.getInstance().createBreakpoint(m);
+		} catch(UnitNotFoundException e) {
+			String msg = "The selected unit couldn't be found in our Jimple model. This might be a problem related to Jimple optimizations.";
+			MessageDialog.openInformation(Display.getCurrent().getActiveShell(), "Breakpoint could not be placed", msg);
+		}
 	}
 
 	private String getUnitFqn(int lineNumber, int offset, int length) throws BadLocationException {
@@ -100,7 +106,7 @@ public class ToggleJimpleBreakpointsTarget implements IToggleBreakpointsTarget, 
 				return resultantUnit.getFullyQualifiedName();
 			}
 		}
-		throw new RuntimeException("Couldn't determine fully qualified name for unit");
+		throw new UnitNotFoundException("Couldn't determine fully qualified name for unit");
 	}
 
 	private void deleteJimpleBreakpoint() throws CoreException, BadLocationException {
