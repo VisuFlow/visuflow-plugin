@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
@@ -29,7 +30,8 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
-// TODO analyze only the the current analysis project
+import de.unipaderborn.visuflow.builder.GlobalSettings;
+
 /**
  * The BreakpointLocator is used to find the locations of the flow functions
  * in the user analysis. These locations are needed to set the conditional breakpoints,
@@ -62,6 +64,13 @@ public class BreakpointLocator {
 	// @formatter:on
 
 	private CoreException exception = null;
+	/**
+	 * Searches the current analysis project for known flow functions and returns
+	 * a list of BreakpointLocations, which contain all information needed to set
+	 * a Java line breakpoint.
+	 * @return a list of {@link BreakpointLocation}s
+	 * @throws JavaModelException
+	 */
 	public List<BreakpointLocation> findFlowFunctions() throws JavaModelException {
 		List<BreakpointLocation> locations = new ArrayList<>();
 
@@ -69,11 +78,12 @@ public class BreakpointLocator {
 		IWorkspaceRoot workspaceRoot = workspace.getRoot();
 		IJavaModel model = JavaCore.create(workspaceRoot);
 
-		List<IJavaElement> javaProjects = getJavaProjects(model);
-		List<IJavaElement> sourceFolders = getSourceFolders(javaProjects);
+		String analysisProjectName = GlobalSettings.get("AnalysisProject");
+		IJavaElement analysisProject = getJavaProject(model, analysisProjectName);
+		List<IJavaElement> sourceFolders = getSourceFolders(analysisProject);
 
 		List<IJavaElement> flowFunctions = new ArrayList<>();
-		for (IJavaElement packageFragment : sourceFolders) { // TODO make sure to only use the target code
+		for (IJavaElement packageFragment : sourceFolders) {
 			for (String functionName : flowFunctionNames) {
 				findRecursive(flowFunctions, packageFragment, functionName);
 			}
@@ -128,33 +138,66 @@ public class BreakpointLocator {
 		return locations;
 	}
 
-	private List<IJavaElement> getSourceFolders(List<IJavaElement> javaProjects) throws JavaModelException {
+	/**
+	 * Returns all folders configured as source folders for the given project.
+	 *
+	 * @param javaProject
+	 *            the java project to examine
+	 * @return a List of all source folders as IJavaElements
+	 * @throws JavaModelException
+	 * @see {@link #getJavaProjects(IJavaModel)}
+	 */
+	private List<IJavaElement> getSourceFolders(IJavaElement javaProject) throws JavaModelException {
 		List<IJavaElement> folders = new ArrayList<>();
-		for (IJavaElement project : javaProjects) {
-			IJavaElement[] children = ((IParent) project).getChildren();
-			for (IJavaElement child : children) {
-				if (child instanceof IPackageFragmentRoot) {
-					IPackageFragmentRoot packageFragmentRoot = (IPackageFragmentRoot) child;
-					if (packageFragmentRoot.getKind() == IPackageFragmentRoot.K_SOURCE) {
-						folders.add(packageFragmentRoot);
-					}
+		IJavaElement[] children = ((IParent) javaProject).getChildren();
+		for (IJavaElement child : children) {
+			if (child instanceof IPackageFragmentRoot) {
+				IPackageFragmentRoot packageFragmentRoot = (IPackageFragmentRoot) child;
+				if (packageFragmentRoot.getKind() == IPackageFragmentRoot.K_SOURCE) {
+					folders.add(packageFragmentRoot);
 				}
 			}
 		}
 		return folders;
 	}
 
-	private List<IJavaElement> getJavaProjects(IJavaModel model) throws JavaModelException {
-		List<IJavaElement> projects = new ArrayList<>();
+	/**
+	 * Looks up a project in the JDT JavaModel
+	 *
+	 * @param model
+	 *            the IJavaModel to extract the projects from
+	 * @param projectName
+	 *            the name of the project to retrieve
+	 * @return the project as an IJavaProject
+	 * @throws JavaModelException
+	 * @throws NoSuchElementException
+	 *             if the project couldn't be found in the JavaModel
+	 */
+	private IJavaProject getJavaProject(IJavaModel model, String projectName) throws JavaModelException {
 		for (IJavaElement project : model.getChildren()) {
 			if (project instanceof IJavaProject) {
-				projects.add(project);
+				IJavaProject targetProject = (IJavaProject) project;
+				if (targetProject.getProject().getName().equals(projectName)) {
+					return targetProject;
+				}
 			}
 		}
-		return projects;
+		throw new NoSuchElementException("Project with name " + projectName + " not found in workspace");
 	}
 
+	/**
+	 * Tarverses a hierarchy of IJavaElements and returns all IJavaElements, which names match the given name.
+	 *
+	 * @param result
+	 *            A List of IJavaElements, which match the given name
+	 * @param parent
+	 *            The root element to start the search at
+	 * @param name
+	 *            The element name ({@link IJavaElement#getElementName()}) to search for
+	 * @throws JavaModelException
+	 */
 	void findRecursive(List<IJavaElement> result, IJavaElement parent, String name) throws JavaModelException {
+		System.out.println(parent.getElementName());
 		if (parent.getElementName().equals(name)) {
 			result.add(parent);
 		}
@@ -248,6 +291,11 @@ public class BreakpointLocator {
 		return Signature.createArraySignature(resolvedElementTypeSignature, count);
 	}
 
+	/**
+	 * Contains all information needed to create a Java line breakpoint
+	 * @author henni@upb.de
+	 *
+	 */
 	public static class BreakpointLocation {
 		public IMethod method;
 		public IResource resource;
