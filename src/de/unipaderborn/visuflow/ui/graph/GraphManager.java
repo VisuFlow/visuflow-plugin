@@ -1522,7 +1522,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	}
 
 	public void createColorSettingsDialogue() {
-
 		panelColor.removeAll();
 		ProjectPreferences pref = new ProjectPreferences();
 		DataModel dataModel = ServiceUtil.getService(DataModel.class);
@@ -1547,11 +1546,13 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 		JButton resetDefaultColorSettingsButton = new JButton("Reset Defaults");
 		resetDefaultColorSettingsButton.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				pref.createPreferences();
 				dataModel.setSelectedMethod(dataModel.getSelectedMethod(), false);
+				for (JButton button : stmtTypes) {
+					button.setBackground(new Color(pref.getColorForNode(button.getName())));
+				}
 			}
 		});
 		panelColor.add(resetDefaultColorSettingsButton);
@@ -1681,7 +1682,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		stmtTypes.add(btJEnterMonitorSmt);
 		stmtTypes.add(btJExitMonitorStmt);
 
+		this.stmtTypes = stmtTypes;
 		return stmtTypes;
-
 	}
 }
