@@ -20,6 +20,11 @@ import de.unipaderborn.visuflow.debug.UnitLocation;
 import de.unipaderborn.visuflow.debug.UnitLocator;
 import de.unipaderborn.visuflow.model.VFUnit;
 
+/**
+ * Action to open the unit breakpoint properties dialog and adjust the breakpoint
+ * @author henni@upb.de
+ *
+ */
 public class UnitBreakpointPropertiesAction extends RulerBreakpointAction implements IUpdate, VisuflowConstants {
 
 	private Logger logger = Visuflow.getDefault().getLogger();
@@ -53,6 +58,7 @@ public class UnitBreakpointPropertiesAction extends RulerBreakpointAction implem
 					// no unit selected, nothing to do
 				}
 			} else {
+				// FIXME find out the name of the unit
 				String type = dialog.getUnitType();
 				condition = "d instanceof " + type;
 			}

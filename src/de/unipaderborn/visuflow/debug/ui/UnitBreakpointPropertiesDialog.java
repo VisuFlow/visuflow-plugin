@@ -43,6 +43,12 @@ import soot.jimple.ReturnVoidStmt;
 import soot.jimple.SwitchStmt;
 import soot.jimple.ThrowStmt;
 
+/**
+ * Dialog, which enables to user to change a standard java breakpoint into a unit breakpoint.
+ * The user can choose between a breakpoint for particular unit or a breakpoint for a type of unit.
+ *
+ * @author henni@upb.de
+ */
 public class UnitBreakpointPropertiesDialog extends Dialog implements SelectionListener, CaretListener {
 
 	private Composite compositeType;
