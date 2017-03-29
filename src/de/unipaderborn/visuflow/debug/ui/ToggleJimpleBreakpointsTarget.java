@@ -26,6 +26,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
 
 import de.unipaderborn.visuflow.Logger;
 import de.unipaderborn.visuflow.Visuflow;
+import de.unipaderborn.visuflow.VisuflowConstants;
 import de.unipaderborn.visuflow.debug.JimpleBreakpointManager;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
@@ -34,76 +35,125 @@ import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.util.MapUtil;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 
-public class ToggleJimpleBreakpointsTarget implements IToggleBreakpointsTarget {
+/**
+ * Handles the double click in the left ruler bar of the JimpleEditor.
+ * If a jimple breakpoint exists, we remove it and all of its associated java breakpoints.
+ * Otherwise we determine all the properties needed to create an IMarker, create that IMarker
+ * and pass that to the JimpleBreakpointManager to create the actual breakpoints.
+ *
+ * @author henni@upb.de
+ *
+ */
+public class ToggleJimpleBreakpointsTarget implements IToggleBreakpointsTarget, VisuflowConstants {
 
 	private Logger logger = Visuflow.getDefault().getLogger();
 
+	private IWorkbenchPart part;
+
 	@Override
 	public void toggleLineBreakpoints(IWorkbenchPart part, ISelection selection) throws CoreException {
-		final ITextEditor editor = (ITextEditor) part;
-		IDocumentProvider provider = editor.getDocumentProvider();
-		IDocument document = provider.getDocument(editor.getEditorInput());
-		IFileEditorInput input = (IFileEditorInput) editor.getEditorInput();
-		IFile file = input.getFile();
+		this.part = part;
+
 		try {
-			IVerticalRulerInfo ruleInfo = editor.getAdapter(IVerticalRulerInfo.class);
-			int lineNumber = ruleInfo.getLineOfLastMouseButtonActivity();
-			int offset = document.getLineOffset(lineNumber);
-			int length = document.getLineInformation(lineNumber).getLength();
-			int actualLineNumber = lineNumber + 1;
-			String content = document.get(offset, length).trim();
-			if (content.trim().length() > 0) {
-				String className = file.getName().substring(0, file.getName().lastIndexOf('.'));
-				VFUnit resultantUnit = getSelectedUnit(className, document,
-						content.trim().substring(0, content.length() - 1), lineNumber);
-				if (resultantUnit == null) {
-					logger.error("Unit not found for " + file + ":" + actualLineNumber);
-					MessageDialog.openInformation(Display.getCurrent().getActiveShell(), "Breakpoint could not be placed",
-							"Error in inserting breakpoint");
-				} else {
-					IMarker[] problems = null;
-					int depth = IResource.DEPTH_ZERO;
-					IResource res = file;
-
-					//String markerType = IBreakpoint.BREAKPOINT_MARKER;
-					String markerType = "visuflow.debug.breakpoint.marker";
-					problems = res.findMarkers(markerType, true,
-							depth);
-
-					Boolean markerPresent = false;
-					for (IMarker item : problems) {
-						int markerLineNmber = (int) item.getAttribute(IMarker.LINE_NUMBER);
-						if (markerLineNmber == actualLineNumber) {
-							markerPresent = true;
-							item.delete();
-						}
-					}
-
-					if (!markerPresent) {
-						int charStart = offset;
-						int charEnd = offset + length;
-						String unitFqn = resultantUnit.getFullyQualifiedName();
-
-						IMarker m = res.createMarker(markerType);
-						m.setAttribute(IMarker.LINE_NUMBER, actualLineNumber);
-						m.setAttribute(IMarker.MESSAGE, "Unit breakpoint: " + file.getName() + " [Line "+actualLineNumber+"]");
-						m.setAttribute("Jimple.file", file.getProjectRelativePath().toPortableString());
-						m.setAttribute("Jimple.project", file.getProject().getName());
-						m.setAttribute("Jimple.unit.charStart", charStart);
-						m.setAttribute("Jimple.unit.charEnd", charEnd);
-						m.setAttribute("Jimple.unit.fqn", unitFqn);
-
-						JimpleBreakpointManager.getInstance().createBreakpoint(m);
-					}
-				}
+			if(jimpleBreakpointExists()) {
+				deleteJimpleBreakpoint();
 			} else {
-				// TODO replace this with a mechanism, which tries to find the next valid line (similar to the standard java editor breakpoints)
-				MessageDialog.openInformation(Display.getCurrent().getActiveShell(), "Breakpoint could not be placed", "The selected line does not contain a valid Jimple unit");
+				createJimpleBreakpoint();
 			}
-		} catch (Exception e) {
-			logger.error("Couldn't create jimple breakpoint", e);
+		} catch (BadLocationException e) {
+			logger.error("Couldn't place breakpoint", e);
 			MessageDialog.openInformation(Display.getCurrent().getActiveShell(), "Breakpoint could not be placed", "Error in inserting breakpoint");
 		}
+	}
+
+	private void createJimpleBreakpoint() throws CoreException, BadLocationException {
+		IDocument document = getDocument();
+		IFile file = getFile();
+		int lineNumber = getLineNumber();
+
+		int offset = document.getLineOffset(lineNumber - 1);
+		int length = document.getLineInformation(lineNumber - 1).getLength();
+		int charStart = offset;
+		int charEnd = offset + length;
+		String unitFqn = getUnitFqn(lineNumber - 1, offset, length);
+
+		IMarker m = file.createMarker(JIMPLE_BREAKPOINT_MARKER);
+		m.setAttribute(IMarker.LINE_NUMBER, getLineNumber());
+		m.setAttribute(IMarker.MESSAGE, "Unit breakpoint: " + file.getName() + " [Line "+getLineNumber()+"]");
+		m.setAttribute("Jimple.file", file.getProjectRelativePath().toPortableString());
+		m.setAttribute("Jimple.project", file.getProject().getName());
+		m.setAttribute("Jimple.unit.charStart", charStart);
+		m.setAttribute("Jimple.unit.charEnd", charEnd);
+		m.setAttribute("Jimple.unit.fqn", unitFqn);
+
+		JimpleBreakpointManager.getInstance().createBreakpoint(m);
+	}
+
+	private String getUnitFqn(int lineNumber, int offset, int length) throws BadLocationException {
+		IDocument document = getDocument();
+		IFile file = getFile();
+		String content = document.get(offset, length).trim();
+		if (content.trim().length() > 0) {
+			String className = file.getName().substring(0, file.getName().lastIndexOf('.'));
+			VFUnit resultantUnit = getSelectedUnit(className, document, content.trim().substring(0, content.length() - 1), lineNumber);
+			if (resultantUnit != null) {
+				return resultantUnit.getFullyQualifiedName();
+			}
+		}
+		throw new RuntimeException("Couldn't determine fully qualified name for unit");
+	}
+
+	private void deleteJimpleBreakpoint() throws CoreException, BadLocationException {
+		IMarker[] markers = getMarkersInFile();
+		for (IMarker item : markers) {
+			int markerLineNumber = (int) item.getAttribute(IMarker.LINE_NUMBER);
+			if (markerLineNumber == getLineNumber()) {
+				item.delete();
+			}
+		}
+	}
+
+	private boolean jimpleBreakpointExists() throws CoreException, BadLocationException {
+		IMarker[] markers = getMarkersInFile();
+		boolean markerPresent = false;
+		for (IMarker item : markers) {
+			int markerLineNumber = (int) item.getAttribute(IMarker.LINE_NUMBER);
+			if (markerLineNumber == getLineNumber()) {
+				markerPresent = true;
+			}
+		}
+		return markerPresent;
+	}
+
+	private IMarker[] getMarkersInFile() throws CoreException {
+		IFile file = getFile();
+		String markerType = JIMPLE_BREAKPOINT_MARKER;
+		IMarker[] markers = file.findMarkers(markerType, true, IResource.DEPTH_ZERO);
+		return markers;
+	}
+
+	private IFile getFile() {
+		final ITextEditor editor = (ITextEditor) part;
+		IFileEditorInput input = (IFileEditorInput) editor.getEditorInput();
+		IFile file = input.getFile();
+		return file;
+	}
+
+	private int getLineNumber() throws BadLocationException {
+		IVerticalRulerInfo ruleInfo = getTextEditor().getAdapter(IVerticalRulerInfo.class);
+		int lineNumber = ruleInfo.getLineOfLastMouseButtonActivity();
+		int actualLineNumber = lineNumber + 1;
+		return actualLineNumber;
+	}
+
+	private ITextEditor getTextEditor() {
+		return (ITextEditor) part;
+	}
+
+	private IDocument getDocument() {
+		IDocumentProvider provider = getTextEditor().getDocumentProvider();
+		IDocument document = provider.getDocument(getTextEditor().getEditorInput());
+		return document;
 	}
 
 	private VFUnit getSelectedUnit(String className, IDocument document, String content, int lineNumber) throws BadLocationException {
