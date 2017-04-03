@@ -66,11 +66,12 @@ public class ValueFormatter {
 
 	static String shortenClassNames(String s) {
 		Matcher m = Pattern.compile("<(.*?): (.*?)>").matcher(s);
-		if(m.find()) {
+		if (m.find()) {
 			String className = m.group(1);
 			String shortenedClassName = shorten(className);
 			String replacement = '<' + shortenedClassName + ": " + m.group(2) + '>';
-			s = m.replaceAll(replacement);
+			String escapedReplacement = Matcher.quoteReplacement(replacement);
+			s = m.replaceAll(escapedReplacement);
 		}
 		return s;
 	}

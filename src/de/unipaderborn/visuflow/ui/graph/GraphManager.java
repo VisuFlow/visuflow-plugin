@@ -102,7 +102,6 @@ import de.unipaderborn.visuflow.ui.view.filter.ReturnPathFilter;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 import scala.collection.mutable.HashSet;
 import soot.Unit;
-import soot.jimple.InvokeExpr;
 import soot.jimple.ReturnStmt;
 import soot.jimple.ReturnVoidStmt;
 import soot.jimple.Stmt;
@@ -183,7 +182,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private boolean draggingGraph = false;
 	private Point mouseDraggedFrom;
 	private Point mouseDraggedTo;
-	
+
 	private JMenuItem navigateToJimple;
 	private JMenuItem navigateToJava;
 	private JMenuItem showInUnitView;
@@ -193,12 +192,12 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	private JMenu callGraphOption;
 	private JMenuItem cha;
 	private JMenuItem spark;
-	
+
 	private String nodeAttributesString = "nodeData.attributes";
 
 	/**
 	 * Creates a new instance of graph manager used for rendering ICFG and CFG.
-	 * 
+	 *
 	 * @param graphName - name of the graph
 	 * @param - styleSheet path to the style sheet file
 	 * @author Shashank B S
@@ -208,8 +207,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		this.panYDelta = 2;
 		this.zoomInDelta = .075;
 		this.zoomOutDelta = .075;
-		this.maxZoomPercent = 0.2;
-		this.minZoomPercent = 1.0;
+		this.maxZoomPercent = 0.1;
+		this.minZoomPercent = 3.0;
 		this.maxLength = 55;
 		this.styleSheetPath = styleSheet;
 		createGraph(graphName);
@@ -227,7 +226,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		showICFGButton.setMinimumSize(d);
 		showICFGButton.setMaximumSize(d);
 
-		d = new Dimension(100, 32);
+		d = new Dimension(120, 32);
 		colorSettingsButton.setSize(d);
 		colorSettingsButton.setPreferredSize(d);
 		colorSettingsButton.setMinimumSize(d);
@@ -267,7 +266,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		graph.addAttribute("ui.quality");
 		graph.addAttribute("ui.antialias");
 
-		viewer = new Viewer(graph, Viewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
+		viewer = new Viewer(graph, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
 		viewer.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
 
 		view = viewer.addDefaultView(false);
@@ -276,7 +275,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * Reinitializes the graph by deleting the existing nodes and resets the attributes.
-	 * 
+	 *
 	 * @throws Exception when graph is null
 	 * @author Shashank B S
 	 */
@@ -392,7 +391,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * Creates instances of buttons {@link #panLeftButton}, {@link #panRightButton}, {@link #panUpButton} and {@link #panDownButton} and its action listeners.
-	 * @author Shashank B S 
+	 * @author Shashank B S
 	 */
 	private void createPanningButtons() {
 		panLeftButton = new JButton("");
@@ -545,6 +544,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 		followCall.addActionListener(new ActionListener() {
 
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				GraphicElement curElement = view.findNodeOrSpriteAt(x, y);
 				if(curElement == null)
@@ -553,25 +553,25 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				Object node = curr.getAttribute("nodeUnit");
 				if (node instanceof VFNode) {
 					if (((Stmt) ((VFNode) node).getUnit()).containsInvokeExpr()){
-						System.out.println("Call ahoy");
 						List<VFUnit> list = new ArrayList<>();
 						for(VFUnit edge : ((VFNode) node).getVFUnit().getOutgoingEdges()){
 							list.add(edge);
 						}
 						if(list.size() == 1) {
-							returnToCaller(list.get(0));
+							jumpToCallee(list.get(0));
 						} else {
-						Display.getDefault().syncExec(new Runnable() {
-						    public void run() {
-								ReturnPathFilter callFilter = new ReturnPathFilter(Display.getDefault().getActiveShell());
-								callFilter.setPaths(list);
-								callFilter.setInitialPattern("?");
-								callFilter.open();
-								if(callFilter.getFirstResult() != null){
-									jumpToCallee((VFUnit) callFilter.getFirstResult());
+							Display.getDefault().syncExec(new Runnable() {
+								@Override
+								public void run() {
+									ReturnPathFilter callFilter = new ReturnPathFilter(Display.getDefault().getActiveShell());
+									callFilter.setPaths(list);
+									callFilter.setInitialPattern("?");
+									callFilter.open();
+									if(callFilter.getFirstResult() != null){
+										jumpToCallee((VFUnit) callFilter.getFirstResult());
+									}
 								}
-						    }
-						});
+							});
 						}
 					}
 				}
@@ -656,13 +656,13 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	}
 
 	/**
-	 * Resizes and returns the {@code image} to the dimensions of {@code width} and {@code height}. 
-	 * 
+	 * Resizes and returns the {@code image} to the dimensions of {@code width} and {@code height}.
+	 *
 	 * @param image - the source image to be resized
 	 * @param width - the new width
 	 * @param height - the new height
 	 * @return resized image - the resized image to the provided width and height
-	 * 
+	 *
 	 * @author Shashank B S
 	 */
 	private Image getScaledImage(Image image, int width, int height) {
@@ -1076,11 +1076,11 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			else
 			{
 				dataModel.setSelectedMethod(unit.getVfMethod(), true);
-				
+
 			}
 		} catch (Exception e1) {
 			e1.printStackTrace();
-			
+
 		}
 	}
 
@@ -1139,19 +1139,19 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			@Override
 			public void stateChanged(ChangeEvent e) {
-//				Color color = jcc.getColor();
+				//				Color color = jcc.getColor();
 			}
 		});
 
 		dialog = JColorChooser.createDialog(null, "Color Chooser", true, jcc, null, null);
 		panelColor = new JPanel(new GridLayout(0, 2));
 
-		colorSettingsButton = new JButton("Color nodes");
+		colorSettingsButton = new JButton("Color Settings");
 		colorSettingsButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				colorTheGraph();
+				createColorSettingsDialogue();
 
 			}
 		});
@@ -1160,7 +1160,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	/**
 	 * Filters and highlights the graph by setting the {@code uiClassForFilteredNodes} class on the filtered nodes based on the boolean value {@code selection} and also pans the view to the last filtered node based on the value of {@code panToNode}.
 	 * @param nodes - nodes to be filtered
-	 * @param selection - flag to determine whether the nodes have to be highlighted 
+	 * @param selection - flag to determine whether the nodes have to be highlighted
 	 * @param panToNode - flag to determine whether to pan the graph to the last filtered node
 	 * @param uiClassForFilteredNodes - class name to be set on filtered nodes, defaults to <b>filter</b> if the passed in value is null
 	 * @author Shashank B S
@@ -1223,7 +1223,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * Creates an edge between the graph method nodes.
-	 * 
+	 *
 	 * @param src
 	 * @param dest
 	 * @author Shashank B S
@@ -1236,7 +1236,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * Creates the graph method node and sets the label, methodName, methodSignature, methodBody and nodeMethod attributes on the node.
-	 * 
+	 *
 	 * @param src
 	 * @author Shashank B S
 	 */
@@ -1258,7 +1258,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			createdNode.setAttribute("nodeMethod", src);
 		}
 	}
-	
+
 	private String getCodeBackgroundColor() {
 		Color tooltipBackground = UIManager.getColor("ToolTip.background");
 		float[] hsb = new float[3];
@@ -1270,8 +1270,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	}
 
 	/**
-	 * Renders the method CFG, sets the {@link #CFG} to true and pans the graph to the first node of the graph based on the value of {@code panToNode}. 
-	 * 
+	 * Renders the method CFG, sets the {@link #CFG} to true and pans the graph to the first node of the graph based on the value of {@code panToNode}.
+	 *
 	 * @param cfg
 	 * @param panToNode
 	 * @throws Exception
@@ -1310,7 +1310,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * Creates an edge between two CFG nodes.
-	 * 
+	 *
 	 * @param src
 	 * @param dest
 	 * @author Shashank B S
@@ -1326,7 +1326,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * Creates the CFG node and sets the label, unit, escapedHTMLunit, unitType, inSet, outSet, color attributes.
-	 * 
+	 *
 	 * @param node
 	 * @author Shashank B S
 	 */
@@ -1395,7 +1395,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * Toggles the visibility of the node and its children.
-	 * 
+	 *
 	 * @param nodeId
 	 * @author Shashank B S
 	 */
@@ -1521,38 +1521,42 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 	}
 
-	public void colorTheGraph() {
-
+	public void createColorSettingsDialogue() {
 		panelColor.removeAll();
+		ProjectPreferences pref = new ProjectPreferences();
+		DataModel dataModel = ServiceUtil.getService(DataModel.class);
+		for (JButton bt : createStmtTypes(stmtTypes)) {
+			panelColor.add(new Label(bt.getName()));
+			bt.setText("change color");
+			bt.setBackground(new Color(pref.getColorForNode(bt.getName())));
+			panelColor.add(bt);
+			bt.addActionListener(new ActionListener() {
 
-		//		boolean inICFG = !this.CFG;
-		if (CFG) {
-
-			for (JButton bt : createStmtTypes(stmtTypes)) {
-				panelColor.add(new Label("Set color preference for this kind of statement"));
-				panelColor.add(bt);
-				bt.addActionListener(new ActionListener() {
-
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						dialog.setVisible(true);
-
-						// TODO Send vfNode and Color to Kaarthik
-						ProjectPreferences pref = new ProjectPreferences();
-						pref.updateColorPreferences(bt.getName(),jcc.getColor().getRGB());
-						DataModel dataModel = ServiceUtil.getService(DataModel.class);
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					dialog.setVisible(true);
+					int color = jcc.getColor().getRGB();
+					JButton button = (JButton) e.getSource();
+					pref.updateColorPreferences(bt.getName(),color);
+					button.setBackground(new Color(pref.getColorForNode(button.getName())));
+					if(CFG)
 						dataModel.setSelectedMethod(dataModel.getSelectedMethod(), false);
-					}
-				});
-			}
-
-			JOptionPane.showConfirmDialog(null, panelColor, "Test", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
-		} else {
-			JOptionPane.showMessageDialog(new JPanel(), "Changing color not possible in the ICFG", "Warning", JOptionPane.WARNING_MESSAGE);
-
+				}
+			});
 		}
-
+		JButton resetDefaultColorSettingsButton = new JButton("Reset Defaults");
+		resetDefaultColorSettingsButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				pref.createPreferences();
+				dataModel.setSelectedMethod(dataModel.getSelectedMethod(), false);
+				for (JButton button : stmtTypes) {
+					button.setBackground(new Color(pref.getColorForNode(button.getName())));
+				}
+			}
+		});
+		panelColor.add(resetDefaultColorSettingsButton);
+		JOptionPane.showConfirmDialog(null, panelColor, "Color Settings", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -1575,7 +1579,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			Set set = selectedVF.getHmCustAttr().entrySet();
 			Iterator i = set.iterator();
 			String attributeString = "";
-			
+
 			if(curr.hasAttribute(nodeAttributesString))
 			{
 				attributeString += curr.getAttribute(nodeAttributesString) + "<br>";
@@ -1589,7 +1593,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				Map.Entry me = (Map.Entry) i.next();
 				hmCustAttr.put((String) me.getKey(), (String) me.getValue());
 			}
-			
+
 			if ((attributeName.getText().length() > 0) && (attributeValue.getText().length() > 0)) {
 				try {
 					hmCustAttr.put(attributeName.getText(), attributeValue.getText());
@@ -1597,9 +1601,9 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 					ArrayList<VFUnit> units = new ArrayList<>();
 					units.add(selectedVF);
-					
+
 					attributeString += attributeName.getText() + ":" + attributeValue.getText();
-					
+
 					curr.setAttribute(nodeAttributesString, attributeString);
 					curr.addAttribute("ui.color", Color.red.getRGB());
 
@@ -1678,7 +1682,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		stmtTypes.add(btJEnterMonitorSmt);
 		stmtTypes.add(btJExitMonitorStmt);
 
+		this.stmtTypes = stmtTypes;
 		return stmtTypes;
-
 	}
 }

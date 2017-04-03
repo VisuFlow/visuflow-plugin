@@ -9,6 +9,11 @@ import com.google.common.base.Optional;
 
 import de.unipaderborn.visuflow.model.VFUnit;
 
+/**
+ * This class extends the {@link org.eclipse.jface.viewers.ViewerFilter} to provide filtering functionality for filtering the results of the analysis.
+ * @author Shashank B S
+ *
+ */
 public class ResultViewFilter extends ViewerFilter {
 
 	private String searchString;

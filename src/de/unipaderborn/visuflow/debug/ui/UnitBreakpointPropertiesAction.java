@@ -20,6 +20,11 @@ import de.unipaderborn.visuflow.debug.UnitLocation;
 import de.unipaderborn.visuflow.debug.UnitLocator;
 import de.unipaderborn.visuflow.model.VFUnit;
 
+/**
+ * Action to open the unit breakpoint properties dialog and adjust the breakpoint
+ * @author henni@upb.de
+ *
+ */
 public class UnitBreakpointPropertiesAction extends RulerBreakpointAction implements IUpdate, VisuflowConstants {
 
 	private Logger logger = Visuflow.getDefault().getLogger();
@@ -38,11 +43,6 @@ public class UnitBreakpointPropertiesAction extends RulerBreakpointAction implem
 	 */
 	@Override
 	public void run() {
-		System.out.println("run()");
-		System.out.println(getVerticalRulerInfo());
-		System.out.println(getEditor());
-		System.out.println(getBreakpoint());
-
 		UnitBreakpointPropertiesDialog dialog = new UnitBreakpointPropertiesDialog(getEditor().getSite().getShell());
 		int returnCode = dialog.open();
 		if(returnCode == Dialog.OK) {
@@ -51,7 +51,6 @@ public class UnitBreakpointPropertiesAction extends RulerBreakpointAction implem
 			if(dialog.isSuspendOnUnit()) {
 				unit = dialog.getSelectedUnit();
 				if(unit != null) {
-					System.out.println(unit.getFullyQualifiedName());
 					String escapedRequiredFqn = unit.getFullyQualifiedName().replaceAll("\"", "\\\\\"");
 					// FIXME find out the name of the unit
 					condition = "new String(d.getTag(\"Fully Qualified Name\").getValue()).equals(\""+escapedRequiredFqn+"\")";
@@ -59,6 +58,7 @@ public class UnitBreakpointPropertiesAction extends RulerBreakpointAction implem
 					// no unit selected, nothing to do
 				}
 			} else {
+				// FIXME find out the name of the unit
 				String type = dialog.getUnitType();
 				condition = "d instanceof " + type;
 			}

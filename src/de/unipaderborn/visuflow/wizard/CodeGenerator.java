@@ -34,7 +34,8 @@ import heros.solver.IFDSSolver;
 public class CodeGenerator {
 
 	/**
-	 * @param input
+	 * This function generates the source code according to the input from the input.
+	 * @param input The wizard object from the Visuflow wizard.
 	 * @throws JClassAlreadyExistsException
 	 * @throws IOException
 	 */
@@ -49,7 +50,8 @@ public class CodeGenerator {
 	}
 
 	/**
-	 * @param input
+	 * This function is responsible for generating the stub for normal soot analysis based on user input.
+	 * @param input The wizard object from the Visuflow wizard.
 	 * @throws JClassAlreadyExistsException
 	 * @throws IOException
 	 */
@@ -155,7 +157,8 @@ public class CodeGenerator {
 	}
 
 	/**
-	 * @param input
+	 * This function is responsible for generating the stub for IFDS/IDE analysis based on user input.
+	 * @param input The wizard object from the Visuflow wizard.
 	 * @throws JClassAlreadyExistsException
 	 * @throws IOException
 	 */
@@ -235,7 +238,8 @@ public class CodeGenerator {
 	}
 
 	/**
-	 * @param input
+	 * This function is responsible for generating the stub for the main method of the analysis based on user input.
+	 * @param input The wizard object from the Visuflow wizard.
 	 * @throws JClassAlreadyExistsException
 	 * @throws IOException
 	 */

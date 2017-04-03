@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
@@ -57,7 +58,7 @@ public class DataModelImpl implements DataModel {
 	private VFMethod selectedMethod;
 
 	/**
-	 * Contains the list of all the class methods of {@link #selectedClass} 
+	 * Contains the list of all the class methods of {@link #selectedClass}
 	 */
 	private List<VFMethod> selectedClassMethods;
 	/**
@@ -396,7 +397,7 @@ public class DataModelImpl implements DataModel {
 	@Override
 	public void triggerProjectRebuild() {
 		WorkspaceJob build = new WorkspaceJob("rebuild") {
-			
+
 			@Override
 			public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
 				ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, monitor);
@@ -412,7 +413,6 @@ public class DataModelImpl implements DataModel {
 	@Override
 	public void refreshView() {
 		Event refreshView = new Event(DataModel.EA_TOPIC_DATA_VIEW_REFRESH, new HashMap<String,String>());
-		System.out.println("triggered refresh");
 		eventAdmin.postEvent(refreshView);
 
 	}

@@ -37,8 +37,6 @@ public class CFGView extends ViewPart {
 		Thread t = new Thread(manager);
 		t.start();
 
-		System.out.println("CFG view created");
-
 		Frame frame = SWT_AWT.new_Frame(composite);
 		frame.add(manager.getApplet());
 		frame.pack();
@@ -46,7 +44,7 @@ public class CFGView extends ViewPart {
 
 	@Override
 	public void setFocus() {
-		System.out.println(getClass().getName() + " Set Focus");
+		//System.out.println(getClass().getName() + " Set Focus");
 	}
 
 }

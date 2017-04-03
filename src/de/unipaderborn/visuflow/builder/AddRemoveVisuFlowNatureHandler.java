@@ -17,7 +17,7 @@ import de.unipaderborn.visuflow.VisuflowConstants;
 
 /**
  * @author PAH-Laptop
- * 
+ *
  * This class handles adding the Visuflow Project Nature to Projects.
  * This enables Eclipse to identify if it has to run our builder on a specific
  * Project.
@@ -25,12 +25,13 @@ import de.unipaderborn.visuflow.VisuflowConstants;
  */
 public class AddRemoveVisuFlowNatureHandler extends AbstractHandler implements VisuflowConstants {
 
-	
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.core.commands.IHandler#execute(org.eclipse.core.commands.ExecutionEvent)
-	 * this Method executes the Handler and thus toggles the nature status on a specific project, 
+	 * this Method executes the Handler and thus toggles the nature status on a specific project,
 	 * by calling the toggleNature method.
 	 */
+	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		ISelection selection = HandlerUtil.getCurrentSelection(event);
 		//
@@ -87,9 +88,6 @@ public class AddRemoveVisuFlowNatureHandler extends AbstractHandler implements V
 		newNatures[natures.length] = VISUFLOW_NATURE;
 		description.setNatureIds(newNatures);
 		project.setDescription(description, null);
-		for(String a : project.getDescription().getNatureIds()){
-			System.out.println(a);
-		}
 	}
 
 }

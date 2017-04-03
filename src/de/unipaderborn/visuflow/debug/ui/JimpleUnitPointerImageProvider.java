@@ -5,7 +5,11 @@ import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.texteditor.IAnnotationImageProvider;
 
-
+/**
+ * Image provider for JimpleInstructionPointerAnnotation
+ * @author henni@upb.de
+ *
+ */
 public class JimpleUnitPointerImageProvider implements IAnnotationImageProvider {
 
 	@Override

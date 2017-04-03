@@ -44,7 +44,7 @@ public class UnitLocator implements VisuflowConstants {
 		return location;
 	}
 
-	private static int[] find(List<String> hayStack, String needle, int offset) {
+	static int[] find(List<String> hayStack, String needle, int offset) {
 		int[] charStartAndEnd = new int[3];
 		int lineNumber = 1;
 		int accumulatedCharacters = 0;

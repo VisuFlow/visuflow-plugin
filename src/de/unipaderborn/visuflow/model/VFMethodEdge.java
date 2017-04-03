@@ -1,5 +1,10 @@
 package de.unipaderborn.visuflow.model;
 
+/**
+ * This class maintains the edge between instances of two {@link de.unipaderborn.visuflow.model.VFMethod} nodes.
+ * @author Shashank B S
+ *
+ */
 public class VFMethodEdge {
 	int id;
 	VFMethod sourceMethod;

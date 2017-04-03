@@ -10,6 +10,11 @@ import org.eclipse.ui.IWorkbenchPart;
 
 import de.unipaderborn.visuflow.VisuflowConstants;
 
+/**
+ * Glue code to enable the double-click behavior in the ruler of the JimpleEditor
+ * @author henni@upb.de
+ *
+ */
 public class JimpleBreakpointToggleTargetFactory implements IToggleBreakpointsTargetFactory, VisuflowConstants {
 
 	@Override

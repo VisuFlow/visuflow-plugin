@@ -192,24 +192,19 @@ public class JimpleModelAnalysis {
 					if(((Stmt)unit.getUnit()).containsInvokeExpr()){
 						InvokeExpr ivE = ((Stmt)unit.getUnit()).getInvokeExpr();
 						if(ivE.getMethod().equals(edge.getDestMethod().getSootMethod())){
-							if(edge.getDestMethod().addIncomingEdge(unit)){
-								return;
-							}
+							edge.getDestMethod().addIncomingEdge(unit);
 						}
 					}
 				}
 			}
-			
+
 			private void addCallPoint(VFMethodEdge edge){
-				System.out.println("called");
 				List<VFUnit> unitList = edge.getSourceMethod().getUnits();
 				for (VFUnit unit : unitList){
 					if(((Stmt)unit.getUnit()).containsInvokeExpr()){
 						InvokeExpr ivE = ((Stmt)unit.getUnit()).getInvokeExpr();
 						if(ivE.getMethod().equals(edge.getDestMethod().getSootMethod())){
-							if(unit.addOutgoingEdge(edge.getDestMethod().getUnits().get(0))){
-								return;
-							}
+							unit.addOutgoingEdge(edge.getDestMethod().getUnits().get(0));
 						}
 					}
 				}
