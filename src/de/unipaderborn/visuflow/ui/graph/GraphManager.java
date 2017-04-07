@@ -1352,7 +1352,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			createdNode.setAttribute("nodeData.unitType", node.getUnit().getClass());
 			String str1 = Optional.fromNullable(node.getVFUnit().getInSet()).or("n/a").toString();
 			String nodeInSet = StringEscapeUtils.escapeHtml(str1);
-			String str2 = Optional.fromNullable(node.getVFUnit().getInSet()).or("n/a").toString();
+			String str2 = Optional.fromNullable(node.getVFUnit().getOutSet()).or("n/a").toString();
 			String nodeOutSet = StringEscapeUtils.escapeHtml(str2);
 
 			createdNode.setAttribute("nodeData.inSet", nodeInSet);
