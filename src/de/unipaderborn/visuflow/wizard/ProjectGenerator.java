@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -24,8 +25,6 @@ import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.launching.LibraryLocation;
 
 import com.sun.codemodel.JClassAlreadyExistsException;
-
-import de.unipaderborn.visuflow.builder.AddRemoveVisuFlowNatureHandler;
 
 /**
  * @author Zafar Habeeb
@@ -84,9 +83,6 @@ public class ProjectGenerator {
 		}
 		sourceFolder.refreshLocal(1, null);
 		javaProject.open(null);
-		AddRemoveVisuFlowNatureHandler addNature = new AddRemoveVisuFlowNatureHandler();
-		if(!project.isNatureEnabled("JimpleBuilder.VisuFlowNature"))
-		addNature.toggleNature(project);
 		return javaProject;
 	}
 
