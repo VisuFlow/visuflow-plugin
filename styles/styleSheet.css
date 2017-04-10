@@ -5,7 +5,8 @@ graph {
 node {
 	size-mode: fit;
 	shape: rounded-box;
-	fill-color: #009688;
+	/*fill-color: #009688;*/
+	fill-color: #a3dfff;
 	fill-mode: dyn-plain;
 	padding: 3px, 2px, 5px, 5px;
 	text-color: black;
