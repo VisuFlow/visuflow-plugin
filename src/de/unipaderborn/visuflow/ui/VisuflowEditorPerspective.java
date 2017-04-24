@@ -25,7 +25,7 @@ public class VisuflowEditorPerspective implements IPerspectiveFactory {
 		IFolderLayout consoleFolder = layout.createFolder(ID_FOLDER_CONSOLE, IPageLayout.BOTTOM, (float) 0.66, layout.getEditorArea());
 		consoleFolder.addView(ID_CONSOLE_VIEW);
 
-		IFolderLayout debugFolder = layout.createFolder(ID_FOLDER_DEBUG, IPageLayout.RIGHT, (float) 0.5, ID_FOLDER_CONSOLE);
+		IFolderLayout debugFolder = layout.createFolder(ID_FOLDER_DEBUG, IPageLayout.RIGHT, (float) 0.25, ID_FOLDER_CONSOLE);
 
 		debugFolder.addView(ID_RESULT_VIEW);
 		debugFolder.addView(ID_UNIT_VIEW);
