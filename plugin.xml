@@ -5,7 +5,7 @@
          point="org.eclipse.ui.views">
       <category
             id="GraphStreamFeasibility"
-            name="Visuflow">
+            name="VisuFlow">
       </category>
       <view
             category="GraphStreamFeasibility"
@@ -432,7 +432,7 @@
          <perspective
             class="de.unipaderborn.visuflow.ui.VisuflowEditorPerspective"
             id="visuflow-plugin.perspective.editor"
-            name="Visuflow">
+            name="VisuFlow">
         </perspective>
     </extension>
 
