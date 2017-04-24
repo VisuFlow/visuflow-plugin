@@ -460,7 +460,6 @@
             icon="icons/monkey16.png">
         </launchConfigurationTypeImage>
     </extension>
-    -->
     
 	<extension point="org.eclipse.debug.ui.launchConfigurationTabs">
 		<tab
@@ -470,6 +469,7 @@
 		    name="Visuflow">
 		</tab>
 	</extension> 
+    -->
 	<extension point="org.eclipse.debug.core.launchDelegates">
   		<launchDelegate id="de.unipaderborn.visuflow.debug.launchConfigurationDelegate"
 						delegate="de.unipaderborn.visuflow.debug.LaunchConfigurationDelegate"
