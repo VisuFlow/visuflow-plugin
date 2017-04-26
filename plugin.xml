@@ -91,8 +91,21 @@
    <menuContribution
          allPopups="false"
          locationURI="toolbar:org.eclipse.ui.main.toolbar">
-      <toolbar
-            id="GraphStreamFeasibility.unitStepControls">
+      <toolbar id="visuflow.toolbar">
+       <command
+               commandId="GraphStreamFeasibility.RunBuilder"
+               icon="icons/view-refresh.png"
+               label="Run Builder"
+               style="push"
+               tooltip="Run Builder">
+        </command>
+        <command
+               commandId="GraphStreamFeasibility.LinkTargetProject"
+               icon="icons/emblem-symbolic-link.png"
+               label="Link Target Project"
+               style="push"
+               tooltip="Link Target Project">
+         </command>
          <command
                commandId="visuflow.debug.step.resume"
                icon="icons/media-playback-start.png"
@@ -157,21 +170,6 @@
    </menuContribution>
    <menuContribution
          allPopups="false"
-         locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
-      <toolbar
-            id="GraphStreamFeasibility.LinkTargetToolBar">
-         <command
-               commandId="GraphStreamFeasibility.LinkTargetProject"
-               icon="icons/Link.png"
-               label="Link Target Project"
-               style="push"
-               tooltip="Link Target Project">
-         </command>
-      </toolbar>
-   </menuContribution>
-
-   <menuContribution
-         allPopups="false"
          locationURI="popup:#AbstractTextEditorRulerContext?after=additions">
       <command
             commandId="JavaHandler.NavigateToCFG"
@@ -213,22 +211,7 @@
    </or>
 </visibleWhen>
       </command>
-   </menuContribution>
-    <menuContribution
-          allPopups="false"
-          locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
-       <toolbar
-             id="GraphStreamFeasibility.RunBuilder">
-          <command
-                commandId="GraphStreamFeasibility.RunBuilder"
-                icon="icons/Run.jpg"
-                label="Run Builder"
-                style="push"
-                tooltip="Run Builder">
-          </command>
-       </toolbar>
-    </menuContribution>
-   
+   </menuContribution>  
 </extension>
 <extension
       point="org.eclipse.ui.commands">
