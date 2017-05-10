@@ -42,7 +42,7 @@ public class LaunchConfigurationDelegate extends JavaLaunchDelegate implements V
 
 		try {
 			logger.info("Waiting for monitoring server before launch");
-			if(monitoringServer.waitForServer(500)) {
+			if (monitoringServer.waitForServer(500)) {
 				// launch the program
 				logger.info("Launching the user analysis");
 				super.launch(configCopy, mode, launch, monitor);
@@ -79,7 +79,7 @@ public class LaunchConfigurationDelegate extends JavaLaunchDelegate implements V
 				out.write(b, 0, len);
 			}
 		} finally {
-			if(out != null) {
+			if (out != null) {
 				out.close();
 			}
 		}

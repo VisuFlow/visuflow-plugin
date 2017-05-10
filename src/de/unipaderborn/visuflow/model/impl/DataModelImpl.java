@@ -76,7 +76,9 @@ public class DataModelImpl implements DataModel {
 
 	private boolean selection;
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unipaderborn.visuflow.model.DataModel#listClasses()
 	 */
 	@Override
@@ -87,13 +89,15 @@ public class DataModelImpl implements DataModel {
 		return classList;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unipaderborn.visuflow.model.DataModel#listMethods(de.unipaderborn.visuflow.model.VFClass)
 	 */
 	@Override
 	public List<VFMethod> listMethods(VFClass vfClass) {
 		List<VFMethod> methods = Collections.emptyList();
-		if(classList != null) {
+		if (classList != null) {
 			for (VFClass current : classList) {
 				if (current == vfClass) {
 					methods = vfClass.getMethods();
@@ -103,13 +107,15 @@ public class DataModelImpl implements DataModel {
 		return methods;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unipaderborn.visuflow.model.DataModel#listUnits(de.unipaderborn.visuflow.model.VFMethod)
 	 */
 	@Override
 	public List<VFUnit> listUnits(VFMethod vfMethod) {
 		List<VFUnit> units = Collections.emptyList();
-		if(classList != null) {
+		if (classList != null) {
 			for (VFClass currentClass : classList) {
 				for (VFMethod currentMethod : currentClass.getMethods()) {
 					if (currentMethod == vfMethod) {
@@ -121,7 +127,9 @@ public class DataModelImpl implements DataModel {
 		return units;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unipaderborn.visuflow.model.DataModel#getSelectedClass()
 	 */
 	@Override
@@ -129,7 +137,9 @@ public class DataModelImpl implements DataModel {
 		return selectedClass;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unipaderborn.visuflow.model.DataModel#getSelectedClassMethods()
 	 */
 	@Override
@@ -140,7 +150,9 @@ public class DataModelImpl implements DataModel {
 		return selectedClassMethods;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unipaderborn.visuflow.model.DataModel#getSelectedMethodUnits()
 	 */
 	@Override
@@ -151,7 +163,9 @@ public class DataModelImpl implements DataModel {
 		return selectedMethodUnits;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unipaderborn.visuflow.model.DataModel#setSelectedClass(de.unipaderborn.visuflow.model.VFClass)
 	 */
 	@Override
@@ -164,13 +178,15 @@ public class DataModelImpl implements DataModel {
 		this.setSelectedMethod(this.selectedClass.getMethods().get(0), true);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unipaderborn.visuflow.model.DataModel#setSelectedMethod(de.unipaderborn.visuflow.model.VFMethod, boolean)
 	 */
 	@Override
 	public void setSelectedMethod(VFMethod selectedMethod, boolean panToNode) {
-		//		if(this.selectedMethod != null && this.selectedMethod.toString().contentEquals(selectedMethod.toString()))
-		//			return;
+		// if(this.selectedMethod != null && this.selectedMethod.toString().contentEquals(selectedMethod.toString()))
+		// return;
 		this.selectedMethod = selectedMethod;
 		this.populateUnits();
 		this.populateEdges();
@@ -182,7 +198,9 @@ public class DataModelImpl implements DataModel {
 		eventAdmin.postEvent(modelChanged);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unipaderborn.visuflow.model.DataModel#getSelectedMethod()
 	 */
 	@Override
@@ -190,7 +208,9 @@ public class DataModelImpl implements DataModel {
 		return selectedMethod;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unipaderborn.visuflow.model.DataModel#setClassList(java.util.List)
 	 */
 	@Override
@@ -215,7 +235,9 @@ public class DataModelImpl implements DataModel {
 		this.eventAdmin = eventAdmin;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unipaderborn.visuflow.model.DataModel#getIcfg()
 	 */
 	@Override
@@ -223,7 +245,9 @@ public class DataModelImpl implements DataModel {
 		return icfg;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unipaderborn.visuflow.model.DataModel#setIcfg(de.unipaderborn.visuflow.model.graph.ICFGStructure)
 	 */
 	@Override
@@ -231,7 +255,9 @@ public class DataModelImpl implements DataModel {
 		this.icfg = icfg;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unipaderborn.visuflow.model.DataModel#getVFMethodByName(soot.SootMethod)
 	 */
 	@Override
@@ -257,7 +283,9 @@ public class DataModelImpl implements DataModel {
 		return null;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unipaderborn.visuflow.model.DataModel#setInSet(java.lang.String, java.lang.String, java.lang.String)
 	 */
 	@Override
@@ -271,7 +299,9 @@ public class DataModelImpl implements DataModel {
 		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unipaderborn.visuflow.model.DataModel#setOutSet(java.lang.String, java.lang.String, java.lang.String)
 	 */
 	@Override
@@ -291,7 +321,7 @@ public class DataModelImpl implements DataModel {
 	@Override
 	public VFUnit getVFUnit(String fqn) {
 		VFUnit result = null;
-		if(classList != null) {
+		if (classList != null) {
 			for (VFClass vfClass : classList) {
 				for (VFMethod vfMethod : vfClass.getMethods()) {
 					for (VFUnit vfUnit : vfMethod.getUnits()) {
@@ -312,7 +342,9 @@ public class DataModelImpl implements DataModel {
 		eventAdmin.postEvent(modelChanged);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unipaderborn.visuflow.model.DataModel#filterGraph(java.util.List, boolean, boolean, java.lang.String)
 	 */
 	@Override
@@ -321,10 +353,10 @@ public class DataModelImpl implements DataModel {
 		handler.removeJimpleHighlight(true);
 		this.selectedNodes = selectedNodes;
 		this.selection = selection;
-		if(uiClassName == null)
+		if (uiClassName == null)
 			uiClassName = "filter";
 
-		if(!selectedNodes.isEmpty())
+		if (!selectedNodes.isEmpty())
 			this.setSelectedMethod(selectedNodes.get(0).getVFUnit().getVfMethod(), false);
 
 		Dictionary<String, Object> properties = new Hashtable<>();
@@ -336,7 +368,9 @@ public class DataModelImpl implements DataModel {
 		eventAdmin.postEvent(filterGraph);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unipaderborn.visuflow.model.DataModel#HighlightJimpleUnit(de.unipaderborn.visuflow.model.VFNode)
 	 */
 	@Override
@@ -391,7 +425,9 @@ public class DataModelImpl implements DataModel {
 
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unipaderborn.visuflow.model.DataModel#triggerProjectRebuild()
 	 */
 	@Override
@@ -407,12 +443,14 @@ public class DataModelImpl implements DataModel {
 		build.schedule();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unipaderborn.visuflow.model.DataModel#refreshView()
 	 */
 	@Override
 	public void refreshView() {
-		Event refreshView = new Event(DataModel.EA_TOPIC_DATA_VIEW_REFRESH, new HashMap<String,String>());
+		Event refreshView = new Event(DataModel.EA_TOPIC_DATA_VIEW_REFRESH, new HashMap<String, String>());
 		eventAdmin.postEvent(refreshView);
 
 	}

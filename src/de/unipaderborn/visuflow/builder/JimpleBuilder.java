@@ -33,50 +33,45 @@ import de.unipaderborn.visuflow.model.graph.JimpleModelAnalysis;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 
 /**
- * @author PAH-Laptop
- * This is the Builder Class for our Project. 
- * It triggers on the automatic builds of eclipse and checks which files have changed.
- * It only triggers a build on Project with the Visuflow Nature that have issued a fullbuild
- * or contain changed java files.
- * Then it gathers all the necessary information on the target code and runs a soot analysis 
- * to compute the structure and jimple necessary for the other views.
+ * @author PAH-Laptop This is the Builder Class for our Project. It triggers on the automatic builds of eclipse and checks which files have changed. It only
+ *         triggers a build on Project with the Visuflow Nature that have issued a fullbuild or contain changed java files. Then it gathers all the necessary
+ *         information on the target code and runs a soot analysis to compute the structure and jimple necessary for the other views.
  */
 public class JimpleBuilder extends IncrementalProjectBuilder {
 
 	private Logger logger = Visuflow.getDefault().getLogger();
 	private String classpath;
 	private boolean executeBuild;
-	
+
 	class JimpleDeltaVisitor implements IResourceDeltaVisitor {
 		public boolean visit(IResourceDelta delta) throws CoreException {
 			IResource resource = delta.getResource();
-			if (resource.getFileExtension() != null){
-			switch (delta.getKind()) {
-			case IResourceDelta.ADDED:
-				if(resource.getFileExtension().equals("java")){
-					executeBuild = true;
-					return false;
+			if (resource.getFileExtension() != null) {
+				switch (delta.getKind()) {
+				case IResourceDelta.ADDED:
+					if (resource.getFileExtension().equals("java")) {
+						executeBuild = true;
+						return false;
+					}
+					break;
+				case IResourceDelta.REMOVED:
+					if (resource.getFileExtension().equals("java")) {
+						executeBuild = true;
+						return false;
+					}
+					break;
+				case IResourceDelta.CHANGED:
+					if (resource.getFileExtension().equals("java")) {
+						executeBuild = true;
+						return false;
+					}
+					break;
 				}
-				break;
-			case IResourceDelta.REMOVED:
-				if(resource.getFileExtension().equals("java")){
-					executeBuild = true;
-					return false;
-				}
-				break;
-			case IResourceDelta.CHANGED:
-				if( resource.getFileExtension().equals("java")){
-					executeBuild = true;
-					return false;
-				}
-				break;
-			}
 			}
 			return true;
 		}
 	}
 
-	
 	/**
 	 * @param javaProject
 	 * @return
@@ -92,8 +87,7 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 
 	/**
 	 * @param javaProject
-	 * @return String with the complete Classpath for the soot run
-	 * Computes the classpath necessary for the soot run
+	 * @return String with the complete Classpath for the soot run Computes the classpath necessary for the soot run
 	 */
 	private String getSootCP(IJavaProject javaProject) {
 		String sootCP = "";
@@ -106,13 +100,12 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 		return sootCP;
 	}
 
-	
 	/**
 	 * @param javaProject
 	 * @return Set of the locations of jars for the soot classpath
 	 * @throws JavaModelException
 	 * 
-	 * This method computes the locations of the jar files necessary for the soot run
+	 *             This method computes the locations of the jar files necessary for the soot run
 	 */
 	protected Set<String> getJarFilesLocation(IJavaProject javaProject) throws JavaModelException {
 		Set<String> jars = new HashSet<>();
@@ -156,7 +149,7 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 	@Override
 	protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
 		executeBuild = false;
-		if(getProject() != null && getProject().getName().equals(GlobalSettings.get("AnalysisProject"))){
+		if (getProject() != null && getProject().getName().equals(GlobalSettings.get("AnalysisProject"))) {
 			if (kind == FULL_BUILD) {
 				fullBuild(monitor);
 			} else {
@@ -170,8 +163,8 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 		}
 		return null;
 	}
-	
-	protected void fullBuild(IProgressMonitor monitor) throws CoreException{
+
+	protected void fullBuild(IProgressMonitor monitor) throws CoreException {
 		Visuflow.getDefault().getLogger().info("Build Start");
 		String targetFolder = "sootOutput";
 		IJavaProject project = JavaCore.create(getProject());
@@ -202,21 +195,20 @@ public class JimpleBuilder extends IncrementalProjectBuilder {
 			try {
 				analysis.createICFG(icfg, jimpleClasses);
 				fillDataModel(icfg, jimpleClasses);
-			} catch(Exception e) {
+			} catch (Exception e) {
 				logger.error("Couldn't execute analysis", e);
 			}
 
 			folder.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 		}
 	}
-	
-	protected void checkForBuild(IResourceDelta delta,
-			IProgressMonitor monitor) throws CoreException {
+
+	protected void checkForBuild(IResourceDelta delta, IProgressMonitor monitor) throws CoreException {
 		delta.accept(new JimpleDeltaVisitor());
-		if(executeBuild){
+		if (executeBuild) {
 			fullBuild(monitor);
 			executeBuild = false;
 		}
 	}
-	
+
 }

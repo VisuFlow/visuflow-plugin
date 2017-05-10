@@ -10,6 +10,7 @@ import soot.tagkit.Tag;
 
 /**
  * This class is a wrapper around the {@link soot.Unit} and maintains an instance of {@link soot.Unit}.
+ * 
  * @author Shashank B S
  *
  */
@@ -34,12 +35,13 @@ public class VFUnit {
 		this.outgoingEdges = outgoingEdges;
 	}
 
-	public boolean addOutgoingEdge(VFUnit outgoingEdge){
-		if(outgoingEdges.contains(outgoingEdge)){
+	public boolean addOutgoingEdge(VFUnit outgoingEdge) {
+		if (outgoingEdges.contains(outgoingEdge)) {
 			return false;
 		}
 		return outgoingEdges.add(outgoingEdge);
 	}
+
 	public VFMethod getVfMethod() {
 		return vfMethod;
 	}
@@ -66,6 +68,36 @@ public class VFUnit {
 	}
 
 	public Object getOutSet() {
+		// LALA
+		if (outSet instanceof String) {
+			String stringOutSet = (String) outSet;
+			if (stringOutSet.length() < 3)
+				return outSet;
+
+			stringOutSet = stringOutSet.substring(1, stringOutSet.length() - 1);
+			String[] parts = stringOutSet.split(", ");
+			StringBuilder sb = new StringBuilder();
+			sb.append("[");
+			boolean first = true;
+			for (String part : parts) {
+				if (first)
+					first = false;
+				else
+					sb.append(", ");
+
+				String local = part.substring(part.indexOf("LOCAL") + 6, part.indexOf("FIELD") - 1);
+				sb.append(local);
+				if (part.contains("[<")) {
+					String field = part.substring(part.lastIndexOf(" ") + 1, part.lastIndexOf(">"));
+					sb.append(".");
+					sb.append(field);
+				}
+			}
+			sb.append("]");
+			return sb.toString();
+		}
+		// END LALA
+
 		return outSet;
 	}
 
@@ -104,7 +136,7 @@ public class VFUnit {
 	}
 
 	@Override
-	public String toString(){
+	public String toString() {
 		return getFullyQualifiedName();
 	}
 
