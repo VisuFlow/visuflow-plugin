@@ -30,7 +30,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -106,7 +105,6 @@ import soot.Unit;
 import soot.jimple.ReturnStmt;
 import soot.jimple.ReturnVoidStmt;
 import soot.jimple.Stmt;
-import startup.SetListener;
 
 /**
  * @author Shashank B S
@@ -200,10 +198,8 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	/**
 	 * Creates a new instance of graph manager used for rendering ICFG and CFG.
 	 *
-	 * @param graphName
-	 *            - name of the graph
-	 * @param -
-	 *            styleSheet path to the style sheet file
+	 * @param graphName - name of the graph
+	 * @param - styleSheet path to the style sheet file
 	 * @author Shashank B S
 	 */
 	public GraphManager(String graphName, String styleSheet) {
@@ -247,23 +243,19 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * Registers the event topics for which this class is to be notified about. Refer to {@link DataModel#EA_TOPIC_DATA}
-	 * 
 	 * @author Shashank B S
 	 */
 	private void registerEventHandler() {
 		String[] topics = new String[] { EA_TOPIC_DATA_FILTER_GRAPH, EA_TOPIC_DATA_SELECTION, EA_TOPIC_DATA_MODEL_CHANGED, EA_TOPIC_DATA_UNIT_CHANGED,
-				"GraphReady" };
+		"GraphReady" };
 		Hashtable<String, Object> properties = new Hashtable<>();
 		properties.put(EventConstants.EVENT_TOPIC, topics);
 		ServiceUtil.registerService(EventHandler.class, this, properties);
 	}
 
 	/**
-	 * Creates a new MultiGraph in the GUI thread and sets the attributes of styleSheet, quality and antialias to true. This method is called from
-	 * {@link #GraphManager(String, String)}
-	 * 
-	 * @param graphName
-	 *            - name of the graph
+	 * Creates a new MultiGraph in the GUI thread and sets the attributes of styleSheet, quality and antialias to true. This method is called from {@link #GraphManager(String, String)}
+	 * @param graphName - name of the graph
 	 * @author Shashank B S
 	 */
 	void createGraph(String graphName) {
@@ -284,8 +276,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	/**
 	 * Reinitializes the graph by deleting the existing nodes and resets the attributes.
 	 *
-	 * @throws Exception
-	 *             when graph is null
+	 * @throws Exception when graph is null
 	 * @author Shashank B S
 	 */
 	private void reintializeGraph() throws Exception {
@@ -303,7 +294,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * Creates the all the necessary components and the necessary handlers for the CFG view.
-	 * 
 	 * @author Shashank B S
 	 */
 	private void createUI() {
@@ -322,7 +312,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * Pans the CFG view up by {@link #panYDelta} points.
-	 * 
 	 * @author Shashank B S
 	 */
 	private void panUp() {
@@ -332,7 +321,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * Pans the CFG view down by {@link #panYDelta} points.
-	 * 
 	 * @author Shashank B S
 	 */
 	private void panDown() {
@@ -342,7 +330,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * Pans the CFG view left by {@link #panXDelta} points.
-	 * 
 	 * @author Shashank B S
 	 */
 	private void panLeft() {
@@ -352,7 +339,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * Pans the CFG view right by {@link #panXDelta} points.
-	 * 
 	 * @author Shashank B S
 	 */
 	private void panRight() {
@@ -362,9 +348,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * Pans the graph to the view of the node with the {@code nodeId}.
-	 * 
-	 * @param nodeId
-	 *            - Id of the node to pan the graph
+	 * @param nodeId - Id of the node to pan the graph
 	 * @author Shashank B S
 	 */
 	private void panToNode(String nodeId) {
@@ -389,7 +373,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * Performs the default panning and zooming with animation based on the number of nodes in the graph.
-	 * 
 	 * @author Shashank B S
 	 */
 	private void defaultPanZoom() {
@@ -408,7 +391,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * Creates instances of buttons {@link #panLeftButton}, {@link #panRightButton}, {@link #panUpButton} and {@link #panDownButton} and its action listeners.
-	 * 
 	 * @author Shashank B S
 	 */
 	private void createPanningButtons() {
@@ -431,7 +413,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				SetListener.record(new Date(), "FOCUS CFG BUTTON");
 				panLeft();
 			}
 		});
@@ -440,7 +421,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				SetListener.record(new Date(), "FOCUS CFG BUTTON");
 				panRight();
 			}
 		});
@@ -449,7 +429,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				SetListener.record(new Date(), "FOCUS CFG BUTTON");
 				panUp();
 			}
 		});
@@ -458,16 +437,13 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				SetListener.record(new Date(), "FOCUS CFG BUTTON");
 				panDown();
 			}
 		});
 	}
 
 	/**
-	 * creates JMenuItems {@link #navigateToJimple}, {@link #navigateToJava}, {@link #showInUnitView}, {@link #setCustomAttribute}, {@link #followCall},
-	 * {@link #followReturn}, {@link #cha}, {@link #spark} and their handlers.
-	 * 
+	 * creates JMenuItems {@link #navigateToJimple}, {@link #navigateToJava}, {@link #showInUnitView}, {@link #setCustomAttribute}, {@link #followCall}, {@link #followReturn}, {@link #cha}, {@link #spark} and their handlers.
 	 * @author Shashank B S
 	 */
 	private void createPopUpMenuItemsAndListeners() {
@@ -571,17 +547,17 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				GraphicElement curElement = view.findNodeOrSpriteAt(x, y);
-				if (curElement == null)
+				if(curElement == null)
 					return;
 				Node curr = graph.getNode(curElement.getId());
 				Object node = curr.getAttribute("nodeUnit");
 				if (node instanceof VFNode) {
-					if (((Stmt) ((VFNode) node).getUnit()).containsInvokeExpr()) {
+					if (((Stmt) ((VFNode) node).getUnit()).containsInvokeExpr()){
 						List<VFUnit> list = new ArrayList<>();
-						for (VFUnit edge : ((VFNode) node).getVFUnit().getOutgoingEdges()) {
+						for(VFUnit edge : ((VFNode) node).getVFUnit().getOutgoingEdges()){
 							list.add(edge);
 						}
-						if (list.size() == 1) {
+						if(list.size() == 1) {
 							jumpToCallee(list.get(0));
 						} else {
 							Display.getDefault().syncExec(new Runnable() {
@@ -591,7 +567,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 									callFilter.setPaths(list);
 									callFilter.setInitialPattern("?");
 									callFilter.open();
-									if (callFilter.getFirstResult() != null) {
+									if(callFilter.getFirstResult() != null){
 										jumpToCallee((VFUnit) callFilter.getFirstResult());
 									}
 								}
@@ -618,7 +594,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 							list.add(edge);
 						}
 
-						if (list.size() == 1) {
+						if(list.size() == 1) {
 							returnToCaller(list.get(0));
 						} else {
 							Display.getDefault().syncExec(new Runnable() {
@@ -662,9 +638,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	}
 
 	/**
-	 * Creates icons {@link #imgLeft}, {@link #imgRight}, {@link #imgUp}, {@link #imgDown}, {@link #imgPlus}, {@link #imgMinus} to be added to the
-	 * {@link #settingsBar}.
-	 * 
+	 * Creates icons {@link #imgLeft}, {@link #imgRight}, {@link #imgUp}, {@link #imgDown}, {@link #imgPlus}, {@link #imgMinus} to be added to the {@link #settingsBar}.
 	 * @author Shashank B S
 	 */
 	private void createIcons() {
@@ -684,12 +658,9 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	/**
 	 * Resizes and returns the {@code image} to the dimensions of {@code width} and {@code height}.
 	 *
-	 * @param image
-	 *            - the source image to be resized
-	 * @param width
-	 *            - the new width
-	 * @param height
-	 *            - the new height
+	 * @param image - the source image to be resized
+	 * @param width - the new width
+	 * @param height - the new height
 	 * @return resized image - the resized image to the provided width and height
 	 *
 	 * @author Shashank B S
@@ -707,7 +678,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * Create and add the handler to the {@link #showICFGButton}.
-	 * 
 	 * @author Shashank B S
 	 */
 	private void createShowICFGButton() {
@@ -716,7 +686,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				SetListener.record(new Date(), "FOCUS CFG BUTTON");
 				renderICFG(ServiceUtil.getService(DataModel.class).getIcfg());
 			}
 		});
@@ -724,7 +693,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * Creates JTextFiled, focus and action listeners for the graph search functionality.
-	 * 
 	 * @author Shashank B S
 	 */
 	private void createSearchTextBar() {
@@ -745,15 +713,13 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				SetListener.record(new Date(), "FOCUS CFG SEARCH");
 				String searchString = searchTextField.getText().toLowerCase();
-				if (searchString.isEmpty())
+				if(searchString.isEmpty())
 					return;
 				ArrayList<VFNode> vfNodes = new ArrayList<>();
 				ArrayList<VFUnit> vfUnits = new ArrayList<>();
 				for (Node node : graph) {
-					if (node.getAttribute("ui.label").toString().toLowerCase().contains((searchString)) || (node.hasAttribute(nodeAttributesString)
-							&& node.getAttribute(nodeAttributesString).toString().toLowerCase().contains(searchString))) {
+					if (node.getAttribute("ui.label").toString().toLowerCase().contains((searchString)) || (node.hasAttribute(nodeAttributesString) && node.getAttribute(nodeAttributesString).toString().toLowerCase().contains(searchString))) {
 						vfNodes.add((VFNode) node.getAttribute("nodeUnit"));
 						vfUnits.add(((VFNode) node.getAttribute("nodeUnit")).getVFUnit());
 					}
@@ -774,7 +740,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * Creates an instance of JAppletContainer {@link #applet} and adds the container {@link #panel} to it.
-	 * 
 	 * @author Shashank B S
 	 */
 	private void createAppletContainer() {
@@ -783,10 +748,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	}
 
 	/**
-	 * Creates an instance of JToolBar {@link #settingsBar} and adds {@link #zoomInButton}, {@link #zoomOutButton}, {@link #showICFGButton},
-	 * {@link #colorSettingsButton}, {@link #panLeftButton}, {@link #panRightButton}, {@link #panUpButton}, {@link #panDownButton}, {@link #searchTextField}
-	 * components to it.
-	 * 
+	 * Creates an instance of JToolBar {@link #settingsBar} and adds {@link #zoomInButton}, {@link #zoomOutButton}, {@link #showICFGButton}, {@link #colorSettingsButton}, {@link #panLeftButton}, {@link #panRightButton}, {@link #panUpButton}, {@link #panDownButton}, {@link #searchTextField} components to it.
 	 * @author Shashank B S
 	 */
 	private void createSettingsBar() {
@@ -805,7 +767,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * Creates an instance of JToolBar {@link #headerBar} and adds an instance of JLabel {@link #header} to it.
-	 * 
 	 * @author Shashank B S
 	 */
 	private void createHeaderBar() {
@@ -817,21 +778,19 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * Creates an instance of JFrame {@link #panel} and adds the graph view {@link #view} to the {@link #panel}.
-	 * 
 	 * @author Shashank B S
 	 */
 	private void createPanel() {
 		JFrame temp = new JFrame();
 		temp.setLayout(new BorderLayout());
 		panel = temp.getContentPane();
-		panel.add(headerBar, BorderLayout.PAGE_START);
+		panel.add(headerBar,BorderLayout.PAGE_START);
 		panel.add(view);
 		panel.add(settingsBar, BorderLayout.PAGE_END);
 	}
 
 	/**
 	 * Creates mouse listeners and keyboard listeners for the CFG view.
-	 * 
 	 * @author Shashank B S
 	 */
 	private void createViewListeners() {
@@ -921,7 +880,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			@Override
 			public void mousePressed(MouseEvent e) {
-				SetListener.record(new Date(), "FOCUS CFG");
 				if (e.getButton() == MouseEvent.BUTTON3) {
 					// reset mouse drag tracking
 					mouseDraggedFrom = null;
@@ -1109,14 +1067,14 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		}
 	}
 
-	private void jumpToCallee(VFUnit unit) {
-		if (unit == null)
-			return;
+	private void jumpToCallee(VFUnit unit){
+		if(unit == null) return;
 		DataModel dataModel = ServiceUtil.getService(DataModel.class);
 		try {
-			if (unit.getVfMethod().getControlFlowGraph() == null)
+			if(unit.getVfMethod().getControlFlowGraph() == null)
 				throw new Exception("CFG Null Exception");
-			else {
+			else
+			{
 				dataModel.setSelectedMethod(unit.getVfMethod(), true);
 
 			}
@@ -1128,7 +1086,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * zooms out the graph by decreasing the view percent by {@link #zoomInDelta} points.
-	 * 
 	 * @author Shashank B S
 	 */
 	private void zoomOut() {
@@ -1139,7 +1096,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * zooms in the graph by decreasing the view percent by {@link #zoomOutDelta} points.
-	 * 
 	 * @author Shashank B S
 	 */
 	private void zoomIn() {
@@ -1150,7 +1106,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * Create zoom control buttons {@link #zoomInButton}, {@link #zoomOutButton} and action listeners.
-	 * 
 	 * @author Shashank B S
 	 */
 	private void createZoomControls() {
@@ -1163,7 +1118,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				SetListener.record(new Date(), "FOCUS CFG BUTTON");
 				zoomOut();
 			}
 		});
@@ -1172,7 +1126,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				SetListener.record(new Date(), "FOCUS CFG BUTTON");
 				zoomIn();
 			}
 		});
@@ -1186,7 +1139,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				// Color color = jcc.getColor();
+				//				Color color = jcc.getColor();
 			}
 		});
 
@@ -1198,7 +1151,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				SetListener.record(new Date(), "FOCUS CFG BUTTON");
 				createColorSettingsDialogue();
 
 			}
@@ -1206,17 +1158,11 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	}
 
 	/**
-	 * Filters and highlights the graph by setting the {@code uiClassForFilteredNodes} class on the filtered nodes based on the boolean value {@code selection}
-	 * and also pans the view to the last filtered node based on the value of {@code panToNode}.
-	 * 
-	 * @param nodes
-	 *            - nodes to be filtered
-	 * @param selection
-	 *            - flag to determine whether the nodes have to be highlighted
-	 * @param panToNode
-	 *            - flag to determine whether to pan the graph to the last filtered node
-	 * @param uiClassForFilteredNodes
-	 *            - class name to be set on filtered nodes, defaults to <b>filter</b> if the passed in value is null
+	 * Filters and highlights the graph by setting the {@code uiClassForFilteredNodes} class on the filtered nodes based on the boolean value {@code selection} and also pans the view to the last filtered node based on the value of {@code panToNode}.
+	 * @param nodes - nodes to be filtered
+	 * @param selection - flag to determine whether the nodes have to be highlighted
+	 * @param panToNode - flag to determine whether to pan the graph to the last filtered node
+	 * @param uiClassForFilteredNodes - class name to be set on filtered nodes, defaults to <b>filter</b> if the passed in value is null
 	 * @author Shashank B S
 	 */
 	private void filterGraphNodes(List<VFNode> nodes, boolean selection, boolean panToNode, String uiClassForFilteredNodes) {
@@ -1246,7 +1192,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 	/**
 	 * Creates the ICFG, sets {@link #header} to <b>ICFG</b> sets {@link #CFG} to false and sets the layout of the graph.
-	 * 
 	 * @param icfg
 	 * @author Shashank B S
 	 */
@@ -1309,8 +1254,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			methodBody = methodBody.replaceAll("\n{2,}", "\n"); // replace empty lines
 			String escapedMethodBody = StringEscapeUtils.escapeHtml(methodBody);
 			String hexColor = getCodeBackgroundColor();
-			createdNode.setAttribute("nodeData.methodBody",
-					"<code><pre style=\"color: #000000; background-color: #" + hexColor + "\">" + escapedMethodBody + "</pre></code>");
+			createdNode.setAttribute("nodeData.methodBody", "<code><pre style=\"color: #000000; background-color: #"+hexColor+"\">" + escapedMethodBody + "</pre></code>");
 			createdNode.setAttribute("nodeMethod", src);
 		}
 	}
@@ -1393,7 +1337,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			String label = unit.toString();
 			try {
 				UnitFormatter formatter = UnitFormatterFactory.createFormatter(unit);
-				// UnitFormatter formatter = new DefaultFormatter();
+				//UnitFormatter formatter = new DefaultFormatter();
 				label = formatter.format(unit, maxLength);
 			} catch (Exception e) {
 				logger.error("Unit formatting failed", e);
@@ -1416,9 +1360,11 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 			Map<String, String> customAttributes = node.getVFUnit().getHmCustAttr();
 			String attributeData = "";
-			if (!customAttributes.isEmpty()) {
+			if(!customAttributes.isEmpty())
+			{
 				Iterator<Entry<String, String>> customAttributeIterator = customAttributes.entrySet().iterator();
-				while (customAttributeIterator.hasNext()) {
+				while(customAttributeIterator.hasNext())
+				{
 					Entry<String, String> curr = customAttributeIterator.next();
 					attributeData += curr.getKey() + " : " + curr.getValue();
 					attributeData += "<br />";
@@ -1500,9 +1446,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		panToNode(nodeId);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see java.lang.Runnable#run()
 	 */
 	@Override
@@ -1510,9 +1454,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		this.registerEventHandler();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see org.graphstream.ui.view.ViewerListener#buttonPushed(java.lang.String)
 	 */
 	@Override
@@ -1520,9 +1462,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		// noop
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see org.graphstream.ui.view.ViewerListener#buttonReleased(java.lang.String)
 	 */
 	@Override
@@ -1531,9 +1471,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		experimentalLayout();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see org.graphstream.ui.view.ViewerListener#viewClosed(java.lang.String)
 	 */
 	@Override
@@ -1541,9 +1479,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		// noop
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/* (non-Javadoc)
 	 * @see org.osgi.service.event.EventHandler#handleEvent(org.osgi.service.event.Event)
 	 */
 	@SuppressWarnings("unchecked")
@@ -1598,13 +1534,12 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					SetListener.record(new Date(), "FOCUS COLOR_PICKER");
 					dialog.setVisible(true);
 					int color = jcc.getColor().getRGB();
 					JButton button = (JButton) e.getSource();
-					pref.updateColorPreferences(bt.getName(), color);
+					pref.updateColorPreferences(bt.getName(),color);
 					button.setBackground(new Color(pref.getColorForNode(button.getName())));
-					if (CFG)
+					if(CFG)
 						dataModel.setSelectedMethod(dataModel.getSelectedMethod(), false);
 				}
 			});
@@ -1613,7 +1548,6 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 		resetDefaultColorSettingsButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				SetListener.record(new Date(), "FOCUS COLOR_PICKER");
 				pref.createPreferences();
 				dataModel.setSelectedMethod(dataModel.getSelectedMethod(), false);
 				for (JButton button : stmtTypes) {
@@ -1646,10 +1580,12 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 			Iterator i = set.iterator();
 			String attributeString = "";
 
-			if (curr.hasAttribute(nodeAttributesString)) {
+			if(curr.hasAttribute(nodeAttributesString))
+			{
 				attributeString += curr.getAttribute(nodeAttributesString) + "<br>";
 				curr.removeAttribute(nodeAttributesString);
-			} else
+			}
+			else
 				attributeString += "";
 
 			// Display elements
@@ -1686,7 +1622,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 		// All button
 		JButton btJNopStmt, btJIdentityStmt, btJAssignStmt, btJIfStmt, btJGotoStmt, btJTableSwitchStmt, btJLookupSwitchStmt, btJInvokeStmt, btJReturnStmt,
-				JReturnVoidStmt, btJThrowStmt, btJRetStmt, btJEnterMonitorSmt, btJExitMonitorStmt;
+		JReturnVoidStmt, btJThrowStmt, btJRetStmt, btJEnterMonitorSmt, btJExitMonitorStmt;
 
 		btJNopStmt = new JButton("soot.jimple.internal.JNopStmt");
 		btJNopStmt.setName("soot.jimple.internal.JNopStmt");
