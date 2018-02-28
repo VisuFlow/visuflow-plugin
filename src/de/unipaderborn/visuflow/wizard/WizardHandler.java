@@ -126,7 +126,12 @@ public class WizardHandler extends Wizard implements INewWizard {
 		IJavaProject sourceProject = projectGen.createProject(wizardInput);
 		IResource resourceTarget = root.findMember(new Path(targetProjectPath));
 		IJavaProject targetProject = JavaCore.create(resourceTarget.getProject());
-		GlobalSettings.put("Target_Path",resourceTarget.getLocation().toOSString()+ File.separator +  targetProject.getOutputLocation().lastSegment());
+		
+		String outputLocation = targetProject.getOutputLocation().toString();
+		IResource binFolder = ResourcesPlugin.getWorkspace().getRoot().findMember(outputLocation);
+		String classFiles = binFolder.getLocation().toString();
+		GlobalSettings.put("Target_Path", classFiles);
+		
 		GlobalSettings.put("AnalysisProject", sourceProject.getProject().getName());
 		GlobalSettings.put("TargetProject", targetProject.getProject().getName());
 		ProjectPreferences projPref = new ProjectPreferences();
