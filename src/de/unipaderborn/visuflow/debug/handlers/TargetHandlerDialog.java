@@ -244,7 +244,10 @@ public class TargetHandlerDialog extends TitleAreaDialog {
 		IJavaProject targetProject = JavaCore.create(resourceTarget.getProject());
 		//String key = "TargetProject_"+resourceAnalysis.getProject().getName();
 		try {
-			GlobalSettings.put("Target_Path",resourceTarget.getLocation().toOSString()+ File.separator +  targetProject.getOutputLocation().lastSegment());
+			String outputLocation = targetProject.getOutputLocation().toString();
+			IResource binFolder = ResourcesPlugin.getWorkspace().getRoot().findMember(outputLocation);
+			String classFiles = binFolder.getLocation().toString();
+			GlobalSettings.put("Target_Path", classFiles);	
 		} catch (JavaModelException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
