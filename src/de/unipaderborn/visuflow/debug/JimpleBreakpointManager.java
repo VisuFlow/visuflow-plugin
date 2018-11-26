@@ -43,7 +43,9 @@ import de.unipaderborn.visuflow.Visuflow;
 import de.unipaderborn.visuflow.VisuflowConstants;
 import de.unipaderborn.visuflow.debug.BreakpointLocator.BreakpointLocation;
 import de.unipaderborn.visuflow.model.DataModel;
+import de.unipaderborn.visuflow.model.VFNode;
 import de.unipaderborn.visuflow.model.VFUnit;
+import de.unipaderborn.visuflow.model.impl.EventDatabase;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 
 public class JimpleBreakpointManager implements VisuflowConstants, IResourceChangeListener, EventHandler {
@@ -54,6 +56,7 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 
 	private List<JimpleBreakpoint> breakpoints;
 	private BreakpointLocator breakpointLocator = new BreakpointLocator();
+	private VFUnit backwardsMarker;
 
 	private IJavaThread suspendedThread;
 	private IJavaBreakpoint suspendedAtBreakpoint;
@@ -328,11 +331,47 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 			handleResumeEvent();
 		} else if(topic.equals(EA_TOPIC_DEBUGGING_ACTION_STEP_OVER)) {
 			handleStepOverEvent();
+		} else if(topic.equals(EA_TOPIC_DEBUGGING_ACTION_STEP_BACK)) {
+			handleStepBackEvent();
+		} else if(topic.equals(EA_TOPIC_DEBUGGING_ACTION_PATH_CHOSEN)) {
+			String fqn = (String) event.getProperty("choice");
+			DataModel dataModel = ServiceUtil.getService(DataModel.class);
+			VFUnit choice = dataModel.getVFUnit(fqn);
+			terminateStepBack(choice);
+		}
+	}
+	
+	private void terminateStepBack(VFUnit unit) {
+		backwardsMarker = unit;
+		EventDatabase.getInstance().stepBack(backwardsMarker);
+		VFNode nodeBefore = new VFNode(backwardsMarker, 0);
+		List<VFNode> highlightUnit = new ArrayList<>();
+		highlightUnit.add(nodeBefore);
+		ServiceUtil.getService(DataModel.class).filterGraph(highlightUnit, true, true, "debugHighlight");
+	}
+	
+	private void handleStepBackEvent() {
+		try {
+			if(backwardsMarker == null) {
+				IMarker marker = suspendedAtBreakpoint.getMarker();
+				String unitFqn = (String) marker.getAttribute("Jimple.unit.fqn");
+				backwardsMarker = this.findPredecessor(unitFqn);
+			} else {
+				backwardsMarker = this.findPredecessor(backwardsMarker.getFullyQualifiedName());
+			}
+		} catch(Exception e) {
+			logger.error("Couldn't execute \"step back\" ", e);
+		}
+		if(backwardsMarker == null) {
+			return;
+		} else {
+			terminateStepBack(backwardsMarker);
 		}
 	}
 
 	private void handleResumeEvent() {
 		try {
+			EventDatabase.getInstance().resume();
 			removeTemporaryBreakpoints();
 			suspendedThread.resume();
 		} catch (Exception e) {
@@ -351,6 +390,20 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 
 				// no unit fqn, we don't know, where we are
 				return;
+			}
+			
+			if(backwardsMarker != null) {
+				if(unitFqn.equals(backwardsMarker.getFullyQualifiedName())) {
+					backwardsMarker = null;
+				} else {
+					backwardsMarker = this.findNextUnit(backwardsMarker.getFullyQualifiedName(), 1);
+					EventDatabase.getInstance().stepOver(backwardsMarker);
+					VFNode node = new VFNode(backwardsMarker, 0);
+					List<VFNode> highlightUnit = new ArrayList<>();
+					highlightUnit.add(node);
+					ServiceUtil.getService(DataModel.class).filterGraph(highlightUnit, true, true, "debugHighlight");
+					return;
+				}
 			}
 
 			int offset = 1;
@@ -415,5 +468,17 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 		VFUnit unit = dataModel.getVFUnit(unitFqn);
 		VFUnit unitAfter = unit.getVfMethod().getUnitAfter(unit, offset);
 		return unitAfter;
+	}
+	
+	private VFUnit findPredecessor(String unitFqn) {
+		DataModel dataModel = ServiceUtil.getService(DataModel.class);
+		VFUnit currentUnit = dataModel.getVFUnit(unitFqn);
+		List<VFNode> potentialPredecessors = currentUnit.getVfMethod().getControlFlowGraph().getIncomingEdges(currentUnit);
+		if(potentialPredecessors.size() == 1) {
+			return potentialPredecessors.get(0).getVFUnit();
+		} else {
+			dataModel.requestPredecessor(potentialPredecessors);
+			return null;
+		}
 	}
 }

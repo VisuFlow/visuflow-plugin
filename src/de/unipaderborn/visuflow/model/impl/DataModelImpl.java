@@ -33,6 +33,7 @@ import org.osgi.service.event.EventAdmin;
 
 import de.unipaderborn.visuflow.Logger;
 import de.unipaderborn.visuflow.Visuflow;
+import de.unipaderborn.visuflow.VisuflowConstants;
 import de.unipaderborn.visuflow.debug.handlers.NavigationHandler;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
@@ -334,6 +335,21 @@ public class DataModelImpl implements DataModel {
 		properties.put("panToNode", panToNode);
 		Event filterGraph = new Event(DataModel.EA_TOPIC_DATA_FILTER_GRAPH, properties);
 		eventAdmin.postEvent(filterGraph);
+	}
+	
+	public void requestPredecessor(List<VFNode> nodes) {
+		Dictionary<String, Object> properties = new Hashtable<>();
+		properties.put("options", nodes);
+		//properties.put("uiClassName", value);
+		Event requestChoice = new Event(DataModel.EA_TOPIC_DATA_CHOICE_REQUIRED, properties);
+		eventAdmin.postEvent(requestChoice);
+	}
+	
+	public void returnPredecessor(String fqn) {
+		Dictionary<String, Object> properties = new Hashtable<>();
+		properties.put("choice", fqn);
+		Event requestChoice = new Event(VisuflowConstants.EA_TOPIC_DEBUGGING_ACTION_PATH_CHOSEN, properties);
+		eventAdmin.postEvent(requestChoice);
 	}
 
 	/* (non-Javadoc)

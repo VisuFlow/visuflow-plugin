@@ -13,6 +13,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import de.unipaderborn.visuflow.Logger;
 import de.unipaderborn.visuflow.Visuflow;
 import de.unipaderborn.visuflow.model.DataModel;
+import de.unipaderborn.visuflow.model.impl.Event;
+import de.unipaderborn.visuflow.model.impl.EventDatabase;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 
 public class MonitoringServer {
@@ -22,6 +24,7 @@ public class MonitoringServer {
 	private Thread t;
 	private boolean running = true;
 	private DataModel dataModel = ServiceUtil.getService(DataModel.class);
+	private EventDatabase eventDatabase = EventDatabase.getInstance();
 	private Logger logger = Visuflow.getDefault().getLogger();
 	private Lock lock = new ReentrantLock();
 
@@ -55,6 +58,9 @@ public class MonitoringServer {
 							String outSet = in.readUTF();
 							dataModel.setInSet(unitFqn, "in", inSet);
 							dataModel.setOutSet(unitFqn, "out", outSet);
+							
+							Event event = new Event(unitFqn, inSet, outSet);
+							eventDatabase.addEvent(event);
 						}
 					}
 				} catch (EOFException e) {

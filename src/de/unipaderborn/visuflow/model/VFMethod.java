@@ -121,4 +121,21 @@ public class VFMethod {
 		}
 		throw new UnitNotFoundException("There is no unit after " + unit.getFullyQualifiedName());
 	}
+	
+	public VFUnit getUnitBefore(VFUnit unit) {
+		if(units.get(0).getFullyQualifiedName().equals(unit.getFullyQualifiedName())) {
+			List<VFUnit> incomingEdges = this.getIncomingEdges();
+			if(incomingEdges.size() == 1) {
+				return incomingEdges.get(0);
+			}
+			//TODO relay determination of the predecessor unit to the predecessor method
+			return units.get(0);
+		}
+		for(int i = 1; i < units.size(); i++) {
+			if(units.get(i).getFullyQualifiedName().equals(unit.getFullyQualifiedName())) {
+				return units.get(i-1);
+			}
+		}
+		throw new UnitNotFoundException("Unit " + unit.getFullyQualifiedName() + " not found");
+	}
 }

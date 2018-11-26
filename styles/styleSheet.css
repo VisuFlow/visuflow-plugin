@@ -17,12 +17,24 @@ node {
 	z-index: 1;
 }
 
+sprite {
+	shape: box;
+	size: 32px, 52px;
+	fill-mode: image-scaled;
+	fill-image: url('.\icons\stepback.png');
+}
+
+
 node.filter {
 	fill-color: yellow;
 }
 
 node.debugHighlight {
 	fill-color: #c6dbae;
+}
+
+node.stepBack{
+	fill-color: #00FF00;
 }
 
 node.customAttribute {

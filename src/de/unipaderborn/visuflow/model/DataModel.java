@@ -25,6 +25,7 @@ public interface DataModel {
 	public static final String EA_TOPIC_DATA_UNIT_REMOVED = EA_TOPIC_DATA + "/UnitRemoved";
 	public static final String EA_TOPIC_DATA_FILTER_GRAPH = EA_TOPIC_DATA + "/UnitFiltered";
 	public static final String EA_TOPIC_DATA_VIEW_REFRESH = EA_TOPIC_DATA + "/refresh";
+	public static final String EA_TOPIC_DATA_CHOICE_REQUIRED = EA_TOPIC_DATA + "/choiceRequired";
 
 	public static final String EA_TOPIC_DATA_SELECTION = EA_TOPIC_DATA + "/SelectionChanged";
 
@@ -96,6 +97,16 @@ public interface DataModel {
 	 * @author Shashank B S
 	 */
 	public void filterGraph(List<VFNode> nodesToFilter, boolean selection, boolean panToNode, String uiClassName);
+	/**
+	 * Triggers the {@link #EA_TOPIC_DATA_CHOICE_REQUIRED} event to request the developer to choose the predecessor
+	 * @param nodes list of potential predecessors
+	 */
+	public void requestPredecessor(List<VFNode> nodes);
+	/**
+	 * Triggers the {@link #EA_TOPIC_DEBUGGING_ACTION_PATH_CHOSEN} event to return the developers choice to step back
+	 * @param fqn the chosen predecessor
+	 */
+	public void returnPredecessor(String fqn);
 	/**
 	 * Returns the currently selected method.
 	 * @return currently selected method

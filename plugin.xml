@@ -113,6 +113,13 @@
                style="push">
          </command>
          <command
+   	 		   commandId="visuflow.debug.step.back"
+         	   icon="icons/stepback.png"
+         	   label="Step back"
+         	   style="push"
+         	   tooltip="Step back">
+         </command>
+         <command
                commandId="visuflow.debug.step.over"
                icon="icons/go-jump.png"
                label="Step over"
@@ -238,6 +245,11 @@
    <command
          id="GraphStreamFeasibility.LinkTargetProject"
          name="Link Target Project">
+   </command>
+   <command
+         defaultHandler="de.unipaderborn.visuflow.debug.handlers.DebugStepBackHandler"
+         id="visuflow.debug.step.back"
+         name="Step back">
    </command>
    <command
          defaultHandler="de.unipaderborn.visuflow.debug.handlers.DebugStepResumeHandler"
