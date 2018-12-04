@@ -9,6 +9,9 @@ import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 
+import de.unipaderborn.visuflow.Logger;
+import de.unipaderborn.visuflow.Visuflow;
+
 /**
  * This class sets the layout of the graph.
  * @author Shashank B S
@@ -16,6 +19,7 @@ import org.graphstream.graph.Node;
  */
 public class HierarchicalLayout {
 
+	private static Logger logger = Visuflow.getDefault().getLogger();
 	private static double spacingX = 16.0;
 	private static double spacingY = 3.0;
 
@@ -61,6 +65,9 @@ public class HierarchicalLayout {
 
 		HashMap<Integer, Integer> levelCount = new HashMap<>();
 		for (Node node : graph) {
+			if(!node.hasAttribute("layoutLayer")) {
+				node.setAttribute("layoutLayer", 0);
+			}
 			int layer = node.getAttribute("layoutLayer");
 			if (levelCount.containsKey(layer)) {
 				int currCount = levelCount.get(layer);
@@ -98,10 +105,21 @@ public class HierarchicalLayout {
 				}
 			}
 		}
-
+		
+		//Assign the coordinates to each node that has no parent, i.e. the first node and temporary nodes for stepping back
+		double offset = 0;
+		first.setAttribute("xyz", spacingX, spacingY * graph.getNodeCount(), 0.0);
+		while(nodeIterator.hasNext()) {
+			Node curr = nodeIterator.next();
+			if(curr.getInDegree() == 0) {
+				logger.info("The position of node " + curr.getId() + " is set manually");
+				offset = offset + 6;
+				curr.setAttribute("xyz", spacingX + offset, spacingY * graph.getNodeCount(), 0.0);
+			}
+		}
+		
 		//Assign the coordinates to each node
 		Iterator<Node> breadthFirstIterator = first.getBreadthFirstIterator();
-		first.setAttribute("xyz", spacingX, spacingY * graph.getNodeCount(), 0.0);
 		while (breadthFirstIterator.hasNext()) {
 			Node curr = breadthFirstIterator.next();
 			positionNode(curr);

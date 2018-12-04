@@ -92,24 +92,27 @@ public class EventDatabase {
 	}
 	
 	public void stepBack(VFUnit dest) {
+		if(dest == null) {
+			logger.info("In EventDatabase.stepBack the parameter is null");
+		}
 		for(int i = backwardsMarker; i >= 0; i--) {
 			String currentUnit = events.get(i).getUnit();
 			backwardsMarker = i;
 			if(currentUnit == null) {
 				logger.info("In stepBack (DB) " + currentUnit + "is not found");
-				backwardsMarker--;
-				return;
-			}
-			ArrayList<Event> unitEvents = findAllFqnEvents(dest.getFullyQualifiedName());
-			if(unitEvents.size() > 1) {
-				dataModel.setInSet(dest.getFullyQualifiedName(), "", (unitEvents.get(unitEvents.size()-1).getInSet()));
-				dataModel.setOutSet(dest.getFullyQualifiedName(), "", (unitEvents.get(unitEvents.size()-1).getOutSet()));
+				backwardsMarker--;	
 			} else {
-				dataModel.setInSet(dest.getFullyQualifiedName(), "", null);
-				dataModel.setOutSet(dest.getFullyQualifiedName(), "", null);
-			}
-			if(currentUnit.equals(dest.getFullyQualifiedName())) {
+				ArrayList<Event> unitEvents = findAllFqnEvents(currentUnit);
+				if(unitEvents.size() > 1) {
+					dataModel.setInSet(currentUnit, "", (unitEvents.get(unitEvents.size()-1).getInSet()));
+					dataModel.setOutSet(currentUnit, "", (unitEvents.get(unitEvents.size()-1).getOutSet()));
+				} else {
+					dataModel.setInSet(currentUnit, "", null);
+					dataModel.setOutSet(currentUnit, "", null);
+				}
+				if(currentUnit.equals(dest.getFullyQualifiedName())) {
 					break;
+			}
 			}
 		}
 	}

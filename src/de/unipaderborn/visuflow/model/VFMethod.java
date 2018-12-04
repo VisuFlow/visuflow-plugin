@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import de.unipaderborn.visuflow.Logger;
+import de.unipaderborn.visuflow.Visuflow;
 import de.unipaderborn.visuflow.model.graph.ControlFlowGraph;
 import soot.Body;
 import soot.SootMethod;
@@ -15,6 +17,7 @@ import soot.SootMethod;
  */
 public class VFMethod {
 
+	private Logger logger = Visuflow.getDefault().getLogger();
 	protected SootMethod wrapped;
 	private List<VFUnit> units = new ArrayList<>();
 	private List<VFUnit> incomingEdges = new ArrayList<>();
@@ -127,6 +130,10 @@ public class VFMethod {
 			List<VFUnit> incomingEdges = this.getIncomingEdges();
 			if(incomingEdges.size() == 1) {
 				return incomingEdges.get(0);
+			} else {
+				for(int i = 0; i < incomingEdges.size(); i++) {
+					logger.info("In VFMethod -> getUnitBefore -> first element of method. Option " + i + ": " + incomingEdges.get(i).getFullyQualifiedName());
+				}
 			}
 			//TODO relay determination of the predecessor unit to the predecessor method
 			return units.get(0);

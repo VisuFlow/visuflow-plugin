@@ -19,7 +19,7 @@ node {
 
 sprite {
 	shape: box;
-	size: 32px, 52px;
+	size: 32px, 32px;
 	fill-mode: image-scaled;
 	fill-image: url('.\icons\stepback.png');
 }

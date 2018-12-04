@@ -1,6 +1,7 @@
 package de.unipaderborn.visuflow.model.impl;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -268,7 +269,7 @@ public class DataModelImpl implements DataModel {
 			vfUnit.setInSet(value);
 			fireUnitChanged(vfUnit);
 		} else {
-			logger.info("Unit not found " + unitFqn);
+			//logger.info("Unit not found " + unitFqn);
 		}
 	}
 
@@ -282,7 +283,7 @@ public class DataModelImpl implements DataModel {
 			vfUnit.setOutSet(value);
 			fireUnitChanged(vfUnit);
 		} else {
-			logger.info("Unit not found " + unitFqn);
+			//logger.info("Unit not found " + unitFqn);
 		}
 	}
 
@@ -302,6 +303,9 @@ public class DataModelImpl implements DataModel {
 					}
 				}
 			}
+		}
+		if(result == null) {
+			logger.info("!!!!!!!!!!!" + fqn + " not found (in getVFUnit)");
 		}
 		return result;
 	}
@@ -337,10 +341,39 @@ public class DataModelImpl implements DataModel {
 		eventAdmin.postEvent(filterGraph);
 	}
 	
-	public void requestPredecessor(List<VFNode> nodes) {
+	public VFUnit findPredecessor(String unitFqn) {
+		boolean updateCfg = false;
+		VFUnit currentUnit = getVFUnit(unitFqn);
+		if(currentUnit == null) {
+			logger.info("currentUnit in findPredecessor is null");
+		}
+		List<VFNode> potentialPredecessors = new ArrayList<VFNode>();
+		if(currentUnit.getVfMethod().getUnits().get(0).getFullyQualifiedName().equals(currentUnit.getFullyQualifiedName())) {
+			List<VFUnit> predecessors = currentUnit.getVfMethod().getIncomingEdges();
+			int counter = currentUnit.getVfMethod().getUnits().size() + 10;
+			for(VFUnit unit: predecessors) {
+				VFNode node = new VFNode(unit, counter);
+				potentialPredecessors.add(node);
+				counter++;
+			}
+			updateCfg = true;
+		} else {
+			potentialPredecessors = currentUnit.getVfMethod().getControlFlowGraph().getIncomingEdges(currentUnit);
+		}
+		
+		if(potentialPredecessors.size() == 1) {
+			return potentialPredecessors.get(0).getVFUnit();
+		} else {
+			requestPredecessor(potentialPredecessors, currentUnit, updateCfg);
+			return null;
+		}
+	}
+	
+	public void requestPredecessor(List<VFNode> nodes, VFUnit currentUnit, boolean updateCfg) {
 		Dictionary<String, Object> properties = new Hashtable<>();
 		properties.put("options", nodes);
-		//properties.put("uiClassName", value);
+		properties.put("update", updateCfg);
+		properties.put("current", currentUnit);
 		Event requestChoice = new Event(DataModel.EA_TOPIC_DATA_CHOICE_REQUIRED, properties);
 		eventAdmin.postEvent(requestChoice);
 	}

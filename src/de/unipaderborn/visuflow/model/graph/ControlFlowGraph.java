@@ -15,6 +15,8 @@ public class ControlFlowGraph {
 	public List<VFNode> listNodes = new ArrayList<VFNode>();
 	public List<VFEdge> listEdges = new ArrayList<VFEdge>();
 	
+	private int temporaryNodes = 0;
+	
 	public List<VFNode> getIncomingEdges(VFUnit node){
 		List<VFNode> results = new ArrayList<>();
 		for(int i = 0; i < listEdges.size(); i++) {
@@ -23,6 +25,35 @@ public class ControlFlowGraph {
 			}
 		}
 		return results;
+	}
+	
+	public VFNode getNodeByVFUnit(VFUnit unit) {
+		VFNode result = null;
+		for(VFNode node: listNodes) {
+			if(node.getVFUnit().equals(unit)) {
+				result = node;
+			}
+		}
+		return result;
+	}
+	
+	public void addTemporaryNodes(List<VFNode> nodes) {
+		temporaryNodes = nodes.size();
+		int counter = listEdges.size() + 10;
+		VFNode start = listNodes.get(0);
+		for(int i = 0; i < temporaryNodes; i++) {
+			listNodes.add(0, nodes.get(i));
+			VFEdge edge = new VFEdge(counter, nodes.get(i), start);
+			listEdges.add(0, edge);
+			counter++;
+		}
+	}
+	
+	public void removeTemporaryNodes() {
+		for(int i = 0; i < temporaryNodes; i++) {
+			listNodes.remove(0);
+		}
+		temporaryNodes = 0;
 	}
 
 }
