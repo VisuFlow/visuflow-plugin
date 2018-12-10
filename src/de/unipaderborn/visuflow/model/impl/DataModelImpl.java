@@ -269,7 +269,7 @@ public class DataModelImpl implements DataModel {
 			vfUnit.setInSet(value);
 			fireUnitChanged(vfUnit);
 		} else {
-			//logger.info("Unit not found " + unitFqn);
+			logger.info("Unit not found " + unitFqn);
 		}
 	}
 
@@ -283,7 +283,7 @@ public class DataModelImpl implements DataModel {
 			vfUnit.setOutSet(value);
 			fireUnitChanged(vfUnit);
 		} else {
-			//logger.info("Unit not found " + unitFqn);
+			logger.info("Unit not found " + unitFqn);
 		}
 	}
 
@@ -303,9 +303,6 @@ public class DataModelImpl implements DataModel {
 					}
 				}
 			}
-		}
-		if(result == null) {
-			logger.info("!!!!!!!!!!!" + fqn + " not found (in getVFUnit)");
 		}
 		return result;
 	}

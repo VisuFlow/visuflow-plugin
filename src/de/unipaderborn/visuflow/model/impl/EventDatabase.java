@@ -35,12 +35,11 @@ public class EventDatabase {
 	public void addEvent(Event event) {
 		events.add(event);
 		backwardsMarker = events.size()-1;
-		logger.info("Event added: " + event.toString());
 	}
 	
-	public ArrayList<Event> findAllFqnEvents(String fqn){
+	public ArrayList<Event> findAllFqnEvents(String fqn, int from, int to){
 		ArrayList<Event> hits = new ArrayList<>();
-		for(int i = 0; i <= backwardsMarker; i++) {
+		for(int i = from; i <= to; i++) {
 			Event tmp = events.get(i);
 			if(tmp.getUnit().equals(fqn)) {
 				hits.add(tmp);
@@ -62,11 +61,6 @@ public class EventDatabase {
 		for(int i = backwardsMarker; i < events.size(); i++) {
 			Event tmp = events.get(i);
 			String fqn = tmp.getUnit();
-			if(dataModel.getVFUnit(fqn) == null) {
-				logger.info("In stepOver (DB) " + fqn + "is not found");
-				backwardsMarker++;
-				return;
-			}
 			dataModel.setInSet(fqn, "", tmp.getInSet());
 			dataModel.setOutSet(fqn, "", tmp.getOutSet());
 			backwardsMarker = i;			
@@ -77,42 +71,38 @@ public class EventDatabase {
 		for(int i = backwardsMarker; i < events.size(); i++) {
 			Event tmp = events.get(i);
 			String fqn = tmp.getUnit();
-			if(dataModel.getVFUnit(fqn) == null) {
-				logger.info("In stepOver (DB) " + fqn + "is not found");
-				backwardsMarker++;
-				return;
-			}
 			if(fqn.equals(dest.getFullyQualifiedName())) {
 				return;
 			}
 			dataModel.setInSet(fqn, "", tmp.getInSet());
 			dataModel.setOutSet(fqn, "", tmp.getOutSet());
-			backwardsMarker = i;			
+			backwardsMarker = i;
+			if(this.findAllFqnEvents(dest.getFullyQualifiedName(), backwardsMarker, events.size()-1).size() == 0) {
+				backwardsMarker++;
+				return;
+			}
 		}
 	}
 	
 	public void stepBack(VFUnit dest) {
-		if(dest == null) {
-			logger.info("In EventDatabase.stepBack the parameter is null");
+		ArrayList<Event> tmp = this.findAllFqnEvents(dest.getFullyQualifiedName(), 0, backwardsMarker);
+		if(tmp.size() == 0) {
+			return;
 		}
+		
 		for(int i = backwardsMarker; i >= 0; i--) {
 			String currentUnit = events.get(i).getUnit();
 			backwardsMarker = i;
-			if(currentUnit == null) {
-				logger.info("In stepBack (DB) " + currentUnit + "is not found");
-				backwardsMarker--;	
+			ArrayList<Event> unitEvents = findAllFqnEvents(currentUnit, 0, backwardsMarker);
+			if(unitEvents.size() > 1) {
+				dataModel.setInSet(currentUnit, "", (unitEvents.get(unitEvents.size()-1).getInSet()));
+				dataModel.setOutSet(currentUnit, "", (unitEvents.get(unitEvents.size()-1).getOutSet()));
 			} else {
-				ArrayList<Event> unitEvents = findAllFqnEvents(currentUnit);
-				if(unitEvents.size() > 1) {
-					dataModel.setInSet(currentUnit, "", (unitEvents.get(unitEvents.size()-1).getInSet()));
-					dataModel.setOutSet(currentUnit, "", (unitEvents.get(unitEvents.size()-1).getOutSet()));
-				} else {
-					dataModel.setInSet(currentUnit, "", null);
-					dataModel.setOutSet(currentUnit, "", null);
-				}
-				if(currentUnit.equals(dest.getFullyQualifiedName())) {
-					break;
+				dataModel.setInSet(currentUnit, "", null);
+				dataModel.setOutSet(currentUnit, "", null);
 			}
+			if(currentUnit.equals(dest.getFullyQualifiedName())) {
+				break;
 			}
 		}
 	}

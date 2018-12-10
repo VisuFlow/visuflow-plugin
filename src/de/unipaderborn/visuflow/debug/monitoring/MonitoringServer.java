@@ -56,11 +56,13 @@ public class MonitoringServer {
 							String unitFqn = in.readUTF();
 							String inSet = in.readUTF();
 							String outSet = in.readUTF();
-							dataModel.setInSet(unitFqn, "in", inSet);
-							dataModel.setOutSet(unitFqn, "out", outSet);
+							if(dataModel.getVFUnit(unitFqn) != null) {
+								dataModel.setInSet(unitFqn, "in", inSet);
+								dataModel.setOutSet(unitFqn, "out", outSet);
 							
-							Event event = new Event(unitFqn, inSet, outSet);
-							eventDatabase.addEvent(event);
+								Event event = new Event(unitFqn, inSet, outSet);
+								eventDatabase.addEvent(event);
+							}
 						}
 					}
 				} catch (EOFException e) {
