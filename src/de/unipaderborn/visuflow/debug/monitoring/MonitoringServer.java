@@ -60,8 +60,7 @@ public class MonitoringServer {
 								dataModel.setInSet(unitFqn, "in", inSet);
 								dataModel.setOutSet(unitFqn, "out", outSet);
 							
-								Event event = new Event(unitFqn, inSet, outSet);
-								eventDatabase.addEvent(event);
+								eventDatabase.addEvent(unitFqn, inSet, outSet);
 							}
 						}
 					}

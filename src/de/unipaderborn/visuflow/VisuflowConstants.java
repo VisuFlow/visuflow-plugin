@@ -14,4 +14,5 @@ public interface VisuflowConstants {
 	public static final String EA_TOPIC_DEBUGGING_ACTION_STEP_OVER = EA_TOPIC_DEBUGGING_ACTION_BASE + "/stepOver";
 	public static final String EA_TOPIC_DEBUGGING_ACTION_STEP_BACK = EA_TOPIC_DEBUGGING_ACTION_BASE + "/stepBack";
 	public static final String EA_TOPIC_DEBUGGING_ACTION_PATH_CHOSEN = EA_TOPIC_DEBUGGING_ACTION_BASE + "/pathChosen";
+	public static final String EA_TOPIC_DEBUGGING_ACTION_STEP_TO_UNIT = EA_TOPIC_DEBUGGING_ACTION_BASE + "/stepToUnit";
 }

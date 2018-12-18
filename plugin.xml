@@ -29,6 +29,13 @@
             name="Unit Inspection View"
             restorable="true">
       </view>
+      <view
+      		category="GraphStreamFeasibility"
+            class="de.unipaderborn.visuflow.ui.view.TimelineView"
+            icon="icons/sample.gif"
+            id="de.unipaderborn.visuflow.ui.view.TimelineViewPart"
+            name="Timeline">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">

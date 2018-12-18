@@ -90,7 +90,6 @@ import de.unipaderborn.visuflow.Logger;
 import de.unipaderborn.visuflow.ProjectPreferences;
 import de.unipaderborn.visuflow.Visuflow;
 import de.unipaderborn.visuflow.builder.GlobalSettings;
-import de.unipaderborn.visuflow.debug.JimpleBreakpointManager;
 import de.unipaderborn.visuflow.debug.handlers.NavigationHandler;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFClass;
@@ -473,6 +472,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 
 		followCall.setVisible(false);
 		followReturn.setVisible(false);
+		stepBack.setVisible(false);
 
 		navigateToJimple.addActionListener(new ActionListener() {
 
@@ -561,9 +561,9 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 				Node curr = graph.getNode(curElement.getId());
 				Object node = curr.getAttribute("nodeUnit");
 				if(node instanceof VFNode) {
-					VFUnit destination = ((VFNode) node).getVFUnit();
-					JimpleBreakpointManager breakpointManager = JimpleBreakpointManager.getInstance();
-					breakpointManager.stepBack(destination);
+					String destination = ((VFNode) node).getVFUnit().getFullyQualifiedName();
+					DataModel dataModel = ServiceUtil.getService(DataModel.class);
+					dataModel.stepToUnit(destination, false);
 				}	
 			}
 		});
@@ -960,6 +960,11 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 								Node curr = graph.getNode(curElement.getId());
 								Object node = curr.getAttribute("nodeUnit");
 								if (node instanceof VFNode) {
+									if(((VFNode) node).getVFUnit().getOutSet() != null) {
+										stepBack.setVisible(true);
+									} else {
+										stepBack.setVisible(false);
+									}
 									if (((Stmt) ((VFNode) node).getUnit()).containsInvokeExpr()) {
 										followCall.setVisible(true);
 										followReturn.setVisible(false);
@@ -977,12 +982,14 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 							public void popupMenuCanceled(PopupMenuEvent arg0) {
 								followCall.setVisible(false);
 								followReturn.setVisible(false);
+								stepBack.setVisible(false);
 							}
 
 							@Override
 							public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0) {
 								followCall.setVisible(false);
 								followReturn.setVisible(false);
+								stepBack.setVisible(false);
 							}
 
 						});

@@ -32,9 +32,10 @@ public class EventDatabase {
 		return instance;
 	}
 	
-	public void addEvent(Event event) {
-		events.add(event);
+	public void addEvent(String unit, String inSet, String outSet) {
 		backwardsMarker = events.size()-1;
+		Event event = new Event(backwardsMarker, unit, inSet, outSet);
+		events.add(event);
 	}
 	
 	public ArrayList<Event> findAllFqnEvents(String fqn, int from, int to){
@@ -112,6 +113,33 @@ public class EventDatabase {
 		logger.info("Printing " + events.size() + " database entries.");
 		for(int i = 0; i < events.size(); i++) {
 			logger.info(events.get(i).toString());
+		}
+	}
+	
+	public List<Event> getAllEvents() {
+		return events;
+	}
+	
+	public int getBackwardsMarker() {
+		return backwardsMarker;
+	}
+	
+	public Event getCurrentEvent() {
+		if(backwardsMarker < 0) {
+			return null;
+		}
+		return events.get(backwardsMarker);
+	}
+	
+	public Event getEvent(int index) {
+		return events.get(index);
+	}
+	
+	public boolean upToDate() {
+		if(backwardsMarker == events.size()-1) {
+			return true;
+		} else {
+			return false;
 		}
 	}
 }

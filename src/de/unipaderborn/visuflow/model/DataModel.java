@@ -110,6 +110,7 @@ public interface DataModel {
 	 * @param fqn the chosen predecessor
 	 */
 	public void returnPredecessor(String fqn);
+	public void stepToUnit(String fqn, boolean direction);
 	/**
 	 * Returns the currently selected method.
 	 * @return currently selected method

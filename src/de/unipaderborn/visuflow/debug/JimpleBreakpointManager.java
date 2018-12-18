@@ -58,6 +58,7 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 	private List<JimpleBreakpoint> breakpoints;
 	private BreakpointLocator breakpointLocator = new BreakpointLocator();
 	private VFUnit backwardsMarker;
+	private EventDatabase database;
 	private HashMap<VFUnit, VFUnit> pathSteppedBack = new HashMap<VFUnit, VFUnit>();
 
 	private IJavaThread suspendedThread;
@@ -68,6 +69,7 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 		breakpoints = Collections.synchronizedList(new ArrayList<>());
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
 		registerAtEventHandler();
+		database = EventDatabase.getInstance();
 	}
 
 	private void registerAtEventHandler() {
@@ -341,13 +343,21 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 			VFUnit choice = dataModel.getVFUnit(fqn);
 			choice.getVfMethod().getControlFlowGraph().removeTemporaryNodes();
 			pathSteppedBack.put(choice, backwardsMarker);
-			stepBack(choice);
+			stepTo(choice, false);
+		} else if(topic.equals(EA_TOPIC_DEBUGGING_ACTION_STEP_TO_UNIT)) {
+			boolean direction = (boolean) event.getProperty("direction");
+			VFUnit destination = (VFUnit) event.getProperty("destination");
+			stepTo(destination, direction);			
 		}
 	}
 	
-	public void stepBack(VFUnit unit) {
-		backwardsMarker = unit;
-		EventDatabase.getInstance().stepBack(backwardsMarker);
+	private void stepTo(VFUnit destination, boolean direction) {
+		backwardsMarker = destination;
+		if(direction) {
+			database.stepOver(backwardsMarker);
+		} else {
+			database.stepBack(backwardsMarker);
+		}
 		VFNode nodeBefore = new VFNode(backwardsMarker, 0);
 		List<VFNode> highlightUnit = new ArrayList<>();
 		highlightUnit.add(nodeBefore);
@@ -375,12 +385,13 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 			}
 			backwardsMarker = predecessor;
 		}
-		stepBack(backwardsMarker);
+		stepTo(backwardsMarker, false);
 	}
 
 	private void handleResumeEvent() {
 		try {
-			EventDatabase.getInstance().resume();
+			database.resume();
+			backwardsMarker = null;
 			removeTemporaryBreakpoints();
 			suspendedThread.resume();
 		} catch (Exception e) {
@@ -402,24 +413,16 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 			}
 			
 			// handle stepping over in case we stepped back before
-			if(backwardsMarker != null) {
-				if(unitFqn.equals(backwardsMarker.getFullyQualifiedName())) {
-					backwardsMarker = null;
+			if(!database.upToDate()) {
+				if(pathSteppedBack.containsKey(backwardsMarker)) {
+					VFUnit successor = pathSteppedBack.get(backwardsMarker);
+					pathSteppedBack.remove(backwardsMarker);
+					backwardsMarker = successor;
 				} else {
-					if(pathSteppedBack.containsKey(backwardsMarker)) {
-						VFUnit predecessor = pathSteppedBack.get(backwardsMarker);
-						pathSteppedBack.remove(backwardsMarker);
-						backwardsMarker = predecessor;
-					} else {
-						backwardsMarker = this.findNextUnit(backwardsMarker.getFullyQualifiedName(), 1);
-					}
-					EventDatabase.getInstance().stepOver(backwardsMarker);
-					VFNode node = backwardsMarker.getVfMethod().getControlFlowGraph().getNodeByVFUnit(backwardsMarker);
-					List<VFNode> highlightUnit = new ArrayList<>();
-					highlightUnit.add(node);
-					ServiceUtil.getService(DataModel.class).filterGraph(highlightUnit, true, true, "debugHighlight");
-					return;
+					backwardsMarker = this.findNextUnit(backwardsMarker.getFullyQualifiedName(), 1);
 				}
+				stepTo(backwardsMarker, true);
+				return;
 			}
 
 			int offset = 1;

@@ -4,6 +4,8 @@ import java.sql.Timestamp;
 
 public class Event {
 	
+	private int id;
+	
 	private Timestamp time;
 	
 	private String unit;
@@ -12,8 +14,9 @@ public class Event {
 	
 	private String outSet;
 	
-	public Event(String unit, String inSet, String outSet){
+	public Event(int id, String unit, String inSet, String outSet){
 		this.time = new Timestamp(System.currentTimeMillis());
+		this.id = id;
 		this.unit = unit;
 		this.inSet = inSet;
 		this.outSet = outSet;
@@ -23,19 +26,23 @@ public class Event {
 		return time;
 	}
 	
-	String getUnit() {
+	public String getUnit() {
 		return unit;
 	}
 	
-	String getInSet() {
+	public String getInSet() {
 		return inSet;
 	}
 	
-	String getOutSet() {
+	public String getOutSet() {
 		return outSet;
 	}
 	
 	public String toString() {
 		return this.getTimestamp() + " (" + this.getUnit() + ") : " + this.getInSet() + this.getOutSet();
+	}
+	
+	public int getId() {
+		return id;
 	}
 }

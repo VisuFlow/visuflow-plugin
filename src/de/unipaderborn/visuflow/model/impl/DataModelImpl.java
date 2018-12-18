@@ -341,24 +341,25 @@ public class DataModelImpl implements DataModel {
 	public VFUnit findPredecessor(String unitFqn) {
 		boolean updateCfg = false;
 		VFUnit currentUnit = getVFUnit(unitFqn);
-		if(currentUnit == null) {
-			logger.info("currentUnit in findPredecessor is null");
-		}
 		List<VFNode> potentialPredecessors = new ArrayList<VFNode>();
 		if(currentUnit.getVfMethod().getUnits().get(0).getFullyQualifiedName().equals(currentUnit.getFullyQualifiedName())) {
 			List<VFUnit> predecessors = currentUnit.getVfMethod().getIncomingEdges();
 			int counter = currentUnit.getVfMethod().getUnits().size() + 10;
 			for(VFUnit unit: predecessors) {
-				VFNode node = new VFNode(unit, counter);
-				potentialPredecessors.add(node);
-				counter++;
+				if(unit.getOutSet() != null) {
+					VFNode node = new VFNode(unit, counter);
+					potentialPredecessors.add(node);
+					counter++;
+				}
 			}
 			updateCfg = true;
 		} else {
 			potentialPredecessors = currentUnit.getVfMethod().getControlFlowGraph().getIncomingEdges(currentUnit);
 		}
 		
-		if(potentialPredecessors.size() == 1) {
+		if(potentialPredecessors.size() == 0) {
+			return null;
+		} else if(potentialPredecessors.size() == 1) {
 			return potentialPredecessors.get(0).getVFUnit();
 		} else {
 			requestPredecessor(potentialPredecessors, currentUnit, updateCfg);
@@ -378,8 +379,17 @@ public class DataModelImpl implements DataModel {
 	public void returnPredecessor(String fqn) {
 		Dictionary<String, Object> properties = new Hashtable<>();
 		properties.put("choice", fqn);
-		Event requestChoice = new Event(VisuflowConstants.EA_TOPIC_DEBUGGING_ACTION_PATH_CHOSEN, properties);
-		eventAdmin.postEvent(requestChoice);
+		Event returnChoice = new Event(VisuflowConstants.EA_TOPIC_DEBUGGING_ACTION_PATH_CHOSEN, properties);
+		eventAdmin.postEvent(returnChoice);
+	}
+	
+	public void stepToUnit(String fqn, boolean direction) {
+		Dictionary<String, Object> properties = new Hashtable<>();
+		properties.put("direction", direction);
+		VFUnit destination = getVFUnit(fqn);
+		properties.put("destination", destination);
+		Event stepTo = new Event(VisuflowConstants.EA_TOPIC_DEBUGGING_ACTION_STEP_TO_UNIT, properties);
+		eventAdmin.postEvent(stepTo);
 	}
 
 	/* (non-Javadoc)
