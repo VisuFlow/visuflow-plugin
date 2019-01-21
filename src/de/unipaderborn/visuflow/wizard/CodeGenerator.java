@@ -1,9 +1,11 @@
 package de.unipaderborn.visuflow.wizard;
 
 import java.io.IOException;
+//import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+//import java.util.Set;
 import com.sun.codemodel.JBlock;
 import com.sun.codemodel.JClass;
 import com.sun.codemodel.JClassAlreadyExistsException;
@@ -17,7 +19,6 @@ import com.sun.codemodel.JType;
 import com.sun.codemodel.JVar;
 
 import heros.FlowFunctions;
-
 import soot.G;
 import soot.jimple.toolkits.ide.icfg.JimpleBasedInterproceduralCFG;
 import soot.toolkits.graph.ExceptionalUnitGraph;
@@ -34,9 +35,7 @@ public class CodeGenerator {
 
 	/**
 	 * This function generates the source code according to the input from the input.
-	 * 
-	 * @param input
-	 *            The wizard object from the Visuflow wizard.
+	 * @param input The wizard object from the Visuflow wizard.
 	 * @throws JClassAlreadyExistsException
 	 * @throws IOException
 	 */
@@ -52,9 +51,7 @@ public class CodeGenerator {
 
 	/**
 	 * This function is responsible for generating the stub for normal soot analysis based on user input.
-	 * 
-	 * @param input
-	 *            The wizard object from the Visuflow wizard.
+	 * @param input The wizard object from the Visuflow wizard.
 	 * @throws JClassAlreadyExistsException
 	 * @throws IOException
 	 */
@@ -161,9 +158,7 @@ public class CodeGenerator {
 
 	/**
 	 * This function is responsible for generating the stub for IFDS/IDE analysis based on user input.
-	 * 
-	 * @param input
-	 *            The wizard object from the Visuflow wizard.
+	 * @param input The wizard object from the Visuflow wizard.
 	 * @throws JClassAlreadyExistsException
 	 * @throws IOException
 	 */
@@ -174,23 +169,24 @@ public class CodeGenerator {
 
 		JClass flowAbstraction = null;
 		try {
-			if (!input.getFlowType().equals("Select")) {
-				flowAbstraction = codeModel.ref(Class.forName("java.util." + input.getFlowType()));
+			if(!input.getFlowType().equals("Select")){
+			flowAbstraction = codeModel.ref(Class.forName("java.util." + input.getFlowType()));
 
-				if (input.getFlowType1() != null && !input.getFlowType1().equals("Custom")) {
-					flowAbstraction = flowAbstraction.narrow(Class.forName("java.lang." + input.getFlowType1()));
-				} else if (input.getCustomClassFirst() != null) {
-					JDefinedClass firstClass = jp._class(input.getCustomClassFirst());
-					flowAbstraction = flowAbstraction.narrow(firstClass);
-				}
+			if (input.getFlowType1() != null && !input.getFlowType1().equals("Custom")) {
+				flowAbstraction = flowAbstraction.narrow(Class.forName("java.lang." + input.getFlowType1()));
+			} else if (input.getCustomClassFirst() != null) {
+				JDefinedClass firstClass = jp._class(input.getCustomClassFirst());
+				flowAbstraction = flowAbstraction.narrow(firstClass);
+			}
 
-				if (input.getFlowtype2() != null && !input.getFlowtype2().equals("Custom")) {
-					flowAbstraction = flowAbstraction.narrow(Class.forName("java.lang." + input.getFlowtype2()));
-				} else if (input.getCustomClassSecond() != null) {
-					JDefinedClass secondClass = jp._class(input.getCustomClassSecond());
-					flowAbstraction = flowAbstraction.narrow(secondClass);
-				}
-			} else {
+			if (input.getFlowtype2() != null && !input.getFlowtype2().equals("Custom")) {
+				flowAbstraction = flowAbstraction.narrow(Class.forName("java.lang." + input.getFlowtype2()));
+			} else if (input.getCustomClassSecond() != null) {
+				JDefinedClass secondClass = jp._class(input.getCustomClassSecond());
+				flowAbstraction = flowAbstraction.narrow(secondClass);
+			}
+			}
+			else{
 				if (input.getFlowType1() != null && !input.getFlowType1().equals("Custom")) {
 					flowAbstraction = codeModel.ref(Class.forName("java.lang." + input.getFlowType1()));
 				} else if (input.getCustomClassFirst() != null) {
@@ -243,9 +239,7 @@ public class CodeGenerator {
 
 	/**
 	 * This function is responsible for generating the stub for the main method of the analysis based on user input.
-	 * 
-	 * @param input
-	 *            The wizard object from the Visuflow wizard.
+	 * @param input The wizard object from the Visuflow wizard.
 	 * @throws JClassAlreadyExistsException
 	 * @throws IOException
 	 */
@@ -257,7 +251,7 @@ public class CodeGenerator {
 		JBlock runAnalysisBody = runAnalysis.body();
 		JClass sootG = codeModel.ref(G.class);
 		runAnalysisBody.staticInvoke(sootG, "reset");
-
+		
 		if (input.AnalysisFramework.equals("Soot")) {
 			JClass transform = codeModel.ref(soot.Transform.class);
 			JDefinedClass anonymousBodyTransformer = codeModel.anonymousClass(soot.BodyTransformer.class);
@@ -276,12 +270,11 @@ public class CodeGenerator {
 			internalTrasnformBlock.invoke(JExpr.ref("ipa"), "doAnalysis");
 			runAnalysisBody.decl(transform, "transform").init(JExpr._new(transform).arg(JExpr.lit("jtp.analysis")).arg(JExpr._new(anonymousBodyTransformer)));
 			codeModel.ref(soot.PackManager.class).staticRef("v()").invoke("getPath");
-			runAnalysisBody.add(
-					codeModel.ref(soot.PackManager.class).staticRef("v()").invoke("getPack").arg(JExpr.lit("jtp")).invoke("add").arg(JExpr.ref("transform")));
+			runAnalysisBody
+					.add(codeModel.ref(soot.PackManager.class).staticRef("v()").invoke("getPack").arg(JExpr.lit("jtp")).invoke("add").arg(JExpr.ref("transform")));
 
 			JClass sootMain = codeModel.ref(soot.Main.class);
-			runAnalysisBody.staticInvoke(sootMain, "main")
-					.arg(JExpr.newArray(codeModel.ref(String.class)).add(JExpr.lit("-pp")).add(JExpr.lit("-process-dir")));
+			runAnalysisBody.staticInvoke(sootMain, "main").arg(JExpr.newArray(codeModel.ref(String.class)).add(JExpr.lit("-pp")).add(JExpr.lit("-process-dir")));
 			JMethod mainMethod = classToBeCreated.method(JMod.PUBLIC | JMod.STATIC, void.class, "main");
 			mainMethod.param(String[].class, "args");
 			JBlock mainMethodBlock = mainMethod.body();
@@ -297,37 +290,37 @@ public class CodeGenerator {
 			internalTrasnform.param(jClassExtends, "options");
 			internalTrasnform.annotate(codeModel.ref(Override.class));
 			JBlock internalTrasnformBlock = internalTrasnform.body();
-
+			
 			JClass ipa = codeModel.ref(InterproceduralCFG.class);
 			ipa = ipa.narrow(soot.Unit.class);
 			ipa = ipa.narrow(soot.SootMethod.class);
 			JVar newInitialFlowImpl = internalTrasnformBlock.decl(ipa, "icfg");
 			JClass jimpleICFG = codeModel.ref(JimpleBasedInterproceduralCFG.class);
 			newInitialFlowImpl.init(JExpr._new(jimpleICFG));
-
+			
 			JClass ipaproblem = codeModel.ref(input.getAnalysisType());
 			JVar ipaproblemImpl = internalTrasnformBlock.decl(ipaproblem, "problem");
 			ipaproblemImpl.init(JExpr._new(ipaproblem).arg(JExpr.ref("icfg")));
-
+			
 			JClass flowAbstraction = null;
 			try {
-				if (!input.getFlowType().equals("Select")) {
-					flowAbstraction = codeModel.ref(Class.forName("java.util." + input.getFlowType()));
+				if(!input.getFlowType().equals("Select")){
+				flowAbstraction = codeModel.ref(Class.forName("java.util." + input.getFlowType()));
 
-					if (input.getFlowType1() != null && !input.getFlowType1().equals("Custom")) {
-						flowAbstraction = flowAbstraction.narrow(Class.forName("java.lang." + input.getFlowType1()));
-					} else if (input.getCustomClassFirst() != null) {
-						JDefinedClass firstClass = jp._class(input.getCustomClassFirst());
-						flowAbstraction = flowAbstraction.narrow(firstClass);
-					}
+				if (input.getFlowType1() != null && !input.getFlowType1().equals("Custom")) {
+					flowAbstraction = flowAbstraction.narrow(Class.forName("java.lang." + input.getFlowType1()));
+				} else if (input.getCustomClassFirst() != null) {
+					JDefinedClass firstClass = jp._class(input.getCustomClassFirst());
+					flowAbstraction = flowAbstraction.narrow(firstClass);
+				}
 
-					if (input.getFlowtype2() != null && !input.getFlowtype2().equals("Custom")) {
-						flowAbstraction = flowAbstraction.narrow(Class.forName("java.lang." + input.getFlowtype2()));
-					} else if (input.getCustomClassSecond() != null) {
-						JDefinedClass secondClass = jp._class(input.getCustomClassSecond());
-						flowAbstraction = flowAbstraction.narrow(secondClass);
-					}
-				} else {
+				if (input.getFlowtype2() != null && !input.getFlowtype2().equals("Custom")) {
+					flowAbstraction = flowAbstraction.narrow(Class.forName("java.lang." + input.getFlowtype2()));
+				} else if (input.getCustomClassSecond() != null) {
+					JDefinedClass secondClass = jp._class(input.getCustomClassSecond());
+					flowAbstraction = flowAbstraction.narrow(secondClass);
+				}
+				}else{
 					if (input.getFlowType1() != null && !input.getFlowType1().equals("Custom")) {
 						flowAbstraction = codeModel.ref(Class.forName("java.lang." + input.getFlowType1()));
 					} else if (input.getCustomClassFirst() != null) {
@@ -339,7 +332,7 @@ public class CodeGenerator {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
+			
 			JClass ifdsSolver = codeModel.ref(IFDSSolver.class);
 			ifdsSolver = ifdsSolver.narrow(soot.Unit.class);
 			ifdsSolver = ifdsSolver.narrow(flowAbstraction);
@@ -349,20 +342,20 @@ public class CodeGenerator {
 			ifdsSolverImpl.init(JExpr._new(ifdsSolver).arg(JExpr.ref("problem")));
 
 			internalTrasnformBlock.invoke(JExpr.ref("solver"), "solve");
-
+			
 			runAnalysisBody.decl(transform, "transform").init(JExpr._new(transform).arg(JExpr.lit("wjtp.analysis")).arg(JExpr._new(anonymousBodyTransformer)));
 			codeModel.ref(soot.PackManager.class).staticRef("v()").invoke("getPath");
-			runAnalysisBody.add(
-					codeModel.ref(soot.PackManager.class).staticRef("v()").invoke("getPack").arg(JExpr.lit("wjtp")).invoke("add").arg(JExpr.ref("transform")));
+			runAnalysisBody
+					.add(codeModel.ref(soot.PackManager.class).staticRef("v()").invoke("getPack").arg(JExpr.lit("wjtp")).invoke("add").arg(JExpr.ref("transform")));
 
 			JClass sootMain = codeModel.ref(soot.Main.class);
-			runAnalysisBody.staticInvoke(sootMain, "main")
-					.arg(JExpr.newArray(codeModel.ref(String.class)).add(JExpr.lit("-pp")).add(JExpr.lit("-process-dir")));
+			runAnalysisBody.staticInvoke(sootMain, "main").arg(JExpr.newArray(codeModel.ref(String.class)).add(JExpr.lit("-pp")).add(JExpr.lit("-process-dir")));
 			JMethod mainMethod = classToBeCreated.method(JMod.PUBLIC | JMod.STATIC, void.class, "main");
 			mainMethod.param(String[].class, "args");
 			JBlock mainMethodBlock = mainMethod.body();
 			mainMethodBlock.invoke("runAnalysis");
 		}
+
 
 		codeModel.build(input.getFile());
 	}

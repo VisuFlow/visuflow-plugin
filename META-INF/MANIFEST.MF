@@ -25,9 +25,7 @@ Bundle-ClassPath: .,
  lib/gs-ui.jar,
  lib/soot.jar,
  lib/codemodel.jar,
- lib/commons-lang.jar,
- lib/guava.jar,
- lib/heros.jar
+ lib/commons-lang3.jar
 Bundle-ActivationPolicy: lazy
 Service-Component: 
  OSGI-INF/datamodel.xml

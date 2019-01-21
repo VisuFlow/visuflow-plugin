@@ -7,6 +7,10 @@
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>eclipse-plugin</packaging>
 
+	<!-- <parent> <groupId>de.uni-paderborn</groupId> <artifactId>de.uni-paderborn.visuflow.parent</artifactId> 
+		<version>1</version> <relativePath>../visuflow-parent</relativePath> </parent> -->
+	<!-- test -->
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<tycho-version>0.26.0</tycho-version>
@@ -17,11 +21,6 @@
 			<id>eclipse-neon</id>
 			<layout>p2</layout>
 			<url>http://download.eclipse.org/releases/neon</url>
-		</repository>
-		<repository>
-			<id>soot-snapshot</id>
-			<name>soot snapshots</name>
-			<url>https://soot-build.cs.uni-paderborn.de/nexus/repository/soot-snapshot/</url>
 		</repository>
 	</repositories>
 
@@ -116,19 +115,9 @@
 									<version>2.6</version>
 								</artifactItem>
 								<artifactItem>
-									<groupId>commons-lang</groupId>
-									<artifactId>commons-lang</artifactId>
-									<version>2.6</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>com.google.guava</groupId>
-									<artifactId>guava</artifactId>
-									<version>25.1-jre</version>
-								</artifactItem>
-								<artifactItem>
-									<groupId>heros</groupId>
-									<artifactId>heros</artifactId>
-									<version>1.0.1-SNAPSHOT</version>
+								<groupId>org.apache.commons</groupId>
+								<artifactId>commons-lang3</artifactId>
+								<version>3.7</version>
 								</artifactItem>
 							</artifactItems>
 							<outputDirectory>${basedir}/lib</outputDirectory>
@@ -141,4 +130,5 @@
 			</plugin>
 		</plugins>
 	</build>
+
 </project>
