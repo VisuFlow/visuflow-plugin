@@ -100,7 +100,7 @@ import de.unipaderborn.visuflow.ui.graph.formatting.UnitFormatter;
 import de.unipaderborn.visuflow.ui.graph.formatting.UnitFormatterFactory;
 import de.unipaderborn.visuflow.ui.view.filter.ReturnPathFilter;
 import de.unipaderborn.visuflow.util.ServiceUtil;
-
+import scala.collection.mutable.HashSet;
 import soot.Unit;
 import soot.jimple.ReturnStmt;
 import soot.jimple.ReturnVoidStmt;
@@ -133,7 +133,7 @@ public class GraphManager implements Runnable, ViewerListener, EventHandler {
 	static Node start = null;
 	static Node end, previous = null;
 	static Map<Node, Node> map = new HashMap<>();
-
+	static HashSet<Node> setOfNode = new HashSet<>();
 
 	Container panel;
 	JApplet applet;
