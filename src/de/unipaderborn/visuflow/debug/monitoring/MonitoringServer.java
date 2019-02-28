@@ -6,6 +6,10 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -62,8 +66,24 @@ public class MonitoringServer {
 								dataModel.setInSet(unitFqn, "in", inSet);
 								dataModel.setOutSet(unitFqn, "out", outSet);
 								dataModel.setCurrentUnit(unit);
+								
+								if(inSet.equals(outSet)) {
+									eventDatabase.addEvent(unitFqn, false, null, false, null);
+								} else {
+									List<String> inSetList = parseSet(inSet);
+									List<String> outSetList = parseSet(outSet);
+									Iterator<String> iterateInSet = inSetList.iterator();
+									while(iterateInSet.hasNext()) {
+										String next = iterateInSet.next();
+										if(outSetList.contains(next)) {
+											inSetList.remove(next);
+											outSetList.remove(next);
+										}
+									}
+									eventDatabase.addEvent(unitFqn, !inSetList.isEmpty(), inSetList, !outSetList.isEmpty(), outSetList);
+								}
 							
-								eventDatabase.addEvent(unitFqn, inSet, outSet);
+								
 							}
 						}
 					}
@@ -113,5 +133,11 @@ public class MonitoringServer {
 				logger.error("Couldn't close monitoring server connection", e);
 			}
 		}
+	}
+	
+	private List<String> parseSet(String originalSet){
+		originalSet = originalSet.substring(1, originalSet.length()-1);
+		List<String> result = Arrays.asList(originalSet.split(", "));
+		return result;
 	}
 }

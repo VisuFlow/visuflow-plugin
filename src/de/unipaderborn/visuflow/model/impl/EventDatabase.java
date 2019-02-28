@@ -32,9 +32,9 @@ public class EventDatabase {
 		return instance;
 	}
 	
-	public void addEvent(String unit, String inSet, String outSet) {
+	public void addEvent(String unit, boolean inChanged, List<String> added, boolean outChanged, List<String> deleted) {
 		backwardsMarker = events.size();
-		Event event = new Event(backwardsMarker, unit, inSet, outSet);
+		Event event = new Event(backwardsMarker, unit, inChanged, added, outChanged, deleted);
 		events.add(event);
 	}
 	
@@ -58,25 +58,25 @@ public class EventDatabase {
 		return null;
 	}
 	
-	public void resume() {
+	public void resume() { //TODO adapt this for the newly defined events
 		for(int i = backwardsMarker; i < events.size(); i++) {
 			Event tmp = events.get(i);
 			String fqn = tmp.getUnit();
-			dataModel.setInSet(fqn, "", tmp.getInSet());
-			dataModel.setOutSet(fqn, "", tmp.getOutSet());
+			//dataModel.setInSet(fqn, "", tmp.getInSet());
+			//dataModel.setOutSet(fqn, "", tmp.getOutSet());
 			backwardsMarker = i;			
 		}
 	}
 	
-	public void stepOver(VFUnit dest) {
+	public void stepOver(VFUnit dest) { //TODO adapt this for the newly defined events
 		for(int i = backwardsMarker; i < events.size(); i++) {
 			Event tmp = events.get(i);
 			String fqn = tmp.getUnit();
 			if(fqn.equals(dest.getFullyQualifiedName())) {
 				return;
 			}
-			dataModel.setInSet(fqn, "", tmp.getInSet());
-			dataModel.setOutSet(fqn, "", tmp.getOutSet());
+			//dataModel.setInSet(fqn, "", tmp.getInSet());
+			//dataModel.setOutSet(fqn, "", tmp.getOutSet());
 			backwardsMarker = i;
 			if(this.findAllFqnEvents(dest.getFullyQualifiedName(), backwardsMarker, events.size()-1).size() == 0) {
 				backwardsMarker++;
@@ -85,7 +85,7 @@ public class EventDatabase {
 		}
 	}
 	
-	public void stepBack(VFUnit dest) {
+	public void stepBack(VFUnit dest) { //TODO adapt this for the newly defined events
 		ArrayList<Event> tmp = this.findAllFqnEvents(dest.getFullyQualifiedName(), 0, backwardsMarker);
 		if(tmp.size() == 0) {
 			return;
@@ -96,8 +96,8 @@ public class EventDatabase {
 			backwardsMarker = i;
 			ArrayList<Event> unitEvents = findAllFqnEvents(currentUnit, 0, backwardsMarker);
 			if(unitEvents.size() > 1) {
-				dataModel.setInSet(currentUnit, "", (unitEvents.get(unitEvents.size()-1).getInSet()));
-				dataModel.setOutSet(currentUnit, "", (unitEvents.get(unitEvents.size()-1).getOutSet()));
+				//dataModel.setInSet(currentUnit, "", (unitEvents.get(unitEvents.size()-1).getInSet()));
+				//dataModel.setOutSet(currentUnit, "", (unitEvents.get(unitEvents.size()-1).getOutSet()));
 			} else {
 				dataModel.setInSet(currentUnit, "", null);
 				dataModel.setOutSet(currentUnit, "", null);
@@ -108,7 +108,7 @@ public class EventDatabase {
 		}
 	}
 	
-	public void printFullDatabase() {
+	public void printFullDatabase() { 
 		logger.info("Start printing full database...");
 		logger.info("Printing " + events.size() + " database entries.");
 		for(int i = 0; i < events.size(); i++) {

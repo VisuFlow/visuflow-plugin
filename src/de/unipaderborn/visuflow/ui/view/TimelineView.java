@@ -103,7 +103,7 @@ public class TimelineView extends ViewPart implements EventHandler{
 			@Override
 			public String getText(Object element) {
 				de.unipaderborn.visuflow.model.impl.Event event = (de.unipaderborn.visuflow.model.impl.Event) element;
-				return event.getInSet();
+				return event.getDeletedSet().toString();
 			}
 			
 			@Override
@@ -122,7 +122,7 @@ public class TimelineView extends ViewPart implements EventHandler{
 			@Override
 			public String getText(Object element) {
 				de.unipaderborn.visuflow.model.impl.Event event = (de.unipaderborn.visuflow.model.impl.Event) element;
-				return event.getOutSet();
+				return event.getAddedSet().toString();
 			}
 			
 			@Override

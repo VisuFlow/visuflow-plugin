@@ -1,6 +1,7 @@
 package de.unipaderborn.visuflow.model.impl;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 public class Event {
 	
@@ -8,18 +9,27 @@ public class Event {
 	
 	private Timestamp time;
 	
+	private boolean valuesAdded;
+	
+	private boolean valuesDeleted;
+	
 	private String unit;
 	
-	private String inSet;
+	private List<String> addedSet;
 	
-	private String outSet;
+	private List<String> deletedSet;
 	
-	public Event(int id, String unit, String inSet, String outSet){
+	public Event(int id, String unit, boolean valuesAdded, List<String> addedSet, boolean valuesDeleted, List<String> deletedSet) {
 		this.time = new Timestamp(System.currentTimeMillis());
 		this.id = id;
-		this.unit = unit;
-		this.inSet = inSet;
-		this.outSet = outSet;
+		this.valuesAdded = valuesAdded;
+		if(valuesAdded) {
+			this.addedSet = addedSet;
+		}
+		this.valuesDeleted = valuesDeleted;
+		if(valuesDeleted) {
+			this.deletedSet = deletedSet;
+		}
 	}
 	
 	Timestamp getTimestamp() {
@@ -30,16 +40,32 @@ public class Event {
 		return unit;
 	}
 	
-	public String getInSet() {
-		return inSet;
+	public boolean getValuesDeleted() {
+		return valuesDeleted;
 	}
 	
-	public String getOutSet() {
-		return outSet;
+	public boolean getValuesAdded() {
+		return valuesAdded;
+	}
+	
+	public List<String> getAddedSet(){
+		return addedSet;
+	}
+	
+	public List<String> getDeletedSet(){
+		return deletedSet;
 	}
 	
 	public String toString() {
-		return this.getTimestamp() + " (" + this.getUnit() + ") : " + this.getInSet() + this.getOutSet();
+		String output = this.getTimestamp() + " - added units: ";
+		for(int i = 0; i < addedSet.size(); i++) {
+			output = output + addedSet.get(i) + " ";
+		}
+		output = output + "- deleted units: ";
+		for(int i = 0; i < deletedSet.size(); i++) {
+			output = output + deletedSet.get(i) + " ";
+		}
+		return output;
 	}
 	
 	public int getId() {
