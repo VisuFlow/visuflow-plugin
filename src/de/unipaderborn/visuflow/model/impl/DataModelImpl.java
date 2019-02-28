@@ -77,6 +77,9 @@ public class DataModelImpl implements DataModel {
 	private List<VFNode> selectedNodes;
 
 	private boolean selection;
+	
+	// Required for the evaluation of the omniscient debugger. Should be changed later as this is not the best way
+	private VFUnit currentUnit;
 
 	/* (non-Javadoc)
 	 * @see de.unipaderborn.visuflow.model.DataModel#listClasses()
@@ -190,6 +193,16 @@ public class DataModelImpl implements DataModel {
 	@Override
 	public VFMethod getSelectedMethod() {
 		return selectedMethod;
+	}
+	
+	@Override
+	public void setCurrentUnit(VFUnit unit) {
+		currentUnit = unit;
+	}
+	
+	@Override
+	public VFUnit getCurrentUnit() {
+		return currentUnit;
 	}
 
 	/* (non-Javadoc)

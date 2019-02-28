@@ -33,7 +33,7 @@ public class EventDatabase {
 	}
 	
 	public void addEvent(String unit, String inSet, String outSet) {
-		backwardsMarker = events.size()-1;
+		backwardsMarker = events.size();
 		Event event = new Event(backwardsMarker, unit, inSet, outSet);
 		events.add(event);
 	}

@@ -69,7 +69,6 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 		breakpoints = Collections.synchronizedList(new ArrayList<>());
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
 		registerAtEventHandler();
-		database = EventDatabase.getInstance();
 	}
 
 	private void registerAtEventHandler() {
@@ -330,6 +329,9 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 
 	@Override
 	public void handleEvent(Event event) {
+		if(database == null) {
+			database = EventDatabase.getInstance();
+		}
 		String topic = event.getTopic();
 		if(topic.equals(EA_TOPIC_DEBUGGING_ACTION_RESUME)) {
 			handleResumeEvent();
@@ -358,6 +360,7 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 		} else {
 			database.stepBack(backwardsMarker);
 		}
+		ServiceUtil.getService(DataModel.class).setCurrentUnit(backwardsMarker);
 		VFNode nodeBefore = new VFNode(backwardsMarker, 0);
 		List<VFNode> highlightUnit = new ArrayList<>();
 		highlightUnit.add(nodeBefore);

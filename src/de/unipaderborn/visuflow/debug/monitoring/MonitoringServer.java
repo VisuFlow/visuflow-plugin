@@ -13,6 +13,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import de.unipaderborn.visuflow.Logger;
 import de.unipaderborn.visuflow.Visuflow;
 import de.unipaderborn.visuflow.model.DataModel;
+import de.unipaderborn.visuflow.model.VFUnit;
 import de.unipaderborn.visuflow.model.impl.Event;
 import de.unipaderborn.visuflow.model.impl.EventDatabase;
 import de.unipaderborn.visuflow.util.ServiceUtil;
@@ -56,9 +57,11 @@ public class MonitoringServer {
 							String unitFqn = in.readUTF();
 							String inSet = in.readUTF();
 							String outSet = in.readUTF();
-							if(dataModel.getVFUnit(unitFqn) != null) {
+							VFUnit unit = dataModel.getVFUnit(unitFqn);
+							if(unit != null) {
 								dataModel.setInSet(unitFqn, "in", inSet);
 								dataModel.setOutSet(unitFqn, "out", outSet);
+								dataModel.setCurrentUnit(unit);
 							
 								eventDatabase.addEvent(unitFqn, inSet, outSet);
 							}
