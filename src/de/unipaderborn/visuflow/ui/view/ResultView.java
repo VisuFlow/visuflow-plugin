@@ -107,10 +107,7 @@ public class ResultView extends ViewPart implements EventHandler {
 		viewer.getTable().addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				TableItem[] selection = viewer.getTable().getSelection();
-				for(TableItem tableItem: selection) {
-					logger.info("blub" + tableItem.getData("In-Set"));
-				}
+				
 			}
 			
 			@Override

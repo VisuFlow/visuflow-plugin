@@ -22,10 +22,12 @@ public class EventDatabase {
 	
 	private DataModel dataModel;
 	
+	private boolean upToDate;
+	
 	private EventDatabase() {
 		events = new ArrayList<>();
 		backwardsMarker = -1;
-		dataModel = ServiceUtil.getService(DataModel.class);
+		upToDate = true;
 	}
 	
 	public static EventDatabase getInstance() {
@@ -33,8 +35,11 @@ public class EventDatabase {
 	}
 	
 	public void addEvent(String unit, boolean inChanged, List<String> added, boolean outChanged, List<String> deleted) {
+		if(dataModel == null) {
+			dataModel = ServiceUtil.getService(DataModel.class);
+		}
 		backwardsMarker = events.size();
-		Event event = new Event(backwardsMarker, unit, inChanged, added, outChanged, deleted);
+		Event event = new Event(events.size(), unit, inChanged, added, outChanged, deleted);
 		events.add(event);
 	}
 	
@@ -58,34 +63,63 @@ public class EventDatabase {
 		return null;
 	}
 	
-	public void resume() { //TODO adapt this for the newly defined events
+	public void resume() {
+		if(upToDate) {
+			return;
+		}
 		for(int i = backwardsMarker; i < events.size(); i++) {
 			Event tmp = events.get(i);
 			String fqn = tmp.getUnit();
-			//dataModel.setInSet(fqn, "", tmp.getInSet());
-			//dataModel.setOutSet(fqn, "", tmp.getOutSet());
-			backwardsMarker = i;			
+			updateDataModel(tmp, fqn, i);
+			backwardsMarker = i;
 		}
 	}
 	
-	public void stepOver(VFUnit dest) { //TODO adapt this for the newly defined events
+	private void updateDataModel(Event event, String fqn, int index) {
+		String currentData = (String) dataModel.getCurrentUnit().getOutSet();
+		if(currentData == null) {
+			currentData = "[";
+		} else {
+			currentData = currentData.substring(0, currentData.length()-1);
+		}
+		dataModel.setInSet(fqn, "", currentData + "]");
+		if(event.getDeletedSet() != null) {
+			for(int j = 0; j < event.getDeletedSet().size(); j++) {
+				currentData = currentData.replace(event.getDeletedSet().get(j), "");
+			}
+		}
+		if(event.getAddedSet() != null) {
+			for(int j = 0; j < event.getAddedSet().size(); j++) {
+				currentData = currentData + ", " + event.getAddedSet().get(j);
+			}
+		}
+		currentData = currentData.replace(", ,", ",");
+		currentData = currentData.replaceFirst("\\[, ", "\\[");
+		String newData = currentData + "]";
+		dataModel.setOutSet(fqn, "", newData);
+		dataModel.setCurrentUnit(dataModel.getVFUnit(event.getUnit()));
+	}
+	
+	public void stepOver(VFUnit dest) {
 		for(int i = backwardsMarker; i < events.size(); i++) {
 			Event tmp = events.get(i);
 			String fqn = tmp.getUnit();
+			backwardsMarker = i;
 			if(fqn.equals(dest.getFullyQualifiedName())) {
 				return;
 			}
-			//dataModel.setInSet(fqn, "", tmp.getInSet());
-			//dataModel.setOutSet(fqn, "", tmp.getOutSet());
-			backwardsMarker = i;
-			if(this.findAllFqnEvents(dest.getFullyQualifiedName(), backwardsMarker, events.size()-1).size() == 0) {
-				backwardsMarker++;
+			updateDataModel(tmp, fqn, i);
+			if(backwardsMarker == events.size()-1) {
+				upToDate = true;
+			}
+			//stops stepping over if there is no known event in the remaining list that belongs to the destination
+			if(this.findAllFqnEvents(dest.getFullyQualifiedName(), backwardsMarker-1, events.size()-1).size() == 0) {
 				return;
 			}
 		}
 	}
 	
-	public void stepBack(VFUnit dest) { //TODO adapt this for the newly defined events
+	public void stepBack(VFUnit dest) {
 		ArrayList<Event> tmp = this.findAllFqnEvents(dest.getFullyQualifiedName(), 0, backwardsMarker);
 		if(tmp.size() == 0) {
 			return;
@@ -94,15 +128,53 @@ public class EventDatabase {
 		for(int i = backwardsMarker; i >= 0; i--) {
 			String currentUnit = events.get(i).getUnit();
 			backwardsMarker = i;
+			dataModel.setCurrentUnit(dataModel.getVFUnit(events.get(i-1).getUnit()));
+			String currentData = (String) dataModel.getCurrentUnit().getOutSet();
 			ArrayList<Event> unitEvents = findAllFqnEvents(currentUnit, 0, backwardsMarker);
 			if(unitEvents.size() > 1) {
-				//dataModel.setInSet(currentUnit, "", (unitEvents.get(unitEvents.size()-1).getInSet()));
-				//dataModel.setOutSet(currentUnit, "", (unitEvents.get(unitEvents.size()-1).getOutSet()));
+				int tempMarker = backwardsMarker;
+				List<String> tempDeleted = new ArrayList<>();
+				List<String> tempAdded = new ArrayList<>();
+				do {
+					if(events.get(tempMarker).getDeletedSet() != null) {
+						for(int j = 0; j < events.get(tempMarker).getDeletedSet().size(); j++) {
+							tempDeleted.add(events.get(tempMarker).getDeletedSet().get(j));
+						}
+					}
+					if(events.get(tempMarker).getAddedSet() != null) {
+						for(int j = 0; j < events.get(tempMarker).getAddedSet().size(); j++) {
+							tempAdded.add(events.get(tempMarker).getAddedSet().get(j));
+						}
+					}
+					tempMarker--;
+				} while(!events.get(tempMarker).getUnit().equals(currentUnit));
+				
+				currentData = currentData.substring(0, currentData.length()-1);
+				for(int j = 0; j < tempDeleted.size(); j++) {
+					currentData = currentData + ", " + tempDeleted.get(j);
+				}
+				for(int j = 0; j < tempAdded.size(); j++) {
+					currentData = currentData.replace(tempAdded.get(j), "");
+				}
+				currentData = currentData.replace(", ,", ",");
+				currentData = currentData.replaceFirst("\\[,", "\\[");
+				dataModel.setOutSet(currentUnit, "", currentData + "]");
+				Event lastEvent = events.get(tempMarker-1);
+				
+				for(int j = 0; j < lastEvent.getAddedSet().size(); j++) {
+					currentData = currentData.replace(lastEvent.getAddedSet().get(j), "");
+				}
+				for(int j = 0; j < lastEvent.getDeletedSet().size(); j++) {
+					currentData = currentData + ", " + lastEvent.getDeletedSet().get(j);
+				}
+				dataModel.setInSet(currentUnit, "", currentData + "]");
 			} else {
 				dataModel.setInSet(currentUnit, "", null);
 				dataModel.setOutSet(currentUnit, "", null);
 			}
+			
 			if(currentUnit.equals(dest.getFullyQualifiedName())) {
+				upToDate = false;
 				break;
 			}
 		}
@@ -135,11 +207,7 @@ public class EventDatabase {
 		return events.get(index);
 	}
 	
-	public boolean upToDate() {
-		if(backwardsMarker == events.size()-1) {
-			return true;
-		} else {
-			return false;
-		}
+	public boolean getUpToDate() {
+		return upToDate;
 	}
 }

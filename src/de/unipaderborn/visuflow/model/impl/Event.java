@@ -22,6 +22,7 @@ public class Event {
 	public Event(int id, String unit, boolean valuesAdded, List<String> addedSet, boolean valuesDeleted, List<String> deletedSet) {
 		this.time = new Timestamp(System.currentTimeMillis());
 		this.id = id;
+		this.unit = unit;
 		this.valuesAdded = valuesAdded;
 		if(valuesAdded) {
 			this.addedSet = addedSet;
@@ -57,14 +58,19 @@ public class Event {
 	}
 	
 	public String toString() {
-		String output = this.getTimestamp() + " - added units: ";
-		for(int i = 0; i < addedSet.size(); i++) {
-			output = output + addedSet.get(i) + " ";
+		String output = this.getTimestamp() + " for " + this.unit + " - added units: ";
+		if(addedSet != null) {
+			for(int i = 0; i < addedSet.size(); i++) {
+				output = output + addedSet.get(i) + " ";
+			}
 		}
 		output = output + "- deleted units: ";
-		for(int i = 0; i < deletedSet.size(); i++) {
-			output = output + deletedSet.get(i) + " ";
+		if(deletedSet != null) {
+			for(int i = 0; i < deletedSet.size(); i++) {
+				output = output + deletedSet.get(i) + " ";
+			}
 		}
+		
 		return output;
 	}
 	

@@ -18,7 +18,6 @@ import de.unipaderborn.visuflow.Logger;
 import de.unipaderborn.visuflow.Visuflow;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFUnit;
-import de.unipaderborn.visuflow.model.impl.Event;
 import de.unipaderborn.visuflow.model.impl.EventDatabase;
 import de.unipaderborn.visuflow.util.ServiceUtil;
 
@@ -74,16 +73,19 @@ public class MonitoringServer {
 									List<String> outSetList = parseSet(outSet);
 									Iterator<String> iterateInSet = inSetList.iterator();
 									while(iterateInSet.hasNext()) {
-										String next = iterateInSet.next();
-										if(outSetList.contains(next)) {
-											inSetList.remove(next);
-											outSetList.remove(next);
+										String currentInItem = iterateInSet.next();
+										Iterator<String> iterateOutSet = outSetList.iterator();
+										while(iterateOutSet.hasNext()) {
+											String currentOutItem = iterateOutSet.next();
+											if(currentInItem.equals(currentOutItem)) {
+												iterateInSet.remove();
+												iterateOutSet.remove();
+												break;
+											}
 										}
 									}
-									eventDatabase.addEvent(unitFqn, !inSetList.isEmpty(), inSetList, !outSetList.isEmpty(), outSetList);
+									eventDatabase.addEvent(unitFqn, !outSetList.isEmpty(), outSetList, !inSetList.isEmpty(), inSetList);
 								}
-							
-								
 							}
 						}
 					}
@@ -137,7 +139,7 @@ public class MonitoringServer {
 	
 	private List<String> parseSet(String originalSet){
 		originalSet = originalSet.substring(1, originalSet.length()-1);
-		List<String> result = Arrays.asList(originalSet.split(", "));
+		List<String> result = new ArrayList<String>(Arrays.asList(originalSet.split(", ")));
 		return result;
 	}
 }

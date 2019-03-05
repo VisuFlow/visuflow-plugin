@@ -76,7 +76,7 @@ public class TimelineView extends ViewPart implements EventHandler{
 	}
 
 	private void createColumns(final Composite parent, final TableViewer viewer) {
-		String[] titles = {"Unit", "In-Set", "Out-Set"};
+		String[] titles = {"Unit", "Deleted values", "Added values"};
 		de.unipaderborn.visuflow.model.impl.Event currentEvent = EventDatabase.getInstance().getCurrentEvent();
 		// Unit
 		TableViewerColumn col = createTableViewerColumn(titles[0], 400, 0);
@@ -97,13 +97,17 @@ public class TimelineView extends ViewPart implements EventHandler{
 				}
 			}
 		});
-		// In-Set
+		// Deleted-Set
 		col = createTableViewerColumn(titles[1], 400, 1);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				de.unipaderborn.visuflow.model.impl.Event event = (de.unipaderborn.visuflow.model.impl.Event) element;
-				return event.getDeletedSet().toString();
+				if(event.getDeletedSet() == null) {
+					return "";
+				} else {
+					return event.getDeletedSet().toString();
+				}
 			}
 			
 			@Override
@@ -116,13 +120,17 @@ public class TimelineView extends ViewPart implements EventHandler{
 				}
 			}
 		});
-		// Out-Set
+		// Added-Set
 		col = createTableViewerColumn(titles[2], 400, 2);
 		col.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
 				de.unipaderborn.visuflow.model.impl.Event event = (de.unipaderborn.visuflow.model.impl.Event) element;
-				return event.getAddedSet().toString();
+				if(event.getAddedSet() == null) {
+					return "";
+				} else {
+					return event.getAddedSet().toString();
+				}
 			}
 			
 			@Override

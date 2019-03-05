@@ -360,7 +360,6 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 		} else {
 			database.stepBack(backwardsMarker);
 		}
-		ServiceUtil.getService(DataModel.class).setCurrentUnit(backwardsMarker);
 		VFNode nodeBefore = new VFNode(backwardsMarker, 0);
 		List<VFNode> highlightUnit = new ArrayList<>();
 		highlightUnit.add(nodeBefore);
@@ -416,7 +415,7 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 			}
 			
 			// handle stepping over in case we stepped back before
-			if(!database.upToDate()) {
+			if(!database.getUpToDate()) {
 				if(pathSteppedBack.containsKey(backwardsMarker)) {
 					VFUnit successor = pathSteppedBack.get(backwardsMarker);
 					pathSteppedBack.remove(backwardsMarker);
@@ -428,6 +427,7 @@ public class JimpleBreakpointManager implements VisuflowConstants, IResourceChan
 				return;
 			}
 
+			backwardsMarker = null;
 			int offset = 1;
 			UnitLocation location = null;
 			while(true) {
