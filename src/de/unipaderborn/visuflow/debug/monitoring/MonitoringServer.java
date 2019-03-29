@@ -72,6 +72,7 @@ public class MonitoringServer {
 									List<String> inSetList = parseSet(inSet);
 									List<String> outSetList = parseSet(outSet);
 									Iterator<String> iterateInSet = inSetList.iterator();
+									// remove all coincident data-flow facts
 									while(iterateInSet.hasNext()) {
 										String currentInItem = iterateInSet.next();
 										Iterator<String> iterateOutSet = outSetList.iterator();
@@ -137,6 +138,11 @@ public class MonitoringServer {
 		}
 	}
 	
+	/**
+	 * Parses the String of data flow facts into a list of data flow facts
+	 * @param originalSet The received set as String, created by Soot
+	 * @return The formated into data-flow facts
+	 */
 	private List<String> parseSet(String originalSet){
 		originalSet = originalSet.substring(1, originalSet.length()-1);
 		List<String> result = new ArrayList<String>(Arrays.asList(originalSet.split(", ")));

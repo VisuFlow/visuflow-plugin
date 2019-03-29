@@ -474,6 +474,7 @@ public class DataModelImpl implements DataModel {
 			}
 		};
 		build.schedule();
+		EventDatabase.getInstance().reset();
 	}
 
 	/* (non-Javadoc)

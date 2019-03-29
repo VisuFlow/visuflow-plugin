@@ -37,8 +37,6 @@ import org.osgi.service.event.EventHandler;
 
 import com.google.common.base.Optional;
 
-import de.unipaderborn.visuflow.Logger;
-import de.unipaderborn.visuflow.Visuflow;
 import de.unipaderborn.visuflow.model.DataModel;
 import de.unipaderborn.visuflow.model.VFNode;
 import de.unipaderborn.visuflow.model.VFUnit;
@@ -52,8 +50,6 @@ import de.unipaderborn.visuflow.util.ServiceUtil;
  *
  */
 public class ResultView extends ViewPart implements EventHandler {
-
-	private Logger logger = Visuflow.getDefault().getLogger();
 	/**
 	 * table which contains the results of the analysis
 	 */
@@ -103,18 +99,6 @@ public class ResultView extends ViewPart implements EventHandler {
 		});
 		filter = new ResultViewFilter();
 		viewer.addFilter(filter);
-		
-		viewer.getTable().addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				
-			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				
-			}
-		});
 	}
 
 	@Override
@@ -173,8 +157,8 @@ public class ResultView extends ViewPart implements EventHandler {
 	}
 
 	private void createColumns(final Composite parent, final TableViewer viewer) {
-		String[] titles = { "Selection", "Unit", "Unit Type", "In-Set", "Out-Set", "Customized Attr.", "test" };
-		int[] bounds = { 100, 100, 100, 100, 100, 150, 150 };
+		String[] titles = { "Selection", "Unit", "Unit Type", "In-Set", "Out-Set", "Customized Attr."};
+		int[] bounds = { 100, 100, 100, 100, 100, 150};
 
 		TableViewerColumn col = createTableViewerColumn(titles[0], bounds[0], 0);
 		col.setLabelProvider(new ColumnLabelProvider() {
@@ -235,15 +219,6 @@ public class ResultView extends ViewPart implements EventHandler {
 				} else {
 					return "";
 				}
-			}
-		});
-		
-		// Add further features for selected node
-		col = createTableViewerColumn(titles[6], bounds[6], 6);
-		col.setLabelProvider(new ColumnLabelProvider() {
-			@Override
-			public String getText(Object element) {
-				return "";
 			}
 		});
 

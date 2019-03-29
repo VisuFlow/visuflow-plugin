@@ -136,12 +136,12 @@ public class EventDatabase {
 				List<String> tempDeleted = new ArrayList<>();
 				List<String> tempAdded = new ArrayList<>();
 				do {
-					if(events.get(tempMarker).getDeletedSet() != null) {
+					if(events.get(tempMarker).getValuesDeleted()) {
 						for(int j = 0; j < events.get(tempMarker).getDeletedSet().size(); j++) {
 							tempDeleted.add(events.get(tempMarker).getDeletedSet().get(j));
 						}
 					}
-					if(events.get(tempMarker).getAddedSet() != null) {
+					if(events.get(tempMarker).getValuesAdded()) {
 						for(int j = 0; j < events.get(tempMarker).getAddedSet().size(); j++) {
 							tempAdded.add(events.get(tempMarker).getAddedSet().get(j));
 						}
@@ -159,14 +159,19 @@ public class EventDatabase {
 				currentData = currentData.replace(", ,", ",");
 				currentData = currentData.replaceFirst("\\[,", "\\[");
 				dataModel.setOutSet(currentUnit, "", currentData + "]");
-				Event lastEvent = events.get(tempMarker-1);
-				
-				for(int j = 0; j < lastEvent.getAddedSet().size(); j++) {
-					currentData = currentData.replace(lastEvent.getAddedSet().get(j), "");
-				}
-				for(int j = 0; j < lastEvent.getDeletedSet().size(); j++) {
-					currentData = currentData + ", " + lastEvent.getDeletedSet().get(j);
-				}
+				if(tempMarker > 1) {
+					Event lastEvent = events.get(tempMarker-1);
+					if(lastEvent.getValuesAdded()) {
+						for(int j = 0; j < lastEvent.getAddedSet().size(); j++) {
+							currentData = currentData.replace(lastEvent.getAddedSet().get(j), "");
+						}
+					}
+					if(lastEvent.getValuesDeleted()) {
+						for(int j = 0; j < lastEvent.getDeletedSet().size(); j++) {
+							currentData = currentData + ", " + lastEvent.getDeletedSet().get(j);
+						}
+					}
+				}				
 				dataModel.setInSet(currentUnit, "", currentData + "]");
 			} else {
 				dataModel.setInSet(currentUnit, "", null);
@@ -186,6 +191,12 @@ public class EventDatabase {
 		for(int i = 0; i < events.size(); i++) {
 			logger.info(events.get(i).toString());
 		}
+	}
+	
+	void reset() {
+		events = new ArrayList<>();
+		backwardsMarker = -1;
+		upToDate = true;
 	}
 	
 	public List<Event> getAllEvents() {
